@@ -30,6 +30,10 @@ export class AppComponent {
   socketError = false;
   transcribeException = false;
   errorText: '';
+
+
+
+
   startRecording() {
     console.log('recording');
     window.navigator.mediaDevices.getUserMedia({
@@ -82,8 +86,8 @@ export class AppComponent {
       'transcribe',
       createHash('sha256').update('', 'utf8').digest('hex'),
       {
-        key: 'AKIAWJLTMXG5NHCOYJ52',
-        secret: 'hgKnEz0vtac4opfRz7YDewyTIkJBoX5hGDWnWSjm',
+        key: 'Your Access Key',
+        secret: 'Your Secret Key',
         protocol: 'wss',
         expires: 15,
         region: 'us-east-1',
