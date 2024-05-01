@@ -6,11 +6,15 @@ import { LoginComponent } from './components/login/login.component';
 const routes: Routes = [
     {
         path: '',
-        component: AudioStreamerComponent
+        component: LoginComponent
     },
     {
         path: 'stream',
         component: AudioStreamerComponent
+    },
+    {
+        path: 'login',
+        component: LoginComponent
     },
     {
         path: '**',
