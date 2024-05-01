@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+@font-face {
+    font-family: 'Lexend';
+    src: url('./assets/Lexend/Lexend-VariableFont_wght.ttf') format('woff2'), /* Update with the correct font file path */
+         url('./assets/Lexend/Lexend-VariableFont_wght.ttf') format('woff');   /* Update with the correct font file path */
+    font-weight: normal;
+    font-style: normal;
+  }
+  ::-webkit-scrollbar {
+    width: 4px; 
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    border-radius: 100px;
+    background: transparent;
+    width: 4px; 
+    height: 4px; 
+  }
+  
+
+body{
+    background: url('./assets/bg.svg'),linear-gradient(0deg, #000 9.03%, #5519BD 117.42%);
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

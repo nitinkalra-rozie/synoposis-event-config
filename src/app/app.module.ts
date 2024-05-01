@@ -1,13 +1,16 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
+import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
+import { AudioStreamerComponent } from './components/audio-streamer/audio-streamer.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    AudioStreamerComponent
   ],
   imports: [
+    HttpClientModule,
     BrowserModule
   ],
   providers: [],
