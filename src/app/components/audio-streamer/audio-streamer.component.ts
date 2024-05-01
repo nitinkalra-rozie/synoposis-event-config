@@ -7,6 +7,7 @@ import { createPresignedURL } from '../../helpers/aws-signature-v4'; // to gener
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
+import { BackendApiService } from 'src/app/services/backend-api.service';
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -30,7 +31,9 @@ export class AudioStreamerComponent  {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
+  constructor(private backendApiService: BackendApiService){
 
+  }
   startRecording() {
     this.isStreaming = !this.isStreaming
     console.log('recording');
@@ -53,49 +56,73 @@ export class AudioStreamerComponent  {
     console.log('start streamAudioToWebSocket22222');
     // Pre-signed URLs are a way to authenticate a request (or WebSocket connection, in this case)
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
-    let url = this.createPresignedUrlNew();
+    this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
-    //open up our WebSocket connection
-    this.socket = new WebSocket(url);
-    this.socket.binaryType = 'arraybuffer';
-    console.log('start streamAudioToWebSocket44444');
-    // when we get audio data from the mic, send it to the WebSocket if possible
-    this.socket.onopen = () => {
-      this.micStream.on('data', rawAudioChunk => {
-        // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
-        let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-
-        if (this.socket.OPEN) this.socket.send(binary);
-      });
-    };
-    console.log('start streamAudioToWebSocket5555');
-    // handle messages, errors, and close events
-    this.wireSocketEvents();
+   
   }
-  createPresignedUrlNew = () => {
-    
-    let endpoint = 'transcribestreaming.' + this.region + '.amazonaws.com:8443';
-    console.log('start createPresignedUrlNew start '+ endpoint );
-    // get a preauthenticated URL that we can use to establish our WebSocket
-    return createPresignedURL(
-      'GET',
-      endpoint,
-      '/stream-transcription-websocket',
-      'transcribe',
-      createHash('sha256').update('', 'utf8').digest('hex'),
-      {
+
+  openWebsocketAndStartStream(preSignedUrl:any){
+    console.log("inside openWebsocketAndStartStream",preSignedUrl);
+     //open up our WebSocket connection
+     this.socket = new WebSocket(preSignedUrl);
+     this.socket.binaryType = 'arraybuffer';
+     console.log('start streamAudioToWebSocket44444');
+     // when we get audio data from the mic, send it to the WebSocket if possible
+     this.socket.onopen = () => {
+       this.micStream.on('data', rawAudioChunk => {
+         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
+         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+ 
+         if (this.socket.OPEN) this.socket.send(binary);
+       });
+     };
+     console.log('start streamAudioToWebSocket5555');
+     // handle messages, errors, and close events
+     this.wireSocketEvents();
+  }
+createPresignedUrlNew = async () => {
+    let body = {
+      method:'GET',
+      endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
+      path: '/stream-transcription-websocket',
+      service: 'transcribe',
+      hash:createHash('sha256').update('', 'utf8').digest('hex'),
+      options:{
         key: 'AKIA3SVZJVX56UU2YEWT',
         secret: '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',
         protocol: 'wss',
         expires: 15,
         region: 'us-east-1',
-        query:
-          'language-code=' +
-          this.languageCode +
-          '&media-encoding=pcm&sample-rate=' +
-          this.sampleRate
+        query:'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate
       }
-    );
+    }
+  await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data:any)=>{
+      console.log('inside  createPresignedUrlNew', JSON.stringify(data));
+      const url = data.data;
+      this.openWebsocketAndStartStream(url);
+    })
+    // let endpoint = 'transcribestreaming.' + this.region + '.amazonaws.com:8443';
+    // console.log('start createPresignedUrlNew start '+ endpoint );
+    // // get a preauthenticated URL that we can use to establish our WebSocket
+    // return createPresignedURL(
+    //   'GET',
+    //   endpoint,
+    //   '/stream-transcription-websocket',
+    //   'transcribe',
+    //   createHash('sha256').update('', 'utf8').digest('hex'),
+    //   {
+    //     key: 'AKIA3SVZJVX56UU2YEWT',
+    //     secret: '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',
+    //     protocol: 'wss',
+    //     expires: 15,
+    //     region: 'us-east-1',
+    //     query:
+    //       'language-code=' +
+    //       this.languageCode +
+    //       '&media-encoding=pcm&sample-rate=' +
+    //       this.sampleRate
+    //   }
+    // );
 
   };
   getAudioEventMessage = (buffer) => {
