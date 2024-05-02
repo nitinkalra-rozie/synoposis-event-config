@@ -191,6 +191,9 @@ createPresignedUrlNew = async () => {
           //scroll the textarea down
           this.transcription = transcript
           // this.transcription += transcript + '\n';
+          this.backendApiService.putTranscript(messageJson).subscribe((data:any)=>{
+            console.log(data);
+          })
         }
       }
     }
