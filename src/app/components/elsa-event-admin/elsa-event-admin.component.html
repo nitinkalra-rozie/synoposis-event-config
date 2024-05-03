@@ -1,0 +1,34 @@
+<div class="container">
+
+  <div class="sbox">
+    <button *ngIf="!isStreaming" (click)="startRecording()" >Start session</button>
+    <button *ngIf="isStreaming" (click)="closeSocket()" >End session</button>
+    <button (click)="showWelcomeMessageBanner()">Show Welcome Message Banner</button>
+    <button (click)="showThankYouScreen()">Show Thank You Screen</button>
+    <button (click)="showEndSession()">Show End Session</button>
+    <div class="dropdown">
+      <button class="dropbtn">Show Summary</button>
+      <div class="dropdown-content">
+        <a (click)="selectOption('single')">summary of Single Keynote</a>
+        <a (click)="selectOption('multiple')">summary Multiple Keynote</a>
+        <a (click)="selectOption('combination')">Combination of Single and Multiple Keynote</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn">Show Snapshot</button>
+      <div class="dropdown-content">
+        <a (click)="selectSession('single')">snapshot of each keynote</a>
+        <a (click)="selectSession('multiple')">snapshot of multiple keynote</a>
+        <a (click)="selectSession('combination')">combination of each keynote and multiple keynote</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="dropbtn">Show Reports</button>
+      <div class="dropdown-content">
+        <a (click)="selectReport('each_keynote')">Reports of Each Keynote</a>
+        <a (click)="selectReport('multiple_keynotes')">Reports of Multiple Keynotes</a>
+        <a (click)="selectReport('combination')">Report of Combination of each keynote and Multiple Keynote</a>
+      </div>
+    </div>
+  </div>
+</div>

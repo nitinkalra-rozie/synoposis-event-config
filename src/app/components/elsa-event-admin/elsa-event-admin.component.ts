@@ -1,0 +1,349 @@
+import { Component } from '@angular/core';
+import { BackendApiService } from 'src/app/services/backend-api.service';
+import { CognitoService } from 'src/app/services/cognito.service';
+declare const Buffer;
+import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
+import * as createHash from 'create-hash';
+import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
+import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
+import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
+// our converter between binary event streams messages and JSON
+const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
+  util_utf8_node.toUtf8,
+  util_utf8_node.fromUtf8
+);
+@Component({
+  selector: 'app-elsa-event-admin',
+  templateUrl: './elsa-event-admin.component.html',
+  styleUrls: ['./elsa-event-admin.component.css']
+})
+export class ElsaEventAdminComponent {
+  selectedKeynoteType: string = ''; 
+  selectedSessionType: string = ''; 
+  selectedReportType: string = '';
+
+  //*************************************
+  title = 'AngularTranscribe';
+  languageCode = 'en-US';
+  region = 'us-east-1';
+  sampleRate = 44100;
+  transcription = '';
+  socket;
+  micStream;
+  socketError = false;
+  transcribeException = false;
+  errorText: '';
+  isStreaming = false;
+  //***************************************
+
+  constructor(private backendApiService: BackendApiService,private cognitoService:CognitoService ) { }
+
+  ngOnInit(): void {
+    this.showWelcomeMessageBanner(); 
+    this.showSnapshot();
+    this.showThankYouScreen();
+  }
+
+  showWelcomeMessageBanner(): void {
+    console.log('Showing Welcome Message Banner...');
+    // this.callLambdaFunction('welcome');
+  }
+
+  showSnapshot(): void {
+    console.log('Showing Snapshot...');
+    // this.callLambdaFunction('snapshot');
+  }
+
+  showThankYouScreen(): void {
+    console.log('Showing Thank You Screen...');
+    // this.callLambdaFunction('thank_you');
+  }
+
+  showSummary(): void {
+    // Check if a keynote type is selected
+    if (this.selectedKeynoteType) {
+      // Call the appropriate Lambda function based on the selected keynote type
+      switch (this.selectedKeynoteType) {
+        case 'single':
+          console.log('Showing Single Keynote Summary...');
+          // this.callLambdaFunction('summary_of_Single_Keynote');
+          break;
+        case 'multiple':
+          console.log('Showing Multiple Keynote Summary...');
+          // this.callLambdaFunction('summary_of_multiple_Keynote');
+          break;
+        case 'combination':
+          console.log('Showing Combination of Single and Multiple Keynote Summary...');
+          // this.callLambdaFunction('summary_combination');
+          break;
+        default:
+          // Log an error if no keynote type is selected
+          console.error('No keynote type selected');
+          break;
+      }
+    } else {
+      console.error('No keynote type selected');
+    }
+  }
+
+  selectOption(option: string): void {
+    // console.log('Selected option:', option);
+    this.selectedKeynoteType = option;
+    // Call showSummary whenever an option is selected
+    this.showSummary();
+  }
+
+  showSession(): void {
+    // Check if a session type is selected
+    if (this.selectedSessionType) {
+      // Call the appropriate Lambda function based on the selected session type
+      switch (this.selectedSessionType) {
+        case 'single':
+          console.log('Showing Snapshot of each Keynote...');
+          // this.callLambdaFunction('snapshot_of_Single_Keynote');
+          break;
+        case 'multiple':
+          console.log('Showing Snapshot of multiple Keynote...');
+          // this.callLambdaFunction('snapshot_of_multiple_Keynote');
+          break;
+        case 'combination':
+          console.log('Showing Combination of each Keynote and multiple Keynote...');
+          // this.callLambdaFunction('snapshot_combination');
+          break;
+        default:
+          // Log an error if no session type is selected
+          console.error('No session type selected');
+          break;
+      }
+    } else {
+      console.error('No session type selected');
+    }
+  }
+
+  selectSession(option: string): void {
+    console.log('Selected session option:', option);
+    this.selectedSessionType = option;
+    // Call showSession whenever an option is selected
+    this.showSession();
+  }
+
+  showReports(): void {
+    // Check if a report type is selected
+    if (this.selectedReportType) {
+      // Call the appropriate Lambda function based on the selected report type
+      switch (this.selectedReportType) {
+        case 'each_keynote':
+          console.log('Showing Reports of Each Keynote...');
+          // this.callLambdaFunction('report_of_Single_Keynote');
+          break;
+        case 'multiple_keynotes':
+          console.log('Showing Reports of Multiple Keynotes...');
+          // this.callLambdaFunction('report_of_multiple_Keynote');
+          break;
+        case 'combination':
+          console.log('Showing Report of Combination of each Keynote and Multiple Keynote...');
+          // this.callLambdaFunction('report_combination');
+          break;
+        default:
+          // Log an error if no report type is selected
+          console.error('No report type selected');
+          break;
+      }
+    } else {
+      console.error('No report type selected');
+    }
+  }
+
+  selectReport(option: string): void {
+    console.log('Selected report option:', option);
+    this.selectedReportType = option;
+    // Call showReports whenever an option is selected
+    this.showReports();
+  }
+
+  showEndSession(): void {
+    console.log('Showing End Session...');
+    // this.callLambdaFunction('end_session');
+  }
+
+  //*************************************** 
+  startRecording() {
+    this.isStreaming = !this.isStreaming
+    console.log('recording');
+    window.navigator.mediaDevices.getUserMedia({
+      video: false,
+      audio: true
+  })
+  
+  // ...then we convert the mic stream to binary event stream messages when the promise resolves 
+  .then(this.streamAudioToWebSocket) 
+  .catch(function (error) {
+      console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
+  });
+  }
+  streamAudioToWebSocket = (userMediaStream) => {
+    //let's get the mic input from the browser, via the microphone-stream module
+    console.log('start streamAudioToWebSocket');
+    this.micStream = new MicrophoneStream();
+    this.micStream.setStream(userMediaStream);
+    console.log('start streamAudioToWebSocket22222');
+    // Pre-signed URLs are a way to authenticate a request (or WebSocket connection, in this case)
+    // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
+    this.createPresignedUrlNew();
+    console.log('start streamAudioToWebSocket333333');
+   
+  }
+
+  openWebsocketAndStartStream(preSignedUrl:any){
+    console.log("inside openWebsocketAndStartStream",preSignedUrl);
+     //open up our WebSocket connection
+     this.socket = new WebSocket(preSignedUrl);
+     this.socket.binaryType = 'arraybuffer';
+     console.log('start streamAudioToWebSocket44444');
+     // when we get audio data from the mic, send it to the WebSocket if possible
+     this.socket.onopen = () => {
+       this.micStream.on('data', rawAudioChunk => {
+         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
+         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+ 
+         if (this.socket.OPEN) this.socket.send(binary);
+       });
+     };
+     console.log('start streamAudioToWebSocket5555');
+     // handle messages, errors, and close events
+     this.wireSocketEvents();
+  }
+createPresignedUrlNew = async () => {
+    let body = {
+      method:'GET',
+      endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
+      path: '/stream-transcription-websocket',
+      service: 'transcribe',
+      hash:createHash('sha256').update('', 'utf8').digest('hex'),
+      options:{
+        key: 'AKIA3SVZJVX56UU2YEWT',
+        secret: '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',
+        protocol: 'wss',
+        expires: 15,
+        region: 'us-east-1',
+        query:'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate
+      }
+    }
+  await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data:any)=>{
+      console.log('inside  createPresignedUrlNew', JSON.stringify(data));
+      const url = data.data;
+      this.openWebsocketAndStartStream(url);
+    })
+  };
+  getAudioEventMessage = (buffer) => {
+    // wrap the audio data in a JSON envelope
+    return {
+      'headers': {
+        ':message-type': {
+          type: 'string',
+          value: 'event'
+        },
+        ':event-type': {
+          type: 'string',
+          value: 'AudioEvent'
+        }
+      },
+      body: buffer
+    };
+  }
+  convertAudioToBinaryMessage = (audioChunk) => {
+    let raw = MicrophoneStream.toRaw(audioChunk);
+
+    if (raw == null) return;
+
+    // downsample and convert the raw audio bytes to PCM
+    let downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
+    let pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+
+    // add the right JSON headers and structure to the message
+    let audioEventMessage = this.getAudioEventMessage(
+      Buffer.from(pcmEncodedBuffer)
+    );
+
+    //convert the JSON object + headers into a binary event stream message
+    // @ts-ignore
+    let binary = eventStreamMarshaller.marshall(audioEventMessage);
+
+    return binary;
+  }
+  closeSocket = () => {
+    this.isStreaming = !this.isStreaming
+    if (this.socket.OPEN) {
+      this.micStream.stop();
+
+      // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
+      let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
+      // @ts-ignore
+      let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+      this.socket.send(emptyBuffer);
+    }
+  }
+  handleEventStreamMessage = (messageJson) => {
+    let results = messageJson.Transcript.Results;
+    console.log("messageJSON got from the transcribe", JSON.stringify(messageJson));
+    if (results.length > 0) {
+      if (results[0].Alternatives.length > 0) {
+        let transcript = results[0].Alternatives[0].Transcript;
+
+        // fix encoding for accented characters
+        transcript = decodeURIComponent(escape(transcript));
+
+        // update the textarea with the latest result
+        console.log('transcript', transcript);
+
+        // if this transcript segment is final, add it to the overall transcription
+        if (!results[0].IsPartial) {
+          //scroll the textarea down
+          this.transcription = transcript
+          // this.transcription += transcript + '\n';
+          this.backendApiService.putTranscript(messageJson).subscribe((data:any)=>{
+            console.log(data);
+          })
+        }
+      }
+    }
+  }
+  wireSocketEvents = () => {
+    // handle inbound messages from Amazon Transcribe
+    this.socket.onmessage = message => {
+      //convert the binary event stream message to JSON
+      let messageWrapper = eventStreamMarshaller.unmarshall(
+        Buffer(message.data)
+      );
+      let messageBody = JSON.parse(
+        String.fromCharCode.apply(String, messageWrapper.body)
+      );
+      if (messageWrapper.headers[':message-type'].value === 'event') {
+        this.handleEventStreamMessage(messageBody);
+      } else {
+        this.transcribeException = true;
+        console.log(messageBody.Message);
+        // toggleStartStop();
+      }
+    };
+
+    this.socket.onerror = function() {
+      this.socketError = true;
+      console.log('WebSocket connection error. Try again.');
+      // toggleStartStop();
+    };
+
+    this.socket.onclose = closeEvent => {
+      this.micStream.stop();
+
+      // the close event immediately follows the error event; only handle one.
+      if (!this.socketError && !this.transcribeException) {
+        if (closeEvent.code != 1000) {
+          console.log('error' + closeEvent.reason);
+        }
+        // toggleStartStop();
+      }
+    };
+  }
+  //***************************************
+}

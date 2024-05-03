@@ -1,0 +1,109 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .sbox {
+    background: #FFFFFF;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  button,
+  .dropbtn {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #534AD8;
+    border-radius: 8px;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover,
+  .dropbtn:hover {
+    background-color: #B9E2FF;
+  }
+  
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 10px;
+    margin-left: 15px;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #FFFFFF;
+    min-width: 160px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+  }
+  
+  .dropdown-content a {
+    color: #000000;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdown-content a:hover {
+    background-color: #B9E2FF;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  .dropdown:hover .dropbtn {
+    background-color: #B9E2FF;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .button-group button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #B6B4E4;
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button-group button:hover {
+    background-color: #B6B4E4; /* Match button color */
+  }
+  
+  
+  @media screen and (max-width: 768px) {
+    .sbox {
+      padding: 10px;
+    }
+  
+    .dropdown {
+      margin-left: 10px;
+    }
+  
+    .button-group {
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+  
+    .button-group button {
+      width: calc(50% - 5px);
+    }
+  }
