@@ -24,7 +24,7 @@ export class ElsaEventAdminComponent {
   selectedDay:string='';
   eventDetails:any = [];
   eventDays: any = [];
-  selectedSpeaker: string = '';
+  selectedSessionTitle: string = '';
   filteredEventData:any = [];
   //*************************************
   title = 'AngularTranscribe';
@@ -47,12 +47,19 @@ export class ElsaEventAdminComponent {
     this.showSnapshot();
     this.showThankYouScreen();
     this.getEventDetails();
+    this.selectedDay = localStorage.getItem('currentDay') ||'';
+    this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
+    if(this.selectedDay){
+
+    }
   }
   logout() {
     this.cognitoService.logOut();
   }
   showWelcomeMessageBanner(): void {
-    this.backendApiService.postData('welcome','', 'welcome_flag', this.selectedDay);
+    this.backendApiService.postData('welcome','', 'welcome_flag', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
   }
 
   showSnapshot(): void {
@@ -60,7 +67,9 @@ export class ElsaEventAdminComponent {
   }
 
   showThankYouScreen(): void {
-    this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay);
+    this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
   }
 
   showSummary(): void {
@@ -185,9 +194,9 @@ export class ElsaEventAdminComponent {
   }
 
   startSession(){
-   if(this.selectedDay !== '' && this.selectedSpeaker !== ''){
-    localStorage.setItem("currentSpeaker",this.selectedSpeaker);
-    const sessionId = this.findSessionId(this.selectedDay, this.selectedSpeaker);
+   if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
+    localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);
+    const sessionId = this.findSessionId(this.selectedDay, this.selectedSessionTitle);
     localStorage.setItem("currentSessionId",sessionId);
     localStorage.setItem("currentDay", this.selectedDay);
     this.startRecording();
@@ -196,9 +205,9 @@ export class ElsaEventAdminComponent {
     alert('Please select the Event Day and Speaker Name to start the session');
    }
   }
-  findSessionId(eventDay: string, speakerName: string): string | null {
+  findSessionId(eventDay: string, SessionTitle: string): string | null {
     const session = this.eventDetails.find(session =>
-      session.EventDay === eventDay && session.SpeakerName === speakerName
+      session.EventDay === eventDay && session.SessionTitle === SessionTitle
     );
     return session ? session.SessionId : null;
   }
@@ -318,9 +327,11 @@ createPresignedUrlNew = async () => {
       let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
     }
-    localStorage.removeItem('currentSpeaker')
+    localStorage.removeItem('currentSessionTitle')
     localStorage.removeItem('currentSessionId')
     localStorage.removeItem('currentDay')
+    this.selectedSessionTitle = ''
+    this.selectedDay = ''
   }
   handleEventStreamMessage = (messageJson) => {
     let results = messageJson.Transcript.Results;
