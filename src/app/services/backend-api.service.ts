@@ -19,4 +19,14 @@ export class BackendApiService {
     }
     return this.http.post('https://xmvv5lp42m.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
   }
+  postData(action:any,sessionId:any,flag:any,day:any){
+    const body={
+      action:action,
+      sessionId:sessionId,
+      flag:flag,
+      day:day
+    }
+    return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig', body);
+  }
+ 
 }

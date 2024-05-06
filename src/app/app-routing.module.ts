@@ -21,8 +21,7 @@ const routes: Routes = [
     },
     {
         path: 'newPasswordRequired',
-        component: ChangePasswordComponent,
-        canActivate: [AuthGuard] 
+        component: ChangePasswordComponent
     },
     {
         path: 'admin',
