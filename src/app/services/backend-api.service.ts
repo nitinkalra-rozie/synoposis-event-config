@@ -5,7 +5,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class BackendApiService {
-
   constructor(private http: HttpClient) { }
 
   getTranscriberPreSignedUrl(body:any){
@@ -14,10 +13,10 @@ export class BackendApiService {
 
   putTranscript(transcript:any){
     const body = {
-      sessionId:"test",
+      sessionId: localStorage.getItem('currentSessionId'),
       Transcript: transcript.Transcript
     }
-    return this.http.post('https://xmvv5lp42m.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
+    return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
   }
   postData(action:any,sessionId:any,flag:any,day:any){
     const body={
@@ -28,5 +27,7 @@ export class BackendApiService {
     }
     return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig', body);
   }
- 
+  getEventDetails(){
+    return this.http.post('https://dcbdtg2n1a.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',{});
+  }
 }

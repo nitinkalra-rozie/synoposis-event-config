@@ -22,6 +22,10 @@ export class ElsaEventAdminComponent {
   selectedSessionType: string = ''; 
   selectedReportType: string = '';
   selectedDay:string='';
+  eventDetails:any = [];
+  eventDays: any = [];
+  selectedSpeaker: string = '';
+  filteredEventData:any = [];
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -42,6 +46,7 @@ export class ElsaEventAdminComponent {
     this.showWelcomeMessageBanner(); 
     this.showSnapshot();
     this.showThankYouScreen();
+    this.getEventDetails();
   }
 
   showWelcomeMessageBanner(): void {
@@ -155,7 +160,46 @@ export class ElsaEventAdminComponent {
     this. selectedDay=day;
 
   }
+  getEventDetails(){
+    this.backendApiService.getEventDetails().subscribe((data:any)=>{
+      console.log("event details are as follows",data);
+      this.eventDetails = data;
+      this.filteredEventData = this.eventDetails;
+      this.eventDays = [];
+      data.forEach((event: { EventDay: any; }) => {
+        if (!this.eventDays.includes(event.EventDay)) {
+          this.eventDays.push(event.EventDay);
+        }
+      });
+    })
+  }
 
+  onDayChange() {
+    if (this.selectedDay !== '') {
+      this.filteredEventData = this.eventDetails.filter(event => event.EventDay === this.selectedDay);
+    } else {
+      this.filteredEventData = this.eventDetails;
+    }
+  }
+
+  startSession(){
+   if(this.selectedDay !== '' && this.selectedSpeaker !== ''){
+    localStorage.setItem("currentSpeaker",this.selectedSpeaker);
+    const sessionId = this.findSessionId(this.selectedDay, this.selectedSpeaker);
+    localStorage.setItem("currentSessionId",sessionId);
+    localStorage.setItem("currentDay", this.selectedDay);
+    this.startRecording();
+   }
+   else{
+    alert('Please select the Event Day and Speaker Name to start the session');
+   }
+  }
+  findSessionId(eventDay: string, speakerName: string): string | null {
+    const session = this.eventDetails.find(session =>
+      session.EventDay === eventDay && session.SpeakerName === speakerName
+    );
+    return session ? session.SessionId : null;
+  }
   //*************************************** 
   startRecording() {
     this.isStreaming = !this.isStreaming
@@ -272,6 +316,9 @@ createPresignedUrlNew = async () => {
       let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
     }
+    localStorage.removeItem('currentSpeaker')
+    localStorage.removeItem('currentSessionId')
+    localStorage.removeItem('currentDay')
   }
   handleEventStreamMessage = (messageJson) => {
     let results = messageJson.Transcript.Results;

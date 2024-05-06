@@ -1,9 +1,26 @@
 <div class="container">
-
   <div class="sbox">
-    <button *ngIf="!isStreaming" (click)="startRecording()" >Start session</button>
-    <button *ngIf="isStreaming" (click)="closeSocket()" >End session</button>
-    <button (click)="showWelcomeMessageBanner()">Show Welcome Message Banner</button>
+    <div class="day-speaker">
+      <div class="day">
+        <label for="EventDay">Event Day: </label>
+        <select name="EventDay" id="Event Day" [(ngModel)]="selectedDay" (ngModelChange)="onDayChange()">
+          <option *ngFor="let day of eventDays" [value]="day" >{{day}}</option>
+        </select>
+      </div>
+      <div class="speaker">
+        <label for="sessionSpeakerName">Speaker Name: </label>
+        <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSpeaker">
+          <option *ngFor="let event of filteredEventData" [value]="event.SpeakerName">{{event.SpeakerName}}</option>
+        </select>
+      </div>
+    </div>
+    <button *ngIf="!isStreaming" (click)="startSession()">
+      Start session
+    </button>
+    <button *ngIf="isStreaming" (click)="closeSocket()">End session</button>
+    <button (click)="showWelcomeMessageBanner()">
+      Show Welcome Message Banner
+    </button>
     <button (click)="showThankYouScreen()">Show Thank You Screen</button>
     <button (click)="showEndSession()">Show End Session</button>
     <div class="dropdown">
@@ -11,7 +28,9 @@
       <div class="dropdown-content">
         <a (click)="selectOption('single')">summary of Single Keynote</a>
         <a (click)="selectOption('multiple')">summary Multiple Keynote</a>
-        <a (click)="selectOption('combination')">Combination of Single and Multiple Keynote</a>
+        <a (click)="selectOption('combination')"
+          >Combination of Single and Multiple Keynote</a
+        >
       </div>
     </div>
     <div class="dropdown">
@@ -19,15 +38,21 @@
       <div class="dropdown-content">
         <a (click)="selectSession('single')">snapshot of each keynote</a>
         <a (click)="selectSession('multiple')">snapshot of multiple keynote</a>
-        <a (click)="selectSession('combination')">combination of each keynote and multiple keynote</a>
+        <a (click)="selectSession('combination')"
+          >combination of each keynote and multiple keynote</a
+        >
       </div>
     </div>
     <div class="dropdown">
       <button class="dropbtn">Show Reports</button>
       <div class="dropdown-content">
         <a (click)="selectReport('each_keynote')">Reports of Each Keynote</a>
-        <a (click)="selectReport('multiple_keynotes')">Reports of Multiple Keynotes</a>
-        <a (click)="selectReport('combination')">Report of Combination of each keynote and Multiple Keynote</a>
+        <a (click)="selectReport('multiple_keynotes')"
+          >Reports of Multiple Keynotes</a
+        >
+        <a (click)="selectReport('combination')"
+          >Report of Combination of each keynote and Multiple Keynote</a
+        >
       </div>
     </div>
 
@@ -37,6 +62,6 @@
         <a (click)="selectDay('day1')">Day 1</a>
         <a (click)="selectDay('day2')">Day 2</a>
       </div>
-    </div> 
+    </div>
   </div>
 </div>

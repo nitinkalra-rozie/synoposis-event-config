@@ -88,6 +88,12 @@
     background-color: #B6B4E4; /* Match button color */
   }
   
+  .day-speaker{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
   
   @media screen and (max-width: 768px) {
     .sbox {
