@@ -53,7 +53,9 @@ export class ElsaEventAdminComponent {
 
     }
   }
-
+  logout() {
+    this.cognitoService.logOut();
+  }
   showWelcomeMessageBanner(): void {
     this.backendApiService.postData('welcome','', 'welcome_flag', this.selectedDay).subscribe((data:any)=>{
       console.log(data);
