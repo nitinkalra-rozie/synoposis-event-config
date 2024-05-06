@@ -19,8 +19,9 @@ export class BackendApiService {
     }
     return this.http.post('https://xmvv5lp42m.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
   }
-  postData(sessionId:any,flag:any,day:any){
+  postData(action:any,sessionId:any,flag:any,day:any){
     const body={
+      action:action,
       sessionId:sessionId,
       flag:flag,
       day:day

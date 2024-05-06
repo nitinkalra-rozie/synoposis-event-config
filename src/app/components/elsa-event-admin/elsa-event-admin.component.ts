@@ -45,15 +45,15 @@ export class ElsaEventAdminComponent {
   }
 
   showWelcomeMessageBanner(): void {
-    this.backendApiService.postData('welcome', true, this.selectedDay);
+    this.backendApiService.postData('welcome','', true, this.selectedDay);
   }
 
   showSnapshot(): void {
-    this.backendApiService.postData('snapshot', true, this.selectedDay);
+    this.backendApiService.postData('snapshot','', true, this.selectedDay);
   }
 
   showThankYouScreen(): void {
-    this.backendApiService.postData('snapshot', true, this.selectedDay);
+    this.backendApiService.postData('snapshot','', true, this.selectedDay);
   }
 
   showSummary(): void {
@@ -62,13 +62,13 @@ export class ElsaEventAdminComponent {
       // Call the appropriate Lambda function based on the selected keynote type
       switch (this.selectedKeynoteType) {
         case 'single':  
-          this.backendApiService.postData('summary_of_Single_Keynote', true, this.selectedDay);
+          this.backendApiService.postData('summary_of_Single_Keynote','', true, this.selectedDay);
           break;
         case 'multiple':
-          this.backendApiService.postData('summary_of_multiple_Keynot', true, this.selectedDay);
+          this.backendApiService.postData('summary_of_multiple_Keynot','', true, this.selectedDay);
           break;
         case 'combination':
-          this.backendApiService.postData('summary_combination', true, this.selectedDay);
+          this.backendApiService.postData('summary_combination','', true, this.selectedDay);
           break;
         default:
           console.error('No keynote type selected');
@@ -91,15 +91,15 @@ export class ElsaEventAdminComponent {
       switch (this.selectedSessionType) {
         case 'single':
         
-          this.backendApiService.postData('snapshot_of_Single_Keynote', true, this.selectedDay);
+          this.backendApiService.postData('snapshot_of_Single_Keynote','', true, this.selectedDay);
           break;
         case 'multiple':
        
-          this.backendApiService.postData('snapshot_of_multiple_Keynote', true, this.selectedDay);
+          this.backendApiService.postData('snapshot_of_multiple_Keynote','', true, this.selectedDay);
           break;
         case 'combination':
         
-          this.backendApiService.postData('snapshot_combination', true, this.selectedDay);
+          this.backendApiService.postData('snapshot_combination','', true, this.selectedDay);
           break;
         default:
         
@@ -123,13 +123,13 @@ export class ElsaEventAdminComponent {
     
       switch (this.selectedReportType) {
         case 'each_keynote': 
-          this.backendApiService.postData('report_of_Single_Keynote', true, this.selectedDay);
+          this.backendApiService.postData('report_of_Single_Keynote','', true, this.selectedDay);
           break;
         case 'multiple_keynotes':  
-          this.backendApiService.postData('report_of_multiple_Keynote', true, this.selectedDay);
+          this.backendApiService.postData('report_of_multiple_Keynote','', true, this.selectedDay);
           break;
         case 'combination':
-          this.backendApiService.postData('report_combination', true, this.selectedDay);
+          this.backendApiService.postData('report_combination','', true, this.selectedDay);
           break;
         default:
    
@@ -149,7 +149,7 @@ export class ElsaEventAdminComponent {
 
   showEndSession(): void {
  
-    this.backendApiService.postData('End_seasion', true, this.selectedDay);
+    this.backendApiService.postData('End_seasion','', true, this.selectedDay);
   }
   selectDay(day:string){
     this. selectedDay=day;
