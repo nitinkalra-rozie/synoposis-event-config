@@ -8,6 +8,7 @@ import { LoginComponent } from './components/login/login.component';
 import { ElsaEventAdminComponent } from './components/elsa-event-admin/elsa-event-admin.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 @NgModule({
   declarations: [
     AppComponent,
@@ -20,6 +21,7 @@ import { FormsModule } from '@angular/forms';
     HttpClientModule,
     AppRoutingModule,
     FormsModule,
+    CommonModule,
     BrowserModule,
   ],
   providers: [],
