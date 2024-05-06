@@ -149,7 +149,7 @@ export class ElsaEventAdminComponent {
 
   showEndSession(): void {
  
-    this.backendApiService.postData('End_seasion','', '', this.selectedDay);
+    this.backendApiService.postData('End_seasion','', 'trigger_post_insights', this.selectedDay);
   }
   selectDay(day:string){
     this. selectedDay=day;
