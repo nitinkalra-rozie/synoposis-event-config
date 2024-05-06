@@ -1,3 +1,23 @@
+.logout-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.logout-button {
+  background-color: #534AD8; 
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.logout-button:hover {
+  background-color: #534AD8;
+}
+
 .container {
     display: flex;
     justify-content: center;
