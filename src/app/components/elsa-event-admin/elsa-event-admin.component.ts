@@ -55,7 +55,9 @@ export class ElsaEventAdminComponent {
   }
 
   showWelcomeMessageBanner(): void {
-    this.backendApiService.postData('welcome','', 'welcome_flag', this.selectedDay);
+    this.backendApiService.postData('welcome','', 'welcome_flag', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
   }
 
   showSnapshot(): void {
@@ -63,7 +65,9 @@ export class ElsaEventAdminComponent {
   }
 
   showThankYouScreen(): void {
-    this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay);
+    this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
   }
 
   showSummary(): void {
