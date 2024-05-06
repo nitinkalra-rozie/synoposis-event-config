@@ -1,5 +1,6 @@
 .container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -95,6 +96,11 @@
     margin-bottom: 20px;
   }
   
+  .transcript{
+    font-size: 40px;
+    margin-top:20px;
+    color: white;
+  }
   @media screen and (max-width: 768px) {
     .sbox {
       padding: 10px;

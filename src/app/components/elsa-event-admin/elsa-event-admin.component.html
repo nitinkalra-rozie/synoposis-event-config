@@ -9,8 +9,8 @@
       </div>
       <div class="speaker">
         <label for="sessionSpeakerName">Speaker Name: </label>
-        <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSpeaker">
-          <option *ngFor="let event of filteredEventData" [value]="event.SpeakerName">{{event.SpeakerName}}</option>
+        <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSessionTitle">
+          <option *ngFor="let event of filteredEventData" [value]="event.SessionTitle">{{event.SessionTitle}}</option>
         </select>
       </div>
     </div>
@@ -63,5 +63,8 @@
         <a (click)="selectDay('day2')">Day 2</a>
       </div>
     </div>
+  </div>
+  <div class="transcript">
+    {{transcription}}
   </div>
 </div>
