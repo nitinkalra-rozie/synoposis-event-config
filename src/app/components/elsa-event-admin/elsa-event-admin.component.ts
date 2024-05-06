@@ -43,9 +43,6 @@ export class ElsaEventAdminComponent {
   constructor(private backendApiService: BackendApiService,private cognitoService:CognitoService ) { }
 
   ngOnInit(): void {
-    this.showWelcomeMessageBanner(); 
-    this.showSnapshot();
-    this.showThankYouScreen();
     this.getEventDetails();
     this.selectedDay = localStorage.getItem('currentDay') ||'';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
@@ -68,6 +65,16 @@ export class ElsaEventAdminComponent {
 
   showThankYouScreen(): void {
     this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
+  }
+  showBackupScreen():void{
+    this.backendApiService.postData('backup_screen','','backup_screen', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
+  }
+  showQrScreen():void{
+    this.backendApiService.postData('qr_screen','','backup_screen', this.selectedDay).subscribe((data:any)=>{
       console.log(data);
     });
   }
