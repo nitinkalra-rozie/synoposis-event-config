@@ -21,7 +21,7 @@ export class ElsaEventAdminComponent {
   selectedKeynoteType: string = ''; 
   selectedSessionType: string = ''; 
   selectedReportType: string = '';
-
+  selectedDay:string='';
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -45,18 +45,15 @@ export class ElsaEventAdminComponent {
   }
 
   showWelcomeMessageBanner(): void {
-    console.log('Showing Welcome Message Banner...');
-    // this.callLambdaFunction('welcome');
+    this.backendApiService.postData('welcome', true, this.selectedDay);
   }
 
   showSnapshot(): void {
-    console.log('Showing Snapshot...');
-    // this.callLambdaFunction('snapshot');
+    this.backendApiService.postData('snapshot', true, this.selectedDay);
   }
 
   showThankYouScreen(): void {
-    console.log('Showing Thank You Screen...');
-    // this.callLambdaFunction('thank_you');
+    this.backendApiService.postData('snapshot', true, this.selectedDay);
   }
 
   showSummary(): void {
@@ -64,20 +61,16 @@ export class ElsaEventAdminComponent {
     if (this.selectedKeynoteType) {
       // Call the appropriate Lambda function based on the selected keynote type
       switch (this.selectedKeynoteType) {
-        case 'single':
-          console.log('Showing Single Keynote Summary...');
-          // this.callLambdaFunction('summary_of_Single_Keynote');
+        case 'single':  
+          this.backendApiService.postData('summary_of_Single_Keynote', true, this.selectedDay);
           break;
         case 'multiple':
-          console.log('Showing Multiple Keynote Summary...');
-          // this.callLambdaFunction('summary_of_multiple_Keynote');
+          this.backendApiService.postData('summary_of_multiple_Keynot', true, this.selectedDay);
           break;
         case 'combination':
-          console.log('Showing Combination of Single and Multiple Keynote Summary...');
-          // this.callLambdaFunction('summary_combination');
+          this.backendApiService.postData('summary_combination', true, this.selectedDay);
           break;
         default:
-          // Log an error if no keynote type is selected
           console.error('No keynote type selected');
           break;
       }
@@ -87,31 +80,29 @@ export class ElsaEventAdminComponent {
   }
 
   selectOption(option: string): void {
-    // console.log('Selected option:', option);
     this.selectedKeynoteType = option;
-    // Call showSummary whenever an option is selected
     this.showSummary();
   }
 
   showSession(): void {
-    // Check if a session type is selected
+   
     if (this.selectedSessionType) {
-      // Call the appropriate Lambda function based on the selected session type
+    
       switch (this.selectedSessionType) {
         case 'single':
-          console.log('Showing Snapshot of each Keynote...');
-          // this.callLambdaFunction('snapshot_of_Single_Keynote');
+        
+          this.backendApiService.postData('snapshot_of_Single_Keynote', true, this.selectedDay);
           break;
         case 'multiple':
-          console.log('Showing Snapshot of multiple Keynote...');
-          // this.callLambdaFunction('snapshot_of_multiple_Keynote');
+       
+          this.backendApiService.postData('snapshot_of_multiple_Keynote', true, this.selectedDay);
           break;
         case 'combination':
-          console.log('Showing Combination of each Keynote and multiple Keynote...');
-          // this.callLambdaFunction('snapshot_combination');
+        
+          this.backendApiService.postData('snapshot_combination', true, this.selectedDay);
           break;
         default:
-          // Log an error if no session type is selected
+        
           console.error('No session type selected');
           break;
       }
@@ -123,29 +114,25 @@ export class ElsaEventAdminComponent {
   selectSession(option: string): void {
     console.log('Selected session option:', option);
     this.selectedSessionType = option;
-    // Call showSession whenever an option is selected
     this.showSession();
   }
 
   showReports(): void {
-    // Check if a report type is selected
+   
     if (this.selectedReportType) {
-      // Call the appropriate Lambda function based on the selected report type
+    
       switch (this.selectedReportType) {
-        case 'each_keynote':
-          console.log('Showing Reports of Each Keynote...');
-          // this.callLambdaFunction('report_of_Single_Keynote');
+        case 'each_keynote': 
+          this.backendApiService.postData('report_of_Single_Keynote', true, this.selectedDay);
           break;
-        case 'multiple_keynotes':
-          console.log('Showing Reports of Multiple Keynotes...');
-          // this.callLambdaFunction('report_of_multiple_Keynote');
+        case 'multiple_keynotes':  
+          this.backendApiService.postData('report_of_multiple_Keynote', true, this.selectedDay);
           break;
         case 'combination':
-          console.log('Showing Report of Combination of each Keynote and Multiple Keynote...');
-          // this.callLambdaFunction('report_combination');
+          this.backendApiService.postData('report_combination', true, this.selectedDay);
           break;
         default:
-          // Log an error if no report type is selected
+   
           console.error('No report type selected');
           break;
       }
@@ -157,13 +144,16 @@ export class ElsaEventAdminComponent {
   selectReport(option: string): void {
     console.log('Selected report option:', option);
     this.selectedReportType = option;
-    // Call showReports whenever an option is selected
     this.showReports();
   }
 
   showEndSession(): void {
-    console.log('Showing End Session...');
-    // this.callLambdaFunction('end_session');
+ 
+    this.backendApiService.postData('End_seasion', true, this.selectedDay);
+  }
+  selectDay(day:string){
+    this. selectedDay=day;
+
   }
 
   //*************************************** 
