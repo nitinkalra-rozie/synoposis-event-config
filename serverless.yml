@@ -65,7 +65,7 @@ custom:
     indexDocument: index.html
     errorDocument: index.html
     compressWebContent: true
-    clientCommand: npm run build:${env:deployment}
+    clientCommand: ng build
     clientSrcPath: ./
     noConfirm: true
     invalidationPaths: /* 
