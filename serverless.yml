@@ -58,7 +58,6 @@ resources:
 
 plugins:
   - fullstack-serverless 
-
   fullstack:
     bucketName: ${self:service}
     distributionFolder: /dist/contract-express
