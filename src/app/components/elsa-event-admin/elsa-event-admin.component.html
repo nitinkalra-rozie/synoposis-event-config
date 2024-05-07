@@ -11,7 +11,7 @@
         </select>
       </div>
       <div class="speaker">
-        <label for="sessionSpeakerName">Speaker Name: </label>
+        <label for="sessionSpeakerName">Event Title: </label>
         <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSessionTitle">
           <option *ngFor="let event of filteredEventData" [value]="event.SessionTitle">{{event.SessionTitle}}</option>
         </select>
@@ -21,6 +21,23 @@
       Start session
     </button>
     <button *ngIf="isStreaming" (click)="closeSocket()">End session</button>
+    <hr>
+    <div class="event-selection">
+      <div class="dropdown">
+        <div>
+          <button class="dropbtn" (click)="toggleDropdown()">Select Session</button>
+        <span>{{ selectedOptions.join(', ') }}</span>
+        </div>
+        <div class="dropdown-content" [ngClass]="{'show': dropdownOpen}">
+          <label *ngFor="let option of options">
+            <input type="checkbox" [value]="option" (change)="toggleSelection($event.target.value)">
+            {{ option }}
+          </label>
+        </div>
+      </div>
+      <div>
+      </div>
+    </div>
     <button (click)="showWelcomeMessageBanner()">
       Show Welcome Message Banner
     </button>
@@ -59,16 +76,8 @@
           >Report of Combination of each keynote and Multiple Keynote</a
         >
       </div>
-    </div>
-
-    <div class="dropdown">
-      <button class="dropbtn">Select day</button>
-      <div class="dropdown-content">
-        <a (click)="selectDay('day1')">Day 1</a>
-        <a (click)="selectDay('day2')">Day 2</a>
       </div>
     </div>
-  </div>
   <div class="transcript">
     {{transcription}}
   </div>
