@@ -17,10 +17,10 @@
         </select>
       </div>
     </div>
-    <button *ngIf="!isStreaming" (click)="startSession()">
+    <button (click)="startSession()">
       Start session
     </button>
-    <button *ngIf="isStreaming" (click)="closeSocket()">End session</button>
+    <button (click)="showEndSession()">End Session (Show Post Insites)</button>
     <hr>
     <div class="event-selection">
       <div class="dropdown">
@@ -42,7 +42,7 @@
       Show Welcome Message Banner
     </button>
     <button (click)="showThankYouScreen()">Show Thank You Screen</button>
-    <button (click)="showEndSession()">Show End Session</button>
+    
     <button (click)="showBackupScreen()">Show Backup Screen</button>
     <button (click)="showQrScreen()">Show QR Screen</button>
     <div class="dropdown">
@@ -50,9 +50,6 @@
       <div class="dropdown-content">
         <a (click)="selectOption('single')">summary of Single Keynote</a>
         <a (click)="selectOption('multiple')">summary Multiple Keynote</a>
-        <a (click)="selectOption('combination')"
-          >Combination of Single and Multiple Keynote</a
-        >
       </div>
     </div>
     <div class="dropdown">

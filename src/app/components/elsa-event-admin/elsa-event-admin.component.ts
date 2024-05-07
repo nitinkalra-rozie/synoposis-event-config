@@ -26,7 +26,7 @@ export class ElsaEventAdminComponent {
   eventDays: any = [];
   selectedSessionTitle: string = '';
   filteredEventData:any = [];
-  options: string[] = ['Session 1', 'Session 2', 'Session 3', 'Session 4'];
+  options: string[] = [];
   selectedOptions: string[] = [];
   dropdownOpen: boolean = false;
   //*************************************
@@ -47,7 +47,7 @@ export class ElsaEventAdminComponent {
 
   ngOnInit(): void {
     this.getEventDetails();
-    this.selectedDay = localStorage.getItem('currentDay') ||'';
+    this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
       this.startRecording()
@@ -63,7 +63,10 @@ export class ElsaEventAdminComponent {
   }
 
   showSnapshot(): void {
-    this.backendApiService.postData('snapshot','', 'snapshot_flag', this.selectedDay);
+    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
   }
 
   showThankYouScreen(): void {
@@ -84,17 +87,23 @@ export class ElsaEventAdminComponent {
 
   showSummary(): void {
     // Check if a keynote type is selected
+    if(this.selectedOptions.length <= 0){
+      alert("select the sessions to show the summary!");
+    }else{
+      
+    }
     if (this.selectedKeynoteType) {
       // Call the appropriate Lambda function based on the selected keynote type
       switch (this.selectedKeynoteType) {
         case 'single':  
-          this.backendApiService.postData('summary_of_Single_Keynote','', 'summary_of_Single_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('summary_of_Single_Keynote',this.selectedOptions, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
+            console.log(data);
+          });
           break;
         case 'multiple':
-          this.backendApiService.postData('summary_of_multiple_Keynot','', 'summary_of_multiple_Keynote_flag', this.selectedDay);
-          break;
-        case 'combination':
-          this.backendApiService.postData('summary_combination','', 'summary_combination_flag', this.selectedDay);
+          this.backendApiService.postData('summary_of_multiple_Keynot',this.selectedOptions, 'summary_of_multiple_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
+            console.log(data);
+          });
           break;
         default:
           console.error('No keynote type selected');
@@ -111,21 +120,21 @@ export class ElsaEventAdminComponent {
   }
 
   showSession(): void {
-   
+    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
     if (this.selectedSessionType) {
     
       switch (this.selectedSessionType) {
         case 'single':
         
-          this.backendApiService.postData('snapshot_of_Single_Keynote','', 'snapshot_of_Single_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('snapshot_of_Single_Keynote',sessionDetails.SessionId, 'snapshot_of_Single_Keynote_flag', this.selectedDay);
           break;
         case 'multiple':
        
-          this.backendApiService.postData('snapshot_of_multiple_Keynote','', 'snapshot_of_multiple_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('snapshot_of_multiple_Keynote',sessionDetails.SessionId, 'snapshot_of_multiple_Keynote_flag', this.selectedDay);
           break;
         case 'combination':
         
-          this.backendApiService.postData('snapshot_combination','', 'snapshot_combination_flag', this.selectedDay);
+          this.backendApiService.postData('snapshot_combination',sessionDetails.SessionId, 'snapshot_combination_flag', this.selectedDay);
           break;
         default:
         
@@ -144,18 +153,18 @@ export class ElsaEventAdminComponent {
   }
 
   showReports(): void {
-   
+    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
     if (this.selectedReportType) {
     
       switch (this.selectedReportType) {
         case 'each_keynote': 
-          this.backendApiService.postData('report_of_Single_Keynote','', 'report_of_Single_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('report_of_Single_Keynote',sessionDetails.SessionId, 'report_of_Single_Keynote_flag', this.selectedDay);
           break;
         case 'multiple_keynotes':  
-          this.backendApiService.postData('report_of_multiple_Keynote','', 'report_of_multiple_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('report_of_multiple_Keynote',sessionDetails.SessionId, 'report_of_multiple_Keynote_flag', this.selectedDay);
           break;
         case 'combination':
-          this.backendApiService.postData('report_combination','', 'report_combination_flag', this.selectedDay);
+          this.backendApiService.postData('report_combination',sessionDetails.SessionId, 'report_combination_flag', this.selectedDay);
           break;
         default:
    
@@ -174,8 +183,14 @@ export class ElsaEventAdminComponent {
   }
 
   showEndSession(): void {
- 
-    this.backendApiService.postData('End_seasion','', 'trigger_post_insights', this.selectedDay);
+    const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    console.log("sessionId for end session",session)
+    if(confirm("Are you sure to end the session?")) {
+    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay).subscribe((data:any)=>{
+      console.log(data);
+    });
+    this.closeSocket();
+    }
   }
   selectDay(day:string){
     this. selectedDay=day;
@@ -196,30 +211,38 @@ export class ElsaEventAdminComponent {
   }
 
   onDayChange() {
+    this.options = [];
     if (this.selectedDay !== '') {
       this.filteredEventData = this.eventDetails.filter(event => event.EventDay === this.selectedDay);
     } else {
       this.filteredEventData = this.eventDetails;
     }
+    this.filteredEventData.forEach(element => {
+      this.options.push(element.SessionTitle);
+    });
   }
 
   startSession(){
    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
     localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);
-    const sessionId = this.findSessionId(this.selectedDay, this.selectedSessionTitle);
-    localStorage.setItem("currentSessionId",sessionId);
+    const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    localStorage.setItem("currentSessionId",session.SessionId);
     localStorage.setItem("currentDay", this.selectedDay);
     this.startRecording();
+    this.showKeyNote();
+    this.backendApiService.postCurrentSessionId(session.SessionId).subscribe((data:any)=>{
+      console.log(data);
+    });
    }
    else{
     alert('Please select the Event Day and Speaker Name to start the session');
    }
   }
-  findSessionId(eventDay: string, SessionTitle: string): string | null {
-    const session = this.eventDetails.find(session =>
+  findSession(eventDay: string, SessionTitle: string){
+    const session = this.eventDetails.find((session: { EventDay: string; SessionTitle: string; }) =>
       session.EventDay === eventDay && session.SessionTitle === SessionTitle
     );
-    return session ? session.SessionId : null;
+    return session ? session : null;
   }
 
   toggleSelection(option: string) {
@@ -234,6 +257,12 @@ export class ElsaEventAdminComponent {
     this.dropdownOpen = !this.dropdownOpen;
   }
 
+  showKeyNote(){
+    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    this.backendApiService.postData('summary_of_Single_Keynote',sessionDetails.SessionId,'summary_of_Single_Keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
+
+    });
+  }
   //*************************************** 
   startRecording() {
     this.isStreaming = !this.isStreaming
@@ -340,7 +369,6 @@ createPresignedUrlNew = async () => {
     return binary;
   }
   closeSocket = () => {
-    if(confirm("Are you sure to end the session")) {
       if (this.socket.OPEN) {
         this.micStream.stop();
   
@@ -354,7 +382,6 @@ createPresignedUrlNew = async () => {
       localStorage.removeItem('currentSessionId')
       this.selectedSessionTitle = ''
       this.isStreaming = !this.isStreaming
-    }
   }
   handleEventStreamMessage = (messageJson) => {
     let results = messageJson.Transcript.Results;

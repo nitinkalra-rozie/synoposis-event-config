@@ -18,16 +18,24 @@ export class BackendApiService {
     }
     return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
   }
-  postData(action:any,sessionId:any,flag:any,day:any){
+  postData(action:any,sessionId:any,flag:any,day:any, data?:any){
     const body={
       action:action,
-      sessionId:localStorage.getItem('currentSessionId'),
+      sessionId: sessionId || localStorage.getItem('currentSessionId'),
       flag:flag,
-      day:localStorage.getItem('currentDay')
+      day: day || localStorage.getItem('currentDay'),
+      keyNoteData: data || {}
     }
     return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig', body);
   }
   getEventDetails(){
     return this.http.post('https://dcbdtg2n1a.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',{});
+  }
+  postCurrentSessionId(sessionId:any){
+    console.log("Inside postCurrent", sessionId)
+    const body={
+      sessionId: sessionId
+    }
+    return this.http.post('https://ukm31jyh2f.execute-api.ca-central-1.amazonaws.com/dev/getCurrentSessionDetails', body);
   }
 }
