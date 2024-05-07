@@ -61,7 +61,7 @@ plugins:
 custom:
   fullstack:
     bucketName: ${self:service}
-    distributionFolder: /dist/contract-express
+    distributionFolder: /dist/Angularproject
     indexDocument: index.html
     errorDocument: index.html
     compressWebContent: true
