@@ -1,0 +1,30 @@
+name: elsa-at-event-admin-dev-deploy
+
+on:
+  push:
+    branches:
+      - development
+env:
+  deployment: dev 
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+          node-version: "18.x"
+    - name: Install fullstack-serverless
+      run: npm install --save-dev fullstack-serverless
+    - name: Install Serverless Framework
+      run: npm install -g serverless
+    - name: Install Angular CLI
+      run: npm install -g @angular/cli@latest
+    - name: Install Packages
+      run: npm install
+    - name: Serverless AWS Authentication
+      run: sls config credentials --provider aws --key ${{ secrets.ACCESS_KEY}} --secret ${{ secrets.SECRET_ACCESS_KEY }}
+    - name: Deploy Static Website
+      run: sls deploy --region ca-central-1 --stage dev 
