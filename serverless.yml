@@ -27,17 +27,17 @@ resources:
         CloudFrontOriginAccessIdentityConfig:
           Comment: !Sub Admin app assets
     WebAppS3Bucket:
-         Type: AWS::S3::Bucket
-         Properties:
-           BucketName: ${self:service}-${self:provider.stage}-${self:service}
-           WebsiteConfiguration:
-             IndexDocument: index.html
-             ErrorDocument: index.html
-           PublicAccessBlockConfiguration: 
-               BlockPublicAcls: FALSE
-               BlockPublicPolicy: FALSE
-               IgnorePublicAcls: FALSE
-               RestrictPublicBuckets: FALSE      
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-${self:provider.stage}-${self:service}
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+        PublicAccessBlockConfiguration: 
+          BlockPublicAcls: FALSE
+          BlockPublicPolicy: FALSE
+          IgnorePublicAcls: FALSE
+          RestrictPublicBuckets: FALSE      
   extensions:
     WebAppS3BucketPolicy:
       Properties:
@@ -58,6 +58,7 @@ resources:
 
 plugins:
   - fullstack-serverless 
+custom:
   fullstack:
     bucketName: ${self:service}
     distributionFolder: /dist/contract-express
@@ -87,10 +88,3 @@ package:
     - angular.json 
     - package-lock.json
     - package.json
-
-
-
-
-
-
-
