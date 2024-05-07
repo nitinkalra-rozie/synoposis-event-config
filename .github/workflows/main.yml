@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
       with:
-          node-version: "18.x"
+          node-version: "20.x"
     - name: Install fullstack-serverless
       run: npm install --save-dev fullstack-serverless
     - name: Install Serverless Framework
@@ -23,7 +23,7 @@ jobs:
     - name: Install Angular CLI
       run: npm install -g @angular/cli@latest
     - name: Install Packages
-      run: npm install
+      run: npm install --legacy-peer-deps
     - name: Serverless AWS Authentication
       run: sls config credentials --provider aws --key ${{ secrets.ACCESS_KEY}} --secret ${{ secrets.SECRET_ACCESS_KEY }}
     - name: Deploy Static Website
