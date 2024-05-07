@@ -29,6 +29,7 @@ export class ElsaEventAdminComponent {
   options: string[] = [];
   selectedOptions: string[] = [];
   dropdownOpen: boolean = false;
+
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -41,6 +42,7 @@ export class ElsaEventAdminComponent {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
+  
   //***************************************
 
   constructor(private backendApiService: BackendApiService,private cognitoService:CognitoService ) { }
@@ -53,6 +55,7 @@ export class ElsaEventAdminComponent {
       this.startRecording()
     }
   }
+  
   logout() {
     this.cognitoService.logOut();
   }
@@ -61,7 +64,25 @@ export class ElsaEventAdminComponent {
       console.log(data);
     });
   }
-
+ 
+  
+  // showWelcomeMessageBanner(sessionTitle: string): void {
+  //   // Call findSessionId with the selected day and the provided session title
+  //   const sessionId = this.findSessionId(this.selectedDay, sessionTitle);
+  //   if (sessionId) {
+  //     // If sessionId is not null, proceed with the API call
+  //     this.backendApiService.postData('welcome', sessionId, 'welcome_flag', this.selectedDay)
+  //       .subscribe((data: any) => {
+  //         console.log(data);
+  //         // Handle response data here
+  //       });
+  //   } else {
+  //     // If sessionId is null, log an error
+  //     console.error('Session ID not found for session title:', sessionTitle);
+  //   }
+  // }
+  
+  
   showSnapshot(): void {
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
     this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay).subscribe((data:any)=>{
@@ -221,7 +242,9 @@ export class ElsaEventAdminComponent {
       this.options.push(element.SessionTitle);
     });
   }
-
+sendSeasionData(){
+  
+}
   startSession(){
    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
     localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);

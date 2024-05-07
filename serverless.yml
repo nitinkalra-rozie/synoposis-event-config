@@ -1,0 +1,90 @@
+service: elsa-event-admin-app
+frameworkVersion: "3"
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, "dev"}
+  region: ${opt:region, "ca-central-1"}
+  stackTags:
+    REPOSITORY: "elsa-at-event-mic-app"
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - "s3:*"
+        - "s3:PutBucketPublicAccessBlock"
+        - "s3:DeletePublicAccessBlock"
+        - "s3:PutObject"
+        - "s3:PutObjectAcl"
+        - "s3:PutObjectTagging"
+        - "cloudformation:*"
+      Resource: "*"
+
+resources:
+  Resources:
+    OriginAccessIdentity:
+      Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+      Properties:
+        CloudFrontOriginAccessIdentityConfig:
+          Comment: !Sub Admin app assets
+    WebAppS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-${self:provider.stage}-${self:service}
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+        PublicAccessBlockConfiguration: 
+          BlockPublicAcls: FALSE
+          BlockPublicPolicy: FALSE
+          IgnorePublicAcls: FALSE
+          RestrictPublicBuckets: FALSE      
+  extensions:
+    WebAppS3BucketPolicy:
+      Properties:
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Join
+                - ""
+                - - !GetAtt WebAppS3Bucket.Arn
+                  - "/*"
+              Principal:
+                CanonicalUser: !GetAtt OriginAccessIdentity.S3CanonicalUserId
+                AWS: "*"
+
+
+plugins:
+  - fullstack-serverless 
+custom:
+  fullstack:
+    bucketName: ${self:service}
+    distributionFolder: /dist/Angularproject
+    indexDocument: index.html
+    errorDocument: index.html
+    compressWebContent: true
+    clientCommand: ng build
+    clientSrcPath: ./
+    noConfirm: true
+    invalidationPaths: /* 
+    spa:
+      errorConfigurations:
+        - errorCode: 404
+          responseCode: 200
+          responsePagePath: /index.html
+
+package:
+  individually: true
+  
+  exclude:
+    - node_modules/**
+    - venv/**
+    - tsconfig.spec.json
+    - tsconfig.json
+    - README.md
+    - create_project.txt
+    - angular.json 
+    - package-lock.json
+    - package.json
