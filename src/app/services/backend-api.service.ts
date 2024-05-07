@@ -6,6 +6,9 @@ import { Injectable } from '@angular/core';
 })
 export class BackendApiService {
   constructor(private http: HttpClient) { }
+  currentSessionId:string='';
+  eventDay:string='';
+
 
   getTranscriberPreSignedUrl(body:any){
     return this.http.post('https://fqbvo8ifm0.execute-api.ca-central-1.amazonaws.com/dev/getPreSignedUrl', body);
@@ -23,7 +26,7 @@ export class BackendApiService {
       action:action,
       sessionId:localStorage.getItem('currentSessionId'),
       flag:flag,
-      day:localStorage.getItem('currentDay')
+      day:day,
     }
     return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig', body);
   }
