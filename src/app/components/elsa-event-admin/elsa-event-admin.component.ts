@@ -26,6 +26,9 @@ export class ElsaEventAdminComponent {
   eventDays: any = [];
   selectedSessionTitle: string = '';
   filteredEventData:any = [];
+  options: string[] = ['Session 1', 'Session 2', 'Session 3', 'Session 4'];
+  selectedOptions: string[] = [];
+  dropdownOpen: boolean = false;
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -49,8 +52,8 @@ export class ElsaEventAdminComponent {
     this.getEventDetails();
     this.selectedDay = localStorage.getItem('currentDay') ||'';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
-    if(this.selectedDay){
-
+    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
+      this.startRecording()
     }
   }
   logout() {
@@ -211,6 +214,19 @@ export class ElsaEventAdminComponent {
     );
     return session ? session.SessionId : null;
   }
+
+  toggleSelection(option: string) {
+    if (this.selectedOptions.includes(option)) {
+      this.selectedOptions = this.selectedOptions.filter(item => item !== option);
+    } else {
+      this.selectedOptions.push(option);
+    }
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
   //*************************************** 
   startRecording() {
     this.isStreaming = !this.isStreaming
@@ -317,21 +333,21 @@ createPresignedUrlNew = async () => {
     return binary;
   }
   closeSocket = () => {
-    this.isStreaming = !this.isStreaming
-    if (this.socket.OPEN) {
-      this.micStream.stop();
-
-      // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
-      // @ts-ignore
-      let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
-      this.socket.send(emptyBuffer);
+    if(confirm("Are you sure to end the session")) {
+      if (this.socket.OPEN) {
+        this.micStream.stop();
+  
+        // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
+        let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
+        // @ts-ignore
+        let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+        this.socket.send(emptyBuffer);
+      }
+      localStorage.removeItem('currentSessionTitle')
+      localStorage.removeItem('currentSessionId')
+      this.selectedSessionTitle = ''
+      this.isStreaming = !this.isStreaming
     }
-    localStorage.removeItem('currentSessionTitle')
-    localStorage.removeItem('currentSessionId')
-    localStorage.removeItem('currentDay')
-    this.selectedSessionTitle = ''
-    this.selectedDay = ''
   }
   handleEventStreamMessage = (messageJson) => {
     let results = messageJson.Transcript.Results;
