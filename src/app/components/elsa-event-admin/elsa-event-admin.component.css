@@ -120,6 +120,8 @@
     font-size: 40px;
     margin-top:20px;
     color: white;
+    max-height: 70px;
+    overflow: auto;
   }
 
   /* enent selection css */
