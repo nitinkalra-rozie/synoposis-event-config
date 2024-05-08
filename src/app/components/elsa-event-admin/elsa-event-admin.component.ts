@@ -29,7 +29,7 @@ export class ElsaEventAdminComponent {
   options: string[] = [];
   selectedOptions: string[] = [];
   dropdownOpen: boolean = false;
-
+  sessionIds=[];
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -108,21 +108,26 @@ export class ElsaEventAdminComponent {
 
   showSummary(): void {
     // Check if a keynote type is selected
+     this.sessionIds= [];
     if(this.selectedOptions.length <= 0){
       alert("select the sessions to show the summary!");
+      return;
     }else{
-      
+      this.selectedOptions.forEach(element => {
+        const session =  this.findSession(this.selectedDay, element);
+        this.sessionIds.push(session.SessionId);
+      });
     }
     if (this.selectedKeynoteType) {
       // Call the appropriate Lambda function based on the selected keynote type
       switch (this.selectedKeynoteType) {
         case 'single':  
-          this.backendApiService.postData('summary_of_Single_Keynote',this.selectedOptions, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
+          this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
             console.log(data);
           });
           break;
         case 'multiple':
-          this.backendApiService.postData('summary_of_multiple_Keynot',this.selectedOptions, 'summary_of_multiple_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
+          this.backendApiService.postData('summary_of_multiple_Keynote',this.sessionIds, 'summary_of_multiple_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
             console.log(data);
           });
           break;
@@ -242,9 +247,6 @@ export class ElsaEventAdminComponent {
       this.options.push(element.SessionTitle);
     });
   }
-sendSeasionData(){
-  
-}
   startSession(){
    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
     localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);
@@ -282,7 +284,7 @@ sendSeasionData(){
 
   showKeyNote(){
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-    this.backendApiService.postData('summary_of_Single_Keynote',sessionDetails.SessionId,'summary_of_Single_Keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
+    this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
 
     });
   }
@@ -424,7 +426,7 @@ createPresignedUrlNew = async () => {
           //scroll the textarea down
           this.transcription = transcript
           // this.transcription += transcript + '\n';
-          this.backendApiService.putTranscript(messageJson).subscribe((data:any)=>{
+          this.backendApiService.putTranscript(this.transcription).subscribe((data:any)=>{
             console.log(data);
           })
         }

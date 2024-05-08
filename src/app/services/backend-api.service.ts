@@ -17,7 +17,7 @@ export class BackendApiService {
   putTranscript(transcript:any){
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
-      Transcript: transcript.Transcript
+      Transcript: transcript
     }
     return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
   }
