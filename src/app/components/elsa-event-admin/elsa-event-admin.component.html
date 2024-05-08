@@ -26,7 +26,11 @@
       <div class="dropdown">
         <div>
           <button class="dropbtn" (click)="toggleDropdown()">Select Session</button>
-        <span>{{ selectedOptions.join(', ') }}</span>
+          <ul>
+            <li *ngFor="let option of selectedOptions">
+              {{option}}
+            </li>
+          </ul>
         </div>
         <div class="dropdown-content" [ngClass]="{'show': dropdownOpen}">
           <label *ngFor="let option of options">
