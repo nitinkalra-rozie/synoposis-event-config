@@ -254,7 +254,6 @@ export class ElsaEventAdminComponent {
     localStorage.setItem("currentSessionId",session.SessionId);
     localStorage.setItem("currentDay", this.selectedDay);
     this.startRecording();
-    this.showKeyNote();
     this.backendApiService.postCurrentSessionId(session.SessionId).subscribe((data:any)=>{
       console.log(data);
     });

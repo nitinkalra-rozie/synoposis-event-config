@@ -5,7 +5,7 @@
       <h2 style="text-align: center;">Login</h2>
       <div class="loginclass">
         <form (submit)="onSignIn(signInForm)" #signInForm="ngForm">
-          <input type="email" placeholder="email" id="email" name="email" ngModel #emailInput="ngModel"
+          <input type="email" placeholder="Email" id="email" name="email" ngModel #emailInput="ngModel"
             [(ngModel)]="emailaddress">
           <input type="password" placeholder="Password" id="password" name="password" ngModel #passwordInput="ngModel"
             [(ngModel)]="password">
