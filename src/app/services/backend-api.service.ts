@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +11,9 @@ export class BackendApiService {
   eventDay:string='';
 
 
+
   getTranscriberPreSignedUrl(body:any){
-    return this.http.post('https://fqbvo8ifm0.execute-api.ca-central-1.amazonaws.com/dev/getPreSignedUrl', body);
+    return this.http.post(environment.getTranscriberPreSignedUrl, body);
   }
 
   putTranscript(transcript:any){
@@ -19,7 +21,7 @@ export class BackendApiService {
       sessionId: localStorage.getItem('currentSessionId'),
       Transcript: transcript
     }
-    return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body);
+    return this.http.post(environment.putTranscript, body);
   }
   postData(action:any,sessionId:any,flag:any,day:any, data?:any){
     const body={
@@ -29,16 +31,16 @@ export class BackendApiService {
       day: day || localStorage.getItem('currentDay'),
       keyNoteData: data || {}
     }
-    return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig', body);
+    return this.http.post(environment.postData, body);
   }
   getEventDetails(){
-    return this.http.post('https://dcbdtg2n1a.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',{});
+    return this.http.post(environment.getEventDetails,{});
   }
   postCurrentSessionId(sessionId:any){
     console.log("Inside postCurrent", sessionId)
     const body={
       sessionId: sessionId
     }
-    return this.http.post('https://ukm31jyh2f.execute-api.ca-central-1.amazonaws.com/dev/getCurrentSessionDetails', body);
+    return this.http.post(environment.postCurrentSessionId, body);
   }
 }

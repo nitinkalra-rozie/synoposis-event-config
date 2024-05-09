@@ -35,7 +35,41 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            },
+            "prod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            },
+            "dev": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ],
+              "optimization": false,
               "outputHashing": "all",
               "sourceMap": false,
               "extractCss": true,
@@ -55,6 +89,12 @@
           "configurations": {
             "production": {
               "browserTarget": "Angularproject:build:production"
+            },
+            "dev": {
+              "browserTarget": "Angularproject:build:dev"
+            },
+            "prod": {
+              "browserTarget": "Angularproject:build:prod"
             }
           }
         },
@@ -108,6 +148,12 @@
           "configurations": {
             "production": {
               "devServerTarget": "Angularproject:serve:production"
+            },
+            "dev": {
+              "devServerTarget": "Angularproject:serve:dev"
+            },
+            "prod": {
+              "devServerTarget": "Angularproject:serve:prod"
             }
           }
         },
