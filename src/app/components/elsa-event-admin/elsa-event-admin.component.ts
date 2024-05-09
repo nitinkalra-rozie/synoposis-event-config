@@ -282,6 +282,7 @@ export class ElsaEventAdminComponent {
   }
 
   showKeyNote(){
+    console.log("inside showKeyNote");
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
     this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
 
