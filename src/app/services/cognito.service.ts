@@ -29,7 +29,12 @@ export class CognitoService {
       }
     });
   }
-
+  ngOnInit(): void {
+    // Check localStorage on component initialization
+    this.accessToken = localStorage.getItem("accessToken") || '';
+    this.refreshToken = localStorage.getItem("refreshToken") || '';
+    this.username = localStorage.getItem("username") || '';
+  }
   // Login
   login(emailaddress: any, password: any) {
     const authenticationDetails = new AuthenticationDetails({
