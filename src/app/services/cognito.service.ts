@@ -54,7 +54,8 @@ export class CognitoService {
 
     this.cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result: any) => {
-        localStorage.setItem("Idtoken", result.idToken);
+        console.log("result", JSON.stringify(result));
+        localStorage.setItem("Idtoken", result.idToken.jwtToken);
         localStorage.setItem("refreshToken", result.refreshToken.token);
         localStorage.setItem("accessToken", result.accessToken.jwtToken);
         localStorage.setItem("username", this.username);
