@@ -247,6 +247,7 @@ export class ElsaEventAdminComponent {
     if(confirm("Are you sure to end the session?")) {
     this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay).subscribe((data:any)=>{
       this.showSuccessMessage('End session message sent successfully!');
+      this.showPostInsightsLoading()
     },
     (error: any) => {
       this.showFailureMessage('Failed to send end session message.');
@@ -293,6 +294,7 @@ export class ElsaEventAdminComponent {
     this.backendApiService.postCurrentSessionId(session.SessionId).subscribe((data:any)=>{
       console.log(data);
     });
+    this.showLoadingInsights()
    }
    else{
     alert('Please select the Event Day and Speaker Name to start the session');
@@ -322,6 +324,17 @@ export class ElsaEventAdminComponent {
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
     this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
 
+    });
+  }
+
+  showLoadingInsights(){
+    this.backendApiService.postData('insightsLoading','','insightsLoading_flag',this.selectDay|| '').subscribe(()=>{
+
+    });
+  }
+
+  showPostInsightsLoading(){
+    this.backendApiService.postData('postInsightsLoading','','postInsightsLoading_flag',this.selectDay|| '').subscribe(()=>{
     });
   }
   //*************************************** 
