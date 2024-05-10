@@ -379,7 +379,7 @@ createPresignedUrlNew = async () => {
         secret: '6lQI2dAsz7qVy0inywIKSKNwUFI80w/tE9LpYERt',
         protocol: 'wss',
         expires: 15,
-        region: 'us-east-1',
+        region: 'ca-central-1',
         query:'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate
       }
     }
