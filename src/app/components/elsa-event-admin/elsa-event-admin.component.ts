@@ -7,6 +7,7 @@ import * as createHash from 'create-hash';
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
+
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -30,6 +31,8 @@ export class ElsaEventAdminComponent {
   selectedOptions: string[] = [];
   dropdownOpen: boolean = false;
   sessionIds=[];
+  successMessage: string = '';
+  failureMessage: string = '';
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -59,50 +62,71 @@ export class ElsaEventAdminComponent {
   logout() {
     this.cognitoService.logOut();
   }
+
   showWelcomeMessageBanner(): void {
-    this.backendApiService.postData('welcome','', 'welcome_flag', this.selectedDay).subscribe((data:any)=>{
-      console.log(data);
-    });
+    this.backendApiService.postData('welcome', '', 'welcome_flag', this.selectedDay).subscribe(
+      (data: any) => {
+        this.showSuccessMessage('Welcome message screen sent successfully!');
+      },
+      (error: any) => {
+        this.showFailureMessage('Failed to send welcome message.');
+      }
+    );
   }
- 
   
-  // showWelcomeMessageBanner(sessionTitle: string): void {
-  //   // Call findSessionId with the selected day and the provided session title
-  //   const sessionId = this.findSessionId(this.selectedDay, sessionTitle);
-  //   if (sessionId) {
-  //     // If sessionId is not null, proceed with the API call
-  //     this.backendApiService.postData('welcome', sessionId, 'welcome_flag', this.selectedDay)
-  //       .subscribe((data: any) => {
-  //         console.log(data);
-  //         // Handle response data here
-  //       });
-  //   } else {
-  //     // If sessionId is null, log an error
-  //     console.error('Session ID not found for session title:', sessionTitle);
-  //   }
-  // }
+
   
   
+  private showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000); 
+  }
+
+  private showFailureMessage(message: string): void {
+    this.failureMessage = message;
+    setTimeout(() => {
+      this.failureMessage = '';
+    }, 5000); 
+  }
   showSnapshot(): void {
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
     this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay).subscribe((data:any)=>{
+      this.showSuccessMessage('Snapshot message sent successfully!');
       console.log(data);
+
+    },
+    (error: any) => {
+      this.showFailureMessage('Failed to send snapshot message.');
     });
   }
 
   showThankYouScreen(): void {
     this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay).subscribe((data:any)=>{
+      this.showSuccessMessage('Thank you message sent successfully!');
       console.log(data);
+    }, 
+    (error: any) => {
+      this.showFailureMessage('Failed to send thank you message.');
     });
   }
   showBackupScreen():void{
     this.backendApiService.postData('backup_screen','','backup_screen', this.selectedDay).subscribe((data:any)=>{
+      this.showSuccessMessage('Backup message sent successfully!');
       console.log(data);
+    },
+    (error: any) => {
+      this.showFailureMessage('Failed to send backup message.');
     });
   }
   showQrScreen():void{
     this.backendApiService.postData('qr_screen','','backup_screen', this.selectedDay).subscribe((data:any)=>{
       console.log(data);
+      this.showSuccessMessage('Qr message sent successfully!');
+    },
+    (error: any) => {
+      this.showFailureMessage('Failed to send qr message.');
     });
   }
 
@@ -124,12 +148,21 @@ export class ElsaEventAdminComponent {
         case 'single':  
           this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
             console.log(data);
+            this.showSuccessMessage('Single keynote message sent successfully!');
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to send single keynote message.');
           });
           break;
         case 'multiple':
           this.backendApiService.postData('summary_of_multiple_Keynote',this.sessionIds, 'summary_of_multiple_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
             console.log(data);
-          });
+            this.showSuccessMessage('Multiple keynote message sent successfully!');
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to send multiple keynote message.');
+          }
+        );
           break;
         default:
           console.error('No keynote type selected');
@@ -213,7 +246,10 @@ export class ElsaEventAdminComponent {
     console.log("sessionId for end session",session)
     if(confirm("Are you sure to end the session?")) {
     this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay).subscribe((data:any)=>{
-      console.log(data);
+      this.showSuccessMessage('End session message sent successfully!');
+    },
+    (error: any) => {
+      this.showFailureMessage('Failed to send end session message.');
     });
     this.closeSocket();
     }

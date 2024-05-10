@@ -17,6 +17,32 @@
 .logout-button:hover {
   background-color: #534AD8;
 }
+.alert-box {
+  position: absolute;
+  top: 10%; 
+  left: 50%; 
+  transform: translate(-50%, -50%); 
+  z-index: 1000; 
+}
+
+.alert {
+  padding: 10px;
+  border-radius: 5px;
+  width: 300px; 
+  margin-bottom: 10px;
+}
+
+.alert-success {
+  background-color: #d4edda; 
+  color: #155724; 
+}
+
+.alert-danger {
+  background-color: #f8d7da; 
+  color: #721c24; 
+}
+
+
 
 .container {
     display: flex;
