@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment.dev';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
-    return this.http.post('https://fqbvo8ifm0.execute-api.ca-central-1.amazonaws.com/dev/getPreSignedUrl', body,{ headers: headers });
+    return this.http.post(environment.getTranscriberPreSignedUrl, body,{ headers: headers });
   }
 
   putTranscript(transcript:any){
@@ -27,7 +28,7 @@ export class BackendApiService {
       sessionId: localStorage.getItem('currentSessionId'),
       Transcript: transcript
     }
-    return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/postTranscript', body, { headers: headers });
+    return this.http.post(environment.putTranscript, body, { headers: headers });
   }
   postData(action:any,sessionId:any,flag:any,day:any, data?:any){
     const refreshToken = localStorage.getItem('Idtoken');
@@ -41,14 +42,14 @@ export class BackendApiService {
       day: day || localStorage.getItem('currentDay'),
       keyNoteData: data || {}
     }
-    return this.http.post('https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig', body,{ headers: headers });
+    return this.http.post(environment.postData, body,{ headers: headers });
   }
   getEventDetails(){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
-    return this.http.post('https://dcbdtg2n1a.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',{},{ headers: headers });
+    return this.http.post(environment.getEventDetails,{},{ headers: headers });
   }
   postCurrentSessionId(sessionId:any){
     const refreshToken = localStorage.getItem('Idtoken');
@@ -59,6 +60,6 @@ export class BackendApiService {
     const body={
       sessionId: sessionId
     }
-    return this.http.post('https://ukm31jyh2f.execute-api.ca-central-1.amazonaws.com/dev/getCurrentSessionDetails', body,{ headers: headers });
+    return this.http.post(environment.postCurrentSessionId, body,{ headers: headers });
   }
 }

@@ -1,6 +1,15 @@
 <div class="logout-container">
   <button class="logout-button" (click)="logout()">Logout</button>
 </div>
+<div class="alert-box" [ngClass]="{'success': successMessage, 'failure': failureMessage}">
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="failureMessage" class="alert alert-danger" role="alert">
+    {{ failureMessage }}
+  </div>
+</div>
+
 <div class="container">
   <div class="sbox">
     <div class="day-speaker">
