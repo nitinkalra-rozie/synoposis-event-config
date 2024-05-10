@@ -19,7 +19,7 @@
 }
 .alert-box {
   position: absolute;
-  top: 10%; 
+  top: 5%; 
   left: 50%; 
   transform: translate(-50%, -50%); 
   z-index: 1000; 
@@ -107,7 +107,7 @@
     background-color: #B9E2FF;
   }
   
-  .dropdown:hover .dropdown-content {
+  .dropdown-content {
     display: block;
   }
   

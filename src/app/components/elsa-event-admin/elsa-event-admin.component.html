@@ -41,12 +41,12 @@
             </li>
           </ul>
         </div>
-        <div class="dropdown-content" [ngClass]="{'show': dropdownOpen}">
-          <label *ngFor="let option of options">
-            <input type="checkbox" [value]="option" (change)="toggleSelection($event.target.value)">
-            {{ option }}
-          </label>
-        </div>
+          <div class="dropdown-content" [ngClass]="{'show': dropdownOpen}">
+            <label *ngFor="let option of options">
+              <input type="checkbox" [value]="option" (change)="toggleSelection($event.target.value)">
+              {{ option }}
+            </label>
+          </div>
       </div>
       <div>
       </div>
@@ -62,13 +62,7 @@
     
     <button (click)="showBackupScreen()">Show Backup Screen</button>
     <button (click)="showQrScreen()">Show QR Screen</button>
-    <div class="dropdown">
-      <button class="dropbtn">Show Summary</button>
-      <div class="dropdown-content">
-        <a (click)="selectOption('single')">Summary of Selected Keynotes</a>
-      </div>
-    </div>
-    </div>
+    <button (click)="showSummary()">Summary of Selected Keynotes</button>
   <div class="transcript">
     {{transcription}}
   </div>

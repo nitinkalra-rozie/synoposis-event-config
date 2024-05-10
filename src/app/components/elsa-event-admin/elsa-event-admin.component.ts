@@ -55,10 +55,9 @@ export class ElsaEventAdminComponent {
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
-      this.startRecording()
+        this.startRecording()
     }
   }
-  
   logout() {
     this.cognitoService.logOut();
   }
@@ -69,13 +68,10 @@ export class ElsaEventAdminComponent {
         this.showSuccessMessage('Welcome message screen sent successfully!');
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send welcome message.');
+        this.showFailureMessage('Failed to send welcome message.',error);
       }
     );
   }
-  
-
-  
   
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
@@ -84,7 +80,7 @@ export class ElsaEventAdminComponent {
     }, 3000); 
   }
 
-  private showFailureMessage(message: string): void {
+  private showFailureMessage(message: string, error: any): void {
     this.failureMessage = message;
     setTimeout(() => {
       this.failureMessage = '';
@@ -98,7 +94,7 @@ export class ElsaEventAdminComponent {
 
     },
     (error: any) => {
-      this.showFailureMessage('Failed to send snapshot message.');
+      this.showFailureMessage('Failed to send snapshot message.',error);
     });
   }
 
@@ -108,7 +104,7 @@ export class ElsaEventAdminComponent {
       console.log(data);
     }, 
     (error: any) => {
-      this.showFailureMessage('Failed to send thank you message.');
+      this.showFailureMessage('Failed to send thank you message.',error);
     });
   }
   showBackupScreen():void{
@@ -117,7 +113,7 @@ export class ElsaEventAdminComponent {
       console.log(data);
     },
     (error: any) => {
-      this.showFailureMessage('Failed to send backup message.');
+      this.showFailureMessage('Failed to send backup message.',error);
     });
   }
   showQrScreen():void{
@@ -126,7 +122,7 @@ export class ElsaEventAdminComponent {
       this.showSuccessMessage('Qr message sent successfully!');
     },
     (error: any) => {
-      this.showFailureMessage('Failed to send qr message.');
+      this.showFailureMessage('Failed to send qr message.',error);
     });
   }
 
@@ -141,41 +137,15 @@ export class ElsaEventAdminComponent {
         const session =  this.findSession(this.selectedDay, element);
         this.sessionIds.push(session.SessionId);
       });
-    }
-    if (this.selectedKeynoteType) {
-      // Call the appropriate Lambda function based on the selected keynote type
-      switch (this.selectedKeynoteType) {
-        case 'single':  
-          this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
-            console.log(data);
-            this.showSuccessMessage('Single keynote message sent successfully!');
-          },
-          (error: any) => {
-            this.showFailureMessage('Failed to send single keynote message.');
-          });
-          break;
-        case 'multiple':
-          this.backendApiService.postData('summary_of_multiple_Keynote',this.sessionIds, 'summary_of_multiple_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
-            console.log(data);
-            this.showSuccessMessage('Multiple keynote message sent successfully!');
-          },
-          (error: any) => {
-            this.showFailureMessage('Failed to send multiple keynote message.');
-          }
-        );
-          break;
-        default:
-          console.error('No keynote type selected');
-          break;
-      }
-    } else {
-      console.error('No keynote type selected');
-    }
-  }
 
-  selectOption(option: string): void {
-    this.selectedKeynoteType = option;
-    this.showSummary();
+      this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
+        console.log(data);
+        this.showSuccessMessage('Single keynote message sent successfully!');
+      },
+      (error: any) => {
+        this.showFailureMessage('Failed to send single keynote message.',error);
+      });
+    }
   }
 
   showSession(): void {
@@ -247,9 +217,10 @@ export class ElsaEventAdminComponent {
     if(confirm("Are you sure to end the session?")) {
     this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay).subscribe((data:any)=>{
       this.showSuccessMessage('End session message sent successfully!');
+      this.showPostInsightsLoading()
     },
     (error: any) => {
-      this.showFailureMessage('Failed to send end session message.');
+      this.showFailureMessage('Failed to send end session message.',error);
     });
     this.closeSocket();
     }
@@ -273,6 +244,7 @@ export class ElsaEventAdminComponent {
   }
 
   onDayChange() {
+    console.log('inside day change',this.selectedDay)
     this.options = [];
     if (this.selectedDay !== '') {
       this.filteredEventData = this.eventDetails.filter(event => event.EventDay === this.selectedDay);
@@ -282,6 +254,7 @@ export class ElsaEventAdminComponent {
     this.filteredEventData.forEach(element => {
       this.options.push(element.SessionTitle);
     });
+    console.log('end of on day change',this.options)
   }
   startSession(){
    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
@@ -293,6 +266,7 @@ export class ElsaEventAdminComponent {
     this.backendApiService.postCurrentSessionId(session.SessionId).subscribe((data:any)=>{
       console.log(data);
     });
+    this.showLoadingInsights()
    }
    else{
     alert('Please select the Event Day and Speaker Name to start the session');
@@ -315,14 +289,36 @@ export class ElsaEventAdminComponent {
 
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
+    this.onDayChange();
   }
 
   showKeyNote(){
-    console.log("inside showKeyNote");
-    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-    this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
+    if(this.selectedDay != '' && this.selectedSessionTitle != ''){
+      const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
+      this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
+        this.showSuccessMessage('Show speakers details sent successfully!');
+      },
+      (error: any) => {
+        this.showFailureMessage('Failed to send show speakers details.',error);
+      });
+    }else{
+      alert('Event day and Session should be selected to show speaker details!');
+    }
+   
+  }
 
+  showLoadingInsights(){
+    this.backendApiService.postData('insightsLoading','','insightsLoading_flag',this.selectDay|| '').subscribe(()=>{
     });
+  }
+
+  showPostInsightsLoading(){
+    this.backendApiService.postData('postInsightsLoading','','postInsightsLoading_flag',this.selectDay|| '').subscribe(()=>{
+    });
+  }
+
+  onSelectSession(){
+    this.dropdownOpen
   }
   //*************************************** 
   startRecording() {
@@ -464,6 +460,9 @@ createPresignedUrlNew = async () => {
           // this.transcription += transcript + '\n';
           this.backendApiService.putTranscript(this.transcription).subscribe((data:any)=>{
             console.log(data);
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to store transcript',error);
           })
         }
       }
