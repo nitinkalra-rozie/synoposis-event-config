@@ -7,4 +7,5 @@ export const environment = {
     postData:'',
     getEventDetails:'',
     postCurrentSessionId:''
+    
   };
