@@ -11,7 +11,6 @@ export const environment = {
   postData:'https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig',
   getEventDetails:'https://dcbdtg2n1a.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',
   postCurrentSessionId:'https://ukm31jyh2f.execute-api.ca-central-1.amazonaws.com/dev/getCurrentSessionDetails'
-
 };
 
 /*
