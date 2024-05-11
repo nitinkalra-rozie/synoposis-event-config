@@ -375,8 +375,6 @@ createPresignedUrlNew = async () => {
       service: 'transcribe',
       hash:createHash('sha256').update('', 'utf8').digest('hex'),
       options:{
-        key: 'AKIA3SVZJVX56UU2YEWT',
-        secret: '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',
         protocol: 'wss',
         expires: 15,
         region: 'ca-central-1',
