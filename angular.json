@@ -45,7 +45,23 @@
               "vendorChunk": false,
               "buildOptimizer": true
             },
-            "prod": { },
+            "prod": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            },
             "dev": {
               "fileReplacements": [
                 {
