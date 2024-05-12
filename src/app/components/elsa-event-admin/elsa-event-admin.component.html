@@ -1,4 +1,15 @@
 <div class="logout-container">
+  <div>
+    <label for="postInsideInterval">Post Inside Interval(in sec): </label>
+    <input class="nav-input" type="number" id="postInsideInterval" [(ngModel)]="postInsideInterval" (ngModelChange)="onPostInsideIntervalChange()">
+  </div>
+<div>
+  <label for="transcriptTimeOut">Transcipt Timeout(in sec): </label>
+  <input class="nav-input" type="number" id="transcriptTimeOut" [(ngModel)]="transcriptTimeOut" (ngModelChange)="onTranscriptTimeOutChange()">
+</div>
+
+  <button class="logout-button" (click)="showEndEvent()">End Event</button>
+
   <button class="logout-button" (click)="logout()">Logout</button>
 </div>
 <div class="alert-box" [ngClass]="{'success': successMessage, 'failure': failureMessage}">

@@ -41,7 +41,8 @@ export class BackendApiService {
       flag:flag,
       day: day || localStorage.getItem('currentDay'),
       keyNoteData: data || {},
-      transcript: ''
+      transcript: '',
+      screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15
     }
     if(action === 'realTimeInsights'){
       body.keyNoteData = {}

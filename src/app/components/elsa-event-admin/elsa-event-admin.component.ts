@@ -36,6 +36,8 @@ export class ElsaEventAdminComponent {
   transctiptToInsides: string = '';
   timeoutId: any = '';
   currentSessionId = '';
+  postInsideInterval: number = 15;
+  transcriptTimeOut: number = 60;
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -58,6 +60,8 @@ export class ElsaEventAdminComponent {
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
+    this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut'))
+    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval'))
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
         this.startRecording()
         this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
@@ -110,6 +114,15 @@ export class ElsaEventAdminComponent {
     }, 
     (error: any) => {
       this.showFailureMessage('Failed to send thank you message.',error);
+    });
+  }
+  showEndEvent(){
+    this.backendApiService.postData('thank_you','','thank_flag', 'endEvent').subscribe((data:any)=>{
+      this.showSuccessMessage('End event message sent successfully!');
+      console.log(data);
+    }, 
+    (error: any) => {
+      this.showFailureMessage('Failed to send end event message.',error);
     });
   }
   showBackupScreen():void{
@@ -356,7 +369,7 @@ export class ElsaEventAdminComponent {
       this.transctiptToInsides = '' ;
       this.transctiptToInsides = lastFiveWords;
       localStorage.setItem('transctiptToInsides',this.transctiptToInsides);
-    }, 60000);
+    }, this.transcriptTimeOut*1000 || 60000);
   }
 
   getRealTimeInsights(transcript:string){
@@ -365,6 +378,22 @@ export class ElsaEventAdminComponent {
     clearTimeout(this.timeoutId);
     this.setTimerToPushTranscript();
   }
+
+  onPostInsideIntervalChange() {
+    // This function will be triggered whenever the value of postInsideInterval changes
+    console.log("postInsideInterval changed to:", this.postInsideInterval);
+    localStorage.setItem("postInsideInterval",this.postInsideInterval.toString())
+
+    // You can call any other functions or perform any other actions here
+  }
+
+  onTranscriptTimeOutChange() {
+    // This function will be triggered whenever the value of transcriptTimeOut changes
+    console.log("transcriptTimeOut changed to:", this.transcriptTimeOut);
+    localStorage.setItem("transcriptTimeOut",this.transcriptTimeOut.toString())
+    // You can call any other functions or perform any other actions here
+  }
+
   //*************************************** 
   startRecording() {
     this.isStreaming = !this.isStreaming
