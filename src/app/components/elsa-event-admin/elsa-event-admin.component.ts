@@ -510,6 +510,7 @@ createPresignedUrlNew = async () => {
       localStorage.removeItem('currentSessionTitle')
       localStorage.removeItem('currentSessionId')
       this.selectedSessionTitle = ''
+      clearTimeout(this.timeoutId);
       this.isStreaming = !this.isStreaming
   }
   handleEventStreamMessage = (messageJson) => {
