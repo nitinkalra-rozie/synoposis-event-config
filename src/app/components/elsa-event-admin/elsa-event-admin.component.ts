@@ -33,10 +33,13 @@ export class ElsaEventAdminComponent {
   sessionIds=[];
   successMessage: string = '';
   failureMessage: string = '';
+  transctiptToInsides: string = '';
+  timeoutId: any = '';
+  currentSessionId = '';
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
-  region = 'us-east-1';
+  region = 'ca-central-1';
   sampleRate = 44100;
   transcription = '';
   socket;
@@ -54,8 +57,10 @@ export class ElsaEventAdminComponent {
     this.getEventDetails();
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
+    this.currentSessionId = localStorage.getItem('currentSessionId') || '';
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
         this.startRecording()
+        this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
     }
   }
   logout() {
@@ -320,6 +325,46 @@ export class ElsaEventAdminComponent {
   onSelectSession(){
     this.dropdownOpen
   }
+
+  realtimeInsides(transcipt:any){
+    if(this.transctiptToInsides !== ''){
+      this.setTimerToPushTranscript()
+    }
+    this.transctiptToInsides += transcipt
+    localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    const words = this.transctiptToInsides.split(/\s+/);
+    const wordCount = words.length
+    if(wordCount > 100){
+      const lastFiveWords = words.slice(-5).join(" ");
+      console.log("100 word limit crossed send it insides",this.transctiptToInsides);
+      console.log("last five word for lapping",lastFiveWords);
+      this.getRealTimeInsights(this.transctiptToInsides);
+      this.transctiptToInsides = '' ;
+      this.transctiptToInsides = lastFiveWords;
+      localStorage.setItem('transctiptToInsides',this.transctiptToInsides);
+    }
+  }
+
+  setTimerToPushTranscript(){
+    this.timeoutId = setTimeout(() => {
+      console.log('1 minute timer completed.');
+      const words = this.transctiptToInsides.split(/\s+/);
+      const lastFiveWords = words.slice(-5).join(" ");
+      console.log("100 word limit crossed send it insides",this.transctiptToInsides);
+      console.log("last five word for lapping",lastFiveWords);
+      this.getRealTimeInsights(this.transctiptToInsides);
+      this.transctiptToInsides = '' ;
+      this.transctiptToInsides = lastFiveWords;
+      localStorage.setItem('transctiptToInsides',this.transctiptToInsides);
+    }, 60000);
+  }
+
+  getRealTimeInsights(transcript:string){
+    this.backendApiService.postData('realTimeInsights',this.currentSessionId,'keynote_flag',this.selectedDay,transcript).subscribe(()=>{    
+    });
+    clearTimeout(this.timeoutId);
+    this.setTimerToPushTranscript();
+  }
   //*************************************** 
   startRecording() {
     this.isStreaming = !this.isStreaming
@@ -456,6 +501,7 @@ createPresignedUrlNew = async () => {
           //scroll the textarea down
           this.transcription = transcript
           // this.transcription += transcript + '\n';
+          this.realtimeInsides(this.transcription);
           this.backendApiService.putTranscript(this.transcription).subscribe((data:any)=>{
             console.log(data);
           },
