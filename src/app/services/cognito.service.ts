@@ -116,6 +116,8 @@ export class CognitoService {
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("username");
+      localStorage.removeItem("postInsideInterval")
+      localStorage.removeItem("transcriptTimeOut")
 
       this.refreshToken = '';
       this.accessToken = ''; // Clear stored tokens
@@ -151,6 +153,7 @@ export class CognitoService {
             this.authStateSubject.next(false); // Update auth state to reflect unauthenticated state
             reject(err);
           } else {
+            console.log("inside refresh loging",JSON.stringify(session))
             this.accessToken = session.accessToken.jwtToken;
             this.refreshToken = session.refreshToken.token;
             resolve();

@@ -35,12 +35,18 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
-    const body={
+    let body={
       action:action,
       sessionId: sessionId || localStorage.getItem('currentSessionId'),
       flag:flag,
       day: day || localStorage.getItem('currentDay'),
-      keyNoteData: data || {}
+      keyNoteData: data || {},
+      transcript: '',
+      screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15
+    }
+    if(action === 'realTimeInsights'){
+      body.keyNoteData = {}
+      body.transcript = data
     }
     return this.http.post(environment.postData, body,{ headers: headers });
   }

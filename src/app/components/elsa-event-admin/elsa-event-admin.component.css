@@ -1,7 +1,14 @@
 .logout-container {
+  padding:20px;
   position: absolute;
-  top: 20px;
-  right: 20px;
+  width: 100%;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #b6b1f5; 
+  height: fit-content;
 }
 
 .logout-button {
@@ -12,10 +19,19 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  width: fit-content;
+  margin:0;
 }
 
 .logout-button:hover {
   background-color: #534AD8;
+}
+
+.nav-input{
+  height: 30px;
+  border-radius: 15px;
+  text-align: center;
+  width: fit-content;
 }
 .alert-box {
   position: absolute;
