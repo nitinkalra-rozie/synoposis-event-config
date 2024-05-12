@@ -360,7 +360,7 @@ export class ElsaEventAdminComponent {
   }
 
   getRealTimeInsights(transcript:string){
-    this.backendApiService.postData('realTimeInsights',this.currentSessionId,'keynote_flag',this.selectedDay,transcript).subscribe(()=>{    
+    this.backendApiService.postData('realTimeInsights',this.currentSessionId,'realTimeInsights_flag',this.selectedDay,transcript).subscribe(()=>{    
     });
     clearTimeout(this.timeoutId);
     this.setTimerToPushTranscript();
