@@ -60,8 +60,8 @@ export class ElsaEventAdminComponent {
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
-    this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut'))
-    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval'))
+    this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
+    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
         this.startRecording()
         this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
