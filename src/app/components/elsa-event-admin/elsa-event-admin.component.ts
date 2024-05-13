@@ -285,7 +285,12 @@ export class ElsaEventAdminComponent {
     this.startRecording();
     this.backendApiService.postCurrentSessionId(session.SessionId).subscribe((data:any)=>{
       console.log(data);
+      this.showSuccessMessage('Start session message sent successfully!');
+    },
+    (error: any) => {
+      this.showFailureMessage('Failed to send start session message.',error);
     });
+  
     this.showLoadingInsights()
    }
    else{
