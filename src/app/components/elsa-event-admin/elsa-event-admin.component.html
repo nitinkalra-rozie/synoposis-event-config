@@ -1,10 +1,10 @@
 <div class="logout-container">
   <div>
-    <label for="postInsideInterval">Post Inside Interval(in sec): </label>
+    <label for="postInsideInterval">Post Session Time Interval(in sec): </label>
     <input class="nav-input" type="number" id="postInsideInterval" [(ngModel)]="postInsideInterval" (ngModelChange)="onPostInsideIntervalChange()">
   </div>
 <div>
-  <label for="transcriptTimeOut">Transcipt Timeout(in sec): </label>
+  <label for="transcriptTimeOut">During Session Time Window(in sec): </label>
   <input class="nav-input" type="number" id="transcriptTimeOut" [(ngModel)]="transcriptTimeOut" (ngModelChange)="onTranscriptTimeOutChange()">
 </div>
 
@@ -31,7 +31,7 @@
         </select>
       </div>
       <div class="speaker">
-        <label for="sessionSpeakerName">Event Title: </label>
+        <label for="sessionSpeakerName">Session Title: </label>
         <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSessionTitle">
           <option *ngFor="let event of filteredEventData" [value]="event.SessionTitle">{{event.SessionTitle}}</option>
         </select>
@@ -40,7 +40,7 @@
     <button (click)="startSession()">
       Start Session
     </button>
-    <button (click)="showEndSession()">End Session (Show Post Insites)</button>
+    <button (click)="showEndSession()">End Session (Show Post Session Screens)</button>
     <hr>
     <div class="event-selection">
       <div class="dropdown">
@@ -73,7 +73,7 @@
     
     <button (click)="showBackupScreen()">Show Backup Screen</button>
     <button (click)="showQrScreen()">Show QR Screen</button>
-    <button (click)="showSummary()">Summary of Selected Keynotes</button>
+    <button (click)="showSummary()">Summary of Selected Sessions</button>
     </div>
   <div class="transcript">
     {{transcription}}
