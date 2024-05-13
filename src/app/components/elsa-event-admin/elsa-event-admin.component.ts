@@ -38,6 +38,7 @@ export class ElsaEventAdminComponent {
   currentSessionId = '';
   postInsideInterval: number = 15;
   transcriptTimeOut: number = 60;
+  lastFiveWords: string = '';
   //*************************************
   title = 'AngularTranscribe';
   languageCode = 'en-US';
@@ -62,6 +63,7 @@ export class ElsaEventAdminComponent {
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
+    this.lastFiveWords=localStorage.getItem('lastFiveWords')
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
         this.startRecording()
         this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
@@ -339,45 +341,56 @@ export class ElsaEventAdminComponent {
     this.dropdownOpen
   }
 
-  realtimeInsides(transcipt:any){
-    if(this.transctiptToInsides !== ''){
-      this.setTimerToPushTranscript()
+  realtimeInsides(transcript: string) {
+    if (this.transctiptToInsides === '') {
+        this.setTimerToPushTranscript();
     }
-    this.transctiptToInsides += transcipt
+    
+    this.transctiptToInsides += transcript;
     localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    
     const words = this.transctiptToInsides.split(/\s+/);
-    const wordCount = words.length
-    if(wordCount > 100){
-      const lastFiveWords = words.slice(-5).join(" ");
-      console.log("100 word limit crossed send it insides",this.transctiptToInsides);
-      console.log("last five word for lapping",lastFiveWords);
-      this.getRealTimeInsights(this.transctiptToInsides);
-      this.transctiptToInsides = '' ;
-      this.transctiptToInsides = lastFiveWords;
-      localStorage.setItem('transctiptToInsides',this.transctiptToInsides);
+    const wordCount = words.length;
+    
+    if (wordCount > 100) {
+        // Clear existing timer
+        console.log('1 minute 100 completed ')
+        this.hitBackendApiAndReset()
     }
-  }
+}
 
-  setTimerToPushTranscript(){
+setTimerToPushTranscript() {
+    clearInterval(this.timeoutId)
+  console.log('1 minute reset')
     this.timeoutId = setTimeout(() => {
-      console.log('1 minute timer completed.');
-      const words = this.transctiptToInsides.split(/\s+/);
-      const lastFiveWords = words.slice(-5).join(" ");
-      console.log("100 word limit crossed send it insides",this.transctiptToInsides);
-      console.log("last five word for lapping",lastFiveWords);
-      this.getRealTimeInsights(this.transctiptToInsides);
-      this.transctiptToInsides = '' ;
-      this.transctiptToInsides = lastFiveWords;
-      localStorage.setItem('transctiptToInsides',this.transctiptToInsides);
-    }, this.transcriptTimeOut*1000 || 60000);
-  }
+      console.log('1 minute completed')
+      this.hitBackendApiAndReset()
+    }, this.transcriptTimeOut * 1000 || 60000);
+}
 
-  getRealTimeInsights(transcript:string){
-    this.backendApiService.postData('realTimeInsights',this.currentSessionId,'realTimeInsights_flag',this.selectedDay,transcript).subscribe(()=>{    
+hitBackendApiAndReset(){
+  this.sendTranscriptToBackend(this.lastFiveWords+" "+this.transctiptToInsides);
+  const words = this.transctiptToInsides.split(/\s+/);
+  this.lastFiveWords = this.getLastFiveWords(words);
+  this.transctiptToInsides = '';
+  localStorage.setItem('lastFiveWords',this.lastFiveWords)
+  localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+  clearInterval(this.timeoutId);
+}
+sendTranscriptToBackend(transcript: string) {
+    this.getRealTimeInsights(transcript);
+}
+
+getLastFiveWords(words: string[]): string {
+    return words.slice(-5).join(" ");
+}
+
+getRealTimeInsights(transcript: string) {
+    this.backendApiService.postData('realTimeInsights', this.currentSessionId, 'realTimeInsights_flag', this.selectedDay, transcript).subscribe(() => {
+        // Handle success or error if needed
     });
-    clearTimeout(this.timeoutId);
-    this.setTimerToPushTranscript();
-  }
+}
+
 
   onPostInsideIntervalChange() {
     // This function will be triggered whenever the value of postInsideInterval changes
@@ -507,10 +520,12 @@ createPresignedUrlNew = async () => {
         let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
         this.socket.send(emptyBuffer);
       }
+      clearInterval(this.timeoutId);
       localStorage.removeItem('currentSessionTitle')
       localStorage.removeItem('currentSessionId')
+      localStorage.removeItem('lastFiveWords')
       this.selectedSessionTitle = ''
-      clearTimeout(this.timeoutId);
+      this.transctiptToInsides= '';
       this.isStreaming = !this.isStreaming
   }
   handleEventStreamMessage = (messageJson) => {
