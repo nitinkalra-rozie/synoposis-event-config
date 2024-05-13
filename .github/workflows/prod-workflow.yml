@@ -31,7 +31,7 @@ jobs:
     - name: Install Packages
       run: npm install --legacy-peer-deps
     - name: Serverless AWS Authentication
-      run: sls config credentials --provider aws --key ${{ secrets.PROD_ACCESS_KEY}} --secret ${{ secrets.PROD_SECRET_ACCESS_KEY }}
+      run: sls config credentials --provider aws --key $ACCESS_KEY --secret $SECRET_ACCESS_KEY}
     - name: export command for openssl
       run: export NODE_OPTIONS=--openssl-legacy-provider
     - name: check hosted zone name
