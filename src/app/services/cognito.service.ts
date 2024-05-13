@@ -62,7 +62,6 @@ export class CognitoService {
 
         this.refreshToken = result.refreshToken.token;
         this.accessToken = result.accessToken.jwtToken;
-
         this.router.navigate(["/admin"]); // Or your desired admin route
         this.authStateSubject.next(true); // Update auth state
       },
@@ -87,9 +86,17 @@ export class CognitoService {
         newPassword,
         {},
         {
-          onSuccess: () => {
-            console.log("Reset Success");
-            this.router.navigate(["/admin"]); // Or your desired admin route
+          onSuccess: (result:any) => {
+            console.log("Reset Success",result);
+            localStorage.setItem("Idtoken", result.idToken.jwtToken);
+            localStorage.setItem("refreshToken", result.refreshToken.token);
+            localStorage.setItem("accessToken", result.accessToken.jwtToken);
+            localStorage.setItem("username", this.username);
+    
+            this.refreshToken = result.refreshToken.token;
+            this.accessToken = result.accessToken.jwtToken;
+            this.router.navigate(["/admin"]); 
+            this.authStateSubject.next(true);
           },
           onFailure: () => {
             console.log("Reset Fail");
