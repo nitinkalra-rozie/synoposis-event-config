@@ -4,13 +4,19 @@ on:
   push:
     branches:
       - production
+
 env:
   deployment: prod 
-
+  ACCESS_KEY: ${{secrets.ACCESS_KEY}}
+  SECRET_ACCESS_KEY: ${{secrets.SECRET_ACCESS_KEY}}
+  HOSTED_ZONE_NAME: ${{vars.HOSTED_ZONE_NAME}}
+  DOMAIN_NAME: ${{vars.DOMAIN_NAME}}
+  HOSTED_ZONE_ID: ${{secrets.HOSTED_ZONE_ID}}
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
+    environment: prod
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v2
@@ -28,5 +34,19 @@ jobs:
       run: sls config credentials --provider aws --key ${{ secrets.PROD_ACCESS_KEY}} --secret ${{ secrets.PROD_SECRET_ACCESS_KEY }}
     - name: export command for openssl
       run: export NODE_OPTIONS=--openssl-legacy-provider
+    - name: Check ACM Certificate
+      id: check-acm
+      run: |
+        certificate_arn=$(aws acm list-certificates --region us-east-1 --query "CertificateSummaryList[?contains(DomainName, '*.$HOSTED_ZONE_NAME')].CertificateArn" --output text)
+        echo "certificate_arn is $certificate_arn"
+        if [ -z "$certificate_arn" ]; then
+            echo "ACM Certificate not found. Creating ..."
+            certificate_arn=$(aws acm request-certificate --domain-name "*.$HOSTED_ZONE_NAME" --validation-method DNS --region us-east-1 --subject-alternative-names "$HOSTED_ZONE_NAME" --query 'CertificateArn' --output text)             
+            echo "Waiting for ACM Certificate to be validated..."
+            sleep 120
+        else
+            echo "ACM certificate is already present!"
+            echo "ACM_CERTIFICATE_ARN=$certificate_arn" >> $GITHUB_ENV
+        fi 
     - name: Deploy Static Website
-      run: sls deploy --region ca-central-1 --stage prod 
+      run: sls deploy --config serverless-prd.yml --region ca-central-1 --stage prod -E ACM_CERTIFICATE_ARN=$ACM_CERTIFICATE_ARN -E DOMAIN_NAME=$DOMAIN_NAME -E HOSTED_ZONE_ID=$HOSTED_ZONE_ID
