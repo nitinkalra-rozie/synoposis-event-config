@@ -5,7 +5,7 @@ import {
   CognitoUserPool,
   CognitoRefreshToken
 } from "amazon-cognito-identity-js";
-import { environment } from 'src/environments/environment.dev';
+import { environment } from 'src/environments/environment';
 import { Router } from "@angular/router";
 import { BehaviorSubject, Observable } from 'rxjs'; // Import for token expiration handling
 
