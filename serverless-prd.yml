@@ -29,7 +29,7 @@ resources:
     WebAppS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:service}-${self:provider.stage}
+        BucketName: ${self:service}-${self:provider.stage}-${self:service}
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
@@ -53,13 +53,17 @@ resources:
   extensions:
     WebAppS3BucketPolicy:
       Properties:
+        Bucket: !Ref WebAppS3Bucket
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
             - Effect: Allow
               Action:
                 - s3:GetObject
-              Resource: !Sub "arn:aws:s3:::${self:service}-${self:provider.stage}/*"
+              Resource: !Join
+                - ""
+                - - !GetAtt WebAppS3Bucket.Arn
+                  - "/*"
               Principal:
                 CanonicalUser: !GetAtt OriginAccessIdentity.S3CanonicalUserId
                 AWS: "*"
