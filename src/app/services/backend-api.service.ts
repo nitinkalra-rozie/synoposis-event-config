@@ -30,7 +30,7 @@ export class BackendApiService {
     }
     return this.http.post(environment.putTranscript, body, { headers: headers });
   }
-  postData(action:any,sessionId:any,flag:any,day:any, data?:any){
+  postData(action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
@@ -42,7 +42,8 @@ export class BackendApiService {
       day: day || localStorage.getItem('currentDay'),
       keyNoteData: data || {},
       transcript: '',
-      screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15
+      screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15,
+      sessionTitle: sessionTitle || ''
     }
     if(action === 'realTimeInsights'){
       body.keyNoteData = {}
