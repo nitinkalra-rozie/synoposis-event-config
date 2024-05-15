@@ -235,7 +235,7 @@ export class ElsaEventAdminComponent {
     const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
     console.log("sessionId for end session",session)
     if(confirm("Are you sure to end the session?")) {
-    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay).subscribe((data:any)=>{
+    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay,'',session.SessionSubject).subscribe((data:any)=>{
       this.showSuccessMessage('End session message sent successfully!');
       this.showPostInsightsLoading()
     },
