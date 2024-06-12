@@ -6,11 +6,11 @@ export const environment = {
   production: false,
   cognitoUserPoolId:'ca-central-1_sBbyiaKRm',
   cognitoAppClientId:'tkn7hpp0pd80vd70h28sl1qt3',
-  getTranscriberPreSignedUrl:'https://fqbvo8ifm0.execute-api.ca-central-1.amazonaws.com/dev/getPreSignedUrl',
-  putTranscript:'https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/postTranscript',
-  postData:'https://4pm6ygxgfl.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig',
-  getEventDetails:'https://dcbdtg2n1a.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',
-  postCurrentSessionId:'https://ukm31jyh2f.execute-api.ca-central-1.amazonaws.com/dev/getCurrentSessionDetails'
+  getTranscriberPreSignedUrl:' https://rnfzrkj1ib.execute-api.ca-central-1.amazonaws.com/dev/getPreSignedUrl',
+  putTranscript:'https://rnfzrkj1ib.execute-api.ca-central-1.amazonaws.com/dev/postTranscript',
+  postData:'https://rnfzrkj1ib.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig',
+  getEventDetails:'https://o7hgaq06eh.execute-api.ca-central-1.amazonaws.com/dev/getEventDetails',
+  postCurrentSessionId:'https://trvgu0j4ra.execute-api.ca-central-1.amazonaws.com/dev/getCurrentSessionDetails'
 };
 
 /*
