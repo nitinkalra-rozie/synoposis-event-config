@@ -19,13 +19,16 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   styleUrls: ['./elsa-event-admin.component.css']
 })
 export class ElsaEventAdminComponent {
+  selectedEvent: string = '';
   selectedKeynoteType: string = ''; 
   selectedSessionType: string = ''; 
   selectedReportType: string = '';
   selectedDay:string='';
   eventDetails:any = [];
   eventDays: any = [];
+  eventNames: any = [];
   selectedSessionTitle: string = '';
+  sessionTitles: string[] = [];
   filteredEventData:any = [];
   options: string[] = [];
   selectedOptions: string[] = [];
@@ -59,7 +62,7 @@ export class ElsaEventAdminComponent {
   //   "Telecommunications",
   //   "Other",
   // ];
-  selectedTheme: string='';
+  selectedTheme: string='dark';
   themeOptions: string[] = ['dark', 'light'];
 
 
@@ -74,8 +77,6 @@ export class ElsaEventAdminComponent {
     "Other",
   ];// Replace with your options
   dropdown: string = 'path-to-dropdown-icon.png';
-
-  eventName:string='';
  
 
   
@@ -84,6 +85,7 @@ export class ElsaEventAdminComponent {
   constructor(private backendApiService: BackendApiService,private cognitoService:CognitoService ) { }
 
   ngOnInit(): void {
+    this.selectedEvent = localStorage.getItem('selectedEvent') || '';
     this.getEventDetails();
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
@@ -143,7 +145,7 @@ export class ElsaEventAdminComponent {
   }
   showSnapshot(): void {
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-    this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay,this.eventName,this.domain).subscribe((data:any)=>{
+    this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay,this.selectedEvent,this.domain).subscribe((data:any)=>{
       this.showSuccessMessage('Snapshot message sent successfully!');
       console.log(data);
 
@@ -202,7 +204,7 @@ export class ElsaEventAdminComponent {
         this.sessionIds.push(session.SessionId);
       });
 
-      this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay,this.eventName,this.domain).subscribe((data:any)=>{
+      this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain).subscribe((data:any)=>{
         console.log(data);
         this.showSuccessMessage('Single keynote message sent successfully!');
       },
@@ -219,15 +221,15 @@ export class ElsaEventAdminComponent {
       switch (this.selectedSessionType) {
         case 'single':
         
-          this.backendApiService.postData('snapshot_of_Single_Keynote',sessionDetails.SessionId, 'snapshot_of_Single_Keynote_flag', this.selectedDay,this.eventName,this.domain);
+          this.backendApiService.postData('snapshot_of_Single_Keynote',sessionDetails.SessionId, 'snapshot_of_Single_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
           break;
         case 'multiple':
        
-          this.backendApiService.postData('snapshot_of_multiple_Keynote',sessionDetails.SessionId, 'snapshot_of_multiple_Keynote_flag', this.selectedDay,this.eventName,this.domain);
+          this.backendApiService.postData('snapshot_of_multiple_Keynote',sessionDetails.SessionId, 'snapshot_of_multiple_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
           break;
         case 'combination':
         
-          this.backendApiService.postData('snapshot_combination',sessionDetails.SessionId, 'snapshot_combination_flag', this.selectedDay,this.eventName,this.domain);
+          this.backendApiService.postData('snapshot_combination',sessionDetails.SessionId, 'snapshot_combination_flag', this.selectedDay,this.selectedEvent,this.domain);
           break;
         default:
         
@@ -251,13 +253,13 @@ export class ElsaEventAdminComponent {
     
       switch (this.selectedReportType) {
         case 'each_keynote': 
-          this.backendApiService.postData('report_of_Single_Keynote',sessionDetails.SessionId, 'report_of_Single_Keynote_flag', this.selectedDay,this.eventName,this.domain);
+          this.backendApiService.postData('report_of_Single_Keynote',sessionDetails.SessionId, 'report_of_Single_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
           break;
         case 'multiple_keynotes':  
-          this.backendApiService.postData('report_of_multiple_Keynote',sessionDetails.SessionId, 'report_of_multiple_Keynote_flag', this.selectedDay,this.eventName,this.domain);
+          this.backendApiService.postData('report_of_multiple_Keynote',sessionDetails.SessionId, 'report_of_multiple_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
           break;
         case 'combination':
-          this.backendApiService.postData('report_combination',sessionDetails.SessionId, 'report_combination_flag', this.selectedDay,this.eventName,this.domain);
+          this.backendApiService.postData('report_combination',sessionDetails.SessionId, 'report_combination_flag', this.selectedDay,this.selectedEvent,this.domain);
           break;
         default:
    
@@ -279,7 +281,7 @@ export class ElsaEventAdminComponent {
     const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
     console.log("sessionId for end session",session)
     if(confirm("Are you sure to end the session?")) {
-    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay,this.eventName,this.domain,'',session.SessionSubject).subscribe((data:any)=>{
+    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay,this.selectedEvent,this.domain,'',session.SessionSubject).subscribe((data:any)=>{
       this.showSuccessMessage('End session message sent successfully!');
       this.showPostInsightsLoading()
     },
@@ -293,33 +295,53 @@ export class ElsaEventAdminComponent {
     this. selectedDay=day;
 
   }
-  getEventDetails(){
-    this.backendApiService.getEventDetails().subscribe((data:any)=>{
-      console.log("event details are as follows",data);
+  getEventDetails() {
+    this.backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data;
-      this.filteredEventData = this.eventDetails;
-      this.eventDays = [];
-      data.forEach((event: { EventDay: any; }) => {
-        if (!this.eventDays.includes(event.EventDay)) {
-          this.eventDays.push(event.EventDay);
+      this.populateEventNames();
+      this.selectDefaultOptions();
+    });
+  }
+
+  populateEventNames() {
+    this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
+  }
+
+  populateEventDays() {
+    const filteredByEvent = this.eventDetails.filter(event => event.Event === this.selectedEvent);
+    this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
+  }
+
+  populateSessionTitles() {
+    const filteredByDay = this.eventDetails.filter(event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay);
+    this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
+  }
+
+  selectDefaultOptions() {
+    if (this.eventNames.length > 0) {
+      this.selectedEvent = this.eventNames[0];
+      this.populateEventDays();
+      if (this.eventDays.length > 0) {
+        this.selectedDay = this.eventDays[0];
+        this.populateSessionTitles();
+        if (this.sessionTitles.length > 0) {
+          this.selectedSessionTitle = this.sessionTitles[0];
         }
-      });
-    })
+      }
+    }
+  }
+
+  onEventChange() {
+    this.populateEventDays();
+    this.selectedDay = this.eventDays.length > 0 ? this.eventDays[0] : '';
+    this.onDayChange();
   }
 
   onDayChange() {
-    console.log('inside day change',this.selectedDay)
-    this.options = [];
-    if (this.selectedDay !== '') {
-      this.filteredEventData = this.eventDetails.filter(event => event.EventDay === this.selectedDay);
-    } else {
-      this.filteredEventData = this.eventDetails;
-    }
-    this.filteredEventData.forEach(element => {
-      this.options.push(element.SessionTitle);
-    });
-    console.log('end of on day change',this.options)
+    this.populateSessionTitles();
+    this.selectedSessionTitle = this.sessionTitles.length > 0 ? this.sessionTitles[0] : '';
   }
+
 
   onThemeChange(){
 console.log('theme change', this.selectedTheme);
@@ -342,13 +364,13 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
   startSession(){
    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
     localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);
-    const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     localStorage.setItem("currentSessionId",session.SessionId);
     localStorage.setItem("currentDay", this.selectedDay);
-    localStorage.setItem("eventName",this.eventName);
+    localStorage.setItem("selectedEvent",this.selectedEvent);
     localStorage.setItem("domain",this.domain);
     this.startRecording();
-    this.backendApiService.postCurrentSessionId(session.SessionId,this.eventName,this.domain).subscribe((data:any)=>{
+    this.backendApiService.postCurrentSessionId(session.SessionId,this.selectedEvent,this.domain).subscribe((data:any)=>{
       console.log(data);
       this.showSuccessMessage('Start session message sent successfully!');
     },
@@ -362,9 +384,9 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
     alert('Please select the Event Day and Speaker Name to start the session');
    }
   }
-  findSession(eventDay: string, SessionTitle: string){
-    const session = this.eventDetails.find((session: { EventDay: string; SessionTitle: string; }) =>
-      session.EventDay === eventDay && session.SessionTitle === SessionTitle
+  findSession(event: string, SessionTitle: string){
+    const session = this.eventDetails.find((session: { Event: string; SessionTitle: string; }) =>
+      session.Event === event && session.SessionTitle === SessionTitle
     );
     return session ? session : null;
   }
@@ -385,7 +407,7 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
   showKeyNote(){
     if(this.selectedDay != '' && this.selectedSessionTitle != ''){
       const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-      this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,this.eventName,this.domain,sessionDetails).subscribe(()=>{
+      this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,this.selectedEvent,this.domain,sessionDetails).subscribe(()=>{
         this.showSuccessMessage('Show speakers details sent successfully!');
       },
       (error: any) => {
@@ -456,7 +478,7 @@ getLastFiveWords(words: string[]): string {
 }
 
 getRealTimeInsights(transcript: string) {
-    this.backendApiService.postData('realTimeInsights', this.currentSessionId, 'realTimeInsights_flag', this.selectedDay,this.eventName,this.domain, transcript).subscribe(() => {
+    this.backendApiService.postData('realTimeInsights', this.currentSessionId, 'realTimeInsights_flag', this.selectedDay,this.selectedEvent,this.domain, transcript).subscribe(() => {
         // Handle success or error if needed
     });
 }
@@ -593,6 +615,7 @@ createPresignedUrlNew = async () => {
       clearInterval(this.timeoutId);
       localStorage.removeItem('currentSessionTitle')
       localStorage.removeItem('currentSessionId')
+      localStorage.removeItem('selectedEvent')
       localStorage.removeItem('lastFiveWords')
       this.selectedSessionTitle = ''
       this.transctiptToInsides= '';

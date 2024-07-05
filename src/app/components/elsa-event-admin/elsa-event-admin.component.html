@@ -24,28 +24,28 @@
 <div class="container">
   <div class="sbox">
     <div class="day-speaker">
-      <div class="day">
-        <label for="EventDay">Event Day: </label>
-        <select name="EventDay" id="Event Day" [(ngModel)]="selectedDay" (ngModelChange)="onDayChange()">
-          <option *ngFor="let day of eventDays" [value]="day" >{{day}}</option>
+      <div class="domain">
+        <label for="eventSelect">Select Event</label>
+        <select id="eventSelect" [(ngModel)]="selectedEvent" (change)="onEventChange()" class="form-control">
+          <option *ngFor="let event of eventNames" [value]="event">{{ event }}</option>
         </select>
       </div>
-      <div class="domain">
-        <label for="domainSelect">event: </label>
-        <select name="domainSelect" id="domainSelect" [(ngModel)]="eventName" >
-          <option *ngFor="let event of EventOptions" [value]="domain">{{event.event}}</option>
+      <div class="day">
+        <label for="daySelect">Select Day</label>
+        <select id="daySelect" [(ngModel)]="selectedDay" (change)="onDayChange()" class="form-control">
+          <option *ngFor="let day of eventDays" [value]="day">{{ day }}</option>
+        </select>
+      </div>
+      <div class="speaker">
+        <label for="sessionSelect">Select Session</label>
+        <select id="sessionSelect" [(ngModel)]="selectedSessionTitle" class="form-control">
+          <option *ngFor="let session of sessionTitles" [value]="session">{{ session }}</option>
         </select>
       </div>
       <div class="theme-selection">
         <label for="themeSelect">Event Theme: </label>
         <select name="themeSelect" id="themeSelect" [(ngModel)]="selectedTheme" (ngModelChange)=" onThemeChange()">
           <option *ngFor="let theme of themeOptions" [value]="theme">{{theme}}</option>
-        </select>
-      </div>
-      <div class="speaker">
-        <label for="sessionSpeakerName">Session Title: </label>
-        <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSessionTitle">
-          <option *ngFor="let event of filteredEventData" [value]="event.SessionTitle">{{event.SessionTitle}}</option>
         </select>
       </div>
   
