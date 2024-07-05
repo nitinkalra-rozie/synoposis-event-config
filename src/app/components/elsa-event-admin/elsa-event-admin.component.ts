@@ -52,9 +52,31 @@ export class ElsaEventAdminComponent {
   errorText: '';
   isStreaming = false;
   selectedDomain: string = '';
-  domainOptions: string[] = ['Domain1', 'Domain2', 'Domain3', 'Domain4', 'Domain5'];
+  // const options = [
+  //   "Banking and Finance",
+  //   "Healthcare",
+  //   "Airline",
+  //   "Telecommunications",
+  //   "Other",
+  // ];
   selectedTheme: string='';
   themeOptions: string[] = ['dark', 'light'];
+
+
+  domain: string = '';
+  borderColor: string = '#000'; // Default border color
+  dropdownVisible: boolean = false;
+  options_domain: string[] =[
+    "Banking and Finance",
+    "Healthcare",
+    "Airline",
+    "Telecommunications",
+    "Other",
+  ];// Replace with your options
+  dropdown: string = 'path-to-dropdown-icon.png';
+
+  eventName:string='';
+ 
 
   
   //***************************************
@@ -89,6 +111,22 @@ export class ElsaEventAdminComponent {
       }
     );
   }
+
+  handleDomainChange(event: any) {
+    this.domain = event.target.value;
+  }
+
+
+ 
+
+  toggleDropdown_domain() {
+    this.dropdownVisible = !this.dropdownVisible;
+  }
+
+  handleOptionClick(option: string) {
+    this.domain = option;
+    this.dropdownVisible = false;
+  }
   
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
@@ -105,7 +143,7 @@ export class ElsaEventAdminComponent {
   }
   showSnapshot(): void {
     const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-    this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay).subscribe((data:any)=>{
+    this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay,this.eventName,this.domain).subscribe((data:any)=>{
       this.showSuccessMessage('Snapshot message sent successfully!');
       console.log(data);
 
@@ -164,7 +202,7 @@ export class ElsaEventAdminComponent {
         this.sessionIds.push(session.SessionId);
       });
 
-      this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay).subscribe((data:any)=>{
+      this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay,this.eventName,this.domain).subscribe((data:any)=>{
         console.log(data);
         this.showSuccessMessage('Single keynote message sent successfully!');
       },
@@ -181,15 +219,15 @@ export class ElsaEventAdminComponent {
       switch (this.selectedSessionType) {
         case 'single':
         
-          this.backendApiService.postData('snapshot_of_Single_Keynote',sessionDetails.SessionId, 'snapshot_of_Single_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('snapshot_of_Single_Keynote',sessionDetails.SessionId, 'snapshot_of_Single_Keynote_flag', this.selectedDay,this.eventName,this.domain);
           break;
         case 'multiple':
        
-          this.backendApiService.postData('snapshot_of_multiple_Keynote',sessionDetails.SessionId, 'snapshot_of_multiple_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('snapshot_of_multiple_Keynote',sessionDetails.SessionId, 'snapshot_of_multiple_Keynote_flag', this.selectedDay,this.eventName,this.domain);
           break;
         case 'combination':
         
-          this.backendApiService.postData('snapshot_combination',sessionDetails.SessionId, 'snapshot_combination_flag', this.selectedDay);
+          this.backendApiService.postData('snapshot_combination',sessionDetails.SessionId, 'snapshot_combination_flag', this.selectedDay,this.eventName,this.domain);
           break;
         default:
         
@@ -213,13 +251,13 @@ export class ElsaEventAdminComponent {
     
       switch (this.selectedReportType) {
         case 'each_keynote': 
-          this.backendApiService.postData('report_of_Single_Keynote',sessionDetails.SessionId, 'report_of_Single_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('report_of_Single_Keynote',sessionDetails.SessionId, 'report_of_Single_Keynote_flag', this.selectedDay,this.eventName,this.domain);
           break;
         case 'multiple_keynotes':  
-          this.backendApiService.postData('report_of_multiple_Keynote',sessionDetails.SessionId, 'report_of_multiple_Keynote_flag', this.selectedDay);
+          this.backendApiService.postData('report_of_multiple_Keynote',sessionDetails.SessionId, 'report_of_multiple_Keynote_flag', this.selectedDay,this.eventName,this.domain);
           break;
         case 'combination':
-          this.backendApiService.postData('report_combination',sessionDetails.SessionId, 'report_combination_flag', this.selectedDay);
+          this.backendApiService.postData('report_combination',sessionDetails.SessionId, 'report_combination_flag', this.selectedDay,this.eventName,this.domain);
           break;
         default:
    
@@ -241,7 +279,7 @@ export class ElsaEventAdminComponent {
     const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
     console.log("sessionId for end session",session)
     if(confirm("Are you sure to end the session?")) {
-    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay,'',session.SessionSubject).subscribe((data:any)=>{
+    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay,this.eventName,this.domain,'',session.SessionSubject).subscribe((data:any)=>{
       this.showSuccessMessage('End session message sent successfully!');
       this.showPostInsightsLoading()
     },
@@ -294,6 +332,7 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
 });
   }
 
+
   selectDomain(domain: string) {
     this.selectedDomain = domain;
     localStorage.setItem('selectedDomain', domain);
@@ -306,8 +345,10 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
     const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
     localStorage.setItem("currentSessionId",session.SessionId);
     localStorage.setItem("currentDay", this.selectedDay);
+    localStorage.setItem("eventName",this.eventName);
+    localStorage.setItem("domain",this.domain);
     this.startRecording();
-    this.backendApiService.postCurrentSessionId(session.SessionId).subscribe((data:any)=>{
+    this.backendApiService.postCurrentSessionId(session.SessionId,this.eventName,this.domain).subscribe((data:any)=>{
       console.log(data);
       this.showSuccessMessage('Start session message sent successfully!');
     },
@@ -344,7 +385,7 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
   showKeyNote(){
     if(this.selectedDay != '' && this.selectedSessionTitle != ''){
       const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-      this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,sessionDetails).subscribe(()=>{
+      this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,this.eventName,this.domain,sessionDetails).subscribe(()=>{
         this.showSuccessMessage('Show speakers details sent successfully!');
       },
       (error: any) => {
@@ -415,7 +456,7 @@ getLastFiveWords(words: string[]): string {
 }
 
 getRealTimeInsights(transcript: string) {
-    this.backendApiService.postData('realTimeInsights', this.currentSessionId, 'realTimeInsights_flag', this.selectedDay, transcript).subscribe(() => {
+    this.backendApiService.postData('realTimeInsights', this.currentSessionId, 'realTimeInsights_flag', this.selectedDay,this.eventName,this.domain, transcript).subscribe(() => {
         // Handle success or error if needed
     });
 }

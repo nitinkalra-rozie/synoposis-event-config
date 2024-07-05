@@ -9,6 +9,9 @@ export class BackendApiService {
   constructor(private http: HttpClient) { }
   currentSessionId:string='';
   eventDay:string='';
+  eventName:string='';
+  domain:string='';
+  
 
 
   getTranscriberPreSignedUrl(body:any){
@@ -26,11 +29,13 @@ export class BackendApiService {
     });
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
-      Transcript: transcript
+      Transcript: transcript,
+      eventName: localStorage.getItem('eventName'),
+      domain: localStorage.getItem('domain')
     }
     return this.http.post(environment.putTranscript, body, { headers: headers });
   }
-  postData(action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any){
+  postData(action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any ){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
@@ -38,6 +43,9 @@ export class BackendApiService {
     let body={
       action:action,
       sessionId: sessionId || localStorage.getItem('currentSessionId'),
+      eventName: eventName || localStorage.getItem('eventName'),
+      domain:domain || localStorage.getItem('domain'),
+
       flag:flag,
       day: day || localStorage.getItem('currentDay'),
       keyNoteData: data || {},
@@ -59,14 +67,17 @@ export class BackendApiService {
     });
     return this.http.post(environment.getEventDetails,{},{ headers: headers });
   }
-  postCurrentSessionId(sessionId:any){
+  postCurrentSessionId(sessionId:any,  eventName:any, domain:any){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
     console.log("Inside postCurrent", sessionId)
     const body={
-      sessionId: sessionId
+      sessionId: sessionId,
+      eventName: eventName,
+      domain: domain
+
     }
     return this.http.post(environment.postCurrentSessionId, body,{ headers: headers });
   }

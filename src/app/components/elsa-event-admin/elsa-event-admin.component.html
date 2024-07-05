@@ -30,12 +30,12 @@
           <option *ngFor="let day of eventDays" [value]="day" >{{day}}</option>
         </select>
       </div>
-      <!-- <div class="domain">
-        <label for="domainSelect">Select Domain: </label>
-        <select name="domainSelect" id="domainSelect" [(ngModel)]="selectedDomain" >
-          <option *ngFor="let domain of domainOptions" [value]="domain">{{domain}}</option>
+      <div class="domain">
+        <label for="domainSelect">event: </label>
+        <select name="domainSelect" id="domainSelect" [(ngModel)]="eventName" >
+          <option *ngFor="let event of EventOptions" [value]="domain">{{event.event}}</option>
         </select>
-      </div> -->
+      </div>
       <div class="theme-selection">
         <label for="themeSelect">Event Theme: </label>
         <select name="themeSelect" id="themeSelect" [(ngModel)]="selectedTheme" (ngModelChange)=" onThemeChange()">
@@ -49,6 +49,46 @@
         </select>
       </div>
   
+
+     
+      
+    </div>
+
+    <div class="seassion">
+      <div class="select-input">
+        <div class="input-dropdown-container">
+          <input
+            type="text"
+            [(ngModel)]="domain"
+            (ngModelChange)="handleDomainChange($event)"
+            placeholder="Select Domain"
+            class="domain-input"
+            [style.borderBottom]="'1px solid ' + borderColor"
+          />
+          <button
+            (click)="toggleDropdown_domain()"
+            class="dropdown-button"
+          >
+            <img src="../../../assets/drpdown.svg" alt="dropdown icon">
+          </button>
+      
+          <div *ngIf="dropdownVisible" class="dropdown-menu-container">
+            <ul class="dropdown-menu">
+              <div class="dropdown-title">Select / Search</div>
+              <li
+                *ngFor="let option of options_domain"
+                (click)="handleOptionClick(option)"
+                class="dropdown-item"
+              >
+                {{option}}
+              </li>
+            </ul>
+          </div>
+        </div>
+      
+    
+      </div>
+
     </div>
     <button (click)="startSession()">
       Start Session

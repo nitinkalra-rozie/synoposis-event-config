@@ -66,6 +66,7 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
+ 
   }
   
   .sbox {
@@ -74,7 +75,8 @@
     margin-top: 70px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 40%
+    width: 60%;
+  
   }
   
   button,
@@ -157,6 +159,7 @@
     flex-direction: row;
     justify-content: space-between;
     margin-bottom: 20px;
+    gap:40px;
   }
   
   .transcript{
@@ -255,5 +258,149 @@ select:hover {
   
     .button-group button {
       width: calc(50% - 5px);
+    }
+  }
+
+
+
+
+  .select-input {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    .input-dropdown-container {
+      display: flex;
+      align-items: center;
+      position: relative;
+      .domain-input {
+        padding-right: 30px;
+        border: none;
+        display: flex;
+        background: none;
+        padding: 11px 0px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 10px;
+        align-self: stretch;
+        width: 250px;
+        outline: none;
+        color: var(--background-variant-6475258, #475258);
+        font-family: Lexend;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        letter-spacing: -0.14px;
+
+        &::placeholder {
+          color: var(--background-variant-4-adbdcc, #adbdcc);
+          font-family: Lexend;
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: normal;
+          letter-spacing: -0.14px;
+        }
+      }
+      .dropdown-button {
+        position: absolute;
+        /* right: 0; */
+        top: 0;
+        bottom: 0;
+     margin-left: 100px;
+      
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        border-radius: 4px;
+        background: var(--background-primary-ffffff, #fff);
+        box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.2);
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        z-index: 1000;
+        margin-top: 9px;
+        display: flex;
+        padding: 16px 0px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        align-self: stretch;
+        .dropdown-title {
+          padding: 8px 20px;
+          color: var(--background-variant-4-adbdcc, #adbdcc);
+          font-family: Lexend;
+          font-size: 12px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: 16px;
+        }
+      }
+
+      .dropdown-item {
+        display: inline-flex;
+        padding: 8px 20px;
+        width: 300px;
+        align-items: center;
+        gap: 10px;
+        color: var(--background-variant-6475258, #475258);
+        flex: 1 0 0;
+        font-family: Lexend;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: -0.14px;
+      }
+    }
+
+    .upload-cancel-button-contanier {
+      display: flex;
+
+      .upload {
+        background: var(--secondary-varient-201-bc-47, #01bc47);
+        margin-right: 10px;
+        color: var(--background-primary-ffffff, #fff);
+        font-family: Lexend;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: -0.14px;
+        border-radius: 100px;
+        outline: none;
+        height: 32px;
+        padding: 5px 20px;
+        align-items: center;
+        gap: 5px;
+        border: none;
+        margin-left: 12px;
+        cursor: pointer;
+      }
+      .cancel {
+        background: var(--background-variant-58595-a-6, #8595a6);
+        color: var(--background-primary-ffffff, #fff);
+        font-family: Lexend;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 24px;
+        letter-spacing: -0.14px;
+        border-radius: 100px;
+        height: 32px;
+        padding: 5px 20px;
+        align-items: center;
+        gap: 5px;
+        border: none;
+        cursor: pointer;
+      }
     }
   }
