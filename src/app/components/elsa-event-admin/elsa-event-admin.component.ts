@@ -51,6 +51,11 @@ export class ElsaEventAdminComponent {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
+  selectedDomain: string = '';
+  domainOptions: string[] = ['Domain1', 'Domain2', 'Domain3', 'Domain4', 'Domain5'];
+  selectedTheme: string='';
+  themeOptions: string[] = ['dark', 'light'];
+
   
   //***************************************
 
@@ -64,6 +69,7 @@ export class ElsaEventAdminComponent {
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
     this.lastFiveWords=localStorage.getItem('lastFiveWords')
+    this.selectedDomain=localStorage.getItem('selectedDomain') || '';
     if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
         this.startRecording()
         this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
@@ -276,6 +282,24 @@ export class ElsaEventAdminComponent {
     });
     console.log('end of on day change',this.options)
   }
+
+  onThemeChange(){
+console.log('theme change', this.selectedTheme);
+this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme).subscribe((data:any)=>{
+  console.log(data);
+  this.showSuccessMessage(`Theme color is ${this.selectedTheme}`);
+},
+(error: any) => {
+  this.showFailureMessage('Failed to change theme color .',error);
+});
+  }
+
+  selectDomain(domain: string) {
+    this.selectedDomain = domain;
+    localStorage.setItem('selectedDomain', domain);
+    console.log('Selected domain:', this.selectedDomain);
+  }
+
   startSession(){
    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
     localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);

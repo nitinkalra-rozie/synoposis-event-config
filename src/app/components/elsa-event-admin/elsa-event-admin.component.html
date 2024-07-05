@@ -30,12 +30,25 @@
           <option *ngFor="let day of eventDays" [value]="day" >{{day}}</option>
         </select>
       </div>
+      <!-- <div class="domain">
+        <label for="domainSelect">Select Domain: </label>
+        <select name="domainSelect" id="domainSelect" [(ngModel)]="selectedDomain" >
+          <option *ngFor="let domain of domainOptions" [value]="domain">{{domain}}</option>
+        </select>
+      </div> -->
+      <div class="theme-selection">
+        <label for="themeSelect">Event Theme: </label>
+        <select name="themeSelect" id="themeSelect" [(ngModel)]="selectedTheme" (ngModelChange)=" onThemeChange()">
+          <option *ngFor="let theme of themeOptions" [value]="theme">{{theme}}</option>
+        </select>
+      </div>
       <div class="speaker">
         <label for="sessionSpeakerName">Session Title: </label>
         <select name="sessionSpeakerName" id="sessionSpeakerName" [(ngModel)]="selectedSessionTitle">
           <option *ngFor="let event of filteredEventData" [value]="event.SessionTitle">{{event.SessionTitle}}</option>
         </select>
       </div>
+  
     </div>
     <button (click)="startSession()">
       Start Session
