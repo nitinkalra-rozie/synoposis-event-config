@@ -7,7 +7,18 @@ import * as createHash from 'create-hash';
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-
+interface PostData {
+  action?: string;
+  sessionId?: any;
+  eventName?: string;
+  domain?: string;
+  day?: string;
+  keyNoteData?: any;
+  transcript?: string;
+  screenTimeout?: number;
+  sessionTitle?: string;
+  theme?: string;
+}
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -20,20 +31,20 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
 })
 export class ElsaEventAdminComponent {
   selectedEvent: string = '';
-  selectedKeynoteType: string = ''; 
-  selectedSessionType: string = ''; 
+  selectedKeynoteType: string = '';
+  selectedSessionType: string = '';
   selectedReportType: string = '';
-  selectedDay:string='';
-  eventDetails:any = [];
+  selectedDay: string = '';
+  eventDetails: any = [];
   eventDays: any = [];
   eventNames: any = [];
   selectedSessionTitle: string = '';
   sessionTitles: string[] = [];
-  filteredEventData:any = [];
+  filteredEventData: any = [];
   options: string[] = [];
   selectedOptions: string[] = [];
   dropdownOpen: boolean = false;
-  sessionIds=[];
+  sessionIds = [];
   successMessage: string = '';
   failureMessage: string = '';
   transctiptToInsides: string = '';
@@ -62,14 +73,12 @@ export class ElsaEventAdminComponent {
   //   "Telecommunications",
   //   "Other",
   // ];
-  selectedTheme: string='dark';
+  selectedTheme: string = 'dark';
   themeOptions: string[] = ['dark', 'light'];
 
-
-  domain: string = '';
   borderColor: string = '#000'; // Default border color
   dropdownVisible: boolean = false;
-  options_domain: string[] =[
+  options_domain: string[] = [
     "Banking and Finance",
     "Healthcare",
     "Airline",
@@ -77,26 +86,26 @@ export class ElsaEventAdminComponent {
     "Other",
   ];// Replace with your options
   dropdown: string = 'path-to-dropdown-icon.png';
- 
 
-  
+
+
   //***************************************
 
-  constructor(private backendApiService: BackendApiService,private cognitoService:CognitoService ) { }
+  constructor(private backendApiService: BackendApiService, private cognitoService: CognitoService) { }
 
   ngOnInit(): void {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
-    this.getEventDetails();
     this.selectedDay = localStorage.getItem('currentDay') || '';
-    this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') ||'';
+    this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
+    this.selectedDomain = localStorage.getItem('domain') || '';
+    this.getEventDetails();
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
-    this.lastFiveWords=localStorage.getItem('lastFiveWords')
-    this.selectedDomain=localStorage.getItem('selectedDomain') || '';
-    if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
-        this.startRecording()
-        this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
+    this.lastFiveWords = localStorage.getItem('lastFiveWords');
+    if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
+      this.startRecording()
+      this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
     }
   }
   logout() {
@@ -104,135 +113,173 @@ export class ElsaEventAdminComponent {
   }
 
   showWelcomeMessageBanner(): void {
-    this.backendApiService.postData('welcome', '', 'welcome_flag', this.selectedDay).subscribe(
+    let postData:PostData={};
+    postData.action='welcome';
+    postData.day=this.selectedDay;
+    this.backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Welcome message screen sent successfully!');
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send welcome message.',error);
+        this.showFailureMessage('Failed to send welcome message.', error);
       }
     );
   }
 
   handleDomainChange(event: any) {
-    this.domain = event.target.value;
+    this.selectedDomain = event.target.value;
   }
-
-
- 
 
   toggleDropdown_domain() {
     this.dropdownVisible = !this.dropdownVisible;
   }
 
-  handleOptionClick(option: string) {
-    this.domain = option;
+  onChangeDomain(option: string) {
+    this.selectedDomain = option;
     this.dropdownVisible = false;
   }
-  
+
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
     setTimeout(() => {
       this.successMessage = '';
-    }, 3000); 
+    }, 3000);
   }
 
   private showFailureMessage(message: string, error: any): void {
     this.failureMessage = message;
     setTimeout(() => {
       this.failureMessage = '';
-    }, 5000); 
+    }, 5000);
   }
+
   showSnapshot(): void {
-    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-    this.backendApiService.postData('snapshot',sessionDetails.SessionId, 'snapshot_flag', this.selectedDay,this.selectedEvent,this.domain).subscribe((data:any)=>{
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    let postData:PostData={};
+    postData.action='snapshot';
+    postData.day=this.selectedDay;
+    postData.sessionId=sessionDetails.SessionId;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    this.backendApiService.postData(postData).subscribe((data: any) => {
       this.showSuccessMessage('Snapshot message sent successfully!');
       console.log(data);
 
     },
-    (error: any) => {
-      this.showFailureMessage('Failed to send snapshot message.',error);
-    });
+      (error: any) => {
+        this.showFailureMessage('Failed to send snapshot message.', error);
+      });
   }
 
   showThankYouScreen(): void {
-    this.backendApiService.postData('thank_you','','thank_flag', this.selectedDay).subscribe((data:any)=>{
+    let postData:PostData={};
+    postData.action='thank_you';
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    this.backendApiService.postData(postData).subscribe((data: any) => {
       this.showSuccessMessage('Thank you message sent successfully!');
       console.log(data);
-    }, 
-    (error: any) => {
-      this.showFailureMessage('Failed to send thank you message.',error);
-    });
+    },
+      (error: any) => {
+        this.showFailureMessage('Failed to send thank you message.', error);
+      });
   }
-  showEndEvent(){
-    this.backendApiService.postData('thank_you','','thank_flag', 'endEvent').subscribe((data:any)=>{
+  showEndEvent() {
+    let postData:PostData={};
+    postData.action='thank_you';
+    postData.day='endEvent';
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    this.backendApiService.postData(postData).subscribe((data: any) => {
       this.showSuccessMessage('End event message sent successfully!');
       console.log(data);
-    }, 
-    (error: any) => {
-      this.showFailureMessage('Failed to send end event message.',error);
-    });
+    },
+      (error: any) => {
+        this.showFailureMessage('Failed to send end event message.', error);
+      });
   }
-  showBackupScreen():void{
-    this.backendApiService.postData('backup_screen','','backup_screen', this.selectedDay).subscribe((data:any)=>{
+  showBackupScreen(): void {
+    let postData:PostData={};
+    postData.action='backup_screen';
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    this.backendApiService.postData(postData).subscribe((data: any) => {
       this.showSuccessMessage('Backup message sent successfully!');
       console.log(data);
     },
-    (error: any) => {
-      this.showFailureMessage('Failed to send backup message.',error);
-    });
+      (error: any) => {
+        this.showFailureMessage('Failed to send backup message.', error);
+      });
   }
-  showQrScreen():void{
-    this.backendApiService.postData('qr_screen','','backup_screen', this.selectedDay).subscribe((data:any)=>{
+  showQrScreen(): void {
+    let postData:PostData={};
+    postData.action='qr_screen';
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    this.backendApiService.postData(postData).subscribe((data: any) => {
       console.log(data);
       this.showSuccessMessage('Qr message sent successfully!');
     },
-    (error: any) => {
-      this.showFailureMessage('Failed to send qr message.',error);
-    });
+      (error: any) => {
+        this.showFailureMessage('Failed to send qr message.', error);
+      });
   }
 
   showSummary(): void {
     // Check if a keynote type is selected
-     this.sessionIds= [];
-    if(this.selectedOptions.length <= 0){
+    this.sessionIds = [];
+    if (this.selectedOptions.length <= 0) {
       alert("select the sessions to show the summary!");
       return;
-    }else{
+    } else {
       this.selectedOptions.forEach(element => {
-        const session =  this.findSession(this.selectedDay, element);
+        const session = this.findSession(this.selectedEvent, element);
         this.sessionIds.push(session.SessionId);
       });
+      let postData:PostData={};
+      postData.action='summary_of_Single_Keynote';
+      postData.day=this.selectedDay;
+      postData.eventName=this.selectedEvent;
+      postData.domain=this.selectedDomain;
+      postData.sessionId=this.sessionIds;
 
-      this.backendApiService.postData('summary_of_Single_Keynote',this.sessionIds, 'summary_of_Single_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain).subscribe((data:any)=>{
+      this.backendApiService.postData(postData).subscribe((data: any) => {
         console.log(data);
         this.showSuccessMessage('Single keynote message sent successfully!');
       },
-      (error: any) => {
-        this.showFailureMessage('Failed to send single keynote message.',error);
-      });
+        (error: any) => {
+          this.showFailureMessage('Failed to send single keynote message.', error);
+        });
     }
   }
 
   showSession(): void {
-    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    let postData:PostData={};
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    postData.sessionId=sessionDetails.SessionId;
     if (this.selectedSessionType) {
-    
+
       switch (this.selectedSessionType) {
         case 'single':
-        
-          this.backendApiService.postData('snapshot_of_Single_Keynote',sessionDetails.SessionId, 'snapshot_of_Single_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
+          postData.action='snapshot_of_Single_Keynote';
+          this.backendApiService.postData(postData);
           break;
         case 'multiple':
-       
-          this.backendApiService.postData('snapshot_of_multiple_Keynote',sessionDetails.SessionId, 'snapshot_of_multiple_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
+          postData.action='snapshot_of_multiple_Keynote';
+          this.backendApiService.postData(postData);
           break;
         case 'combination':
-        
-          this.backendApiService.postData('snapshot_combination',sessionDetails.SessionId, 'snapshot_combination_flag', this.selectedDay,this.selectedEvent,this.domain);
+          postData.action='snapshot_combination';
+          this.backendApiService.postData(postData);
           break;
         default:
-        
+
           console.error('No session type selected');
           break;
       }
@@ -248,21 +295,29 @@ export class ElsaEventAdminComponent {
   }
 
   showReports(): void {
-    const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     if (this.selectedReportType) {
-    
+      let postData:PostData={};
+      postData.day=this.selectedDay;
+      postData.eventName=this.selectedEvent;
+      postData.domain=this.selectedDomain;
+      postData.sessionId=sessionDetails.SessionId;
+
       switch (this.selectedReportType) {
-        case 'each_keynote': 
-          this.backendApiService.postData('report_of_Single_Keynote',sessionDetails.SessionId, 'report_of_Single_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
+        case 'each_keynote':
+          postData.action='report_of_Single_Keynote';
+          this.backendApiService.postData(postData);
           break;
-        case 'multiple_keynotes':  
-          this.backendApiService.postData('report_of_multiple_Keynote',sessionDetails.SessionId, 'report_of_multiple_Keynote_flag', this.selectedDay,this.selectedEvent,this.domain);
+        case 'multiple_keynotes':
+          postData.action='report_of_multiple_Keynote';
+          this.backendApiService.postData(postData);
           break;
         case 'combination':
-          this.backendApiService.postData('report_combination',sessionDetails.SessionId, 'report_combination_flag', this.selectedDay,this.selectedEvent,this.domain);
+          postData.action='report_combination';
+          this.backendApiService.postData(postData);
           break;
         default:
-   
+
           console.error('No report type selected');
           break;
       }
@@ -278,21 +333,28 @@ export class ElsaEventAdminComponent {
   }
 
   showEndSession(): void {
-    const session = this.findSession(this.selectedDay, this.selectedSessionTitle);
-    console.log("sessionId for end session",session)
-    if(confirm("Are you sure to end the session?")) {
-    this.backendApiService.postData('end_session',session.SessionId, 'trigger_post_insights', this.selectedDay,this.selectedEvent,this.domain,'',session.SessionSubject).subscribe((data:any)=>{
-      this.showSuccessMessage('End session message sent successfully!');
-      this.showPostInsightsLoading()
-    },
-    (error: any) => {
-      this.showFailureMessage('Failed to send end session message.',error);
-    });
-    this.closeSocket();
+    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    console.log("sessionId for end session", session)
+    if (confirm("Are you sure to end the session?")) {
+      let postData:PostData={};
+      postData.day=this.selectedDay;
+      postData.eventName=this.selectedEvent;
+      postData.domain=this.selectedDomain;
+      postData.sessionId=session.SessionId;
+      postData.action='end_session';
+      postData.sessionTitle=this.selectedSessionTitle;
+      this.backendApiService.postData(postData).subscribe((data: any) => {
+        this.showSuccessMessage('End session message sent successfully!');
+        this.showPostInsightsLoading()
+      },
+        (error: any) => {
+          this.showFailureMessage('Failed to send end session message.', error);
+        });
+      this.closeSocket();
     }
   }
-  selectDay(day:string){
-    this. selectedDay=day;
+  selectDay(day: string) {
+    this.selectedDay = day;
 
   }
   getEventDetails() {
@@ -318,16 +380,16 @@ export class ElsaEventAdminComponent {
   }
 
   selectDefaultOptions() {
-    if (this.eventNames.length > 0) {
+    if (!this.selectedEvent && this.eventNames.length > 0) {
       this.selectedEvent = this.eventNames[0];
-      this.populateEventDays();
-      if (this.eventDays.length > 0) {
-        this.selectedDay = this.eventDays[0];
-        this.populateSessionTitles();
-        if (this.sessionTitles.length > 0) {
-          this.selectedSessionTitle = this.sessionTitles[0];
-        }
-      }
+    }
+    this.populateEventDays();
+    if (!this.selectedDay && this.eventDays.length > 0) {
+      this.selectedDay = this.eventDays[0];
+    }
+    this.populateSessionTitles();
+    if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
+      this.selectedSessionTitle = this.sessionTitles[0];
     }
   }
 
@@ -343,15 +405,22 @@ export class ElsaEventAdminComponent {
   }
 
 
-  onThemeChange(){
-console.log('theme change', this.selectedTheme);
-this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme).subscribe((data:any)=>{
-  console.log(data);
-  this.showSuccessMessage(`Theme color is ${this.selectedTheme}`);
-},
-(error: any) => {
-  this.showFailureMessage('Failed to change theme color .',error);
-});
+  onThemeChange() {
+    console.log('theme change', this.selectedTheme);
+    let postData:PostData={};
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    postData.theme=this.selectedTheme;
+    postData.action='updateTheme';
+    postData.sessionTitle=this.selectedSessionTitle;
+    this.backendApiService.postData(postData).subscribe((data: any) => {
+      console.log(data);
+      this.showSuccessMessage(`Theme color is ${this.selectedTheme}`);
+    },
+      (error: any) => {
+        this.showFailureMessage('Failed to change theme color .', error);
+      });
   }
 
 
@@ -361,30 +430,30 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
     console.log('Selected domain:', this.selectedDomain);
   }
 
-  startSession(){
-   if(this.selectedDay !== '' && this.selectedSessionTitle !== ''){
-    localStorage.setItem("currentSessionTitle",this.selectedSessionTitle);
-    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    localStorage.setItem("currentSessionId",session.SessionId);
-    localStorage.setItem("currentDay", this.selectedDay);
-    localStorage.setItem("selectedEvent",this.selectedEvent);
-    localStorage.setItem("domain",this.domain);
-    this.startRecording();
-    this.backendApiService.postCurrentSessionId(session.SessionId,this.selectedEvent,this.domain).subscribe((data:any)=>{
-      console.log(data);
-      this.showSuccessMessage('Start session message sent successfully!');
-    },
-    (error: any) => {
-      this.showFailureMessage('Failed to send start session message.',error);
-    });
-  
-    this.showLoadingInsights()
-   }
-   else{
-    alert('Please select the Event Day and Speaker Name to start the session');
-   }
+  startSession() {
+    if (this.selectedDay !== '' && this.selectedSessionTitle !== '' && this.selectedDomain !== '' && this.selectedEvent!== '') {
+      localStorage.setItem("currentSessionTitle", this.selectedSessionTitle);
+      const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+      localStorage.setItem("currentSessionId", session.SessionId);
+      localStorage.setItem("currentDay", this.selectedDay);
+      localStorage.setItem("selectedEvent", this.selectedEvent);
+      localStorage.setItem("domain", this.selectedDomain);
+      this.startRecording();
+      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain).subscribe((data: any) => {
+        console.log(data);
+        this.showSuccessMessage('Start session message sent successfully!');
+      },
+        (error: any) => {
+          this.showFailureMessage('Failed to send start session message.', error);
+        });
+
+      this.showLoadingInsights()
+    }
+    else {
+      alert('Please select the Event , Day , Domain and Speaker Name to start the session');
+    }
   }
-  findSession(event: string, SessionTitle: string){
+  findSession(event: string, SessionTitle: string) {
     const session = this.eventDetails.find((session: { Event: string; SessionTitle: string; }) =>
       session.Event === event && session.SessionTitle === SessionTitle
     );
@@ -404,90 +473,118 @@ this.backendApiService.postData('updateTheme','','', '','','',this.selectedTheme
     this.onDayChange();
   }
 
-  showKeyNote(){
-    if(this.selectedDay != '' && this.selectedSessionTitle != ''){
-      const sessionDetails = this.findSession(this.selectedDay, this.selectedSessionTitle);
-      this.backendApiService.postData('keynote',sessionDetails.SessionId,'keynote_flag',this.selectedDay,this.selectedEvent,this.domain,sessionDetails).subscribe(()=>{
+  showKeyNote() {
+    if (this.selectedDay != '' && this.selectedSessionTitle != '') {
+      const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+      let postData:PostData={};
+      postData.day=this.selectedDay;
+      postData.eventName=this.selectedEvent;
+      postData.domain=this.selectedDomain;
+      postData.sessionId=sessionDetails.SessionId;
+      postData.action='keynote';
+      postData.sessionTitle=this.selectedSessionTitle;
+      postData.keyNoteData=sessionDetails;
+      this.backendApiService.postData(postData).subscribe(() => {
         this.showSuccessMessage('Show speakers details sent successfully!');
       },
-      (error: any) => {
-        this.showFailureMessage('Failed to send show speakers details.',error);
-      });
-    }else{
+        (error: any) => {
+          this.showFailureMessage('Failed to send show speakers details.', error);
+        });
+    } else {
       alert('Event day and Session should be selected to show speaker details!');
     }
-   
+
   }
 
-  showLoadingInsights(){
-    this.backendApiService.postData('insightsLoading','','insightsLoading_flag',this.selectDay|| '').subscribe(()=>{
+  showLoadingInsights() {
+    let postData:PostData={};
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    postData.action='insightsLoading';
+    postData.sessionTitle=this.selectedSessionTitle;
+    this.backendApiService.postData(postData).subscribe(() => {
     });
   }
 
-  showPostInsightsLoading(){
-    this.backendApiService.postData('postInsightsLoading','','postInsightsLoading_flag',this.selectDay|| '').subscribe(()=>{
+  showPostInsightsLoading() {
+    let postData:PostData={};
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    postData.action='postInsightsLoading';
+    postData.sessionTitle=this.selectedSessionTitle;
+    this.backendApiService.postData(postData).subscribe(() => {
     });
   }
 
-  onSelectSession(){
+  onSelectSession() {
     this.dropdownOpen
   }
 
   realtimeInsides(transcript: string) {
     if (this.transctiptToInsides === '') {
-        this.setTimerToPushTranscript();
+      this.setTimerToPushTranscript();
     }
-    
+
     this.transctiptToInsides += transcript;
     localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
-    
+
     const words = this.transctiptToInsides.split(/\s+/);
     const wordCount = words.length;
-    
-    if (wordCount > 100) {
-        // Clear existing timer
-        console.log('1 minute 100 completed ')
-        this.hitBackendApiAndReset()
-    }
-}
 
-setTimerToPushTranscript() {
+    if (wordCount > 100) {
+      // Clear existing timer
+      console.log('1 minute 100 completed ')
+      this.hitBackendApiAndReset()
+    }
+  }
+
+  setTimerToPushTranscript() {
     clearInterval(this.timeoutId)
-  console.log('1 minute reset')
+    console.log('1 minute reset')
     this.timeoutId = setTimeout(() => {
       console.log('1 minute completed')
       this.hitBackendApiAndReset()
     }, this.transcriptTimeOut * 1000 || 60000);
-}
+  }
 
-hitBackendApiAndReset(){
-  this.sendTranscriptToBackend(this.lastFiveWords+" "+this.transctiptToInsides);
-  const words = this.transctiptToInsides.split(/\s+/);
-  this.lastFiveWords = this.getLastFiveWords(words);
-  this.transctiptToInsides = '';
-  localStorage.setItem('lastFiveWords',this.lastFiveWords)
-  localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
-  clearInterval(this.timeoutId);
-}
-sendTranscriptToBackend(transcript: string) {
+  hitBackendApiAndReset() {
+    this.sendTranscriptToBackend(this.lastFiveWords + " " + this.transctiptToInsides);
+    const words = this.transctiptToInsides.split(/\s+/);
+    this.lastFiveWords = this.getLastFiveWords(words);
+    this.transctiptToInsides = '';
+    localStorage.setItem('lastFiveWords', this.lastFiveWords)
+    localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    clearInterval(this.timeoutId);
+  }
+  sendTranscriptToBackend(transcript: string) {
     this.getRealTimeInsights(transcript);
-}
+  }
 
-getLastFiveWords(words: string[]): string {
+  getLastFiveWords(words: string[]): string {
     return words.slice(-5).join(" ");
-}
+  }
 
-getRealTimeInsights(transcript: string) {
-    this.backendApiService.postData('realTimeInsights', this.currentSessionId, 'realTimeInsights_flag', this.selectedDay,this.selectedEvent,this.domain, transcript).subscribe(() => {
-        // Handle success or error if needed
+  getRealTimeInsights(transcript: string) {
+    let postData:PostData={};
+    postData.day=this.selectedDay;
+    postData.eventName=this.selectedEvent;
+    postData.domain=this.selectedDomain;
+    postData.sessionId=this.currentSessionId;
+    postData.action='realTimeInsights';
+    postData.sessionTitle=this.selectedSessionTitle;
+    postData.transcript=transcript;
+    this.backendApiService.postData(postData).subscribe(() => {
+      // Handle success or error if needed
     });
-}
+  }
 
 
   onPostInsideIntervalChange() {
     // This function will be triggered whenever the value of postInsideInterval changes
     console.log("postInsideInterval changed to:", this.postInsideInterval);
-    localStorage.setItem("postInsideInterval",this.postInsideInterval.toString())
+    localStorage.setItem("postInsideInterval", this.postInsideInterval.toString())
 
     // You can call any other functions or perform any other actions here
   }
@@ -495,7 +592,7 @@ getRealTimeInsights(transcript: string) {
   onTranscriptTimeOutChange() {
     // This function will be triggered whenever the value of transcriptTimeOut changes
     console.log("transcriptTimeOut changed to:", this.transcriptTimeOut);
-    localStorage.setItem("transcriptTimeOut",this.transcriptTimeOut.toString())
+    localStorage.setItem("transcriptTimeOut", this.transcriptTimeOut.toString())
     // You can call any other functions or perform any other actions here
   }
 
@@ -506,13 +603,13 @@ getRealTimeInsights(transcript: string) {
     window.navigator.mediaDevices.getUserMedia({
       video: false,
       audio: true
-  })
-  
-  // ...then we convert the mic stream to binary event stream messages when the promise resolves 
-  .then(this.streamAudioToWebSocket) 
-  .catch(function (error) {
-      console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
-  });
+    })
+
+      // ...then we convert the mic stream to binary event stream messages when the promise resolves 
+      .then(this.streamAudioToWebSocket)
+      .catch(function (error) {
+        console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
+      });
   }
   streamAudioToWebSocket = (userMediaStream) => {
     //let's get the mic input from the browser, via the microphone-stream module
@@ -524,43 +621,43 @@ getRealTimeInsights(transcript: string) {
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
-   
+
   }
 
-  openWebsocketAndStartStream(preSignedUrl:any){
-    console.log("inside openWebsocketAndStartStream",preSignedUrl);
-     //open up our WebSocket connection
-     this.socket = new WebSocket(preSignedUrl);
-     this.socket.binaryType = 'arraybuffer';
-     console.log('start streamAudioToWebSocket44444');
-     // when we get audio data from the mic, send it to the WebSocket if possible
-     this.socket.onopen = () => {
-       this.micStream.on('data', rawAudioChunk => {
-         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
-         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
- 
-         if (this.socket.OPEN) this.socket.send(binary);
-       });
-     };
-     console.log('start streamAudioToWebSocket5555');
-     // handle messages, errors, and close events
-     this.wireSocketEvents();
+  openWebsocketAndStartStream(preSignedUrl: any) {
+    console.log("inside openWebsocketAndStartStream", preSignedUrl);
+    //open up our WebSocket connection
+    this.socket = new WebSocket(preSignedUrl);
+    this.socket.binaryType = 'arraybuffer';
+    console.log('start streamAudioToWebSocket44444');
+    // when we get audio data from the mic, send it to the WebSocket if possible
+    this.socket.onopen = () => {
+      this.micStream.on('data', rawAudioChunk => {
+        // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
+        let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+
+        if (this.socket.OPEN) this.socket.send(binary);
+      });
+    };
+    console.log('start streamAudioToWebSocket5555');
+    // handle messages, errors, and close events
+    this.wireSocketEvents();
   }
-createPresignedUrlNew = async () => {
+  createPresignedUrlNew = async () => {
     let body = {
-      method:'GET',
+      method: 'GET',
       endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
       path: '/stream-transcription-websocket',
       service: 'transcribe',
-      hash:createHash('sha256').update('', 'utf8').digest('hex'),
-      options:{
+      hash: createHash('sha256').update('', 'utf8').digest('hex'),
+      options: {
         protocol: 'wss',
         expires: 15,
         region: 'ca-central-1',
-        query:'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate
+        query: 'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate
       }
     }
-  await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data:any)=>{
+    await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data: any) => {
       console.log('inside  createPresignedUrlNew', JSON.stringify(data));
       const url = data.data;
       this.openWebsocketAndStartStream(url);
@@ -603,23 +700,23 @@ createPresignedUrlNew = async () => {
     return binary;
   }
   closeSocket = () => {
-      if (this.socket.OPEN) {
-        this.micStream.stop();
-  
-        // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-        let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
-        // @ts-ignore
-        let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
-        this.socket.send(emptyBuffer);
-      }
-      clearInterval(this.timeoutId);
-      localStorage.removeItem('currentSessionTitle')
-      localStorage.removeItem('currentSessionId')
-      localStorage.removeItem('selectedEvent')
-      localStorage.removeItem('lastFiveWords')
-      this.selectedSessionTitle = ''
-      this.transctiptToInsides= '';
-      this.isStreaming = !this.isStreaming
+    if (this.socket.OPEN) {
+      this.micStream.stop();
+
+      // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
+      let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
+      // @ts-ignore
+      let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+      this.socket.send(emptyBuffer);
+    }
+    clearInterval(this.timeoutId);
+    localStorage.removeItem('currentSessionTitle')
+    localStorage.removeItem('currentSessionId')
+    localStorage.removeItem('selectedEvent')
+    localStorage.removeItem('lastFiveWords')
+    this.selectedSessionTitle = ''
+    this.transctiptToInsides = '';
+    this.isStreaming = !this.isStreaming
   }
   handleEventStreamMessage = (messageJson) => {
     let results = messageJson.Transcript.Results;
@@ -640,12 +737,12 @@ createPresignedUrlNew = async () => {
           this.transcription = transcript
           // this.transcription += transcript + '\n';
           this.realtimeInsides(this.transcription);
-          this.backendApiService.putTranscript(this.transcription).subscribe((data:any)=>{
+          this.backendApiService.putTranscript(this.transcription).subscribe((data: any) => {
             console.log(data);
           },
-          (error: any) => {
-            this.showFailureMessage('Failed to store transcript',error);
-          })
+            (error: any) => {
+              this.showFailureMessage('Failed to store transcript', error);
+            })
         }
       }
     }
@@ -669,7 +766,7 @@ createPresignedUrlNew = async () => {
       }
     };
 
-    this.socket.onerror = function() {
+    this.socket.onerror = function () {
       this.socketError = true;
       console.log('WebSocket connection error. Try again.');
       // toggleStartStop();

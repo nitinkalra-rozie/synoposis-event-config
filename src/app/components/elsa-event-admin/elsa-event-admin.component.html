@@ -59,7 +59,7 @@
         <div class="input-dropdown-container">
           <input
             type="text"
-            [(ngModel)]="domain"
+            [(ngModel)]="selectedDomain"
             (ngModelChange)="handleDomainChange($event)"
             placeholder="Select Domain"
             class="domain-input"
@@ -77,7 +77,7 @@
               <div class="dropdown-title">Select / Search</div>
               <li
                 *ngFor="let option of options_domain"
-                (click)="handleOptionClick(option)"
+                (click)="onChangeDomain(option)"
                 class="dropdown-item"
               >
                 {{option}}

@@ -2,9 +2,23 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
+interface PostData {
+  action?: string;
+  sessionId?: any;
+  eventName?: string;
+  domain?: string;
+  day?: string;
+  keyNoteData?: any;
+  transcript?: string;
+  screenTimeout?: number;
+  sessionTitle?: string;
+  theme?: string;
+}
 @Injectable({
   providedIn: 'root'
 })
+
+
 export class BackendApiService {
   constructor(private http: HttpClient) { }
   currentSessionId:string='';
@@ -12,8 +26,6 @@ export class BackendApiService {
   eventName:string='';
   domain:string='';
   
-
-
   getTranscriberPreSignedUrl(body:any){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
@@ -35,28 +47,27 @@ export class BackendApiService {
     }
     return this.http.post(environment.putTranscript, body, { headers: headers });
   }
-  postData(action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any ){
+  // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any 
+  postData(data:PostData){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
     let body={
-      action:action,
-      sessionId: sessionId || localStorage.getItem('currentSessionId'),
-      eventName: eventName || localStorage.getItem('eventName'),
-      domain:domain || localStorage.getItem('domain'),
-
-      flag:flag,
-      day: day || localStorage.getItem('currentDay'),
-      keyNoteData: data || {},
-      transcript: '',
+      action:data.action,
+      sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
+      eventName: data.eventName || localStorage.getItem('eventName'),
+      domain: data.domain || localStorage.getItem('domain'),
+      day: data.day || localStorage.getItem('currentDay'),
+      keyNoteData: data.keyNoteData || {},
       screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15,
-      sessionTitle: sessionTitle || '',
-      theme:theme
+      sessionTitle: data.sessionTitle || '',
+      theme: data.theme,
+      transcript : data.transcript
     }
-    if(action === 'realTimeInsights'){
+    if(data.action === 'realTimeInsights'){
       body.keyNoteData = {}
-      body.transcript = data
+      body.transcript = data.transcript
     }
     return this.http.post(environment.postData, body,{ headers: headers });
   }
