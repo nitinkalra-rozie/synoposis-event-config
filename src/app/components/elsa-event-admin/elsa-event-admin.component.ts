@@ -377,6 +377,7 @@ export class ElsaEventAdminComponent {
   populateSessionTitles() {
     const filteredByDay = this.eventDetails.filter(event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay);
     this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
+    this.options=this.sessionTitles;
   }
 
   selectDefaultOptions() {

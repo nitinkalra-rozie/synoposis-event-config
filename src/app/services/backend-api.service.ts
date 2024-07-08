@@ -42,7 +42,7 @@ export class BackendApiService {
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
       Transcript: transcript,
-      eventName: localStorage.getItem('eventName'),
+      eventName: localStorage.getItem('selectedEvent'),
       domain: localStorage.getItem('domain')
     }
     return this.http.post(environment.putTranscript, body, { headers: headers });
@@ -56,7 +56,7 @@ export class BackendApiService {
     let body={
       action:data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
-      eventName: data.eventName || localStorage.getItem('eventName'),
+      eventName: data.eventName || localStorage.getItem('selectedEvent'),
       domain: data.domain || localStorage.getItem('domain'),
       day: data.day || localStorage.getItem('currentDay'),
       keyNoteData: data.keyNoteData || {},
