@@ -263,7 +263,9 @@ select:hover {
 
 
 
-
+  .seassion{
+    margin-bottom: 10px;
+  }
   .select-input {
     display: flex;
     align-items: center;
