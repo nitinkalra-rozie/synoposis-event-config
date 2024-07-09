@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - development
-      - feature/option-theme
 env:
   deployment: dev 
 
