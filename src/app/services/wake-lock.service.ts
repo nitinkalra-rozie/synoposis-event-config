@@ -1,32 +1,27 @@
-import { Injectable } from '@angular/core';
+// import { Injectable } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class WakeLockService {
-  private wakeLock: any = null;
-  constructor() { }
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class WakeLockService {
+//   private wakeLock: any = null; // Explicitly type the wakeLock property
 
-  async requestWakeLock() {
-    try {
-      if ('wakeLock' in navigator) {
-        this.wakeLock = await navigator.wakeLock.request('screen');
-        this.wakeLock.addEventListener('release', () => {
-          console.log('Screen Wake Lock released');
-        });
-        console.log('Screen Wake Lock acquired');
-      } else {
-        console.log('Screen Wake Lock API not supported in this browser.');
-      }
-    } catch (err: any) {
-      console.error(`${err.name}, ${err.message}`);
-    }
-  }
+//   constructor() {}
 
-  async releaseWakeLock() {
-    if (this.wakeLock !== null) {
-      await this.wakeLock.release();
-      this.wakeLock = null;
-    }
-  }
-}
+//   async requestWakeLock() {
+//     try {
+//       this.wakeLock = await (navigator as any).wakeLock.request('screen');
+//     } catch (error) { // Remove type annotation here
+//       console.error(`Wake Lock request failed: ${error.name}, ${error.message}`);
+//     }
+//   }
+
+//   releaseWakeLock() {
+//     if (this.wakeLock !== null) {
+//       this.wakeLock.release()
+//         .then(() => {
+//           this.wakeLock = null;
+//         });
+//     }
+//   }
+// }

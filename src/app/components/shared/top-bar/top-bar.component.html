@@ -1,0 +1,21 @@
+<div class="top-bar">
+  <div class="bar-left-content">
+    <div class="mobile-logo-container">
+      <img src="../../../../assets/Rozie-White-Logo.svg" class="logo-styles" alt="icon0" />
+    </div>
+    <div class="title">
+      <p>Synopsis for Events Dashboard</p>
+    </div>
+  </div>
+
+  <div class="menu-icon">
+    <div class="icon">
+      <div class="profile-icon-wrapper web-only" (click)="toggleDropdown()"  appOutSideClick (outSideClick)="onOutsideClick()">
+        <img src="../../../../assets/profile-icon.svg" alt="icon3" class="profile-icon" />
+        <div class="dropdown" *ngIf="showDropdown">
+          <li (click)="logout()">Log out</li>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
