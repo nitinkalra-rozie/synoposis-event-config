@@ -12,6 +12,12 @@ import { CommonModule } from '@angular/common';
 import { SideBarComponent } from './components/shared/side-bar/side-bar.component';
 import { TopBarComponent } from './components/shared/top-bar/top-bar.component';
 import { SharedModule } from './shared/shared.module';
+import { ElsaEventAdminV2Component } from './components/elsa-event-admin-v2/elsa-event-admin-v2.component';
+import { EventControlsComponent } from './components/event-controls/event-controls.component';
+import { MainDropDownComponent } from './components/main-drop-down/main-drop-down.component';
+import { TimeSelectorComponent } from './components/time-selector/time-selector.component';
+import { SessionContentComponent } from './components/session-content/session-content.component';
+import { ScreenDisplayComponent } from './components/screen-display/screen-display.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -20,7 +26,13 @@ import { SharedModule } from './shared/shared.module';
     ElsaEventAdminComponent,
     ChangePasswordComponent,
     SideBarComponent,
-    TopBarComponent
+    TopBarComponent,
+    ElsaEventAdminV2Component,
+    EventControlsComponent,
+    MainDropDownComponent,
+    TimeSelectorComponent,
+    SessionContentComponent,
+    ScreenDisplayComponent
   ],
   imports: [
     HttpClientModule,

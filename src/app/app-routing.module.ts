@@ -3,8 +3,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { AudioStreamerComponent } from './components/audio-streamer/audio-streamer.component';
 import { LoginComponent } from './components/login/login.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
-import { ElsaEventAdminComponent } from './components/elsa-event-admin/elsa-event-admin.component';
 import { AuthGuard } from './auth.guard'; 
+import { ElsaEventAdminV2Component } from './components/elsa-event-admin-v2/elsa-event-admin-v2.component';
 const routes: Routes = [
     {
         path: '',
@@ -25,7 +25,7 @@ const routes: Routes = [
     },
     {
         path: 'admin',
-        component: ElsaEventAdminComponent,
+        component: ElsaEventAdminV2Component,
         canActivate: [AuthGuard] 
     },
     {
