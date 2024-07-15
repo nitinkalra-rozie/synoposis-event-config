@@ -1,15 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: 'app-main-drop-down',
-  templateUrl: './main-drop-down.component.html',
-  styleUrls: ['./main-drop-down.component.css']
+  selector: "app-main-drop-down",
+  templateUrl: "./main-drop-down.component.html",
+  styleUrls: ["./main-drop-down.component.css"],
 })
 export class MainDropDownComponent implements OnInit {
+  dropDownVisible: boolean = false;
 
-  constructor() { }
+  @Input() dropdownContent = [{ label: "label", value: "value" }];
+  @Input() dropdownTitle: string | undefined;
 
-  ngOnInit() {
-  }
+  constructor() {}
 
+  ngOnInit() {}
+
+  toggleDropdown = () => {
+    this.dropDownVisible = !this.dropDownVisible;
+    console.log("this.dropDownVisible", this.dropDownVisible);
+  };
 }

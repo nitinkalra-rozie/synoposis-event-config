@@ -1,3 +1,18 @@
-<p>
-  main-drop-down works!
-</p>
+<div class="drop-down-container">
+  <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
+  <div class="text-wrapper" (click)="toggleDropdown()">
+    <div class="selected-text">Aviato Conference 2024</div>
+    <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
+  </div>
+
+  <div class="dropdown-content" *ngIf="dropDownVisible">
+    <!-- <li (click)="navigate('/my-account')">{{ 'menu_Items.menu.myAccount' | translate }}</li>
+  <li (click)="logout()">{{ 'menu_Items.menu.logOut' | translate }}</li> -->
+
+    <div class="drop-down-item" *ngFor="let item of dropdownContent">
+      <div class="item-text">{{item.label}}</div>
+    </div>
+
+  </div>
+
+</div>
