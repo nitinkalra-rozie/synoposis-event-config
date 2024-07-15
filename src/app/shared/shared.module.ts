@@ -1,17 +1,9 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { OutsideClickDirective } from '../directives/outside-click.directive';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
 
 @NgModule({
-  imports: [
-    CommonModule
-  ],
-  declarations: [
-    OutsideClickDirective,
-  ],
-  exports: [
-    OutsideClickDirective,
-   
-  ]
+  imports: [CommonModule],
+  declarations: [],
+  exports: [],
 })
-export class SharedModule { }
+export class SharedModule {}

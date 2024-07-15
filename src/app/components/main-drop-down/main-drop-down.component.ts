@@ -8,15 +8,22 @@ import { Component, Input, OnInit } from "@angular/core";
 export class MainDropDownComponent implements OnInit {
   dropDownVisible: boolean = false;
 
-  @Input() dropdownContent = [{ label: "label", value: "value" }];
+  @Input() dropdownContent = ["value"];
   @Input() dropdownTitle: string | undefined;
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    // console.log('dropdownContent', this.dropdownContent);
+  }
 
   toggleDropdown = () => {
     this.dropDownVisible = !this.dropDownVisible;
-    console.log("this.dropDownVisible", this.dropDownVisible);
+  };
+
+  onOutsideClick = () => {    
+    if (this.dropDownVisible) {
+      this.dropDownVisible = false;
+    }
   };
 }

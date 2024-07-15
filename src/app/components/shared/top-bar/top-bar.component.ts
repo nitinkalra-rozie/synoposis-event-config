@@ -16,7 +16,7 @@ export class TopBarComponent {
   }
 
   onOutsideClick() {
-    console.log('Outside click detected');
+    // console.log('Outside click detected');
     this.showDropdown = false;
   }
 

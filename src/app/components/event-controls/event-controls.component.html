@@ -7,7 +7,9 @@
     </div>
   </div>
   <div class="content-wrapper">
-    <app-main-drop-down dropdownTitle="Select Event"></app-main-drop-down>
+    <div class="select-event-wrapper">
+      <app-main-drop-down dropdownTitle="Select Event" [dropdownContent]="eventNames"></app-main-drop-down>
+    </div>
     <app-main-drop-down dropdownTitle="Select Theme"></app-main-drop-down>
     <app-main-drop-down dropdownTitle="Time Window for Real-time Session Insights"></app-main-drop-down>
     <app-main-drop-down dropdownTitle="Time Window for Real-time Session Insights"></app-main-drop-down>

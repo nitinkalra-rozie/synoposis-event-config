@@ -18,6 +18,7 @@ import { MainDropDownComponent } from './components/main-drop-down/main-drop-dow
 import { TimeSelectorComponent } from './components/time-selector/time-selector.component';
 import { SessionContentComponent } from './components/session-content/session-content.component';
 import { ScreenDisplayComponent } from './components/screen-display/screen-display.component';
+import { OutsideClickDirective } from './directives/outside-click.directive';
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,7 +33,8 @@ import { ScreenDisplayComponent } from './components/screen-display/screen-displ
     MainDropDownComponent,
     TimeSelectorComponent,
     SessionContentComponent,
-    ScreenDisplayComponent
+    ScreenDisplayComponent,
+    OutsideClickDirective
   ],
   imports: [
     HttpClientModule,

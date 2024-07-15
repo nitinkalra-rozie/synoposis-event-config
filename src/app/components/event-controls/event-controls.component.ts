@@ -1,15 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from "@angular/core";
 
 @Component({
-  selector: 'app-event-controls',
-  templateUrl: './event-controls.component.html',
-  styleUrls: ['./event-controls.component.css']
+  selector: "app-event-controls",
+  templateUrl: "./event-controls.component.html",
+  styleUrls: ["./event-controls.component.css"],
 })
 export class EventControlsComponent implements OnInit {
+  @Input() eventNames = [];
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

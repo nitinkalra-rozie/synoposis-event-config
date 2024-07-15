@@ -5,14 +5,10 @@
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
 
-  <div class="dropdown-content" *ngIf="dropDownVisible">
-    <!-- <li (click)="navigate('/my-account')">{{ 'menu_Items.menu.myAccount' | translate }}</li>
-  <li (click)="logout()">{{ 'menu_Items.menu.logOut' | translate }}</li> -->
-
+  <div class="dropdown-content" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
     <div class="drop-down-item" *ngFor="let item of dropdownContent">
-      <div class="item-text">{{item.label}}</div>
+      <div class="item-text">{{item}}</div>
     </div>
-
   </div>
 
 </div>

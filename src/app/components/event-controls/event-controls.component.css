@@ -67,3 +67,8 @@
   gap: 24px;
   align-self: stretch;
 }
+
+.select-event-wrapper {
+  display: block;
+  width: 400px;
+}

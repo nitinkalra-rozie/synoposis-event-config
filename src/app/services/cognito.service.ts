@@ -160,7 +160,7 @@ export class CognitoService {
             this.authStateSubject.next(false); // Update auth state to reflect unauthenticated state
             reject(err);
           } else {
-            console.log("inside refresh loging",JSON.stringify(session))
+            // console.log("inside refresh loging",JSON.stringify(session))
             this.accessToken = session.accessToken.jwtToken;
             this.refreshToken = session.refreshToken.token;
             resolve();
