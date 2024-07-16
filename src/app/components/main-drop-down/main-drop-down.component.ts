@@ -7,10 +7,8 @@ import { Component, Input, OnInit } from "@angular/core";
 })
 export class MainDropDownComponent implements OnInit {
   dropDownVisible: boolean = false;
-
   @Input() dropdownContent = ["value"];
   @Input() dropdownTitle: string | undefined;
-
   constructor() {}
 
   ngOnInit() {

@@ -7,7 +7,6 @@ import { Component, Input, OnInit } from "@angular/core";
 })
 export class EventControlsComponent implements OnInit {
   @Input() eventNames = [];
-
   constructor() {}
 
   ngOnInit() {}
