@@ -61,7 +61,6 @@ export class ElsaEventAdminV2Component implements OnInit {
   populateEventDays() {
     const filteredByEvent = this.eventDetails.filter(event => event.Event === this.postData.eventName);
     this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
-    console.log('this.eventDays', this.eventDays);
   }
 
   onEventChange = () => {
@@ -118,7 +117,6 @@ export class ElsaEventAdminV2Component implements OnInit {
   };
 
   updatePostData = ({ key, value }: { key: PostDataEnum; value: string }) => {
-    console.log('updatePostData', key, value);
     const tempKey = key as string;
     if (key === PostDataEnum.screenTimeout) {
       this.postData[tempKey] = TimeWindows[value];

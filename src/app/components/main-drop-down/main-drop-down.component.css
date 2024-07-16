@@ -1,13 +1,7 @@
-:host {
-  /* display: flex;
-  width: 100%; */
-}
-
 .drop-down-container {
   /* width: 380px; */
   position: relative;
   width: 100%;
-  /* height: 24px; */
   cursor: pointer;
 }
 
@@ -18,6 +12,8 @@
   align-items: center;
   gap: 8px;
   align-self: stretch;
+  min-height: 24px;
+
 
   border-radius: 4px;
   border: 1px solid var(--background-variant-3-bfccd-9, #bfccd9);
@@ -40,6 +36,9 @@
 
 .selected-text {
   color: var(--background-variant-6475258, #475258);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
   /* Body/Body - Regular - 14|24 */
   font-family: Lexend;
@@ -191,6 +190,21 @@
   background: var(--background-primary-ffffff, #fff);
 }
 
-.checked-box{
-  
+.checked-box {
+}
+
+.text-number {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 100px;
+  background: var(--background-primary-ffffff, #fff);
+
+  /* Elevation/Simple Drop 2 */
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 8px;
 }

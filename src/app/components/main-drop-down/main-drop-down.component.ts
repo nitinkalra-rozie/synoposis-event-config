@@ -55,4 +55,12 @@ export class MainDropDownComponent implements OnInit {
 
     return newContent;
   };
+
+  getSelectedText = () => {
+    if(this.selectedValue.length == 1){
+      return this.selectedValue[0]
+    } else if(this.selectedValue.length > 1){
+      return `${this.selectedValue[0]} +`
+    }
+  }
 }

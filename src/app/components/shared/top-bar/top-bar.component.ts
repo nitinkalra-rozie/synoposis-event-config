@@ -10,18 +10,14 @@ export class TopBarComponent {
   constructor(private cognitoService :CognitoService){}
 
   toggleDropdown() {
-    console.log('Profile picture clicked');
     this.showDropdown = !this.showDropdown;
-    console.log('showDropdown:', this.showDropdown);
   }
 
   onOutsideClick() {
-    // console.log('Outside click detected');
     this.showDropdown = false;
   }
 
   logout() {
-    console.log('Logout clicked');
     this.cognitoService.logOut();
   }
 }

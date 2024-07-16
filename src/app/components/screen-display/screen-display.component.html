@@ -26,9 +26,6 @@
       <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down> <!-- session value -->
     </div>
     <div *ngIf="subSessionValueDropdown">
-      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down> <!-- Breakout session value -->
-    </div>
-    <div *ngIf="subSessionValueDropdown">
       <div class="sessions-wrapper">
         <app-main-drop-down dropdownTitle="Select Sessions" [selectedValue]="selectedValues" [dropdownContent]="multipleTestArray" (onDropdownSelect)="handleDropdownSelect($event)" type="t4"></app-main-drop-down>
       </div>
