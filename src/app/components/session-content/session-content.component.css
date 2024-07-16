@@ -1,15 +1,16 @@
 .content-item {
-    margin-bottom: 200px;
-  }
-  
-  .screen-display {
-    margin-bottom: 20px;
-  }
-  
-  .content-item .screen-display{
-margin-top:20px;
-  }
-  .padding-combine{
-    margin-top:20px;
-    padding-left:20px;
-  }
+  margin-bottom: 200px;
+}
+
+.screen-display {
+  margin-bottom: 20px;
+}
+
+.content-item .screen-display {
+  margin-top: 20px;
+}
+
+.padding-combine {
+  margin-top: 20px;
+  /* padding-left: 20px; */
+}

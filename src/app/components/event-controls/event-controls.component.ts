@@ -47,11 +47,11 @@ export class EventControlsComponent implements OnInit {
     // You can call any other functions or perform any other actions here
   };
 
-  handleDropdownSelect = (value: string, key: PostDataEnum) => {
+  handleDropdownSelect = (value: string, key: PostDataEnum | string) => {
     if ((key as string) === 'TransitionTimes') {
       this.onPostInsideIntervalChange(value);
     } else {
-      this.onUpdatePostData.emit({ key, value });
+      this.onUpdatePostData.emit({ key: key as PostDataEnum, value });
     }
   };
 
