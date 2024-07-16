@@ -43,8 +43,7 @@
           </ng-container>
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
-            <app-main-drop-down type="t3"></app-main-drop-down> <!-- Add dropdown -->
-
+            <app-main-drop-down *ngIf="shoEventDropDown"type="t3"></app-main-drop-down> <!-- Add dropdown -->
             <button class="show-button" (click)="cardDisplayFunction(card.displayFunction)">Display</button>
           </div>
         </div>

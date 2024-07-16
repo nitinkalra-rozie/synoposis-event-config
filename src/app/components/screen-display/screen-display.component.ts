@@ -16,6 +16,8 @@ export class ScreenDisplayComponent {
   @Input() showStartListeningButton: boolean = false;
   @Input() showStopScreenButton: boolean = false;
   @Input() ShowCombineDropdown: boolean = false;
+  @Input() shoEventDropDown: boolean = false;
+
   @Input() cards: Array<{ title: string; imageUrl: string; icon?: string }> = [];
   @Input() sessionValueDropdown: boolean = false;
   @Input() subSessionValueDropdown: boolean = false;

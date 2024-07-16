@@ -75,7 +75,7 @@ export class SessionContentComponent implements OnInit {
   ];
   session_cards = [
     { title: 'Title & Speaker Name Screen', imageUrl: '../../../assets/admin screen/moderator_screen.svg',displayFunction: () => this.showKeyNote()  },
-    { title: 'Backup Screen', imageUrl: '../../../assets/admin screen/welcomw_screen.svg',displayFunction: () => this.showBackupScreen() },
+    { title: 'Real-time Insights Screen', imageUrl: '../../../assets/admin screen/realtime_screen.svg',displayFunction: () => this.showBackupScreen() },
     { title: 'Post Session Insights Screens', imageUrl: '../../../assets/admin screen/summary_screen.svg',icon:'../../../assets/admin screen/note.svg',displayFunction: () => this.showEndSession()},
   ];
   multi_session_card=[
@@ -85,7 +85,7 @@ export class SessionContentComponent implements OnInit {
   constructor(private backendApiService: BackendApiService) { }
 
   ngOnInit(
-    
+
   ) {
   }
   private showSuccessMessage(message: string): void {
