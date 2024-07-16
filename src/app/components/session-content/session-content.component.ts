@@ -79,12 +79,14 @@ export class SessionContentComponent implements OnInit {
     { title: 'Post Session Insights Screens', imageUrl: '../../../assets/admin screen/summary_screen.svg',icon:'../../../assets/admin screen/note.svg',displayFunction: () => this.showEndSession()},
   ];
   multi_session_card=[
-    { title: 'Post Session Insights Screens', imageUrl: '../../../assets/admin screen/summary_screen.svg' ,icon:'../../../assets/admin screen/note.svg',displayFunction: () => this.showSummary()},
+    { title: 'Post Session Insights Screens', imageUrl: '../../../assets/admin screen/Listening.svg' ,icon:'../../../assets/admin screen/note.svg',displayFunction: () => this.showSummary()},
  
   ]
   constructor(private backendApiService: BackendApiService) { }
 
-  ngOnInit() {
+  ngOnInit(
+    
+  ) {
   }
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
