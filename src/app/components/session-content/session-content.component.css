@@ -1,0 +1,11 @@
+.content-item {
+    margin-bottom: 200px;
+  }
+  
+  .screen-display {
+    margin-bottom: 20px;
+  }
+  
+  .content-item .screen-display{
+margin-top:20px;
+  }

@@ -1,3 +1,78 @@
-<p>
-  screen-display works!
-</p>
+<div class="main-div">
+  <div class="box-title">
+    <span class="main-title">{{ title }}</span>
+    <div class="button-container">
+      <button
+        class="dynamic-button-start"
+        *ngIf="showStartListeningButton"
+        (click)="startListening()"
+      >
+        <img
+          src="../../../assets/admin screen/mic_none.svg"
+          alt="Start Listening Icon"
+          class="button-icon"
+        />
+        Start Listening
+      </button>
+      <button
+        class="dynamic-button-stop"
+        *ngIf="showStopScreenButton"
+        (click)="stopScreen()"
+      >
+        <img
+          src="../../../assets/admin screen/stop.svg"
+          alt="Stop Screen Icon"
+          class="button-icon"
+        />
+        Stop Screen
+      </button>
+      <div class="vline">
+        <img
+          src="../../../assets/admin screen/vline.svg"
+          alt="vertical v line"
+        />
+      </div>
+      <button
+        class="dynamic-button-End"
+        *ngIf="showStopScreenButton"
+        (click)="stopScreen()"
+      >
+        <img
+          src="../../../assets/admin screen/close.svg"
+          alt="Stop Screen Icon"
+          class="button-icon"
+        />
+        End Session
+      </button>
+    </div>
+  </div>
+
+  <div class="combine-dropdown" *ngIf="ShowCombineDropdown">
+    <app-main-drop-down dropdownTitle="Select Day"></app-main-drop-down>
+    <div *ngIf="sessionValueDropdown">
+      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down>     <!-- session value -->
+    </div>
+    <div *ngIf="subSessionValueDropdown">
+      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down>    <!-- Breakout session value -->
+    </div>
+  </div>
+
+  <div class="card-container">
+    <div class="card" *ngFor="let card of cards">
+      <div class="card-combine">
+        <img [src]="card.imageUrl" alt="Card image" class="card-image" />
+        <div class="card-border">
+          <ng-container *ngIf="card.icon">
+            <img [src]="card.icon" alt="Icon" class="icon" />
+          </ng-container>
+          <span class="title">{{ card.title }}</span>
+          <div class="button-container">
+            <button class="show-button">Show1</button>   <!-- Add dropdown -->
+          
+            <button class="show-button">Display</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

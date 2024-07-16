@@ -41,7 +41,7 @@ export class BackendApiService {
     });
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
-      Transcript: transcript,
+      transcript: transcript,
       eventName: localStorage.getItem('selectedEvent'),
       domain: localStorage.getItem('domain')
     }
