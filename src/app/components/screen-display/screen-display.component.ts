@@ -30,7 +30,6 @@ export class ScreenDisplayComponent {
   
 
   cardDisplayFunction(displayFunction: () => void) {
-    // Execute the provided display function from the card
     if (displayFunction) {
       displayFunction();
     }
@@ -39,7 +38,6 @@ export class ScreenDisplayComponent {
     this.startListening.emit();
   }
 
-  // Method to trigger stop screen
   onStopScreen() {
     this.stopScreen.emit();
   }
