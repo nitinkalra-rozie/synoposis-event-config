@@ -11,3 +11,16 @@ export interface EventDetail {
   SessionId: string;
   SpeakersInfo: SpeakerInfo[];
 }
+
+export interface PostData {
+  action?: string;
+  sessionId?: any;
+  eventName?: string;
+  domain?: string;
+  day?: string;
+  keyNoteData?: any;
+  transcript?: string;
+  screenTimeout?: number;
+  sessionTitle?: string;
+  theme?: string;
+}

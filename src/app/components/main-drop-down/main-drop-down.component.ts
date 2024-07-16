@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 @Component({
   selector: "app-main-drop-down",
@@ -8,22 +8,35 @@ import { Component, Input, OnInit } from "@angular/core";
 export class MainDropDownComponent implements OnInit {
   dropDownVisible: boolean = false;
 
+  @Input() selectedValue = ["value"];
+  @Input() type = 't1';
   @Input() dropdownContent = ["value"];
   @Input() dropdownTitle: string | undefined;
+  @Output() onDropdownSelect: EventEmitter<string>;
 
-  constructor() {}
+  constructor() {
+    this.onDropdownSelect = new EventEmitter();
+
+  }
 
   ngOnInit() {
-    // console.log('dropdownContent', this.dropdownContent);
+    console.log('selectedValue', this.selectedValue);
   }
 
   toggleDropdown = () => {
     this.dropDownVisible = !this.dropDownVisible;
   };
 
-  onOutsideClick = () => {    
+  onOutsideClick = () => {
     if (this.dropDownVisible) {
       this.dropDownVisible = false;
     }
+  };
+
+  handleDropDownSelect = (value: string) => {
+    if(this.onDropdownSelect){
+      this.onDropdownSelect.emit(value);
+    }
+    this.toggleDropdown();
   };
 }

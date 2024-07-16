@@ -1,0 +1,29 @@
+export enum ThemeOptions {
+  dark = 'dark',
+  light = 'light',
+}
+
+export enum PostDataEnum {
+  action = 'action',
+  sessionId = 'sessionId',
+  eventName = 'eventName',
+  domain = 'domain',
+  day = 'day',
+  keyNoteData = 'keyNoteData',
+  transcript = 'transcript',
+  screenTimeout = 'screenTimeout',
+  sessionTitle = 'sessionTitle',
+  theme = 'theme',
+}
+
+export enum TimeWindowsEnum {
+  '60 Seconds' = '60 Seconds',
+  '75 Seconds' = '75 Seconds',
+  '90 Seconds' = '90 Seconds',
+}
+
+export enum TransitionTimesEnum {
+  '15 Seconds' = '15 Seconds',
+  '30 Seconds' = '30 Seconds',
+  '45 Seconds' = '45 Seconds',
+}

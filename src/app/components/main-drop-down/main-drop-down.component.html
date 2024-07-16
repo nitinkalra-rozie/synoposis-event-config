@@ -1,13 +1,32 @@
-<div class="drop-down-container">
+<div class="drop-down-container" *ngIf="type == 't1'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
   <div class="text-wrapper" (click)="toggleDropdown()">
-    <div class="selected-text">Aviato Conference 2024</div>
+    <div class="selected-text">{{selectedValue[0]}}</div>
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
 
   <div class="dropdown-content" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
-    <div class="drop-down-item" *ngFor="let item of dropdownContent">
+    <div class="drop-down-item" *ngFor="let item of dropdownContent" (click)="handleDropDownSelect(item)">
       <div class="item-text">{{item}}</div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="drop-down-container" *ngIf="type == 't2'">
+  <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
+  <div class="text-wrapper  t2" (click)="toggleDropdown()">
+    <div class="selected-text">{{selectedValue[0]}}</div>
+    <div class="icon-wrapper">
+      <img class="pencil" src="assets/v2-icons/pencil_icon.svg" alt="" />
+    </div>
+  </div>
+
+  <div class="dropdown-content t2" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
+    <div class="content-title">Select Time</div>
+    <div class="drop-down-item t2" *ngFor="let item of dropdownContent" (click)="handleDropDownSelect(item)">
+      <div class="item-text t2">{{item}}</div>
     </div>
   </div>
 
