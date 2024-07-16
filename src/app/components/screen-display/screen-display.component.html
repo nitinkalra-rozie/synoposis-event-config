@@ -38,9 +38,7 @@
       <div class="card-combine">
         <img [src]="card.imageUrl" alt="Card image" class="card-image" />
         <div class="card-border">
-          <ng-container *ngIf="card.icon">
-            <img [src]="card.icon" alt="Icon" class="icon" />
-          </ng-container>
+            <img [src]="card.icon" alt="Icon" class="icon"  *ngIf="card.icon" />
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
             <app-main-drop-down *ngIf="shoEventDropDown"type="t3"></app-main-drop-down> <!-- Add dropdown -->
