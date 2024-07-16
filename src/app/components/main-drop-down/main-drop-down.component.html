@@ -10,7 +10,6 @@
       <div class="item-text">{{item}}</div>
     </div>
   </div>
-
 </div>
 
 
@@ -29,5 +28,41 @@
       <div class="item-text t2">{{item}}</div>
     </div>
   </div>
+</div>
 
+<div class="drop-down-container t3" *ngIf="type == 't3'">
+  <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
+  <div class="text-wrapper t3" (click)="toggleDropdown()">
+    <div class="selected-text">{{selectedValue[0]}}</div>
+    <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
+  </div>
+
+  <div class="dropdown-content t3" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
+    <div class="content-title">Select</div>
+    <div class="drop-down-item t3" *ngFor="let item of dropdownContent" (click)="handleDropDownSelect(item)">
+      <div class="item-text t3">{{item}}</div>
+    </div>
+  </div>
+</div>
+
+<div class="drop-down-container" *ngIf="type == 't4'">
+  <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
+  <div class="text-wrapper" (click)="toggleDropdown()">
+    <div class="selected-text">{{selectedValue[0]}}</div>
+    <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
+  </div>
+
+  <div class="dropdown-content t4" *ngIf="dropDownVisible">
+    <div class="content-title">Select</div>
+    <div class="drop-down-item t4" *ngFor="let item of getT4Content()" (click)="handleT4DropDownSelect(item.label)">
+      <img *ngIf="item.checked; else empty" class="checked-box" src="assets/v2-icons/checked_box.svg" alt="" />
+      <ng-template #empty>
+        <img class="checked-box" src="assets/v2-icons/check_box.svg" alt="" />
+
+        <!-- <div class="empty-check-box">
+        </div> -->
+      </ng-template>
+      <div class="item-text t4">{{item.label}}</div>
+    </div>
+  </div>
 </div>

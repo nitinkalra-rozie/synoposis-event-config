@@ -12,15 +12,14 @@ export class MainDropDownComponent implements OnInit {
   @Input() type = 't1';
   @Input() dropdownContent = ['value'];
   @Input() dropdownTitle: string | undefined;
+  @Input() dropdownContentTitle: string = 'Select';
   @Output() onDropdownSelect: EventEmitter<string>;
 
   constructor() {
     this.onDropdownSelect = new EventEmitter();
   }
 
-  ngOnInit() {
-    console.log('selectedValue', this.selectedValue);
-  }
+  ngOnInit() {}
 
   toggleDropdown = () => {
     this.dropDownVisible = !this.dropDownVisible;
@@ -37,5 +36,23 @@ export class MainDropDownComponent implements OnInit {
       this.onDropdownSelect.emit(value);
     }
     this.toggleDropdown();
+  };
+
+  handleT4DropDownSelect = (value: string) => {
+    if (this.onDropdownSelect) {
+      this.onDropdownSelect.emit(value);
+    }
+  };
+
+  getT4Content = () => {
+    const newContent = this.dropdownContent.map(item => {
+      if (this.selectedValue.includes(item)) {
+        return { checked: true, label: item };
+      }
+
+      return { checked: false, label: item };
+    });
+
+    return newContent;
   };
 }

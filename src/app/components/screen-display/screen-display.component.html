@@ -2,46 +2,19 @@
   <div class="box-title">
     <span class="main-title">{{ title }}</span>
     <div class="button-container">
-      <button
-        class="dynamic-button-start"
-        *ngIf="showStartListeningButton"
-        (click)="startListening()"
-      >
-        <img
-          src="../../../assets/admin screen/mic_none.svg"
-          alt="Start Listening Icon"
-          class="button-icon"
-        />
+      <button class="dynamic-button-start" *ngIf="showStartListeningButton" (click)="startListening()">
+        <img src="../../../assets/admin screen/mic_none.svg" alt="Start Listening Icon" class="button-icon" />
         Start Listening
       </button>
-      <button
-        class="dynamic-button-stop"
-        *ngIf="showStopScreenButton"
-        (click)="stopScreen()"
-      >
-        <img
-          src="../../../assets/admin screen/stop.svg"
-          alt="Stop Screen Icon"
-          class="button-icon"
-        />
+      <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="stopScreen()">
+        <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
         Stop Screen
       </button>
       <div class="vline">
-        <img
-          src="../../../assets/admin screen/vline.svg"
-          alt="vertical v line"
-        />
+        <img src="../../../assets/admin screen/vline.svg" alt="vertical v line" />
       </div>
-      <button
-        class="dynamic-button-End"
-        *ngIf="showStopScreenButton"
-        (click)="stopScreen()"
-      >
-        <img
-          src="../../../assets/admin screen/close.svg"
-          alt="Stop Screen Icon"
-          class="button-icon"
-        />
+      <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="stopScreen()">
+        <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
         End Session
       </button>
     </div>
@@ -50,10 +23,15 @@
   <div class="combine-dropdown" *ngIf="ShowCombineDropdown">
     <app-main-drop-down dropdownTitle="Select Day"></app-main-drop-down>
     <div *ngIf="sessionValueDropdown">
-      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down>     <!-- session value -->
+      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down> <!-- session value -->
     </div>
     <div *ngIf="subSessionValueDropdown">
-      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down>    <!-- Breakout session value -->
+      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down> <!-- Breakout session value -->
+    </div>
+    <div *ngIf="subSessionValueDropdown">
+      <div class="sessions-wrapper">
+        <app-main-drop-down dropdownTitle="Select Sessions" [selectedValue]="selectedValues" [dropdownContent]="multipleTestArray" (onDropdownSelect)="handleDropdownSelect($event)" type="t4"></app-main-drop-down>
+      </div>
     </div>
   </div>
 
@@ -67,8 +45,8 @@
           </ng-container>
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
-            <button class="show-button">Show1</button>   <!-- Add dropdown -->
-          
+            <app-main-drop-down type="t3"></app-main-drop-down> <!-- Add dropdown -->
+
             <button class="show-button">Display</button>
           </div>
         </div>

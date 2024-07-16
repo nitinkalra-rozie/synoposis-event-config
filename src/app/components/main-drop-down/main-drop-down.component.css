@@ -30,6 +30,14 @@
   background: var(--background-secondary-e-1-e-5-ea, #e1e5ea);
 }
 
+.text-wrapper.t3 {
+  padding: 3.5px 5px 3.5px 10px;
+  flex: 1 0 0;
+  border-radius: 4px;
+  border: 1px solid var(--primary-varient-2534-ad-8, #534ad8);
+  background: var(--background-primary-ffffff, #fff);
+}
+
 .selected-text {
   color: var(--background-variant-6475258, #475258);
 
@@ -73,19 +81,26 @@
   align-items: flex-start;
   gap: 5px;
   align-self: stretch;
-  /* display: flex;
-  position: absolute; */
-  /* height: 100px; */
-  /* background-color: red; */
-  /* width: 100%;
-  flex-direction: column;
-  z-index: 1;
-  margin-top: 8px;
-  border-radius: 4px;
-  background: var(--background-primary-ffffff, #fff); */
+}
 
-  /* Elevation/06dp */
-  /* box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.2); */
+.dropdown-content.t3 {
+  right: 0px;
+  display: flex;
+  width: 160px;
+  padding: 16px 0px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  align-self: stretch;
+}
+
+.dropdown-content.t4 {
+  display: flex;
+  padding: 16px 0px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  align-self: stretch;
 }
 
 .drop-down-item {
@@ -164,4 +179,18 @@
   font-style: normal;
   font-weight: 600;
   line-height: 16px; /* 133.333% */
+}
+
+.empty-check-box {
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: flex-start;
+  border-radius: 4px;
+  border: 1px solid var(--background-variant-2-cfdae-6, #cfdae6);
+  background: var(--background-primary-ffffff, #fff);
+}
+
+.checked-box{
+  
 }
