@@ -1,13 +1,8 @@
 <app-top-bar></app-top-bar>
 <div class="main-content">
   <app-event-controls [eventNames]="eventNames" [postData]="postData" [themeOptions]="themeOptions"
-    (onUpdatePostData)="updatePostData($event)" (onReset)="handleReset()"  [transcriptTimeOut]="transcriptTimeOut"></app-event-controls>
-  <div class="session-wrapper">
-    <app-session-content></app-session-content>
-  </div>
-  <div class="session-wrapper">
-    <app-session-content></app-session-content>
-  </div>
+    (onUpdatePostData)="updatePostData($event)" (onReset)="handleReset()"
+    [transcriptTimeOut]="transcriptTimeOut"></app-event-controls>
   <div class="session-wrapper">
     <app-session-content></app-session-content>
   </div>
