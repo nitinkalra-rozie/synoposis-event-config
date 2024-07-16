@@ -1,11 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-screen-display',
   templateUrl: './screen-display.component.html',
   styleUrls: ['./screen-display.component.css'],
 })
-export class ScreenDisplayComponent implements OnInit {
+export class ScreenDisplayComponent {
+
   multipleTestArray = ['Value 1', 'Value 2', 'Value 3'];
   selectedValues = [];
 
@@ -18,11 +19,34 @@ export class ScreenDisplayComponent implements OnInit {
   @Input() cards: Array<{ title: string; imageUrl: string; icon?: string }> = [];
   @Input() sessionValueDropdown: boolean = false;
   @Input() subSessionValueDropdown: boolean = false;
-  constructor() {}
+@Output() startListening: EventEmitter<void> = new EventEmitter<void>();
+@Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
+@Output() endSession: EventEmitter<void>= new EventEmitter<void>();
+
+
+  constructor() { }
 
   ngOnInit() {}
-  startListening() {}
-  stopScreen() {}
+  
+
+  cardDisplayFunction(displayFunction: () => void) {
+    // Execute the provided display function from the card
+    if (displayFunction) {
+      displayFunction();
+    }
+  }
+  onStartListening() {
+    this.startListening.emit();
+  }
+
+  // Method to trigger stop screen
+  onStopScreen() {
+    this.stopScreen.emit();
+  }
+
+  onEndSession() {
+    this.endSession.emit();
+  }
 
   handleDropdownSelect = (value: string) => {
     let tempArray = [];
@@ -39,3 +63,5 @@ export class ScreenDisplayComponent implements OnInit {
     this.selectedValues = [...tempArray];
   };
 }
+
+

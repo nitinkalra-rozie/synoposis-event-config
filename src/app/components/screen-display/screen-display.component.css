@@ -2,7 +2,6 @@
   margin-top: 20px;
   border-radius: 4px;
   background: var(--background-primary-ffffff, #fff);
-  /* Elevation/Simple Drop 2 */
   box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
@@ -17,40 +16,36 @@
   border-bottom: 0.8px solid var(--background-secondary-e-1-e-5-ea, #e1e5ea);
 }
 
-.dynamic-button-start {
-  display: flex;
-  height: 32px;
-  padding: 5px 8px;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  border-radius: 4px;
-  background: var(--primary-varient-2534-ad-8, #534ad8);
-  color: var(--background-primary-ffffff, #fff);
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: -0.14px;
-  border: none;
-}
-.dynamic-button-stop {
-  display: flex;
-  height: 32px;
-  padding: 5px 8px;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  border-radius: 4px;
-  background: var(--background-variant-3-bfccd-9, #bfccd9);
-  color: var(--background-primary-ffffff, #fff);
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: -0.14px;
-  border: none;
-}
+.dynamic-button-start, .dynamic-button-stop, .dynamic-button-End {
+    display: flex;
+    height: 32px;
+    padding: 5px 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    border-radius: 4px;
+    color: var(--background-primary-ffffff, #fff);
+    font-family: Lexend;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: -0.14px;
+    border: none;
+  }
+  
+  .dynamic-button-start {
+    background: var(--primary-varient-2534-ad-8, #534ad8);
+  }
+  
+  .dynamic-button-stop {
+    background: var(--background-variant-3-bfccd-9, #bfccd9);
+  }
+  
+  .dynamic-button-End {
+    background: var(--secondary-variant-9-ff-3030, #ff3030);
+  }
+  
 .vline {
   align-items: center;
   justify-content: center;
@@ -58,26 +53,11 @@
   margin-right: 6px;
   margin-top: 8px;
 }
-.dynamic-button-End {
-  display: flex;
-  height: 32px;
-  padding: 5px 8px;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  border-radius: 4px;
-  background: var(--secondary-variant-9-ff-3030, #ff3030);
-  color: var(--background-primary-ffffff, #fff);
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 24px;
-  letter-spacing: -0.14px;
-  border: none;
-}
+
 .main-title {
   flex: 1 0 0;
   color: var(--background-variant-81-e-2225, #1e2225);
+  font-family: Lexend;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -97,7 +77,6 @@
   padding: 20px 24px;
   display: flex;
   padding: 20px 24px;
-
   align-items: flex-start;
   gap: 24px;
   align-self: stretch;
@@ -135,6 +114,7 @@
 
 .title {
   color: var(--background-primary-ffffff, #fff);
+  font-family: Lexend;
   font-size: 15px;
   font-style: normal;
   font-weight: 500;
@@ -154,9 +134,28 @@
   cursor: pointer;
   color: #fff;
   border: none;
+  font-family: Lexend;
   font-size: 12px;
 }
 
 .sessions-wrapper {
   width: 400px;
 }
+
+@media (max-width: 768px) {
+    .button-text {
+      display: none;
+    }
+    .vline{
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+    .combine-dropdown{
+        flex-direction: column;
+    }
+    .title{
+        white-space:normal;
+        display: flex;
+        align-self: self-start;
+    }
+  }

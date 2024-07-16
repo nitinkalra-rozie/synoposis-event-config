@@ -4,18 +4,19 @@
     <div class="button-container">
       <button class="dynamic-button-start" *ngIf="showStartListeningButton" (click)="startListening()">
         <img src="../../../assets/admin screen/mic_none.svg" alt="Start Listening Icon" class="button-icon" />
-        Start Listening
+        <span class="button-text">Start Listening</span>
       </button>
       <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="stopScreen()">
         <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
-        Stop Screen
+        <span class="button-text">Stop Screen</span>
       </button>
       <div class="vline">
         <img src="../../../assets/admin screen/vline.svg" alt="vertical v line" />
       </div>
       <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="stopScreen()">
         <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
-        End Session
+        <span class="button-text">End Session</span>
+  
       </button>
     </div>
   </div>
