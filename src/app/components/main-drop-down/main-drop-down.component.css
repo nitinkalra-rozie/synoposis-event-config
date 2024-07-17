@@ -19,7 +19,7 @@
 .text-wrapper.t2 {
   border-radius: 4px;
   border: 1px solid var(--background-variant-3-bfccd-9, #bfccd9);
-  background: var(--background-secondary-e-1-e-5-ea, #e1e5ea);
+  /* background: var(--background-secondary-e-1-e-5-ea, #e1e5ea); */
 }
 
 .text-wrapper.t3 {

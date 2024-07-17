@@ -96,7 +96,7 @@ export class SessionContentComponent implements OnInit {
   multi_session_card = [
     {
       title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin screen/Listening.svg',
+      imageUrl: '../../../assets/admin screen/summary_screen.svg',
       icon: '../../../assets/admin screen/note.svg',
       displayFunction: () => this.showSummary(),
     },
@@ -104,7 +104,22 @@ export class SessionContentComponent implements OnInit {
 
   constructor(private backendApiService: BackendApiService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.selectedEvent = localStorage.getItem('selectedEvent') || '';
+    this.selectedDay = localStorage.getItem('currentDay') || '';
+    this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
+    this.currentSessionId = localStorage.getItem('currentSessionId') || '';
+    this.selectedDomain = localStorage.getItem('domain') || '';
+    this.getEventDetails();
+    this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
+    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
+    this.lastFiveWords = localStorage.getItem('lastFiveWords');
+    if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
+      this.startRecording()
+      this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
+    }
+
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedTheme']) {
@@ -133,7 +148,40 @@ export class SessionContentComponent implements OnInit {
       }
     );
   }
+  getEventDetails() {
+    this.backendApiService.getEventDetails().subscribe((data: any) => {
+      this.eventDetails = data;
+      this.populateEventNames();
+      this.selectDefaultOptions();
+    });
+  }
+  selectDefaultOptions() {
+    if (!this.selectedEvent && this.eventNames.length > 0) {
+      this.selectedEvent = this.eventNames[0];
+    }
+    this.populateEventDays();
+    if (!this.selectedDay && this.eventDays.length > 0) {
+      this.selectedDay = this.eventDays[0];
+    }
+    this.populateSessionTitles();
+    if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
+      this.selectedSessionTitle = this.sessionTitles[0];
+    }
+  }
+  populateEventNames() {
+    this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
+  }
 
+  populateEventDays() {
+    const filteredByEvent = this.eventDetails.filter(event => event.Event === this.selectedEvent);
+    this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
+  }
+
+  populateSessionTitles() {
+    const filteredByDay = this.eventDetails.filter(event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay);
+    this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
+    this.options=this.sessionTitles;
+  }
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
     setTimeout(() => {

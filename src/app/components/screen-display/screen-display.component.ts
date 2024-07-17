@@ -23,6 +23,9 @@ export class ScreenDisplayComponent {
   @Output() startListening: EventEmitter<void> = new EventEmitter<void>();
   @Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
+  
+ startListeningClicked: boolean = false;
+ showStopScreenButtonClicked: boolean=false;
 
   eventDay: string = '';
   sessionDay: string = '';
@@ -48,13 +51,17 @@ export class ScreenDisplayComponent {
     }
   }
   onStartListening() {
+    this.startListeningClicked = true;
+    this. showStopScreenButtonClicked=true;
     this.startListening.emit();
   }
-
+  
   onStopScreen() {
+    this. showStopScreenButtonClicked=false;
+    this.startListeningClicked = false;
     this.stopScreen.emit();
   }
-
+  
   onEndSession() {
     this.endSession.emit();
   }

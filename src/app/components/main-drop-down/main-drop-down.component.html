@@ -18,9 +18,10 @@
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
   <div class="text-wrapper  t2" (click)="toggleDropdown()">
     <div class="selected-text">{{selectedValue[0]}}</div>
-    <div class="icon-wrapper">
-      <img class="pencil" src="assets/v2-icons/pencil_icon.svg" alt="" />
-    </div>
+    <!-- <div class="icon-wrapper">
+      <img class="pencil" src="assets/v2-icons/pencil_icon.svg" alt="" />  
+    </div> -->
+    <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
 
   <div class="dropdown-content t2" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
