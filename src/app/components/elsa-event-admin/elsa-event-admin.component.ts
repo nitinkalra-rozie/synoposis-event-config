@@ -65,7 +65,7 @@ export class ElsaEventAdminComponent {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  selectedDomain: string = '';
+  selectedDomain: string = 'Healthcare';
   // const options = [
   //   "Banking and Finance",
   //   "Healthcare",
@@ -79,11 +79,7 @@ export class ElsaEventAdminComponent {
   borderColor: string = '#000'; // Default border color
   dropdownVisible: boolean = false;
   options_domain: string[] = [
-    "Banking and Finance",
     "Healthcare",
-    "Airline",
-    "Telecommunications",
-    "Other",
   ];// Replace with your options
   dropdown: string = 'path-to-dropdown-icon.png';
 
@@ -98,7 +94,8 @@ export class ElsaEventAdminComponent {
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
-    this.selectedDomain = localStorage.getItem('domain') || '';
+    // this.selectedDomain = localStorage.getItem('domain') || '';
+    this.selectedDomain = 'Healthcare';
     this.getEventDetails();
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
