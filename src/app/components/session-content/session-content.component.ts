@@ -565,7 +565,6 @@ export class SessionContentComponent implements OnInit {
         this.backendApiService.postData(postData).subscribe(
           (data: any) => {
             this.showSuccessMessage('End breakout session message sent successfully!');
-            this.showPostInsightsLoading();
           },
           (error: any) => {
             this.showFailureMessage('Failed to send end breakout session message.', error);
