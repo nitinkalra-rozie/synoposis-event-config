@@ -423,18 +423,34 @@ export class SessionContentComponent implements OnInit {
             this.showFailureMessage('Failed to send start session message.', error);
           }
         );
-
-      this.showLoadingInsights();
+      if(session.Type=="BreakoutSession"){
+        this.showBreakdownInProgress();
+      }
+      else{
+        this.showLoadingInsights();
+      }
+      
     } else {
       alert('Please select the Event , Day , Domain and Speaker Name to start the session');
     }
   }
+
   showLoadingInsights() {
     let postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'insightsLoading';
+    postData.sessionTitle = this.selectedSessionTitle;
+    this.backendApiService.postData(postData).subscribe(() => {});
+  }
+
+  showBreakdownInProgress() {
+    let postData: PostData = {};
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.action = 'breakOutSession';
     postData.sessionTitle = this.selectedSessionTitle;
     this.backendApiService.postData(postData).subscribe(() => {});
   }
