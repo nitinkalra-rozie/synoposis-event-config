@@ -189,6 +189,9 @@ export class SessionContentComponent implements OnInit {
     if (!this.selectedDay && this.eventDays.length > 0) {
       this.selectedDay = this.eventDays[0];
     }
+    if (!this.selectedMultiSessionDay && this.eventDays.length > 0) {
+      this.selectedMultiSessionDay = this.eventDays[0];
+    }
     this.populateSessionTitles();
     this.populatePrimarySessionTitles();
     if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
