@@ -7,7 +7,7 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { PostData } from 'src/app/shared/types';
-import { ThemeOptions } from 'src/app/shared/enums';
+import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
@@ -16,9 +16,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_nod
   styleUrls: ['./session-content.component.css'],
 })
 export class SessionContentComponent implements OnInit {
-  @Input() eventDaysProp: string[] = [];
-  @Input() sessionTitlesProp: string[] = [];
-  @Input() primarySessionTitles: string[] = [];
+  ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
@@ -29,11 +27,13 @@ export class SessionContentComponent implements OnInit {
   selectedSessionType: string = '';
   selectedReportType: string = '';
   selectedDay: string = '';
+  selectedMultiSessionDay: string = '';
   eventDetails: any = [];
   eventDays: any = [];
   eventNames: any = [];
   selectedSessionTitle: string = '';
   sessionTitles: string[] = [];
+  primarySessionTitles: string[] = [];
   filteredEventData: any = [];
   options: string[] = [];
   selectedOptions: string[] = [];
@@ -63,18 +63,27 @@ export class SessionContentComponent implements OnInit {
   isStreaming = false;
   selectedDomain: string = 'Healthcare';
 
+  eventDay: { [key: string]: string } = {
+    [EventCardType.Welcome]: '',
+    [EventCardType.ThankYou]: '',
+    [EventCardType.Info]: '',
+  };
+
   event_cards = [
     {
+      cardType: EventCardType.Welcome,
       title: 'Welcome Screen',
       imageUrl: '../../../assets/admin screen/welcomw_screen.svg',
       displayFunction: () => this.showWelcomeMessageBanner(),
     },
     {
+      cardType: EventCardType.ThankYou,
       title: 'Thank You Screen',
       imageUrl: '../../../assets/admin screen/thank_you_page.svg',
       displayFunction: () => this.showThankYouScreen(),
     },
     {
+      cardType: EventCardType.Info,
       title: 'Info Screen',
       imageUrl: '../../../assets/admin screen/qr_screen.svg',
       displayFunction: () => this.showInfoScreen(),
@@ -181,6 +190,7 @@ export class SessionContentComponent implements OnInit {
       this.selectedDay = this.eventDays[0];
     }
     this.populateSessionTitles();
+    this.populatePrimarySessionTitles();
     if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
       this.selectedSessionTitle = this.sessionTitles[0];
     }
@@ -190,14 +200,24 @@ export class SessionContentComponent implements OnInit {
     this.selectedSessionTitle = titleValue;
   };
 
-  handleSessionsChange = ({values}: {values: string[]}) => {    
+  handleSessionsChange = ({ values }: { values: string[] }) => {
     this.selectedOptions = values;
   };
 
   handleMainSessionDayChange = (dayValue: string) => {
     this.selectedDay = dayValue;
+    this.populateSessionTitles();
   };
-  
+
+  handleMultiSessionDayChange = (dayValue: string) => {
+    this.selectedMultiSessionDay = dayValue;
+    this.populatePrimarySessionTitles();
+  };
+
+  handleEventSpecificDayChange = (dayObject: { [key: string]: string }) => {
+    this.eventDay = dayObject;
+  };
+
   populateEventNames() {
     this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
   }
@@ -211,9 +231,22 @@ export class SessionContentComponent implements OnInit {
     const filteredByDay = this.eventDetails.filter(
       event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay
     );
+    filteredByDay.sort((a, b) => a.sid - b.sid);
     this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
     this.options = this.sessionTitles;
   }
+
+  populatePrimarySessionTitles() {
+    const filteredByDay = this.eventDetails.filter(
+      event =>
+        event.Event === this.selectedEvent &&
+        event.EventDay === this.selectedMultiSessionDay &&
+        event.Type === EventDetailType.PrimarySession
+    );
+    filteredByDay.sort((a, b) => a.sid - b.sid);
+    this.primarySessionTitles = filteredByDay.map(event => event.SessionTitle);
+  }
+
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
     setTimeout(() => {
@@ -230,7 +263,7 @@ export class SessionContentComponent implements OnInit {
   showWelcomeMessageBanner(): void {
     let postData: PostData = {};
     postData.action = 'welcome';
-    postData.day = this.selectedDay;
+    postData.day = this.eventDay[EventCardType.Welcome];
     this.backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Welcome message screen sent successfully!');
@@ -263,7 +296,7 @@ export class SessionContentComponent implements OnInit {
   showThankYouScreen(): void {
     let postData: PostData = {};
     postData.action = 'thank_you';
-    postData.day = this.selectedDay;
+    postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     this.backendApiService.postData(postData).subscribe(
@@ -281,7 +314,7 @@ export class SessionContentComponent implements OnInit {
   showInfoScreen(): void {
     let postData: PostData = {};
     postData.action = 'qr_screen';
-    postData.day = this.selectedDay;
+    postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     this.backendApiService.postData(postData).subscribe(
@@ -377,7 +410,7 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('domain', this.selectedDomain);
       this.startRecording();
       this.backendApiService
-        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.primarySessionTitles)
+        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId)
         .subscribe(
           (data: any) => {
             console.log(data);
@@ -492,7 +525,7 @@ export class SessionContentComponent implements OnInit {
       });
       let postData: PostData = {};
       postData.action = 'summary_of_Single_Keynote';
-      postData.day = this.selectedDay;
+      postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionId = this.sessionIds;
