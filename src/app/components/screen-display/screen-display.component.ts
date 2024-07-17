@@ -10,6 +10,7 @@ export class ScreenDisplayComponent {
   selectedSessions: string[] = [];
 
   @Input() type: ScreenDisplayType;
+  @Input() startListeningClicked: boolean = false;
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
@@ -34,8 +35,8 @@ export class ScreenDisplayComponent {
   @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() onMultiSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
 
-  startListeningClicked: boolean = false;
-  showStopScreenButtonClicked: boolean = false;
+  // startListeningClicked: boolean = false;
+  // showStopScreenButtonClicked: boolean = false;
 
   eventDay: { [key: string]: string } = {
     [EventCardType.Welcome]: '',
@@ -78,14 +79,14 @@ export class ScreenDisplayComponent {
     }
   }
   onStartListening() {
-    this.startListeningClicked = true;
-    this.showStopScreenButtonClicked = true;
+    // this.startListeningClicked = true;
+    // this.showStopScreenButtonClicked = true;
     this.startListening.emit();
   }
 
   onStopScreen() {
-    this.showStopScreenButtonClicked = false;
-    this.startListeningClicked = false;
+    // this.showStopScreenButtonClicked = false;
+    // this.startListeningClicked = false;
     this.stopScreen.emit();
   }
 

@@ -21,6 +21,7 @@ export class SessionContentComponent implements OnInit {
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
+  @Input() transcriptTimeOutProp: string;
 
   selectedTheme: string = ThemeOptions.light;
   selectedEvent: string = '';
@@ -49,6 +50,7 @@ export class SessionContentComponent implements OnInit {
   postInsideInterval: number = 15;
   transcriptTimeOut: number = 60;
   lastFiveWords: string = '';
+  startListeningClicked = false;
 
   /*   */
   title = 'AngularTranscribe';
@@ -152,6 +154,12 @@ export class SessionContentComponent implements OnInit {
     if (changes['selectedEventProp']) {
       if (changes['selectedEventProp'].currentValue != changes['selectedEventProp'].previousValue) {
         this.selectedEvent = changes['selectedEventProp'].currentValue;
+      }
+    }
+
+    if (changes['transcriptTimeOutProp']) {
+      if (changes['transcriptTimeOutProp'].currentValue != changes['transcriptTimeOutProp'].previousValue) {
+        this.transcriptTimeOut = changes['transcriptTimeOutProp'].currentValue;
       }
     }
   }
@@ -334,13 +342,13 @@ export class SessionContentComponent implements OnInit {
       }
     );
   }
-  findSession(event: string, SessionTitle: string) {
+  findSession = (event: string, SessionTitle: string) => {
     const session = this.eventDetails.find(
       (session: { Event: string; SessionTitle: string }) =>
         session.Event === event && session.SessionTitle === SessionTitle
     );
     return session ? session : null;
-  }
+  };
 
   showBackupScreen(): void {
     let postData: PostData = {};
@@ -427,6 +435,7 @@ export class SessionContentComponent implements OnInit {
         .subscribe(
           (data: any) => {
             console.log(data);
+            this.startListeningClicked = true;
             this.showSuccessMessage('Start session message sent successfully!');
           },
           (error: any) => {
@@ -473,9 +482,13 @@ export class SessionContentComponent implements OnInit {
   stopScreen(): void {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
-    if (confirm('Are you sure to stop the session?')) {
-      this.closeSocket();
-    }
+    this.modalService.open(
+      'Stop Session?',
+      'Are you sure to stop the session?',
+      'yes_no',
+      this.closeSocket,
+      this.handleNoSelect
+    );
   }
 
   endEvent(): void {
@@ -515,8 +528,9 @@ export class SessionContentComponent implements OnInit {
     );
   };
 
-  endSession(): void {
+  endSession = (): void => {
     this.modalService.close();
+    this.startListeningClicked = false;
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
     let postData: PostData = {};
@@ -541,21 +555,19 @@ export class SessionContentComponent implements OnInit {
         this.closeSocket();
       }
     } else {
-      if (confirm('Are you sure to end this session?')) {
-        postData.action = 'endPrimarySession';
-        this.backendApiService.postData(postData).subscribe(
-          (data: any) => {
-            this.showSuccessMessage('End session message sent successfully!');
-            this.showPostInsightsLoading();
-          },
-          (error: any) => {
-            this.showFailureMessage('Failed to send end session message.', error);
-          }
-        );
-        this.closeSocket();
-      }
+      postData.action = 'endPrimarySession';
+      this.backendApiService.postData(postData).subscribe(
+        (data: any) => {
+          this.showSuccessMessage('End session message sent successfully!');
+          this.showPostInsightsLoading();
+        },
+        (error: any) => {
+          this.showFailureMessage('Failed to send end session message.', error);
+        }
+      );
+      this.closeSocket();
     }
-  }
+  };
 
   showSummary(): void {
     // Check if a keynote type is selected
@@ -686,6 +698,7 @@ export class SessionContentComponent implements OnInit {
   }
   streamAudioToWebSocket = userMediaStream => {
     //let's get the mic input from the browser, via the microphone-stream module
+    this.startListeningClicked = true;
     console.log('start streamAudioToWebSocket');
     this.micStream = new MicrophoneStream();
     this.micStream.setStream(userMediaStream);
@@ -769,7 +782,9 @@ export class SessionContentComponent implements OnInit {
 
     return binary;
   };
+
   closeSocket = () => {
+    this.modalService.close();
     if (this.socket.OPEN) {
       this.micStream.stop();
 
@@ -780,12 +795,12 @@ export class SessionContentComponent implements OnInit {
       this.socket.send(emptyBuffer);
     }
     clearInterval(this.timeoutId);
+    this.startListeningClicked = false;
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('currentSessionId');
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
-    this.selectedSessionTitle = '';
     this.transctiptToInsides = '';
     this.isStreaming = !this.isStreaming;
   };

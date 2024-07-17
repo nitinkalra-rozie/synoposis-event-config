@@ -8,7 +8,7 @@
         <span class="button-text">Start Listening</span>
       </button>
       <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="onStopScreen()"
-        [ngClass]="{'active': showStopScreenButtonClicked}">
+        [ngClass]="{'active': startListeningClicked}">
         <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">Pause Listening</span>
       </button>
