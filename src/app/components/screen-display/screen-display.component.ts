@@ -24,6 +24,7 @@ export class ScreenDisplayComponent {
   @Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
   @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onSessionsChange: EventEmitter<{ values: string[] }> = new EventEmitter<{ values: string[] }>();
   @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
 
   startListeningClicked: boolean = false;
@@ -48,6 +49,9 @@ export class ScreenDisplayComponent {
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
       this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
+      if (this.subSessionValueDropdown) {
+        this.onSessionsChange.emit({ values: [changes['sessionTitles'].currentValue[0]] });
+      }
     }
   }
 
@@ -102,5 +106,6 @@ export class ScreenDisplayComponent {
       tempArray.push(value);
     }
     this.selectedSessions = [...tempArray];
+    this.onSessionsChange.emit({ values: [...tempArray] });
   };
 }

@@ -190,10 +190,14 @@ export class SessionContentComponent implements OnInit {
     this.selectedSessionTitle = titleValue;
   };
 
+  handleSessionsChange = ({values}: {values: string[]}) => {    
+    this.selectedOptions = values;
+  };
+
   handleMainSessionDayChange = (dayValue: string) => {
     this.selectedDay = dayValue;
   };
-
+  
   populateEventNames() {
     this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
   }
