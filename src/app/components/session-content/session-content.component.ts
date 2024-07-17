@@ -377,7 +377,7 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('domain', this.selectedDomain);
       this.startRecording();
       this.backendApiService
-        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.primarySessionTitles)
+        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.currentPrimarySessionId)
         .subscribe(
           (data: any) => {
             console.log(data);
