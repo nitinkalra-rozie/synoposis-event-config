@@ -41,6 +41,7 @@ export class SessionContentComponent implements OnInit {
   transctiptToInsides: string = '';
   timeoutId: any = '';
   currentSessionId = '';
+  currentPrimarySessionId = '';
   postInsideInterval: number = 15;
   transcriptTimeOut: number = 60;
   lastFiveWords: string = '';
@@ -91,7 +92,7 @@ export class SessionContentComponent implements OnInit {
       title: 'Post Session Insights Screens',
       imageUrl: '../../../assets/admin screen/summary_screen.svg',
       icon: '../../../assets/admin screen/note.svg',
-      displayFunction: () => this.showEndSession(),
+      displayFunction: () => this.endSession(),
     },
   ];
   multi_session_card = [
@@ -111,6 +112,7 @@ export class SessionContentComponent implements OnInit {
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
     this.selectedDomain = localStorage.getItem('domain') || '';
+    this.currentPrimarySessionId = localStorage.getItem('currentPrimarySessionId') || '';
     this.getEventDetails();
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
@@ -136,6 +138,7 @@ export class SessionContentComponent implements OnInit {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.primarySessionId = this.currentPrimarySessionId;
     postData.theme = this.selectedTheme;
     postData.action = 'updateTheme';
     postData.sessionTitle = this.selectedSessionTitle;
@@ -217,6 +220,7 @@ export class SessionContentComponent implements OnInit {
     postData.sessionId = sessionDetails.SessionId;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.primarySessionId = this.currentPrimarySessionId;
     this.backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Snapshot message sent successfully!');
@@ -298,6 +302,7 @@ export class SessionContentComponent implements OnInit {
       postData.action = 'keynote';
       postData.sessionTitle = this.selectedSessionTitle;
       postData.keyNoteData = sessionDetails;
+      postData.primarySessionId = sessionDetails.PrimarySessionId;
       this.backendApiService.postData(postData).subscribe(
         () => {
           this.showSuccessMessage('Show speakers details sent successfully!');
@@ -338,11 +343,12 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('currentSessionTitle', this.selectedSessionTitle);
       const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
       localStorage.setItem('currentSessionId', session.SessionId);
+      localStorage.setItem('currentPrimarySessionId', session.PrimarySessionId);
       localStorage.setItem('currentDay', this.selectedDay);
       localStorage.setItem('selectedEvent', this.selectedEvent);
       localStorage.setItem('domain', this.selectedDomain);
       this.startRecording();
-      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain).subscribe(
+      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.primarySessionTitles).subscribe(
         (data: any) => {
           console.log(data);
           this.showSuccessMessage('Start session message sent successfully!');
@@ -380,28 +386,12 @@ export class SessionContentComponent implements OnInit {
   stopScreen(): void {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
-    if (confirm('Are you sure to end the session?')) {
-      let postData: PostData = {};
-      postData.day = this.selectedDay;
-      postData.eventName = this.selectedEvent;
-      postData.domain = this.selectedDomain;
-      postData.sessionId = session.SessionId;
-      postData.action = 'end_session';
-      postData.sessionTitle = this.selectedSessionTitle;
-      this.backendApiService.postData(postData).subscribe(
-        (data: any) => {
-          this.showSuccessMessage('End session message sent successfully!');
-          this.showPostInsightsLoading();
-        },
-        (error: any) => {
-          this.showFailureMessage('Failed to send end session message.', error);
-        }
-      );
+    if (confirm('Are you sure to stop the session?')) {
       this.closeSocket();
     }
   }
 
-  endSession(): void {
+  endEvent(): void {
     let postData: PostData = {};
     postData.action = 'thank_you';
     postData.day = 'endEvent';
@@ -418,27 +408,46 @@ export class SessionContentComponent implements OnInit {
     );
   }
 
-  showEndSession(): void {
+  endSession(): void {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
-    if (confirm('Are you sure to end the session?')) {
-      let postData: PostData = {};
-      postData.day = this.selectedDay;
-      postData.eventName = this.selectedEvent;
-      postData.domain = this.selectedDomain;
-      postData.sessionId = session.SessionId;
-      postData.action = 'end_session';
-      postData.sessionTitle = this.selectedSessionTitle;
-      this.backendApiService.postData(postData).subscribe(
-        (data: any) => {
-          this.showSuccessMessage('End session message sent successfully!');
-          this.showPostInsightsLoading();
-        },
-        (error: any) => {
-          this.showFailureMessage('Failed to send end session message.', error);
-        }
-      );
-      this.closeSocket();
+    let postData: PostData = {};
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.sessionId = session.SessionId;
+    postData.primarySessionId= session.PrimarySessionId;
+    postData.sessionTitle = this.selectedSessionTitle;
+    if (session.Type=="BreakoutSession") {
+
+      if(confirm('Are you sure to end this breakout session?')){
+        postData.action = 'endBreakoutSession';
+        this.backendApiService.postData(postData).subscribe(
+          (data: any) => {
+            this.showSuccessMessage('End breakout session message sent successfully!');
+            this.showPostInsightsLoading();
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to send end breakout session message.', error);
+          }
+        );
+        this.closeSocket();
+      }
+    }
+    else  {
+      if (confirm('Are you sure to end this session?')){
+        postData.action = 'endPrimarySession';
+        this.backendApiService.postData(postData).subscribe(
+          (data: any) => {
+            this.showSuccessMessage('End session message sent successfully!');
+            this.showPostInsightsLoading();
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to send end session message.', error);
+          }
+        );
+        this.closeSocket();
+      }
     }
   }
 
@@ -523,6 +532,7 @@ export class SessionContentComponent implements OnInit {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.primarySessionId = this.currentPrimarySessionId;
     postData.sessionId = this.currentSessionId;
     postData.action = 'realTimeInsights';
     postData.sessionTitle = this.selectedSessionTitle;
@@ -660,6 +670,7 @@ export class SessionContentComponent implements OnInit {
     clearInterval(this.timeoutId);
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('currentSessionId');
+    localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
     this.selectedSessionTitle = '';
@@ -684,15 +695,20 @@ export class SessionContentComponent implements OnInit {
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
-          this.realtimeInsides(this.transcription);
-          this.backendApiService.putTranscript(this.transcription).subscribe(
-            (data: any) => {
-              console.log(data);
-            },
-            (error: any) => {
-              this.showFailureMessage('Failed to store transcript', error);
-            }
-          );
+          if(this.currentSessionId && this.currentPrimarySessionId==this.currentSessionId)
+          {
+            this.realtimeInsides(this.transcription);
+          }
+          if(this.currentSessionId){
+            this.backendApiService.putTranscript(this.transcription).subscribe(
+              (data: any) => {
+                console.log(data);
+              },
+              (error: any) => {
+                this.showFailureMessage('Failed to store transcript', error);
+              }
+            );
+          }
         }
       }
     }

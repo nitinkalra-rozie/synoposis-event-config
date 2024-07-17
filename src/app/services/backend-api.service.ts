@@ -41,6 +41,7 @@ export class BackendApiService {
     });
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
+      primarySessionId: localStorage.getItem('currentPrimarySessionId'),
       transcript: transcript,
       eventName: localStorage.getItem('selectedEvent'),
       domain: localStorage.getItem('domain')
@@ -78,7 +79,7 @@ export class BackendApiService {
     });
     return this.http.post(environment.getEventDetails,{},{ headers: headers });
   }
-  postCurrentSessionId(sessionId:any,  eventName:any, domain:any){
+  postCurrentSessionId(sessionId:any, eventName:any, domain:any, primarySessionId:any){
     const refreshToken = localStorage.getItem('Idtoken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
@@ -87,8 +88,8 @@ export class BackendApiService {
     const body={
       sessionId: sessionId,
       eventName: eventName,
-      domain: domain
-
+      domain: domain,
+      primarySessionId: primarySessionId
     }
     return this.http.post(environment.postCurrentSessionId, body,{ headers: headers });
   }

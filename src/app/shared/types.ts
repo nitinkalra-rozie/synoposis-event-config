@@ -35,4 +35,5 @@ export interface PostData {
   screenTimeout?: number;
   sessionTitle?: string;
   theme?: string;
+  primarySessionId?: any;
 }

@@ -440,7 +440,7 @@ export class ElsaEventAdminComponent {
       localStorage.setItem("selectedEvent", this.selectedEvent);
       localStorage.setItem("domain", this.selectedDomain);
       this.startRecording();
-      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain).subscribe((data: any) => {
+      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId).subscribe((data: any) => {
         console.log(data);
         this.showSuccessMessage('Start session message sent successfully!');
       },
