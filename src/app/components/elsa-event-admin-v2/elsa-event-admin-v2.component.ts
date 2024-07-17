@@ -86,7 +86,9 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.populateSessionTitles();
     this.selectedSessionTitle = this.sessionTitles.length > 0 ? this.sessionTitles[0] : '';
     const sessionDetails = this.findSession(this.postData.eventName, this.selectedSessionTitle);
-    this.updatePostData({ key: PostDataEnum.sessionId, value: sessionDetails.SessionId });
+    if (sessionDetails) {
+      this.updatePostData({ key: PostDataEnum.sessionId, value: sessionDetails.SessionId });
+    }
   };
 
   // private showSuccessMessage(message: string): void {

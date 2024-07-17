@@ -7,6 +7,7 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { PostData } from 'src/app/shared/types';
+import { ThemeOptions } from 'src/app/shared/enums';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
@@ -19,8 +20,10 @@ export class SessionContentComponent implements OnInit {
   @Input() sessionTitlesProp: string[] = [];
   @Input() primarySessionTitles: string[] = [];
   @Input() eventControls: PostData;
-  @Input() selectedTheme: string;
+  @Input() selectedThemeProp: string;
+  @Input() selectedEventProp: string;
 
+  selectedTheme: string = ThemeOptions.light;
   selectedEvent: string = '';
   selectedKeynoteType: string = '';
   selectedSessionType: string = '';
@@ -111,23 +114,31 @@ export class SessionContentComponent implements OnInit {
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
-    this.selectedDomain = localStorage.getItem('domain') || '';
+    this.selectedDomain = localStorage.getItem('domain') || 'Healthcare';
     this.currentPrimarySessionId = localStorage.getItem('currentPrimarySessionId') || '';
     this.getEventDetails();
-    this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
-    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
+    this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60;
+    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15;
     this.lastFiveWords = localStorage.getItem('lastFiveWords');
     if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
-      this.startRecording()
+      this.startRecording();
       this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
     }
-
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedTheme']) {
-      if (changes['selectedTheme'].currentValue != changes['selectedTheme'].previousValue) {
-        this.onThemeChange();
+    if (changes['selectedThemeProp']) {
+      if (changes['selectedThemeProp'].currentValue != changes['selectedThemeProp'].previousValue) {
+        if (this.selectedTheme != changes['selectedThemeProp'].currentValue) {
+          this.selectedTheme = changes['selectedThemeProp'].currentValue;
+          this.onThemeChange();
+        }
+      }
+    }
+
+    if (changes['selectedEventProp']) {
+      if (changes['selectedEventProp'].currentValue != changes['selectedEventProp'].previousValue) {
+        this.selectedEvent = changes['selectedEventProp'].currentValue;
       }
     }
   }
@@ -152,6 +163,7 @@ export class SessionContentComponent implements OnInit {
       }
     );
   }
+
   getEventDetails() {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data;
@@ -159,6 +171,7 @@ export class SessionContentComponent implements OnInit {
       this.selectDefaultOptions();
     });
   }
+
   selectDefaultOptions() {
     if (!this.selectedEvent && this.eventNames.length > 0) {
       this.selectedEvent = this.eventNames[0];
@@ -172,6 +185,15 @@ export class SessionContentComponent implements OnInit {
       this.selectedSessionTitle = this.sessionTitles[0];
     }
   }
+
+  handleMainSessionChange = (titleValue: string) => {
+    this.selectedSessionTitle = titleValue;
+  };
+
+  handleMainSessionDayChange = (dayValue: string) => {
+    this.selectedDay = dayValue;
+  };
+
   populateEventNames() {
     this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
   }
@@ -182,9 +204,11 @@ export class SessionContentComponent implements OnInit {
   }
 
   populateSessionTitles() {
-    const filteredByDay = this.eventDetails.filter(event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay);
+    const filteredByDay = this.eventDetails.filter(
+      event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay
+    );
     this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
-    this.options=this.sessionTitles;
+    this.options = this.sessionTitles;
   }
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
@@ -348,15 +372,17 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('selectedEvent', this.selectedEvent);
       localStorage.setItem('domain', this.selectedDomain);
       this.startRecording();
-      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.primarySessionTitles).subscribe(
-        (data: any) => {
-          console.log(data);
-          this.showSuccessMessage('Start session message sent successfully!');
-        },
-        (error: any) => {
-          this.showFailureMessage('Failed to send start session message.', error);
-        }
-      );
+      this.backendApiService
+        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.primarySessionTitles)
+        .subscribe(
+          (data: any) => {
+            console.log(data);
+            this.showSuccessMessage('Start session message sent successfully!');
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to send start session message.', error);
+          }
+        );
 
       this.showLoadingInsights();
     } else {
@@ -416,11 +442,10 @@ export class SessionContentComponent implements OnInit {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.sessionId = session.SessionId;
-    postData.primarySessionId= session.PrimarySessionId;
+    postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = this.selectedSessionTitle;
-    if (session.Type=="BreakoutSession") {
-
-      if(confirm('Are you sure to end this breakout session?')){
+    if (session.Type == 'BreakoutSession') {
+      if (confirm('Are you sure to end this breakout session?')) {
         postData.action = 'endBreakoutSession';
         this.backendApiService.postData(postData).subscribe(
           (data: any) => {
@@ -433,9 +458,8 @@ export class SessionContentComponent implements OnInit {
         );
         this.closeSocket();
       }
-    }
-    else  {
-      if (confirm('Are you sure to end this session?')){
+    } else {
+      if (confirm('Are you sure to end this session?')) {
         postData.action = 'endPrimarySession';
         this.backendApiService.postData(postData).subscribe(
           (data: any) => {
@@ -695,11 +719,10 @@ export class SessionContentComponent implements OnInit {
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
-          if(this.currentSessionId && this.currentPrimarySessionId==this.currentSessionId)
-          {
+          if (this.currentSessionId && this.currentPrimarySessionId == this.currentSessionId) {
             this.realtimeInsides(this.transcription);
           }
-          if(this.currentSessionId){
+          if (this.currentSessionId) {
             this.backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
                 console.log(data);

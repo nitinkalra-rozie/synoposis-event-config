@@ -7,7 +7,7 @@ export class TruncatePipe implements PipeTransform {
   transform(
     value: string = '',
     addPlus: boolean = false,
-    limit: number = 50,
+    limit: number = 45,
     completeWords: boolean = false,
     ellipsis: string = '...'
   ): string {

@@ -23,9 +23,11 @@ export class ScreenDisplayComponent {
   @Output() startListening: EventEmitter<void> = new EventEmitter<void>();
   @Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
-  
- startListeningClicked: boolean = false;
- showStopScreenButtonClicked: boolean=false;
+  @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
+
+  startListeningClicked: boolean = false;
+  showStopScreenButtonClicked: boolean = false;
 
   eventDay: string = '';
   sessionDay: string = '';
@@ -38,10 +40,14 @@ export class ScreenDisplayComponent {
     if (changes['eventDays']) {
       this.eventDay = changes['eventDays'].currentValue[0];
       this.sessionDay = changes['eventDays'].currentValue[0];
+      if (!this.subSessionValueDropdown) {
+        this.onMainSessionDayChange.emit(changes['eventDays'].currentValue[0]);
+      }
     }
 
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
+      this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
     }
   }
 
@@ -52,16 +58,16 @@ export class ScreenDisplayComponent {
   }
   onStartListening() {
     this.startListeningClicked = true;
-    this. showStopScreenButtonClicked=true;
+    this.showStopScreenButtonClicked = true;
     this.startListening.emit();
   }
-  
+
   onStopScreen() {
-    this. showStopScreenButtonClicked=false;
+    this.showStopScreenButtonClicked = false;
     this.startListeningClicked = false;
     this.stopScreen.emit();
   }
-  
+
   onEndSession() {
     this.endSession.emit();
   }
@@ -72,11 +78,15 @@ export class ScreenDisplayComponent {
 
   handleSessionDayDropdownSelect = (value: string) => {
     this.sessionDay = value;
+    if (!this.subSessionValueDropdown) {
+      this.onMainSessionDayChange.emit(value);
+    }
   };
 
   handleSelectSessionSelect = (value: string) => {
     let tempArray = [value];
     this.selectedSessions = [...tempArray];
+    this.onMainSessionChange.emit(value);
   };
 
   handleSelectSessionsSelect = (value: string) => {
