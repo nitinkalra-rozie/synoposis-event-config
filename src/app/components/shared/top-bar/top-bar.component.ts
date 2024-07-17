@@ -1,13 +1,17 @@
 import { Component } from '@angular/core';
 import { CognitoService } from 'src/app/services/cognito.service';
+import { ModalService } from 'src/app/services/modal.service';
 @Component({
   selector: 'app-top-bar',
   templateUrl: './top-bar.component.html',
-  styleUrls: ['./top-bar.component.css']
+  styleUrls: ['./top-bar.component.css'],
 })
 export class TopBarComponent {
   showDropdown: boolean = false;
-  constructor(private cognitoService :CognitoService){}
+  constructor(
+    private cognitoService: CognitoService,
+    private modalService: ModalService
+  ) {}
 
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
@@ -17,7 +21,26 @@ export class TopBarComponent {
     this.showDropdown = false;
   }
 
-  logout() {
+  handleNoSelect = () => {
+    this.modalService.close();
+  };
+
+  handleYesSelect = () => {
+    this.modalService.close();
     this.cognitoService.logOut();
+  };
+
+  showModal() {
+    this.modalService.open(
+      'Confirm Action',
+      'Are you sure you want to log out?',
+      'yes_no',
+      this.handleYesSelect,
+      this.handleNoSelect
+    );
+  }
+
+  logout() {
+    this.showModal();
   }
 }

@@ -8,6 +8,7 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
+import { ModalService } from 'src/app/services/modal.service';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
@@ -104,7 +105,7 @@ export class SessionContentComponent implements OnInit {
       title: 'Post Session Insights Screens',
       imageUrl: '../../../assets/admin screen/summary_screen.svg',
       icon: '../../../assets/admin screen/note.svg',
-      displayFunction: () => this.endSession(),
+      displayFunction: () => this.endSessionPopUpPostInsights(),
     },
   ];
   multi_session_card = [
@@ -116,7 +117,10 @@ export class SessionContentComponent implements OnInit {
     },
   ];
 
-  constructor(private backendApiService: BackendApiService) {}
+  constructor(
+    private backendApiService: BackendApiService,
+    private modalService: ModalService
+  ) {}
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -376,7 +380,13 @@ export class SessionContentComponent implements OnInit {
         }
       );
     } else {
-      alert('Event day and Session should be selected to show speaker details!');
+      this.modalService.open(
+        'Confirm Action',
+        'Event day and Session should be selected to show speaker details!',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
     }
   }
 
@@ -426,9 +436,20 @@ export class SessionContentComponent implements OnInit {
 
       this.showLoadingInsights();
     } else {
-      alert('Please select the Event , Day , Domain and Speaker Name to start the session');
+      this.modalService.open(
+        'Confirm Action',
+        'Please select the Event , Day , Domain and Speaker Name to start the session',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
     }
   }
+
+  handleNoSelect = () => {
+    this.modalService.close();
+  };
+
   showLoadingInsights() {
     let postData: PostData = {};
     postData.day = this.selectedDay;
@@ -474,7 +495,28 @@ export class SessionContentComponent implements OnInit {
     );
   }
 
+  endSessionPopUp = () => {
+    this.modalService.open(
+      'End Session?',
+      'Are you sure that you want to end current session? This will display post session insights on screen.',
+      'yes_no',
+      this.endSession,
+      this.handleNoSelect
+    );
+  };
+
+  endSessionPopUpPostInsights = () => {
+    this.modalService.open(
+      'End Session?',
+      'Are you sure that you want to end current session? This will display post session insights on screen.',
+      'yes_no',
+      this.endSession,
+      this.handleNoSelect
+    );
+  };
+
   endSession(): void {
+    this.modalService.close();
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
     let postData: PostData = {};
@@ -519,7 +561,13 @@ export class SessionContentComponent implements OnInit {
     // Check if a keynote type is selected
     this.sessionIds = [];
     if (this.selectedOptions.length <= 0) {
-      alert('select the sessions to show the summary!');
+      this.modalService.open(
+        'Confirm Action',
+        'select the sessions to show the summary!',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
       return;
     } else {
       this.selectedOptions.forEach(element => {
