@@ -13,6 +13,7 @@ export class ScreenDisplayComponent {
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
+  @Input() sessionDay: string = '';
   @Input() icon: string | null = null;
   @Input() imageUrl: string;
   @Input() showStartListeningButton: boolean = false;
@@ -41,13 +42,24 @@ export class ScreenDisplayComponent {
     [EventCardType.ThankYou]: '',
     [EventCardType.Info]: '',
   };
-  sessionDay: string = '';
 
   constructor() {}
 
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
+      if (changes['sessionTitles'].currentValue != changes['sessionTitles'].previousValue) {
+        this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
+        if (this.type === ScreenDisplayType.MultiSession) {
+          this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
+        }
+        if (this.type === ScreenDisplayType.SessionSpecific) {
+          this.onSessionsChange.emit({ values: [changes['sessionTitles'].currentValue[0]] });
+        }
+      }
+    }
+
     if (changes['eventDays']) {
       if (this.type === ScreenDisplayType.EventSpecific) {
         this.eventDay = {
@@ -56,23 +68,6 @@ export class ScreenDisplayComponent {
           [EventCardType.Info]: changes['eventDays'].currentValue[0],
         };
         this.onEventSpecificDayChange.emit(this.eventDay);
-      }
-      this.sessionDay = changes['eventDays'].currentValue[0];
-      if (this.type === ScreenDisplayType.SessionSpecific) {
-        this.onMainSessionDayChange.emit(changes['eventDays'].currentValue[0]);
-      }
-      if (this.type === ScreenDisplayType.MultiSession) {
-        this.onMultiSessionDayChange.emit(changes['eventDays'].currentValue[0]);
-      }
-    }
-
-    if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
-      this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
-      if (this.type === ScreenDisplayType.MultiSession) {
-        this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
-      }
-      if (this.type === ScreenDisplayType.SessionSpecific) {
-        this.onSessionsChange.emit({ values: [changes['sessionTitles'].currentValue[0]] });
       }
     }
   }
@@ -104,7 +99,6 @@ export class ScreenDisplayComponent {
   };
 
   handleSessionDayDropdownSelect = (value: string) => {
-    this.sessionDay = value;
     if (this.type === ScreenDisplayType.SessionSpecific) {
       this.onMainSessionDayChange.emit(value);
     }
