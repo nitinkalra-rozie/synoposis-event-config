@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { EventCardType, ScreenDisplayType } from 'src/app/shared/enums';
 
 @Component({
   selector: 'app-screen-display',
@@ -8,9 +9,12 @@ import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/
 export class ScreenDisplayComponent {
   selectedSessions: string[] = [];
 
+  @Input() type: ScreenDisplayType;
+  @Input() startListeningClicked: boolean = false;
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
+  @Input() sessionDay: string = '';
   @Input() icon: string | null = null;
   @Input() imageUrl: string;
   @Input() showStartListeningButton: boolean = false;
@@ -24,30 +28,48 @@ export class ScreenDisplayComponent {
   @Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
   @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onSessionsChange: EventEmitter<{ values: string[] }> = new EventEmitter<{ values: string[] }>();
+  @Output() onEventSpecificDayChange: EventEmitter<{ [key: string]: string }> = new EventEmitter<{
+    [key: string]: string;
+  }>();
   @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onMultiSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
 
-  startListeningClicked: boolean = false;
-  showStopScreenButtonClicked: boolean = false;
+  // startListeningClicked: boolean = false;
+  // showStopScreenButtonClicked: boolean = false;
 
-  eventDay: string = '';
-  sessionDay: string = '';
+  eventDay: { [key: string]: string } = {
+    [EventCardType.Welcome]: '',
+    [EventCardType.ThankYou]: '',
+    [EventCardType.Info]: '',
+  };
 
   constructor() {}
 
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['eventDays']) {
-      this.eventDay = changes['eventDays'].currentValue[0];
-      this.sessionDay = changes['eventDays'].currentValue[0];
-      if (!this.subSessionValueDropdown) {
-        this.onMainSessionDayChange.emit(changes['eventDays'].currentValue[0]);
+    if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
+      if (changes['sessionTitles'].currentValue != changes['sessionTitles'].previousValue) {
+        this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
+        if (this.type === ScreenDisplayType.MultiSession) {
+          this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
+        }
+        if (this.type === ScreenDisplayType.SessionSpecific) {
+          this.onSessionsChange.emit({ values: [changes['sessionTitles'].currentValue[0]] });
+        }
       }
     }
 
-    if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
-      this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
-      this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
+    if (changes['eventDays']) {
+      if (this.type === ScreenDisplayType.EventSpecific) {
+        this.eventDay = {
+          [EventCardType.Welcome]: changes['eventDays'].currentValue[0],
+          [EventCardType.ThankYou]: changes['eventDays'].currentValue[0],
+          [EventCardType.Info]: changes['eventDays'].currentValue[0],
+        };
+        this.onEventSpecificDayChange.emit(this.eventDay);
+      }
     }
   }
 
@@ -57,14 +79,14 @@ export class ScreenDisplayComponent {
     }
   }
   onStartListening() {
-    this.startListeningClicked = true;
-    this.showStopScreenButtonClicked = true;
+    // this.startListeningClicked = true;
+    // this.showStopScreenButtonClicked = true;
     this.startListening.emit();
   }
 
   onStopScreen() {
-    this.showStopScreenButtonClicked = false;
-    this.startListeningClicked = false;
+    // this.showStopScreenButtonClicked = false;
+    // this.startListeningClicked = false;
     this.stopScreen.emit();
   }
 
@@ -72,14 +94,17 @@ export class ScreenDisplayComponent {
     this.endSession.emit();
   }
 
-  handleEventDayDropdownSelect = (value: string) => {
-    this.eventDay = value;
+  handleEventDayDropdownSelect = (value: string, cardType: EventCardType) => {
+    this.eventDay[cardType] = value;
+    this.onEventSpecificDayChange.emit(this.eventDay);
   };
 
   handleSessionDayDropdownSelect = (value: string) => {
-    this.sessionDay = value;
-    if (!this.subSessionValueDropdown) {
+    if (this.type === ScreenDisplayType.SessionSpecific) {
       this.onMainSessionDayChange.emit(value);
+    }
+    if (this.type === ScreenDisplayType.MultiSession) {
+      this.onMultiSessionDayChange.emit(value);
     }
   };
 
@@ -102,5 +127,6 @@ export class ScreenDisplayComponent {
       tempArray.push(value);
     }
     this.selectedSessions = [...tempArray];
+    this.onSessionsChange.emit({ values: [...tempArray] });
   };
 }

@@ -8,7 +8,7 @@
         <span class="button-text">Start Listening</span>
       </button>
       <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="onStopScreen()"
-        [ngClass]="{'active': showStopScreenButtonClicked}">
+        [ngClass]="{'active': startListeningClicked}">
         <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">Pause Listening</span>
       </button>
@@ -51,9 +51,9 @@
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
             <div class="day-selector" *ngIf="shoEventDropDown">
-              <app-main-drop-down  type="t3" [selectedValue]="[eventDay]"
+              <app-main-drop-down  type="t3" [selectedValue]="[eventDay[card.cardType]]"
                 [dropdownContent]="eventDays"
-                (onDropdownSelect)="handleEventDayDropdownSelect($event)"></app-main-drop-down>
+                (onDropdownSelect)="handleEventDayDropdownSelect($event, card.cardType)"></app-main-drop-down>
             </div>
             <button class="show-button" (click)="cardDisplayFunction(card.displayFunction)">Display</button>
           </div>

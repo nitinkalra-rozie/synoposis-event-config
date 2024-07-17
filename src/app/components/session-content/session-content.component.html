@@ -9,21 +9,23 @@
   </div>
 
   <div class="padding-combine">
-    <app-screen-display [eventDays]="eventDaysProp" [sessionTitles]="sessionTitlesProp"
-      [title]="'Event-Specific Screens'" [showStartListeningButton]="false" [showStopScreenButton]="false"
-      [showStopScreenButton]="false" [ShowCombineDropdown]="false" [shoEventDropDown]="true"
-      [cards]="event_cards"></app-screen-display>
+    <app-screen-display (onEventSpecificDayChange)="handleEventSpecificDayChange($event)"
+      [type]="ScreenDisplayType.EventSpecific" [eventDays]="eventDays" [title]="'Event-Specific Screens'"
+      [showStartListeningButton]="false" [showStopScreenButton]="false" [showStopScreenButton]="false"
+      [ShowCombineDropdown]="false" [shoEventDropDown]="true" [cards]="event_cards"></app-screen-display>
 
-    <app-screen-display (onMainSessionChange)="handleMainSessionChange($event)"
-      (onMainSessionDayChange)="handleMainSessionDayChange($event)" [eventDays]="eventDaysProp"
-      [sessionTitles]="sessionTitlesProp" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
+    <app-screen-display [startListeningClicked]="startListeningClicked" [sessionDay]="selectedDay" [type]="ScreenDisplayType.SessionSpecific"
+      (onMainSessionChange)="handleMainSessionChange($event)"
+      (onMainSessionDayChange)="handleMainSessionDayChange($event)" [eventDays]="eventDays"
+      [sessionTitles]="sessionTitles" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
       [showStopScreenButton]="true" [showStopScreenButton]="true" [ShowCombineDropdown]="true"
       [sessionValueDropdown]="true" [subSessionValueDropdown]="false" [cards]="session_cards"
-      (startListening)="startListening()" (stopScreen)="stopScreen()" (endSession)="endSession()"></app-screen-display>
+      (startListening)="startListening()" (stopScreen)="stopScreen()" (endSession)="endSessionPopUp()"></app-screen-display>
 
-    <app-screen-display [eventDays]="eventDaysProp" [sessionTitles]="primarySessionTitles"
-      [title]="'Multi-Session Screens'" [showStartListeningButton]="false" [showStopScreenButton]="false"
-      [showStopScreenButton]="false" [ShowCombineDropdown]="true" [sessionValueDropdown]="false"
-      [subSessionValueDropdown]="true" [cards]="multi_session_card"></app-screen-display>
+    <app-screen-display [sessionDay]="selectedMultiSessionDay" [type]="ScreenDisplayType.MultiSession" [eventDays]="eventDays"
+      (onSessionsChange)="handleSessionsChange($event)" (onMultiSessionDayChange)="handleMultiSessionDayChange($event)"
+      [sessionTitles]="primarySessionTitles" [title]="'Multi-Session Screens'" [showStartListeningButton]="false"
+      [showStopScreenButton]="false" [showStopScreenButton]="false" [ShowCombineDropdown]="true"
+      [sessionValueDropdown]="false" [subSessionValueDropdown]="true" [cards]="multi_session_card"></app-screen-display>
   </div>
 </div>

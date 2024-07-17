@@ -8,6 +8,18 @@ export enum EventDetailType {
   PrimarySession = 'PrimarySession',
 }
 
+export enum ScreenDisplayType {
+  EventSpecific = 'EventSpecific',
+  SessionSpecific = 'SessionSpecific',
+  MultiSession = 'MultiSession',
+}
+
+export enum EventCardType {
+  Welcome = 'Welcome',
+  ThankYou = 'ThankYou',
+  Info = 'Info',
+}
+
 export enum PostDataEnum {
   action = 'action',
   sessionId = 'sessionId',

@@ -86,7 +86,7 @@
   align-items: flex-start;
   gap: 5px;
   align-self: stretch;
-
+  overflow: auto;
   max-height: 297px;
 }
 

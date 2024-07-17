@@ -34,6 +34,7 @@
   line-height: 24px;
   letter-spacing: -0.14px;
   border: none;
+  cursor: pointer;
 }
 
 .dynamic-button-start {

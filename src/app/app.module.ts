@@ -20,6 +20,7 @@ import { SessionContentComponent } from './components/session-content/session-co
 import { ScreenDisplayComponent } from './components/screen-display/screen-display.component';
 import { OutsideClickDirective } from './directives/outside-click.directive';
 import { TruncatePipe } from './components/main-drop-down/truncate.pipe';
+import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -36,7 +37,8 @@ import { TruncatePipe } from './components/main-drop-down/truncate.pipe';
     SessionContentComponent,
     ScreenDisplayComponent,
     OutsideClickDirective,
-    TruncatePipe
+    TruncatePipe,
+    PopUpWindowComponent
   ],
   imports: [
     HttpClientModule,

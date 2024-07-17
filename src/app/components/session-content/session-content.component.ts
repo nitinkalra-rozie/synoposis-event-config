@@ -7,7 +7,8 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { PostData } from 'src/app/shared/types';
-import { ThemeOptions } from 'src/app/shared/enums';
+import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
+import { ModalService } from 'src/app/services/modal.service';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
@@ -16,12 +17,11 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_nod
   styleUrls: ['./session-content.component.css'],
 })
 export class SessionContentComponent implements OnInit {
-  @Input() eventDaysProp: string[] = [];
-  @Input() sessionTitlesProp: string[] = [];
-  @Input() primarySessionTitles: string[] = [];
+  ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
+  @Input() transcriptTimeOutProp: string;
 
   selectedTheme: string = ThemeOptions.light;
   selectedEvent: string = '';
@@ -29,11 +29,13 @@ export class SessionContentComponent implements OnInit {
   selectedSessionType: string = '';
   selectedReportType: string = '';
   selectedDay: string = '';
+  selectedMultiSessionDay: string = '';
   eventDetails: any = [];
   eventDays: any = [];
   eventNames: any = [];
   selectedSessionTitle: string = '';
   sessionTitles: string[] = [];
+  primarySessionTitles: string[] = [];
   filteredEventData: any = [];
   options: string[] = [];
   selectedOptions: string[] = [];
@@ -48,6 +50,7 @@ export class SessionContentComponent implements OnInit {
   postInsideInterval: number = 15;
   transcriptTimeOut: number = 60;
   lastFiveWords: string = '';
+  startListeningClicked = false;
 
   /*   */
   title = 'AngularTranscribe';
@@ -63,18 +66,27 @@ export class SessionContentComponent implements OnInit {
   isStreaming = false;
   selectedDomain: string = 'Healthcare';
 
+  eventDay: { [key: string]: string } = {
+    [EventCardType.Welcome]: '',
+    [EventCardType.ThankYou]: '',
+    [EventCardType.Info]: '',
+  };
+
   event_cards = [
     {
+      cardType: EventCardType.Welcome,
       title: 'Welcome Screen',
       imageUrl: '../../../assets/admin screen/welcomw_screen.svg',
       displayFunction: () => this.showWelcomeMessageBanner(),
     },
     {
+      cardType: EventCardType.ThankYou,
       title: 'Thank You Screen',
       imageUrl: '../../../assets/admin screen/thank_you_page.svg',
       displayFunction: () => this.showThankYouScreen(),
     },
     {
+      cardType: EventCardType.Info,
       title: 'Info Screen',
       imageUrl: '../../../assets/admin screen/qr_screen.svg',
       displayFunction: () => this.showInfoScreen(),
@@ -95,7 +107,7 @@ export class SessionContentComponent implements OnInit {
       title: 'Post Session Insights Screens',
       imageUrl: '../../../assets/admin screen/summary_screen.svg',
       icon: '../../../assets/admin screen/note.svg',
-      displayFunction: () => this.endSession(),
+      displayFunction: () => this.endSessionPopUpPostInsights(),
     },
   ];
   multi_session_card = [
@@ -107,7 +119,10 @@ export class SessionContentComponent implements OnInit {
     },
   ];
 
-  constructor(private backendApiService: BackendApiService) {}
+  constructor(
+    private backendApiService: BackendApiService,
+    private modalService: ModalService
+  ) {}
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -139,6 +154,12 @@ export class SessionContentComponent implements OnInit {
     if (changes['selectedEventProp']) {
       if (changes['selectedEventProp'].currentValue != changes['selectedEventProp'].previousValue) {
         this.selectedEvent = changes['selectedEventProp'].currentValue;
+      }
+    }
+
+    if (changes['transcriptTimeOutProp']) {
+      if (changes['transcriptTimeOutProp'].currentValue != changes['transcriptTimeOutProp'].previousValue) {
+        this.transcriptTimeOut = changes['transcriptTimeOutProp'].currentValue;
       }
     }
   }
@@ -180,7 +201,11 @@ export class SessionContentComponent implements OnInit {
     if (!this.selectedDay && this.eventDays.length > 0) {
       this.selectedDay = this.eventDays[0];
     }
+    if (!this.selectedMultiSessionDay && this.eventDays.length > 0) {
+      this.selectedMultiSessionDay = this.eventDays[0];
+    }
     this.populateSessionTitles();
+    this.populatePrimarySessionTitles();
     if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
       this.selectedSessionTitle = this.sessionTitles[0];
     }
@@ -190,8 +215,22 @@ export class SessionContentComponent implements OnInit {
     this.selectedSessionTitle = titleValue;
   };
 
+  handleSessionsChange = ({ values }: { values: string[] }) => {
+    this.selectedOptions = values;
+  };
+
   handleMainSessionDayChange = (dayValue: string) => {
     this.selectedDay = dayValue;
+    this.populateSessionTitles();
+  };
+
+  handleMultiSessionDayChange = (dayValue: string) => {
+    this.selectedMultiSessionDay = dayValue;
+    this.populatePrimarySessionTitles();
+  };
+
+  handleEventSpecificDayChange = (dayObject: { [key: string]: string }) => {
+    this.eventDay = dayObject;
   };
 
   populateEventNames() {
@@ -207,9 +246,22 @@ export class SessionContentComponent implements OnInit {
     const filteredByDay = this.eventDetails.filter(
       event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay
     );
+    filteredByDay.sort((a, b) => a.sid - b.sid);
     this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
     this.options = this.sessionTitles;
   }
+
+  populatePrimarySessionTitles() {
+    const filteredByDay = this.eventDetails.filter(
+      event =>
+        event.Event === this.selectedEvent &&
+        event.EventDay === this.selectedMultiSessionDay &&
+        event.Type === EventDetailType.PrimarySession
+    );
+    filteredByDay.sort((a, b) => a.sid - b.sid);
+    this.primarySessionTitles = filteredByDay.map(event => event.SessionTitle);
+  }
+
   private showSuccessMessage(message: string): void {
     this.successMessage = message;
     setTimeout(() => {
@@ -226,7 +278,7 @@ export class SessionContentComponent implements OnInit {
   showWelcomeMessageBanner(): void {
     let postData: PostData = {};
     postData.action = 'welcome';
-    postData.day = this.selectedDay;
+    postData.day = this.eventDay[EventCardType.Welcome];
     this.backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Welcome message screen sent successfully!');
@@ -259,7 +311,7 @@ export class SessionContentComponent implements OnInit {
   showThankYouScreen(): void {
     let postData: PostData = {};
     postData.action = 'thank_you';
-    postData.day = this.selectedDay;
+    postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     this.backendApiService.postData(postData).subscribe(
@@ -277,7 +329,7 @@ export class SessionContentComponent implements OnInit {
   showInfoScreen(): void {
     let postData: PostData = {};
     postData.action = 'qr_screen';
-    postData.day = this.selectedDay;
+    postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     this.backendApiService.postData(postData).subscribe(
@@ -290,13 +342,13 @@ export class SessionContentComponent implements OnInit {
       }
     );
   }
-  findSession(event: string, SessionTitle: string) {
+  findSession = (event: string, SessionTitle: string) => {
     const session = this.eventDetails.find(
       (session: { Event: string; SessionTitle: string }) =>
         session.Event === event && session.SessionTitle === SessionTitle
     );
     return session ? session : null;
-  }
+  };
 
   showBackupScreen(): void {
     let postData: PostData = {};
@@ -336,7 +388,13 @@ export class SessionContentComponent implements OnInit {
         }
       );
     } else {
-      alert('Event day and Session should be selected to show speaker details!');
+      this.modalService.open(
+        'Confirm Action',
+        'Event day and Session should be selected to show speaker details!',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
     }
   }
 
@@ -373,28 +431,55 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('domain', this.selectedDomain);
       this.startRecording();
       this.backendApiService
-        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, this.primarySessionTitles)
+        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId)
         .subscribe(
           (data: any) => {
             console.log(data);
+            this.startListeningClicked = true;
             this.showSuccessMessage('Start session message sent successfully!');
           },
           (error: any) => {
             this.showFailureMessage('Failed to send start session message.', error);
           }
         );
-
-      this.showLoadingInsights();
+      if(session.Type=="BreakoutSession"){
+        this.showBreakdownInProgress();
+      }
+      else{
+        this.showLoadingInsights();
+      }
+      
     } else {
-      alert('Please select the Event , Day , Domain and Speaker Name to start the session');
+      this.modalService.open(
+        'Confirm Action',
+        'Please select the Event , Day , Domain and Speaker Name to start the session',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
     }
   }
+
+  handleNoSelect = () => {
+    this.modalService.close();
+  };
+
   showLoadingInsights() {
     let postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'insightsLoading';
+    postData.sessionTitle = this.selectedSessionTitle;
+    this.backendApiService.postData(postData).subscribe(() => {});
+  }
+
+  showBreakdownInProgress() {
+    let postData: PostData = {};
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.action = 'breakOutSession';
     postData.sessionTitle = this.selectedSessionTitle;
     this.backendApiService.postData(postData).subscribe(() => {});
   }
@@ -412,9 +497,13 @@ export class SessionContentComponent implements OnInit {
   stopScreen(): void {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
-    if (confirm('Are you sure to stop the session?')) {
-      this.closeSocket();
-    }
+    this.modalService.open(
+      'Stop Session?',
+      'Are you sure to stop the session?',
+      'yes_no',
+      this.closeSocket,
+      this.handleNoSelect
+    );
   }
 
   endEvent(): void {
@@ -434,7 +523,29 @@ export class SessionContentComponent implements OnInit {
     );
   }
 
-  endSession(): void {
+  endSessionPopUp = () => {
+    this.modalService.open(
+      'End Session?',
+      'Are you sure that you want to end current session? This will display post session insights on screen.',
+      'yes_no',
+      this.endSession,
+      this.handleNoSelect
+    );
+  };
+
+  endSessionPopUpPostInsights = () => {
+    this.modalService.open(
+      'End Session?',
+      'Are you sure that you want to end current session? This will display post session insights on screen.',
+      'yes_no',
+      this.endSession,
+      this.handleNoSelect
+    );
+  };
+
+  endSession = (): void => {
+    this.modalService.close();
+    this.startListeningClicked = false;
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
     let postData: PostData = {};
@@ -459,27 +570,31 @@ export class SessionContentComponent implements OnInit {
         this.closeSocket();
       }
     } else {
-      if (confirm('Are you sure to end this session?')) {
-        postData.action = 'endPrimarySession';
-        this.backendApiService.postData(postData).subscribe(
-          (data: any) => {
-            this.showSuccessMessage('End session message sent successfully!');
-            this.showPostInsightsLoading();
-          },
-          (error: any) => {
-            this.showFailureMessage('Failed to send end session message.', error);
-          }
-        );
-        this.closeSocket();
-      }
+      postData.action = 'endPrimarySession';
+      this.backendApiService.postData(postData).subscribe(
+        (data: any) => {
+          this.showSuccessMessage('End session message sent successfully!');
+          this.showPostInsightsLoading();
+        },
+        (error: any) => {
+          this.showFailureMessage('Failed to send end session message.', error);
+        }
+      );
+      this.closeSocket();
     }
-  }
+  };
 
   showSummary(): void {
     // Check if a keynote type is selected
     this.sessionIds = [];
     if (this.selectedOptions.length <= 0) {
-      alert('select the sessions to show the summary!');
+      this.modalService.open(
+        'Confirm Action',
+        'select the sessions to show the summary!',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
       return;
     } else {
       this.selectedOptions.forEach(element => {
@@ -488,7 +603,7 @@ export class SessionContentComponent implements OnInit {
       });
       let postData: PostData = {};
       postData.action = 'summary_of_Single_Keynote';
-      postData.day = this.selectedDay;
+      postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionId = this.sessionIds;
@@ -598,6 +713,7 @@ export class SessionContentComponent implements OnInit {
   }
   streamAudioToWebSocket = userMediaStream => {
     //let's get the mic input from the browser, via the microphone-stream module
+    this.startListeningClicked = true;
     console.log('start streamAudioToWebSocket');
     this.micStream = new MicrophoneStream();
     this.micStream.setStream(userMediaStream);
@@ -681,7 +797,9 @@ export class SessionContentComponent implements OnInit {
 
     return binary;
   };
+
   closeSocket = () => {
+    this.modalService.close();
     if (this.socket.OPEN) {
       this.micStream.stop();
 
@@ -692,12 +810,12 @@ export class SessionContentComponent implements OnInit {
       this.socket.send(emptyBuffer);
     }
     clearInterval(this.timeoutId);
+    this.startListeningClicked = false;
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('currentSessionId');
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
-    this.selectedSessionTitle = '';
     this.transctiptToInsides = '';
     this.isStreaming = !this.isStreaming;
   };
