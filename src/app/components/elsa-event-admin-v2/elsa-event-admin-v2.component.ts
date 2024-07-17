@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import { INITIAL_POST_DATA, TimeWindows, TransitionTimes } from 'src/app/shared/constants';
-import { PostDataEnum, ThemeOptions, TimeWindowsEnum } from 'src/app/shared/enums';
+import { EventDetailType, PostDataEnum, ThemeOptions, TimeWindowsEnum } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 
 @Component({
@@ -18,6 +18,7 @@ export class ElsaEventAdminV2Component implements OnInit {
   postData: PostData = {};
   eventDays: string[] = [];
   sessionTitles: string[] = [];
+  primarySessionTitles: string[];
   options: string[] = [];
   // session: any
   selectedSessionTitle: string;
@@ -55,6 +56,9 @@ export class ElsaEventAdminV2Component implements OnInit {
       event => event.Event === this.postData.eventName && event.EventDay === this.postData.day
     );
     this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
+    this.primarySessionTitles = filteredByDay
+      .filter(event => event.Type === EventDetailType.PrimarySession)
+      .map(event => event.SessionTitle);
     this.options = this.sessionTitles;
   }
 
@@ -62,7 +66,6 @@ export class ElsaEventAdminV2Component implements OnInit {
     const filteredByEvent = this.eventDetails.filter(event => event.Event === this.postData.eventName);
     this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
     console.log('eventDays', this.eventDays);
-    
   }
 
   onEventChange = () => {

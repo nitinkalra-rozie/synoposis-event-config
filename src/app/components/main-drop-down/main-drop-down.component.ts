@@ -10,6 +10,7 @@ export class MainDropDownComponent implements OnInit {
 
   @Input() selectedValue = ['value'];
   @Input() type = 't1';
+  @Input() disabled: boolean = false;
   @Input() dropdownContent = ['value'];
   @Input() dropdownTitle: string | undefined;
   @Input() dropdownContentTitle: string = 'Select';
@@ -56,11 +57,16 @@ export class MainDropDownComponent implements OnInit {
     return newContent;
   };
 
+  truncateText = (text = '', maxLength) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
+
   getSelectedText = () => {
-    if(this.selectedValue.length == 1){
-      return this.selectedValue[0]
-    } else if(this.selectedValue.length > 1){
-      return `${this.selectedValue[0]} +`
+    const tempText = this.truncateText(this.selectedValue[0], 45);
+    if (this.selectedValue && this.selectedValue.length == 1) {
+      return tempText;
+    } else if (this.selectedValue && this.selectedValue.length > 1) {
+      return `${tempText} +`;
     }
-  }
+  };
 }

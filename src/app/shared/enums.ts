@@ -3,6 +3,11 @@ export enum ThemeOptions {
   light = 'light',
 }
 
+export enum EventDetailType {
+  BreakoutSession = 'BreakoutSession',
+  PrimarySession = 'PrimarySession',
+}
+
 export enum PostDataEnum {
   action = 'action',
   sessionId = 'sessionId',

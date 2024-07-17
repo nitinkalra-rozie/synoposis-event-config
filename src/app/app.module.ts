@@ -19,6 +19,7 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
 import { SessionContentComponent } from './components/session-content/session-content.component';
 import { ScreenDisplayComponent } from './components/screen-display/screen-display.component';
 import { OutsideClickDirective } from './directives/outside-click.directive';
+import { TruncatePipe } from './components/main-drop-down/truncate.pipe';
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,7 +35,8 @@ import { OutsideClickDirective } from './directives/outside-click.directive';
     TimeSelectorComponent,
     SessionContentComponent,
     ScreenDisplayComponent,
-    OutsideClickDirective
+    OutsideClickDirective,
+    TruncatePipe
   ],
   imports: [
     HttpClientModule,

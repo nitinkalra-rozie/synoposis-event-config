@@ -1,6 +1,14 @@
+import { EventDetailType } from './enums';
+
 export interface SpeakerInfo {
   isModerator: boolean;
   Name: string;
+}
+
+export interface BreakoutSession {
+  SessionId: string;
+  SessionTitle: string;
+  SpeakersInfo: SpeakerInfo[];
 }
 
 export interface EventDetail {
@@ -10,6 +18,10 @@ export interface EventDetail {
   SessionTitle: string;
   SessionId: string;
   SpeakersInfo: SpeakerInfo[];
+
+  PrimarySessionId: string;
+  Type: EventDetailType;
+  // BreakoutSessions?: BreakoutSession[]; 
 }
 
 export interface PostData {

@@ -40,7 +40,7 @@ export class ScreenDisplayComponent {
       this.sessionDay = changes['eventDays'].currentValue[0];
     }
 
-    if (changes['sessionTitles']) {
+    if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
     }
   }

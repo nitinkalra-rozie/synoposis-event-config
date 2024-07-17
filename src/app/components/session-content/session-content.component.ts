@@ -17,6 +17,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_nod
 export class SessionContentComponent implements OnInit {
   @Input() eventDaysProp: string[] = [];
   @Input() sessionTitlesProp: string[] = [];
+  @Input() primarySessionTitles: string[] = [];
   @Input() eventControls: PostData;
   @Input() selectedTheme: string;
 

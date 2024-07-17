@@ -8,17 +8,26 @@
   </div>
   <div class="content-wrapper">
     <div class="select-event-wrapper">
-      <app-main-drop-down [selectedValue]="[postData?.eventName]" dropdownTitle="Select Event" [dropdownContent]="eventNames"
+      <app-main-drop-down [selectedValue]="[postData?.eventName]" dropdownTitle="Select Event"
+        [dropdownContent]="eventNames"
+        [disabled]="true"
         (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.eventName)"></app-main-drop-down>
     </div>
     <div class="select-theme-wrapper">
-      <app-main-drop-down (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.theme)" [selectedValue]="[postData?.theme]" [dropdownContent]="themeOptions" dropdownTitle="Select Theme"></app-main-drop-down>
+      <app-main-drop-down (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.theme)"
+        [selectedValue]="[postData?.theme]" [dropdownContent]="themeOptions"
+        dropdownTitle="Select Theme"></app-main-drop-down>
     </div>
     <div class="session-insights-wrapper">
-      <app-main-drop-down type="t2" [selectedValue]="[transcriptTimeOut.label]" (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.screenTimeout)" dropdownTitle="Time Window for Real-time Session Insights" [dropdownContent]="timeWindows"></app-main-drop-down>
+      <app-main-drop-down type="t2" [selectedValue]="[transcriptTimeOut.label]"
+        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.screenTimeout)"
+        dropdownTitle="Time Window for Real-time Session Insights" [dropdownContent]="timeWindows"></app-main-drop-down>
     </div>
     <div class="session-insights-wrapper">
-      <app-main-drop-down type="t2" [selectedValue]="[postInsideValue]"  (onDropdownSelect)="handleDropdownSelect($event, 'TransitionTimes')" dropdownTitle="Transition Time for Post Session Insights" [dropdownContent]="transitionTimes"></app-main-drop-down>
+      <app-main-drop-down type="t2" [selectedValue]="[postInsideValue]"
+        (onDropdownSelect)="handleDropdownSelect($event, 'TransitionTimes')"
+        dropdownTitle="Transition Time for Post Session Insights"
+        [dropdownContent]="transitionTimes"></app-main-drop-down>
     </div>
   </div>
   <!-- <app-main-drop-down></app-main-drop-down>
