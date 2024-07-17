@@ -22,7 +22,8 @@ export class SessionContentComponent implements OnInit {
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: string;
-
+  
+  isSessionInProgress:boolean=false;
   selectedTheme: string = ThemeOptions.light;
   selectedEvent: string = '';
   selectedKeynoteType: string = '';
@@ -135,6 +136,7 @@ export class SessionContentComponent implements OnInit {
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60;
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15;
     this.lastFiveWords = localStorage.getItem('lastFiveWords');
+    this.isSessionInProgress= parseInt(localStorage.getItem('isSessionInProgress'))==1 || false;
     if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
       this.startRecording();
       this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
@@ -429,6 +431,8 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('currentDay', this.selectedDay);
       localStorage.setItem('selectedEvent', this.selectedEvent);
       localStorage.setItem('domain', this.selectedDomain);
+      localStorage.setItem("isSessionInProgress", "1");
+      this.isSessionInProgress=true;
       this.startRecording();
       this.backendApiService
         .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId)
@@ -555,8 +559,8 @@ export class SessionContentComponent implements OnInit {
     postData.sessionId = session.SessionId;
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = this.selectedSessionTitle;
+    this.isSessionInProgress=false;
     if (session.Type == 'BreakoutSession') {
-      if (confirm('Are you sure to end this breakout session?')) {
         postData.action = 'endBreakoutSession';
         this.backendApiService.postData(postData).subscribe(
           (data: any) => {
@@ -568,7 +572,7 @@ export class SessionContentComponent implements OnInit {
           }
         );
         this.closeSocket();
-      }
+        this.clearSessionData();
     } else {
       postData.action = 'endPrimarySession';
       this.backendApiService.postData(postData).subscribe(
@@ -581,6 +585,7 @@ export class SessionContentComponent implements OnInit {
         }
       );
       this.closeSocket();
+      this.clearSessionData();
     }
   };
 
@@ -736,7 +741,7 @@ export class SessionContentComponent implements OnInit {
         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
 
-        if (this.socket.OPEN) this.socket.send(binary);
+        if (this.isSessionInProgress && this.socket.OPEN) this.socket.send(binary);
       });
     };
     console.log('start streamAudioToWebSocket5555');
@@ -800,6 +805,8 @@ export class SessionContentComponent implements OnInit {
 
   closeSocket = () => {
     this.modalService.close();
+    localStorage.setItem("isSessionInProgress", "0");
+    this.isSessionInProgress=false;
     if (this.socket.OPEN) {
       this.micStream.stop();
 
@@ -811,14 +818,23 @@ export class SessionContentComponent implements OnInit {
     }
     clearInterval(this.timeoutId);
     this.startListeningClicked = false;
+    this.isStreaming = !this.isStreaming;
+  };
+
+  clearSessionData=()=>{
+    clearInterval(this.timeoutId);
+    this.startListeningClicked = false;
+    localStorage.setItem("isSessionInProgress", "0");
+    this.isSessionInProgress=false;
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('currentSessionId');
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
     this.transctiptToInsides = '';
-    this.isStreaming = !this.isStreaming;
+    this.isStreaming = false;
   };
+
   handleEventStreamMessage = messageJson => {
     let results = messageJson.Transcript.Results;
     console.log('messageJSON got from the transcribe', JSON.stringify(messageJson));
@@ -840,7 +856,7 @@ export class SessionContentComponent implements OnInit {
           if (this.currentSessionId && this.currentPrimarySessionId == this.currentSessionId) {
             this.realtimeInsides(this.transcription);
           }
-          if (this.currentSessionId) {
+          if (this.currentSessionId && this.isSessionInProgress) {
             this.backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
                 console.log(data);
@@ -860,9 +876,9 @@ export class SessionContentComponent implements OnInit {
       //convert the binary event stream message to JSON
       let messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
       let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
-      if (messageWrapper.headers[':message-type'].value === 'event') {
+      if (this.isSessionInProgress && messageWrapper.headers[':message-type'].value === 'event') {
         this.handleEventStreamMessage(messageBody);
-      } else {
+      } else  {
         this.transcribeException = true;
         console.log(messageBody.Message);
         // toggleStartStop();
