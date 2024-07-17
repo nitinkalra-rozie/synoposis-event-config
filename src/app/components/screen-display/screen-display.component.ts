@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { EventCardType, ScreenDisplayType } from 'src/app/shared/enums';
 
 @Component({
   selector: 'app-screen-display',
@@ -8,6 +9,7 @@ import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/
 export class ScreenDisplayComponent {
   selectedSessions: string[] = [];
 
+  @Input() type: ScreenDisplayType;
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
@@ -25,12 +27,20 @@ export class ScreenDisplayComponent {
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
   @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() onSessionsChange: EventEmitter<{ values: string[] }> = new EventEmitter<{ values: string[] }>();
+  @Output() onEventSpecificDayChange: EventEmitter<{ [key: string]: string }> = new EventEmitter<{
+    [key: string]: string;
+  }>();
   @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onMultiSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
 
   startListeningClicked: boolean = false;
   showStopScreenButtonClicked: boolean = false;
 
-  eventDay: string = '';
+  eventDay: { [key: string]: string } = {
+    [EventCardType.Welcome]: '',
+    [EventCardType.ThankYou]: '',
+    [EventCardType.Info]: '',
+  };
   sessionDay: string = '';
 
   constructor() {}
@@ -39,17 +49,29 @@ export class ScreenDisplayComponent {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['eventDays']) {
-      this.eventDay = changes['eventDays'].currentValue[0];
+      if (this.type === ScreenDisplayType.EventSpecific) {
+        this.eventDay = {
+          [EventCardType.Welcome]: changes['eventDays'].currentValue[0],
+          [EventCardType.ThankYou]: changes['eventDays'].currentValue[0],
+          [EventCardType.Info]: changes['eventDays'].currentValue[0],
+        };
+        this.onEventSpecificDayChange.emit(this.eventDay);
+      }
       this.sessionDay = changes['eventDays'].currentValue[0];
-      if (!this.subSessionValueDropdown) {
+      if (this.type === ScreenDisplayType.SessionSpecific) {
         this.onMainSessionDayChange.emit(changes['eventDays'].currentValue[0]);
+      }
+      if (this.type === ScreenDisplayType.MultiSession) {
+        this.onMultiSessionDayChange.emit(changes['eventDays'].currentValue[0]);
       }
     }
 
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
-      this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
-      if (this.subSessionValueDropdown) {
+      if (this.type === ScreenDisplayType.MultiSession) {
+        this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
+      }
+      if (this.type === ScreenDisplayType.SessionSpecific) {
         this.onSessionsChange.emit({ values: [changes['sessionTitles'].currentValue[0]] });
       }
     }
@@ -76,14 +98,18 @@ export class ScreenDisplayComponent {
     this.endSession.emit();
   }
 
-  handleEventDayDropdownSelect = (value: string) => {
-    this.eventDay = value;
+  handleEventDayDropdownSelect = (value: string, cardType: EventCardType) => {
+    this.eventDay[cardType] = value;
+    this.onEventSpecificDayChange.emit(this.eventDay);
   };
 
   handleSessionDayDropdownSelect = (value: string) => {
     this.sessionDay = value;
-    if (!this.subSessionValueDropdown) {
+    if (this.type === ScreenDisplayType.SessionSpecific) {
       this.onMainSessionDayChange.emit(value);
+    }
+    if (this.type === ScreenDisplayType.MultiSession) {
+      this.onMultiSessionDayChange.emit(value);
     }
   };
 
