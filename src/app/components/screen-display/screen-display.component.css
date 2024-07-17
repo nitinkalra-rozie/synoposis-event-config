@@ -16,36 +16,38 @@
   border-bottom: 0.8px solid var(--background-secondary-e-1-e-5-ea, #e1e5ea);
 }
 
-.dynamic-button-start, .dynamic-button-stop, .dynamic-button-End {
-    display: flex;
-    height: 32px;
-    padding: 5px 8px;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    border-radius: 4px;
-    color: var(--background-primary-ffffff, #fff);
-    font-family: Lexend;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 24px;
-    letter-spacing: -0.14px;
-    border: none;
-  }
-  
-  .dynamic-button-start {
-    background: var(--primary-varient-2534-ad-8, #534ad8);
-  }
-  
-  .dynamic-button-stop {
-    background: var(--background-variant-3-bfccd-9, #bfccd9);
-  }
-  
-  .dynamic-button-End {
-    background: var(--secondary-variant-9-ff-3030, #ff3030);
-  }
-  
+.dynamic-button-start,
+.dynamic-button-stop,
+.dynamic-button-End {
+  display: flex;
+  height: 32px;
+  padding: 5px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  color: var(--background-primary-ffffff, #fff);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
+  border: none;
+}
+
+.dynamic-button-start {
+  background: var(--primary-varient-2534-ad-8, #534ad8);
+}
+
+.dynamic-button-stop {
+  background: var(--background-variant-3-bfccd-9, #bfccd9);
+}
+
+.dynamic-button-End {
+  background: var(--secondary-variant-9-ff-3030, #ff3030);
+}
+
 .vline {
   align-items: center;
   justify-content: center;
@@ -119,8 +121,7 @@
   font-style: normal;
   font-weight: 500;
   line-height: 18px;
-  margin-right: auto; 
-
+  margin-right: auto;
 }
 
 .button-container {
@@ -144,20 +145,28 @@
   width: 400px;
 }
 
+.day-selector {
+  width: 82px;
+}
+
+.session-day-wrapper {
+  width: 200px;
+}
+
 @media (max-width: 768px) {
-    .button-text {
-      display: none;
-    }
-    .vline{
-        margin-left: 0px;
-        margin-right: 0px;
-    }
-    .combine-dropdown{
-        flex-direction: column;
-    }
-    .title{
-        white-space:normal;
-        display: flex;
-        align-self: self-start;
-    }
+  .button-text {
+    display: none;
   }
+  .vline {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  .combine-dropdown {
+    flex-direction: column;
+  }
+  .title {
+    white-space: normal;
+    display: flex;
+    align-self: self-start;
+  }
+}

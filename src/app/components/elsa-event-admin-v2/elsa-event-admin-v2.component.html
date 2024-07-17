@@ -4,6 +4,6 @@
     (onUpdatePostData)="updatePostData($event)" (onReset)="handleReset()"
     [transcriptTimeOut]="transcriptTimeOut"></app-event-controls>
   <div class="session-wrapper">
-    <app-session-content></app-session-content>
+    <app-session-content [eventDaysProp]="eventDays" [sessionTitlesProp]="sessionTitles" [eventControls]="postData" [selectedTheme]="postData.theme"></app-session-content>
   </div>
 </div>

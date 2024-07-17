@@ -16,19 +16,26 @@
       <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="stopScreen()">
         <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">End Session</span>
-  
+
       </button>
     </div>
   </div>
 
   <div class="combine-dropdown" *ngIf="ShowCombineDropdown">
-    <app-main-drop-down dropdownTitle="Select Day"></app-main-drop-down>
+    <div class="session-day-wrapper">
+      <app-main-drop-down dropdownTitle="Select Day" [selectedValue]="[sessionDay]" [dropdownContent]="eventDays"
+        (onDropdownSelect)="handleSessionDayDropdownSelect($event)"></app-main-drop-down>
+    </div>
     <div *ngIf="sessionValueDropdown">
-      <app-main-drop-down dropdownTitle="Select Session"></app-main-drop-down> <!-- session value -->
+      <div class="sessions-wrapper">
+        <app-main-drop-down dropdownTitle="Select Session" [selectedValue]="selectedSessions" [dropdownContent]="sessionTitles" (onDropdownSelect)="handleSelectSessionSelect($event)"></app-main-drop-down> <!-- session value -->
+      </div>
     </div>
     <div *ngIf="subSessionValueDropdown">
       <div class="sessions-wrapper">
-        <app-main-drop-down dropdownTitle="Select Sessions" [selectedValue]="selectedValues" [dropdownContent]="multipleTestArray" (onDropdownSelect)="handleDropdownSelect($event)" type="t4"></app-main-drop-down>
+        <app-main-drop-down dropdownTitle="Select Sessions" [selectedValue]="selectedSessions"
+          [dropdownContent]="sessionTitles" (onDropdownSelect)="handleSelectSessionsSelect($event)"
+          type="t4"></app-main-drop-down>
       </div>
     </div>
   </div>
@@ -38,10 +45,14 @@
       <div class="card-combine">
         <img [src]="card.imageUrl" alt="Card image" class="card-image" />
         <div class="card-border">
-            <img [src]="card.icon" alt="Icon" class="icon"  *ngIf="card.icon" />
+          <img [src]="card.icon" alt="Icon" class="icon" *ngIf="card.icon" />
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
-            <app-main-drop-down *ngIf="shoEventDropDown"type="t3"></app-main-drop-down> <!-- Add dropdown -->
+            <div class="day-selector">
+              <app-main-drop-down *ngIf="shoEventDropDown" type="t3" [selectedValue]="[eventDay]"
+                [dropdownContent]="eventDays"
+                (onDropdownSelect)="handleEventDayDropdownSelect($event)"></app-main-drop-down>
+            </div>
             <button class="show-button" (click)="cardDisplayFunction(card.displayFunction)">Display</button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-screen-display',
@@ -6,10 +6,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrls: ['./screen-display.component.css'],
 })
 export class ScreenDisplayComponent {
+  selectedSessions: string[] = [];
 
-  multipleTestArray = ['Value 1', 'Value 2', 'Value 3'];
-  selectedValues = [];
-
+  @Input() eventDays: string[] = [];
+  @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
   @Input() icon: string | null = null;
   @Input() imageUrl: string;
@@ -17,19 +17,30 @@ export class ScreenDisplayComponent {
   @Input() showStopScreenButton: boolean = false;
   @Input() ShowCombineDropdown: boolean = false;
   @Input() shoEventDropDown: boolean = false;
-
   @Input() cards: Array<{ title: string; imageUrl: string; icon?: string }> = [];
   @Input() sessionValueDropdown: boolean = false;
   @Input() subSessionValueDropdown: boolean = false;
-@Output() startListening: EventEmitter<void> = new EventEmitter<void>();
-@Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
-@Output() endSession: EventEmitter<void>= new EventEmitter<void>();
+  @Output() startListening: EventEmitter<void> = new EventEmitter<void>();
+  @Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
+  @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
 
+  eventDay: string = '';
+  sessionDay: string = '';
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {}
-  
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['eventDays']) {
+      this.eventDay = changes['eventDays'].currentValue[0];
+      this.sessionDay = changes['eventDays'].currentValue[0];
+    }
+
+    if (changes['sessionTitles']) {
+      this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
+    }
+  }
 
   cardDisplayFunction(displayFunction: () => void) {
     if (displayFunction) {
@@ -48,20 +59,31 @@ export class ScreenDisplayComponent {
     this.endSession.emit();
   }
 
-  handleDropdownSelect = (value: string) => {
+  handleEventDayDropdownSelect = (value: string) => {
+    this.eventDay = value;
+  };
+
+  handleSessionDayDropdownSelect = (value: string) => {
+    this.sessionDay = value;
+  };
+
+  handleSelectSessionSelect = (value: string) => {
+    let tempArray = [value];
+    this.selectedSessions = [...tempArray];
+  };
+
+  handleSelectSessionsSelect = (value: string) => {
     let tempArray = [];
-    if (this.selectedValues.includes(value)) {
-      this.selectedValues.forEach(element => {
+    if (this.selectedSessions.includes(value)) {
+      this.selectedSessions.forEach(element => {
         if (element !== value) {
           tempArray.push(element);
         }
       });
     } else {
-      tempArray = [...this.selectedValues];
+      tempArray = [...this.selectedSessions];
       tempArray.push(value);
     }
-    this.selectedValues = [...tempArray];
+    this.selectedSessions = [...tempArray];
   };
 }
-
-

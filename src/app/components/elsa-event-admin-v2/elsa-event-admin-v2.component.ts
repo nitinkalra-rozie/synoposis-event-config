@@ -16,7 +16,7 @@ export class ElsaEventAdminV2Component implements OnInit {
   successMessage: string = '';
   failureMessage: string = '';
   postData: PostData = {};
-  eventDays: any = [];
+  eventDays: string[] = [];
   sessionTitles: string[] = [];
   options: string[] = [];
   // session: any
@@ -61,6 +61,8 @@ export class ElsaEventAdminV2Component implements OnInit {
   populateEventDays() {
     const filteredByEvent = this.eventDetails.filter(event => event.Event === this.postData.eventName);
     this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
+    console.log('eventDays', this.eventDays);
+    
   }
 
   onEventChange = () => {

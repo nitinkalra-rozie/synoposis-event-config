@@ -6,6 +6,7 @@
   </div>
 
   <div class="dropdown-content" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
+    <div class="content-title">Select</div>
     <div class="drop-down-item" *ngFor="let item of dropdownContent" (click)="handleDropDownSelect(item)">
       <div class="item-text">{{item}}</div>
     </div>
@@ -33,7 +34,7 @@
 <div class="drop-down-container t3" *ngIf="type == 't3'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
   <div class="text-wrapper t3" (click)="toggleDropdown()">
-    <div class="selected-text">{{selectedValue[0]}}</div>
+    <div class="selected-text t3">{{selectedValue[0]}}</div>
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
 

@@ -9,18 +9,18 @@
   </div>
  
     <div class="padding-combine">
-      <app-screen-display [title]="'Event-Specific Screens'" [showStartListeningButton]="false"
+      <app-screen-display [eventDays]="eventDaysProp" [sessionTitles]="sessionTitlesProp" [title]="'Event-Specific Screens'" [showStartListeningButton]="false"
         [showStopScreenButton]="false" [showStopScreenButton]="false" [ShowCombineDropdown]="false"
         [shoEventDropDown]="true"
         [cards]="event_cards"></app-screen-display>
       
-      <app-screen-display [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
+      <app-screen-display [eventDays]="eventDaysProp" [sessionTitles]="sessionTitlesProp" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
         [showStopScreenButton]="true" [showStopScreenButton]="true" [ShowCombineDropdown]="true"
         [sessionValueDropdown]="true" [subSessionValueDropdown]="false" [cards]="session_cards"
         (startListening)="startListening()" (stopScreen)="stopScreen()" (endSession)="endSession()" 
         ></app-screen-display>
     
-      <app-screen-display [title]="'Multi-Session Screens'" [showStartListeningButton]="false"
+      <app-screen-display [eventDays]="eventDaysProp" [sessionTitles]="sessionTitlesProp" [title]="'Multi-Session Screens'" [showStartListeningButton]="false"
         [showStopScreenButton]="false" [showStopScreenButton]="false" [ShowCombineDropdown]="true"
         [sessionValueDropdown]="false" [subSessionValueDropdown]="true" [cards]="multi_session_card"
        ></app-screen-display>
