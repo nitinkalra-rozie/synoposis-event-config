@@ -16,45 +16,46 @@
   border-bottom: 0.8px solid var(--background-secondary-e-1-e-5-ea, #e1e5ea);
 }
 
-.dynamic-button-start, .dynamic-button-stop, .dynamic-button-End {
-    display: flex;
-    height: 32px;
-    padding: 5px 8px;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    border-radius: 4px;
-    color: var(--background-primary-ffffff, #fff);
-    font-family: Lexend;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 24px;
-    letter-spacing: -0.14px;
-    border: none;
-  }
-  
-  .dynamic-button-start {
-    background: var(--primary-varient-2534-ad-8, #534ad8);
-  
-  }
-  
-  .dynamic-button-stop {
-    background: var(--background-variant-3-bfccd-9, #bfccd9);
-  }
+.dynamic-button-start,
+.dynamic-button-stop,
+.dynamic-button-End {
+  display: flex;
+  height: 32px;
+  padding: 5px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  color: var(--background-primary-ffffff, #fff);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
+  border: none;
+}
 
-  .dynamic-button-start.active {
-    background-color: #BFCCD9; 
-  }
-  
-  .dynamic-button-stop.active {
-    background-color: #475258; 
-  }
-  
-  .dynamic-button-End {
-    background: var(--secondary-variant-9-ff-3030, #ff3030);
-  }
-  
+.dynamic-button-start {
+  background: var(--primary-varient-2534-ad-8, #534ad8);
+}
+
+.dynamic-button-stop {
+  background: var(--background-variant-3-bfccd-9, #bfccd9);
+}
+
+.dynamic-button-start.active {
+  background-color: #bfccd9;
+}
+
+.dynamic-button-stop.active {
+  background-color: #475258;
+}
+
+.dynamic-button-End {
+  background: var(--secondary-variant-9-ff-3030, #ff3030);
+}
+
 .vline {
   align-items: center;
   justify-content: center;
@@ -149,14 +150,17 @@
 }
 
 .sessions-wrapper {
+  display: block;
   width: 400px;
 }
 
 .day-selector {
+  display: block;
   width: 82px;
 }
 
 .session-day-wrapper {
+  display: block;
   width: 200px;
 }
 
@@ -169,11 +173,24 @@
     margin-right: 0px;
   }
   .combine-dropdown {
+    align-items: unset;
     flex-direction: column;
+    width: -webkit-fill-available;
   }
   .title {
     white-space: normal;
     display: flex;
     align-self: self-start;
+  }
+  .sessions-wrapper {
+    width: 100%;
+  }
+
+  .day-selector {
+    width: 100%;
+  }
+
+  .session-day-wrapper {
+    width: 100%;
   }
 }

@@ -50,8 +50,8 @@
           <img [src]="card.icon" alt="Icon" class="icon" *ngIf="card.icon" />
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
-            <div class="day-selector">
-              <app-main-drop-down *ngIf="shoEventDropDown" type="t3" [selectedValue]="[eventDay]"
+            <div class="day-selector" *ngIf="shoEventDropDown">
+              <app-main-drop-down  type="t3" [selectedValue]="[eventDay]"
                 [dropdownContent]="eventDays"
                 (onDropdownSelect)="handleEventDayDropdownSelect($event)"></app-main-drop-down>
             </div>

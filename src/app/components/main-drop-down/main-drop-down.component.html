@@ -1,6 +1,6 @@
-<div class="drop-down-container" [class.disabled-dropdown]="disabled" *ngIf="type == 't1'">
+<div class="drop-down-container" [class.disabled-dropdown]="disabled"  *ngIf="type == 't1'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
-  <div class="text-wrapper" (click)="toggleDropdown()">
+  <div class="text-wrapper" (click)="toggleDropdown()" [class.open]="dropDownVisible">
     <div class="selected-text">{{selectedValue[0] | truncate}}</div>
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
@@ -16,7 +16,7 @@
 
 <div class="drop-down-container" *ngIf="type == 't2'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
-  <div class="text-wrapper  t2" (click)="toggleDropdown()">
+  <div class="text-wrapper  t2" (click)="toggleDropdown()" [class.open]="dropDownVisible">
     <div class="selected-text">{{selectedValue[0]}}</div>
     <!-- <div class="icon-wrapper">
       <img class="pencil" src="assets/v2-icons/pencil_icon.svg" alt="" />  
@@ -34,7 +34,7 @@
 
 <div class="drop-down-container t3" *ngIf="type == 't3'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
-  <div class="text-wrapper t3" (click)="toggleDropdown()">
+  <div class="text-wrapper t3" (click)="toggleDropdown()" [class.open]="dropDownVisible">
     <div class="selected-text t3">{{selectedValue[0]}}</div>
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
@@ -49,7 +49,7 @@
 
 <div class="drop-down-container" *ngIf="type == 't4'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
-  <div class="text-wrapper" (click)="toggleDropdown()">
+  <div class="text-wrapper" (click)="toggleDropdown()" [class.open]="dropDownVisible">
     <div class="selected-text">{{getSelectedText()}}<div class="text-number" *ngIf="this.selectedValue && this.selectedValue.length > 1">
         {{this.selectedValue && this.selectedValue.length - 1}}</div>
     </div>

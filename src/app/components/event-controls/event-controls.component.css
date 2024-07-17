@@ -74,17 +74,38 @@
   width: 400px;
 }
 
-.select-theme-wrapper{
+.select-theme-wrapper {
   display: block;
   width: 200px;
 }
 
-.session-insights-wrapper{
+.session-insights-wrapper {
   display: block;
   width: 200px;
 }
 
-.session-insights-wrapper{
+.session-insights-wrapper {
   display: block;
   width: 285px;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+  .select-event-wrapper {
+    width: 100%;
+  }
+
+  .select-theme-wrapper {
+    width: 100%;
+  }
+
+  .session-insights-wrapper {
+    width: 100%;
+  }
+
+  .session-insights-wrapper {
+    width: 100%;
+  }
 }
