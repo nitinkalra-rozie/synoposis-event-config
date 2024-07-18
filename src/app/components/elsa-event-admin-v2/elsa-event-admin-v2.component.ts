@@ -119,7 +119,7 @@ export class ElsaEventAdminV2Component implements OnInit {
   onTranscriptTimeOutChange = () => {
     // This function will be triggered whenever the value of transcriptTimeOut changes
     console.log('transcriptTimeOut changed to:', this.transcriptTimeOut);
-    localStorage.setItem('transcriptTimeOut', this.transcriptTimeOut.toString());
+    localStorage.setItem('transcriptTimeOut', this.transcriptTimeOut.value.toString());
     // You can call any other functions or perform any other actions here
   };
 
