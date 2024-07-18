@@ -1,13 +1,12 @@
-<div class="session-content">
-  <div class="alert-box" [ngClass]="{'success': successMessage, 'failure': failureMessage}">
-    <div *ngIf="successMessage" class="alert alert-success" role="alert">
-      {{ successMessage }}
-    </div>
-    <div *ngIf="failureMessage" class="alert alert-danger" role="alert">
-      {{ failureMessage }}
-    </div>
+<div class="alert-box" [ngClass]="{'success': successMessage, 'failure': failureMessage}">
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
   </div>
-
+  <div *ngIf="failureMessage" class="alert alert-danger" role="alert">
+    {{ failureMessage }}
+  </div>
+</div>
+<div class="session-content">
   <div class="padding-combine">
     <app-screen-display (onEventSpecificDayChange)="handleEventSpecificDayChange($event)"
       [type]="ScreenDisplayType.EventSpecific" [eventDays]="eventDays" [title]="'Event-Specific Screens'"

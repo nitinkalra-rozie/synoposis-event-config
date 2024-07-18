@@ -16,16 +16,25 @@
 
 .alert-box {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  right: 2%;
+  top: 2%;
+  /* top: 50%; */
+  /* left: 50%; */
+  /* transform: translate(-50%, -50%); */
   width: 80%;
   max-width: 500px;
   z-index: 1000;
 }
 
+@media (max-width:767px) {
+  .alert-box {
+    margin: 0 auto;
+    right: 5%;
+    left: 5%;
+  }
+}
+
 .alert {
-  margin: 0;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
