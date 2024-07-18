@@ -22,8 +22,8 @@ export class SessionContentComponent implements OnInit {
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: string;
-  
-  isSessionInProgress:boolean=false;
+
+  isSessionInProgress: boolean = false;
   selectedTheme: string = ThemeOptions.light;
   selectedEvent: string = '';
   selectedKeynoteType: string = '';
@@ -102,7 +102,7 @@ export class SessionContentComponent implements OnInit {
     {
       title: 'Real-time Insights Screen',
       imageUrl: '../../../assets/admin screen/realtime_screen.svg',
-      displayFunction: () => this.showBackupScreen(),
+      displayFunction: () => this.showLoadingInsights(),
     },
     {
       title: 'Post Session Insights Screens',
@@ -123,7 +123,7 @@ export class SessionContentComponent implements OnInit {
   constructor(
     private backendApiService: BackendApiService,
     private modalService: ModalService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -136,7 +136,7 @@ export class SessionContentComponent implements OnInit {
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60;
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15;
     this.lastFiveWords = localStorage.getItem('lastFiveWords');
-    this.isSessionInProgress= parseInt(localStorage.getItem('isSessionInProgress'))==1 || false;
+    this.isSessionInProgress = parseInt(localStorage.getItem('isSessionInProgress')) == 1 || false;
     if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
       this.startRecording();
       this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
@@ -372,29 +372,40 @@ export class SessionContentComponent implements OnInit {
   showKeyNote() {
     if (this.selectedDay != '' && this.selectedSessionTitle != '') {
       const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-      let postData: PostData = {};
-      postData.day = this.selectedDay;
-      postData.eventName = this.selectedEvent;
-      postData.domain = this.selectedDomain;
-      postData.sessionId = sessionDetails.SessionId;
-      postData.action = 'keynote';
-      postData.sessionTitle = this.selectedSessionTitle;
-      postData.keyNoteData = sessionDetails;
-      postData.primarySessionId = sessionDetails.PrimarySessionId;
-      this.backendApiService.postData(postData).subscribe(
-        () => {
-          this.showSuccessMessage('Show speakers details sent successfully!');
-        },
-        (error: any) => {
-          this.showFailureMessage('Failed to send show speakers details.', error);
-        }
-      );
+      if (sessionDetails.Type == "BreakoutSession") {
+        this.modalService.open(
+          'Confirm Action',
+          "Breakout session don't have Title & Speaker Name Screen",
+          'ok',
+          () => { },
+          this.handleNoSelect
+        );
+      }
+      else {
+        let postData: PostData = {};
+        postData.day = this.selectedDay;
+        postData.eventName = this.selectedEvent;
+        postData.domain = this.selectedDomain;
+        postData.sessionId = sessionDetails.SessionId;
+        postData.action = 'keynote';
+        postData.sessionTitle = this.selectedSessionTitle;
+        postData.keyNoteData = sessionDetails;
+        postData.primarySessionId = sessionDetails.PrimarySessionId;
+        this.backendApiService.postData(postData).subscribe(
+          () => {
+            this.showSuccessMessage('Show speakers details sent successfully!');
+          },
+          (error: any) => {
+            this.showFailureMessage('Failed to send show speakers details.', error);
+          }
+        );
+      }
     } else {
       this.modalService.open(
         'Confirm Action',
         'Event day and Session should be selected to show speaker details!',
         'ok',
-        () => {},
+        () => { },
         this.handleNoSelect
       );
     }
@@ -432,7 +443,7 @@ export class SessionContentComponent implements OnInit {
       localStorage.setItem('selectedEvent', this.selectedEvent);
       localStorage.setItem('domain', this.selectedDomain);
       localStorage.setItem("isSessionInProgress", "1");
-      this.isSessionInProgress=true;
+      this.isSessionInProgress = true;
       this.startRecording();
       this.backendApiService
         .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId)
@@ -446,19 +457,19 @@ export class SessionContentComponent implements OnInit {
             this.showFailureMessage('Failed to send start session message.', error);
           }
         );
-      if(session.Type=="BreakoutSession"){
+      if (session.Type == "BreakoutSession") {
         this.showBreakdownInProgress();
       }
-      else{
+      else {
         this.showLoadingInsights();
       }
-      
+
     } else {
       this.modalService.open(
         'Confirm Action',
         'Please select the Event , Day , Domain and Speaker Name to start the session',
         'ok',
-        () => {},
+        () => { },
         this.handleNoSelect
       );
     }
@@ -470,12 +481,35 @@ export class SessionContentComponent implements OnInit {
 
   showLoadingInsights() {
     let postData: PostData = {};
-    postData.day = this.selectedDay;
-    postData.eventName = this.selectedEvent;
-    postData.domain = this.selectedDomain;
-    postData.action = 'insightsLoading';
-    postData.sessionTitle = this.selectedSessionTitle;
-    this.backendApiService.postData(postData).subscribe(() => {});
+    if (this.selectedDay != '' && this.selectedSessionTitle != '') {
+      const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+      if (sessionDetails.Type == "BreakoutSession") {
+        this.modalService.open(
+          'Confirm Action',
+          "Breakout session don't have speaker name screen",
+          'ok',
+          () => { },
+          this.handleNoSelect
+        );
+      }
+      else {
+        postData.day = this.selectedDay;
+        postData.eventName = this.selectedEvent;
+        postData.domain = this.selectedDomain;
+        postData.action = 'insightsLoading';
+        postData.sessionTitle = this.selectedSessionTitle;
+        this.backendApiService.postData(postData).subscribe(() => { });
+      }
+    }
+    else {
+      this.modalService.open(
+        'Confirm Action',
+        "Breakout session don't have Real-time Insights Screen",
+        'ok',
+        () => { },
+        this.handleNoSelect
+      );
+    }
   }
 
   showBreakdownInProgress() {
@@ -485,7 +519,7 @@ export class SessionContentComponent implements OnInit {
     postData.domain = this.selectedDomain;
     postData.action = 'breakOutSession';
     postData.sessionTitle = this.selectedSessionTitle;
-    this.backendApiService.postData(postData).subscribe(() => {});
+    this.backendApiService.postData(postData).subscribe(() => { });
   }
 
   showPostInsightsLoading() {
@@ -495,7 +529,7 @@ export class SessionContentComponent implements OnInit {
     postData.domain = this.selectedDomain;
     postData.action = 'postInsightsLoading';
     postData.sessionTitle = this.selectedSessionTitle;
-    this.backendApiService.postData(postData).subscribe(() => {});
+    this.backendApiService.postData(postData).subscribe(() => { });
   }
 
   stopScreen(): void {
@@ -538,13 +572,26 @@ export class SessionContentComponent implements OnInit {
   };
 
   endSessionPopUpPostInsights = () => {
-    this.modalService.open(
-      'End Session?',
-      'Are you sure that you want to end current session? This will display post session insights on screen.',
-      'yes_no',
-      this.endSession,
-      this.handleNoSelect
-    );
+    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    if (session.Type == 'BreakoutSession') {
+      this.modalService.open(
+        'End Session?',
+        'Are you sure that you want to end current breakout session?',
+        'yes_no',
+        this.endSession,
+        this.handleNoSelect
+      );
+    }
+    else{
+      this.modalService.open(
+        'End Session?',
+        'Are you sure that you want to end current session? This will display post session insights on screen.',
+        'yes_no',
+        this.endSession,
+        this.handleNoSelect
+      );
+    }
+
   };
 
   endSession = (): void => {
@@ -559,19 +606,19 @@ export class SessionContentComponent implements OnInit {
     postData.sessionId = session.SessionId;
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = this.selectedSessionTitle;
-    this.isSessionInProgress=false;
+    this.isSessionInProgress = false;
     if (session.Type == 'BreakoutSession') {
-        postData.action = 'endBreakoutSession';
-        this.backendApiService.postData(postData).subscribe(
-          (data: any) => {
-            this.showSuccessMessage('End breakout session message sent successfully!');
-          },
-          (error: any) => {
-            this.showFailureMessage('Failed to send end breakout session message.', error);
-          }
-        );
-        this.closeSocket();
-        this.clearSessionData();
+      postData.action = 'endBreakoutSession';
+      this.backendApiService.postData(postData).subscribe(
+        (data: any) => {
+          this.showSuccessMessage('End breakout session message sent successfully!');
+        },
+        (error: any) => {
+          this.showFailureMessage('Failed to send end breakout session message.', error);
+        }
+      );
+      this.closeSocket();
+      this.clearSessionData();
     } else {
       postData.action = 'endPrimarySession';
       this.backendApiService.postData(postData).subscribe(
@@ -596,7 +643,7 @@ export class SessionContentComponent implements OnInit {
         'Confirm Action',
         'select the sessions to show the summary!',
         'ok',
-        () => {},
+        () => { },
         this.handleNoSelect
       );
       return;
@@ -805,7 +852,7 @@ export class SessionContentComponent implements OnInit {
   closeSocket = () => {
     this.modalService.close();
     localStorage.setItem("isSessionInProgress", "0");
-    this.isSessionInProgress=false;
+    this.isSessionInProgress = false;
     if (this.socket.OPEN) {
       this.micStream.stop();
 
@@ -820,11 +867,11 @@ export class SessionContentComponent implements OnInit {
     this.isStreaming = !this.isStreaming;
   };
 
-  clearSessionData=()=>{
+  clearSessionData = () => {
     clearInterval(this.timeoutId);
     this.startListeningClicked = false;
     localStorage.setItem("isSessionInProgress", "0");
-    this.isSessionInProgress=false;
+    this.isSessionInProgress = false;
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('currentSessionId');
     localStorage.removeItem('currentPrimarySessionId');
@@ -877,7 +924,7 @@ export class SessionContentComponent implements OnInit {
       let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
       if (this.isSessionInProgress && messageWrapper.headers[':message-type'].value === 'event') {
         this.handleEventStreamMessage(messageBody);
-      } else  {
+      } else {
         this.transcribeException = true;
         console.log(messageBody.Message);
         // toggleStartStop();

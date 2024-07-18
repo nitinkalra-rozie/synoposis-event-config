@@ -20,7 +20,7 @@
       [sessionTitles]="sessionTitles" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
       [showStopScreenButton]="true" [showStopScreenButton]="true" [ShowCombineDropdown]="true"
       [sessionValueDropdown]="true" [subSessionValueDropdown]="false" [cards]="session_cards"
-      (startListening)="startListening()" (stopScreen)="stopScreen()" (endSession)="endSessionPopUp()"></app-screen-display>
+      (startListening)="startListening()" (stopScreen)="stopScreen()" (endSession)="endSessionPopUpPostInsights()"></app-screen-display>
 
     <app-screen-display [sessionDay]="selectedMultiSessionDay" [type]="ScreenDisplayType.MultiSession" [eventDays]="eventDays"
       (onSessionsChange)="handleSessionsChange($event)" (onMultiSessionDayChange)="handleMultiSessionDayChange($event)"
