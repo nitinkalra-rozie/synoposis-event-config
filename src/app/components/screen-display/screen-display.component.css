@@ -42,15 +42,15 @@
 }
 
 .dynamic-button-stop {
-  background: var(--background-variant-3-bfccd-9, #bfccd9);
+  background: var(--background-variant-3-bfccd-9, #475258);
 }
 
-.dynamic-button-start.active {
-  background-color: #bfccd9;
-}
-
-.dynamic-button-stop.active {
-  background-color: #475258;
+.dynamic-button-start:disabled,
+.dynamic-button-stop:disabled,
+.dynamic-button-End:disabled {
+  background: var(--background-disabled, #d3d3d3);
+  color: var(--text-disabled, #a1a1a1);
+  cursor: not-allowed;
 }
 
 .dynamic-button-End {

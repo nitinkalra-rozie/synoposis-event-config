@@ -428,7 +428,31 @@ export class SessionContentComponent implements OnInit {
     );
   }
 
+  startListeningPopUp(): void {
+    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    console.log('sessionId for start session', session);
+    if (session) {
+      this.modalService.open(
+        'Start Session?',
+        "Are you sure to start session :" + session.SessionTitle + " ?",
+        'yes_no',
+        this.startListening.bind(this),
+        this.handleNoSelect
+      );
+    }
+    else {
+      this.modalService.open(
+        'Confirm Action',
+        'Please select the Event , Day , Domain and Speaker Name to start the session',
+        'ok',
+        () => { },
+        this.handleNoSelect
+      );
+    }
+  }
+
   startListening(): void {
+    this.modalService.close();
     if (
       this.selectedDay !== '' &&
       this.selectedSessionTitle !== '' &&
@@ -532,9 +556,9 @@ export class SessionContentComponent implements OnInit {
     this.backendApiService.postData(postData).subscribe(() => { });
   }
 
-  stopScreen(): void {
+  stopListening(): void {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    console.log('sessionId for end session', session);
+    console.log('sessionId for stop session', session);
     this.modalService.open(
       'Stop Session?',
       'Are you sure to stop the session?',
@@ -582,7 +606,7 @@ export class SessionContentComponent implements OnInit {
         this.handleNoSelect
       );
     }
-    else{
+    else {
       this.modalService.open(
         'End Session?',
         'Are you sure that you want to end current session? This will display post session insights on screen.',

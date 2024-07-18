@@ -10,23 +10,24 @@ export class ScreenDisplayComponent {
   selectedSessions: string[] = [];
 
   @Input() type: ScreenDisplayType;
-  @Input() startListeningClicked: boolean = false;
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
   @Input() sessionDay: string = '';
   @Input() icon: string | null = null;
   @Input() imageUrl: string;
-  @Input() showStartListeningButton: boolean = false;
-  @Input() showStopScreenButton: boolean = false;
   @Input() ShowCombineDropdown: boolean = false;
   @Input() shoEventDropDown: boolean = false;
   @Input() cards: Array<{ title: string; imageUrl: string; icon?: string }> = [];
   @Input() sessionValueDropdown: boolean = false;
-  @Input() subSessionValueDropdown: boolean = false;
+  @Input() subSessionValueDropdown: boolean = false;  @Input() isSessionInProgress: boolean = false;
+  @Input() showStartListeningButton: boolean = false;
+  @Input() showStopScreenButton: boolean = false;
+  
   @Output() startListening: EventEmitter<void> = new EventEmitter<void>();
-  @Output() stopScreen: EventEmitter<void> = new EventEmitter<void>();
+  @Output() stopListening: EventEmitter<void> = new EventEmitter<void>();
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
+  
   @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() onSessionsChange: EventEmitter<{ values: string[] }> = new EventEmitter<{ values: string[] }>();
   @Output() onEventSpecificDayChange: EventEmitter<{ [key: string]: string }> = new EventEmitter<{
@@ -78,19 +79,16 @@ export class ScreenDisplayComponent {
       displayFunction();
     }
   }
-  onStartListening() {
-    // this.startListeningClicked = true;
-    // this.showStopScreenButtonClicked = true;
+
+  onStartListening(): void {
     this.startListening.emit();
   }
 
-  onStopScreen() {
-    // this.showStopScreenButtonClicked = false;
-    // this.startListeningClicked = false;
-    this.stopScreen.emit();
+  onStopListening(): void {
+    this.stopListening.emit();
   }
 
-  onEndSession() {
+  onEndSession(): void {
     this.endSession.emit();
   }
 

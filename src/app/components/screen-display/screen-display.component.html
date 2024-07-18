@@ -2,23 +2,28 @@
   <div class="box-title">
     <span class="main-title">{{ title }}</span>
     <div class="button-container">
-      <button class="dynamic-button-start" *ngIf="showStartListeningButton" (click)="onStartListening()"
-        [ngClass]="{'active': startListeningClicked}">
+      <button class="dynamic-button-start" 
+              *ngIf="showStartListeningButton" 
+              (click)="onStartListening()" 
+              [disabled]="isSessionInProgress">
         <img src="../../../assets/admin screen/mic_none.svg" alt="Start Listening Icon" class="button-icon" />
         <span class="button-text">Start Listening</span>
       </button>
-      <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="onStopScreen()"
-        [ngClass]="{'active': startListeningClicked}">
+      <button class="dynamic-button-stop" 
+              *ngIf="showStopScreenButton" 
+              (click)="onStopListening()" 
+              [disabled]="!isSessionInProgress">
         <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">Pause Listening</span>
       </button>
       <div class="vline">
         <img src="../../../assets/admin screen/vline.svg" alt="vertical v line" />
       </div>
-      <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="onEndSession()">
+      <button class="dynamic-button-End" 
+              *ngIf="showStopScreenButton" 
+              (click)="onEndSession()">
         <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">End Session</span>
-
       </button>
     </div>
   </div>
