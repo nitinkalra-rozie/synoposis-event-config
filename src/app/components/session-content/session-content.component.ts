@@ -161,7 +161,9 @@ export class SessionContentComponent implements OnInit {
 
     if (changes['transcriptTimeOutProp']) {
       if (changes['transcriptTimeOutProp'].currentValue != changes['transcriptTimeOutProp'].previousValue) {
+        
         this.transcriptTimeOut = changes['transcriptTimeOutProp'].currentValue;
+        console.log("this.transcriptTimeOut",this.transcriptTimeOut);
       }
     }
   }
@@ -714,7 +716,7 @@ export class SessionContentComponent implements OnInit {
   }
   setTimerToPushTranscript() {
     clearInterval(this.timeoutId);
-    console.log('1 minute reset');
+    console.log('1 minute reset ',this.transcriptTimeOut);
     this.timeoutId = setTimeout(
       () => {
         console.log('1 minute completed');
@@ -916,14 +918,15 @@ export class SessionContentComponent implements OnInit {
         transcript = decodeURIComponent(escape(transcript));
 
         // update the textarea with the latest result
-        console.log('transcript', transcript);
+        console.log('transcript-->', transcript);
 
         // if this transcript segment is final, add it to the overall transcription
         if (!results[0].IsPartial) {
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
-          if (this.currentSessionId && this.currentPrimarySessionId == this.currentSessionId) {
+          console.log("sid here ",this.currentSessionId);
+          if ((this.currentSessionId) && (this.currentPrimarySessionId == this.currentSessionId)) {
             this.realtimeInsides(this.transcription);
           }
           if (this.currentSessionId && this.isSessionInProgress) {
