@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { AudioStreamerComponent } from './components/audio-streamer/audio-streamer.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -21,6 +21,7 @@ import { ScreenDisplayComponent } from './components/screen-display/screen-displ
 import { OutsideClickDirective } from './directives/outside-click.directive';
 import { TruncatePipe } from './components/main-drop-down/truncate.pipe';
 import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.component';
+import { AuthInterceptorService } from './services/auth-interceptor.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -38,17 +39,16 @@ import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.c
     ScreenDisplayComponent,
     OutsideClickDirective,
     TruncatePipe,
-    PopUpWindowComponent
+    PopUpWindowComponent,
   ],
-  imports: [
-    HttpClientModule,
-    AppRoutingModule,
-    FormsModule,
-    CommonModule,
-    BrowserModule,
-    SharedModule,
+  imports: [HttpClientModule, AppRoutingModule, FormsModule, CommonModule, BrowserModule, SharedModule],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

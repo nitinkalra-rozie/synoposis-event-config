@@ -20,7 +20,6 @@ export class ElsaEventAdminV2Component implements OnInit {
   sessionTitles: string[] = [];
   primarySessionTitles: string[];
   options: string[] = [];
-  // session: any
   selectedSessionTitle: string;
   transcriptTimeOut: { label: string; value: number } = {
     label: TimeWindowsEnum['60 Seconds'],
@@ -45,12 +44,9 @@ export class ElsaEventAdminV2Component implements OnInit {
     };
     localStorage.setItem('transcriptTimeOut', this.transcriptTimeOut.value.toString());
 
-    if(!parseInt(localStorage.getItem('postInsideInterval'))){
+    if (!parseInt(localStorage.getItem('postInsideInterval'))) {
       localStorage.setItem('postInsideInterval', this.postData.screenTimeout.toString());
-      localStorage.setItem(
-        'postInsideValue',
-        this.getKeyByValue(this.postData.screenTimeout, TransitionTimes)
-      );
+      localStorage.setItem('postInsideValue', this.getKeyByValue(this.postData.screenTimeout, TransitionTimes));
     }
 
     this.getEventDetails();
@@ -60,7 +56,6 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data;
       this.populateEventNames();
-      // this.selectDefaultOptions();
     });
   };
 
@@ -83,7 +78,6 @@ export class ElsaEventAdminV2Component implements OnInit {
   populateEventDays() {
     const filteredByEvent = this.eventDetails.filter(event => event.Event === this.postData.eventName);
     this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
-    console.log('eventDays', this.eventDays);
   }
 
   onEventChange = () => {
@@ -108,20 +102,6 @@ export class ElsaEventAdminV2Component implements OnInit {
       this.updatePostData({ key: PostDataEnum.sessionId, value: sessionDetails.SessionId });
     }
   };
-
-  // private showSuccessMessage(message: string): void {
-  //   this.successMessage = message;
-  //   setTimeout(() => {
-  //     this.successMessage = '';
-  //   }, 3000);
-  // }
-
-  // private showFailureMessage(message: string, error: any): void {
-  //   this.failureMessage = message;
-  //   setTimeout(() => {
-  //     this.failureMessage = '';
-  //   }, 5000);
-  // }
 
   callBackEndAPI = () => {
     this.backendApiService.postData(this.postData).subscribe(
@@ -168,9 +148,6 @@ export class ElsaEventAdminV2Component implements OnInit {
       default:
         break;
     }
-    console.log('postData', this.postData);
-
-    // this.callBackEndAPI();
   };
 
   handleReset = () => {

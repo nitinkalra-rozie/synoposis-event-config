@@ -162,7 +162,6 @@ export class SessionContentComponent implements OnInit {
     if (changes['transcriptTimeOutProp']) {
       if (changes['transcriptTimeOutProp'].currentValue != changes['transcriptTimeOutProp'].previousValue) {
         this.transcriptTimeOut = changes['transcriptTimeOutProp'].currentValue;
-        console.log('this.transcriptTimeOut', this.transcriptTimeOut);
       }
     }
   }
