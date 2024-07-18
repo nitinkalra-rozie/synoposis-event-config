@@ -356,6 +356,14 @@ export class SessionContentComponent implements OnInit {
     return session ? session : null;
   };
 
+  findSessionById = (event: string, SessionId: string) => {
+    const session = this.eventDetails.find(
+      (session: { Event: string; SessionId: string }) =>
+        session.Event === event && session.SessionId === SessionId
+    );
+    return session ? session : null;
+  };
+
   showBackupScreen(): void {
     let postData: PostData = {};
     postData.action = 'backup_screen';
@@ -536,11 +544,13 @@ export class SessionContentComponent implements OnInit {
 
   showBreakdownInProgress() {
     let postData: PostData = {};
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    const primarySessionTitle=this.findSessionById(sessionDetails.Event,sessionDetails.PrimarySessionId);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'breakOutSession';
-    postData.sessionTitle = this.selectedSessionTitle;
+    postData.sessionTitle = primarySessionTitle;
     this.backendApiService.postData(postData).subscribe(() => {});
   }
 
