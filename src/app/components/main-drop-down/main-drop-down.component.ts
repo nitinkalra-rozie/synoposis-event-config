@@ -57,13 +57,21 @@ export class MainDropDownComponent implements OnInit {
     return newContent;
   };
 
-  truncateText = (text = '', maxLength) => {
+  isMobileDevice = () => {
+    return window.innerWidth < 768;
+  }
+
+  truncateText = (text = '', maxLengthDesktop, maxLengthMobile) => {
+    const maxLength = this.isMobileDevice() ? maxLengthMobile : maxLengthDesktop;
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   getSelectedText = () => {
-    const tempText = this.truncateText(this.selectedValue[0], 45);
-    if (this.selectedValue && this.selectedValue.length == 1) {
+    const maxLengthDesktop = 45;
+    const maxLengthMobile = 25;
+  
+    const tempText = this.truncateText(this.selectedValue[0], maxLengthDesktop, maxLengthMobile);
+    if (this.selectedValue && this.selectedValue.length === 1) {
       return tempText;
     } else if (this.selectedValue && this.selectedValue.length > 1) {
       return `${tempText} +`;

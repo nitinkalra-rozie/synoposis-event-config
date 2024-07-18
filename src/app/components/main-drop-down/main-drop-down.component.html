@@ -1,7 +1,7 @@
 <div class="drop-down-container" [class.disabled-dropdown]="disabled"  *ngIf="type == 't1'">
   <div class="drop-down-title" *ngIf="dropdownTitle">{{dropdownTitle}}</div>
   <div class="text-wrapper" (click)="toggleDropdown()" [class.open]="dropDownVisible">
-    <div class="selected-text">{{selectedValue[0] | truncate}}</div>
+    <div class="selected-text truncate">{{selectedValue[0] | truncate}}</div>
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
 
