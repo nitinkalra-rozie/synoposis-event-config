@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - development
+      - feature/intgreation
 env:
   deployment: dev 
 
