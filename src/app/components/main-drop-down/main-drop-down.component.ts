@@ -67,7 +67,7 @@ export class MainDropDownComponent implements OnInit {
   };
 
   getSelectedText = () => {
-    const maxLengthDesktop = 45;
+    const maxLengthDesktop = 40;
     const maxLengthMobile = 25;
   
     const tempText = this.truncateText(this.selectedValue[0], maxLengthDesktop, maxLengthMobile);
