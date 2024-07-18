@@ -212,6 +212,10 @@ export class SessionContentComponent implements OnInit {
     if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
       this.selectedSessionTitle = this.sessionTitles[0];
     }
+
+    if (!this.selectedOptions.length && this.primarySessionTitles.length > 0) {
+      this.selectedOptions = [this.primarySessionTitles[0]];
+    }
   }
 
   handleMainSessionChange = (titleValue: string) => {
@@ -654,7 +658,7 @@ export class SessionContentComponent implements OnInit {
 
   showSummary(): void {
     // Check if a keynote type is selected
-    this.sessionIds = [];
+    this.sessionIds = [];    
     if (this.selectedOptions.length <= 0) {
       this.modalService.open(
         'Confirm Action',

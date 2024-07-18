@@ -33,8 +33,26 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.initializeData();
   }
 
+  getKeyByValue = (value, object) => {
+    return Object.keys(object).find(key => object[key] === value);
+  };
+
   initializeData = () => {
     this.postData = { ...INITIAL_POST_DATA };
+    this.transcriptTimeOut = this.transcriptTimeOut = {
+      label: this.getKeyByValue(parseInt(localStorage.getItem('transcriptTimeOut')) || 60, TimeWindows),
+      value: parseInt(localStorage.getItem('transcriptTimeOut')) || 60,
+    };
+    localStorage.setItem('transcriptTimeOut', this.transcriptTimeOut.value.toString());
+
+    if(!parseInt(localStorage.getItem('postInsideInterval'))){
+      localStorage.setItem('postInsideInterval', this.postData.screenTimeout.toString());
+      localStorage.setItem(
+        'postInsideValue',
+        this.getKeyByValue(this.postData.screenTimeout, TransitionTimes)
+      );
+    }
+
     this.getEventDetails();
   };
 
@@ -156,11 +174,13 @@ export class ElsaEventAdminV2Component implements OnInit {
   };
 
   handleReset = () => {
+    localStorage.removeItem('transcriptTimeOut');
+    localStorage.removeItem('postInsideInterval');
+    localStorage.removeItem('postInsideValue');
     this.initializeData();
     this.transcriptTimeOut = {
       label: TimeWindowsEnum['60 Seconds'],
       value: TimeWindows['60 Seconds'],
     };
-    console.log('000', this.postData);
   };
 }
