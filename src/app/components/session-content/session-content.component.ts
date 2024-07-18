@@ -399,7 +399,7 @@ export class SessionContentComponent implements OnInit {
         postData.domain = this.selectedDomain;
         postData.sessionId = sessionDetails.SessionId;
         postData.action = 'keynote';
-        postData.sessionTitle = this.selectedSessionTitle;
+        postData.sessionTitle = sessionDetails.SessionSubject;
         postData.keyNoteData = sessionDetails;
         postData.primarySessionId = sessionDetails.PrimarySessionId;
         this.backendApiService.postData(postData).subscribe(
@@ -528,7 +528,7 @@ export class SessionContentComponent implements OnInit {
         postData.eventName = this.selectedEvent;
         postData.domain = this.selectedDomain;
         postData.action = 'insightsLoading';
-        postData.sessionTitle = this.selectedSessionTitle;
+        postData.sessionTitle = sessionDetails.SessionSubject;
         this.backendApiService.postData(postData).subscribe(() => {});
       }
     } else {
@@ -545,22 +545,23 @@ export class SessionContentComponent implements OnInit {
   showBreakdownInProgress() {
     let postData: PostData = {};
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    const primarySessionTitle=this.findSessionById(sessionDetails.Event,sessionDetails.PrimarySessionId);
+    const primarySession=this.findSessionById(sessionDetails.Event,sessionDetails.PrimarySessionId);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'breakOutSession';
-    postData.sessionTitle = primarySessionTitle;
+    postData.sessionTitle = primarySession.SessionSubject;
     this.backendApiService.postData(postData).subscribe(() => {});
   }
 
   showPostInsightsLoading() {
     let postData: PostData = {};
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'postInsightsLoading';
-    postData.sessionTitle = this.selectedSessionTitle;
+    postData.sessionTitle = sessionDetails.SessionSubject;
     this.backendApiService.postData(postData).subscribe(() => {});
   }
 
@@ -635,7 +636,7 @@ export class SessionContentComponent implements OnInit {
     postData.domain = this.selectedDomain;
     postData.sessionId = session.SessionId;
     postData.primarySessionId = session.PrimarySessionId;
-    postData.sessionTitle = this.selectedSessionTitle;
+    postData.sessionTitle = session.SessionSubject;
     this.isSessionInProgress = false;
     if (session.Type == 'BreakoutSession') {
       postData.action = 'endBreakoutSession';
@@ -750,13 +751,14 @@ export class SessionContentComponent implements OnInit {
 
   getRealTimeInsights(transcript: string) {
     let postData: PostData = {};
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.primarySessionId = this.currentPrimarySessionId;
     postData.sessionId = this.currentSessionId;
     postData.action = 'realTimeInsights';
-    postData.sessionTitle = this.selectedSessionTitle;
+    postData.sessionTitle = sessionDetails.SessionSubject;
     postData.transcript = transcript;
     this.backendApiService.postData(postData).subscribe(() => {
       // Handle success or error if needed
