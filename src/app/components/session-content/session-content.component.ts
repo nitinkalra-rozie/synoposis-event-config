@@ -568,8 +568,8 @@ export class SessionContentComponent implements OnInit {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for stop session', session);
     this.modalService.open(
-      'Stop Session?',
-      'Are you sure to stop the session?',
+      'Pause Session?',
+      'Are you sure to pause the session?',
       'yes_no',
       this.closeSocket,
       this.handleNoSelect
