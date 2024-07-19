@@ -14,6 +14,7 @@ export class OtpComponent implements OnInit {
   email: string = '';
   errorMessage: string;
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
+  @ViewChild('inputs') inputs: ElementRef;
 
   constructor(private router: Router, private loginService: LoginService) { }
 
@@ -24,14 +25,19 @@ export class OtpComponent implements OnInit {
 
   handleOtpChange(index: number, value: string) {
     // Ensure that only a single digit is accepted
+    // if (value.length === 1 && index < this.otp.length - 1) {
+    //   this.inputs.nativeElement.children[index + 1].focus();
+    // }
+  
     if (!isNaN(Number(value)) && value.length === 1) {
-      this.otp[index] = value;
+      // this.otp[index] = value;
 
       // Move focus to the next input
       if (index < this.otp.length - 1) {
         const nextInput = this.inputsRef && this.inputsRef.nativeElement.children[index + 1];
         if (nextInput) {
           (nextInput as HTMLInputElement).focus();
+          
         }
       }
 
@@ -40,7 +46,13 @@ export class OtpComponent implements OnInit {
         this.handleSubmit();
       }
     }
+
   }
+
+
+  
+  
+  
 
   handleKeyDown(index: number, event: KeyboardEvent) {
     if (event.key === 'Backspace' && index > 0 && this.otp[index] === '') {
@@ -99,3 +111,4 @@ export class OtpComponent implements OnInit {
     }
   }
 }
+
