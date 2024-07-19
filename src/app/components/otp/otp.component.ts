@@ -12,6 +12,7 @@ export class OtpComponent implements OnInit {
   otp: string[] = ['', '', '', '', '', ''];
   resendClicked = false;
   email: string = '';
+  errorMessage: string;
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
   constructor(private router: Router, private loginService: LoginService) { }
@@ -51,6 +52,7 @@ export class OtpComponent implements OnInit {
   }
 
   handleSubmit() {
+    this.errorMessage="";
     if (!this.email) {
       console.error('Email is null');
       return;
@@ -64,10 +66,12 @@ export class OtpComponent implements OnInit {
           console.log("sid auth ",responseData.AuthenticationResult.IdToken);
           this.router.navigate(['/admin']);
         } else {
+          this.errorMessage="Wrong otp!"
           console.error('OTP verification failed or no token received');
         }
       },
       (error) => {
+        this.errorMessage="Wrong otp!"
         console.error('Error during OTP verification', error);
       }
     );

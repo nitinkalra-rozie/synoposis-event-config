@@ -7,7 +7,7 @@ import {
 } from 'amazon-cognito-identity-js';
 import { AuthResponse } from '../shared/types';
 import { environment } from 'src/environments/environment';
-
+import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
@@ -16,19 +16,12 @@ export class AuthService {
   private userPool: CognitoUserPool;
   private navigateFunction: ((path: string) => void) | null = null;
 
-  private constructor() {
+    constructor(private router: Router,) {
     this.userPool = new CognitoUserPool({
       UserPoolId: environment.USER_POOL_ID,
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
     });
   }
-
-  public static getInstance = (): AuthService => {
-    if (!AuthService.instance) {
-      AuthService.instance = new AuthService();
-    }
-    return AuthService.instance;
-  };
 
   public setNavigateFunction = (navigate: (path: string) => void): void => {
     this.navigateFunction = navigate;
@@ -53,13 +46,12 @@ export class AuthService {
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('sessionToken');
-    if (this.navigateFunction) {
-      this.navigateFunction('/login'); // Navigate to login page
-    }
+    this.router.navigate(['/login']); 
+
   };
 
   public isAuthenticated = (): boolean => {
-    const cognitoUser = this.userPool.getCurrentUser();
+    const cognitoUser = localStorage.getItem('idToken');
     return cognitoUser !== null;
   };
 

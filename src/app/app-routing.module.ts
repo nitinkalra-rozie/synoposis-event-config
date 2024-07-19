@@ -13,7 +13,6 @@ const routes: Routes = [
     {
         path: 'stream',
         component: AudioStreamerComponent,
-        canActivate: [AuthGuard] 
     },
     {
         path:'otp',
@@ -26,7 +25,6 @@ const routes: Routes = [
     {
         path: 'admin',
         component: ElsaEventAdminV2Component,
-        canActivate: [AuthGuard] 
     },
     {
         path: '**',

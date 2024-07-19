@@ -23,6 +23,7 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { OtpComponent } from './components/otp/otp.component';
 import { AuthApiService } from './services/auth-api.service';
+import { AuthService } from './services/auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { FooterMobileComponent } from './components/shared/footer-mobile/footer-mobile.component';
@@ -63,6 +64,7 @@ import { FooterMobileComponent } from './components/shared/footer-mobile/footer-
       multi: true,
     },
     AuthApiService,
+    AuthService
   ],
   bootstrap: [AppComponent],
 })
