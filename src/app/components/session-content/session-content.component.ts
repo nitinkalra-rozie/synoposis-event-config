@@ -6,7 +6,7 @@ import * as createHash from 'create-hash';
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-import { PostData } from 'src/app/shared/types';
+import { EventDetail, PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
 import { ModalService } from 'src/app/services/modal.service';
 import { MicrophoneService } from 'src/app/services/microphone.service';
@@ -32,7 +32,7 @@ export class SessionContentComponent implements OnInit {
   selectedReportType: string = '';
   selectedDay: string = '';
   selectedMultiSessionDay: string = '';
-  eventDetails: any = [];
+  eventDetails: EventDetail[] = [];
   eventDays: any = [];
   eventNames: any = [];
   selectedSessionTitle: string = '';
@@ -131,6 +131,7 @@ export class SessionContentComponent implements OnInit {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
+    this.selectedSessionType = localStorage.getItem('selectedSessionType') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
     this.selectedDomain = localStorage.getItem('domain') || 'Healthcare';
     this.currentPrimarySessionId = localStorage.getItem('currentPrimarySessionId') || '';
@@ -212,6 +213,9 @@ export class SessionContentComponent implements OnInit {
     this.populatePrimarySessionTitles();
     if (!this.selectedSessionTitle && this.sessionTitles.length > 0) {
       this.selectedSessionTitle = this.sessionTitles[0];
+      const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+      this.selectedSessionType = session.Type;
+      localStorage.setItem('selectedSessionType', this.selectedSessionType.toString());
     }
 
     if (!this.selectedOptions.length && this.primarySessionTitles.length > 0) {
@@ -221,6 +225,9 @@ export class SessionContentComponent implements OnInit {
 
   handleMainSessionChange = (titleValue: string) => {
     this.selectedSessionTitle = titleValue;
+    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+    this.selectedSessionType = session.Type;
+    localStorage.setItem('selectedSessionType', this.selectedSessionType.toString());
   };
 
   handleSessionsChange = ({ values }: { values: string[] }) => {
@@ -513,7 +520,7 @@ export class SessionContentComponent implements OnInit {
       console.log('Microphone permission denied');
       this.modalService.open(
         'Confirm Action',
-        "Please allow permission to browser microphone services",
+        'Please allow permission to browser microphone services',
         'ok',
         () => {},
         this.handleNoSelect
@@ -608,35 +615,18 @@ export class SessionContentComponent implements OnInit {
     );
   }
 
-  endSessionPopUp = () => {
-    this.modalService.open(
-      'End Session?',
-      'Are you sure that you want to end current session? This will display post session insights on screen.',
-      'yes_no',
-      this.endSession,
-      this.handleNoSelect
-    );
-  };
-
   endSessionPopUpPostInsights = () => {
-    const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    if (session.Type == 'BreakoutSession') {
-      this.modalService.open(
-        'End Session?',
-        'Are you sure that you want to end current breakout session?',
-        'yes_no',
-        this.endSession,
-        this.handleNoSelect
-      );
-    } else {
-      this.modalService.open(
-        'End Session?',
-        'Are you sure that you want to end current session? This will display post session insights on screen.',
-        'yes_no',
-        this.endSession,
-        this.handleNoSelect
-      );
+    let endText =
+      'Are you sure that you want to end current session? This will display post session insights on screen.';
+
+    console.log('this.selectedSessionType', this.selectedSessionType);
+
+    if (this.selectedSessionType === EventDetailType.BreakoutSession) {
+      endText = 'Are you sure that you want to end current breakout session?';
+    } else if (this.selectedSessionType === EventDetailType.IntroSession) {
+      endText = 'Are you sure that you want to end current intro session?';
     }
+    this.modalService.open('End Session?', endText, 'yes_no', this.endSession, this.handleNoSelect);
   };
 
   endSession = (): void => {
@@ -662,9 +652,7 @@ export class SessionContentComponent implements OnInit {
           this.showFailureMessage('Failed to send end breakout session message.', error);
         }
       );
-      this.closeSocket();
-      this.clearSessionData();
-    } else {
+    } else if (session.Type == 'PrimarySession') {
       postData.action = 'endPrimarySession';
       this.backendApiService.postData(postData).subscribe(
         (data: any) => {
@@ -675,9 +663,9 @@ export class SessionContentComponent implements OnInit {
           this.showFailureMessage('Failed to send end session message.', error);
         }
       );
-      this.closeSocket();
-      this.clearSessionData();
     }
+    this.closeSocket();
+    this.clearSessionData();
   };
 
   showSummary(): void {
@@ -920,6 +908,7 @@ export class SessionContentComponent implements OnInit {
     localStorage.setItem('isSessionInProgress', '0');
     this.isSessionInProgress = false;
     localStorage.removeItem('currentSessionTitle');
+    localStorage.removeItem('selectedSessionType');
     localStorage.removeItem('currentSessionId');
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
@@ -929,6 +918,7 @@ export class SessionContentComponent implements OnInit {
   };
 
   handleEventStreamMessage = messageJson => {
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     let results = messageJson.Transcript.Results;
     console.log('messageJSON got from the transcribe', JSON.stringify(messageJson));
     if (results.length > 0) {
@@ -947,7 +937,7 @@ export class SessionContentComponent implements OnInit {
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
           console.log('sid here ', this.currentSessionId);
-          if (this.currentSessionId && this.currentPrimarySessionId == this.currentSessionId) {
+          if (sessionDetails.GenerateInsights) {
             this.realtimeInsides(this.transcription);
           }
           if (this.currentSessionId && this.isSessionInProgress) {

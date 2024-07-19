@@ -6,6 +6,7 @@ export enum ThemeOptions {
 export enum EventDetailType {
   BreakoutSession = 'BreakoutSession',
   PrimarySession = 'PrimarySession',
+  IntroSession = 'IntroSession',
 }
 
 export enum ScreenDisplayType {
