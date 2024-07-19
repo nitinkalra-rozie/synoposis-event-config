@@ -2,26 +2,20 @@
   <div class="box-title">
     <span class="main-title">{{ title }}</span>
     <div class="button-container">
-      <button class="dynamic-button-start" 
-              *ngIf="showStartListeningButton" 
-              (click)="onStartListening()" 
-              [disabled]="isSessionInProgress">
+      <button class="dynamic-button-start" *ngIf="showStartListeningButton" (click)="onStartListening()"
+        [disabled]="isSessionInProgress">
         <img src="../../../assets/admin screen/mic_none.svg" alt="Start Listening Icon" class="button-icon" />
         <span class="button-text">Start Listening</span>
       </button>
-      <button class="dynamic-button-stop" 
-              *ngIf="showStopScreenButton" 
-              (click)="onStopListening()" 
-              [disabled]="!isSessionInProgress">
+      <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="onStopListening()"
+        [disabled]="!isSessionInProgress">
         <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">Pause Listening</span>
       </button>
       <div class="vline">
         <img src="../../../assets/admin screen/vline.svg" alt="vertical v line" />
       </div>
-      <button class="dynamic-button-End" 
-              *ngIf="showStopScreenButton" 
-              (click)="onEndSession()">
+      <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="onEndSession()">
         <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
         <span class="button-text">End Session</span>
       </button>
@@ -35,7 +29,9 @@
     </div>
     <div *ngIf="sessionValueDropdown">
       <div class="sessions-wrapper">
-        <app-main-drop-down dropdownTitle="Select Session" [selectedValue]="selectedSessions" [dropdownContent]="sessionTitles" (onDropdownSelect)="handleSelectSessionSelect($event)"></app-main-drop-down> <!-- session value -->
+        <app-main-drop-down [disabled]="(type === ScreenDisplayType.SessionSpecific)  && isSessionInProgress"
+          dropdownTitle="Select Session" [selectedValue]="selectedSessions" [dropdownContent]="sessionTitles"
+          (onDropdownSelect)="handleSelectSessionSelect($event)"></app-main-drop-down> <!-- session value -->
       </div>
     </div>
     <div *ngIf="subSessionValueDropdown">
@@ -56,8 +52,7 @@
           <span class="title">{{ card.title }}</span>
           <div class="button-container">
             <div class="day-selector" *ngIf="shoEventDropDown">
-              <app-main-drop-down  type="t3" [selectedValue]="[eventDay[card.cardType]]"
-                [dropdownContent]="eventDays"
+              <app-main-drop-down type="t3" [selectedValue]="[eventDay[card.cardType]]" [dropdownContent]="eventDays"
                 (onDropdownSelect)="handleEventDayDropdownSelect($event, card.cardType)"></app-main-drop-down>
             </div>
             <button class="show-button" (click)="cardDisplayFunction(card.displayFunction)">Display</button>
