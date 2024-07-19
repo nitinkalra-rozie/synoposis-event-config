@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
-import { CognitoService } from 'src/app/services/cognito.service';
+import { AuthService } from '../../services/auth.service'
 declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
 import * as createHash from 'create-hash';
@@ -87,7 +87,7 @@ export class ElsaEventAdminComponent {
 
   //***************************************
 
-  constructor(private backendApiService: BackendApiService, private cognitoService: CognitoService) { }
+  constructor(private backendApiService: BackendApiService, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -106,7 +106,7 @@ export class ElsaEventAdminComponent {
     }
   }
   logout() {
-    this.cognitoService.logOut();
+    this.authService.logout();
   }
 
   showWelcomeMessageBanner(): void {

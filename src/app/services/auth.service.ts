@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import {
   CognitoUserPool,
   CognitoUser,
-  AuthenticationDetails,
   CognitoUserSession,
   CognitoRefreshToken,
 } from 'amazon-cognito-identity-js';
@@ -39,6 +38,7 @@ export class AuthService {
     const {
       AuthenticationResult: { AccessToken, IdToken, RefreshToken },
     } = data;
+    console.log("auth data1 ",data.AuthenticationResult);
     localStorage.setItem('accessToken', AccessToken);
     localStorage.setItem('idToken', IdToken);
     localStorage.setItem('refreshToken', RefreshToken);
@@ -75,6 +75,25 @@ export class AuthService {
     return localStorage.getItem('refreshToken');
   };
 
+  public checkSession = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const cognitoUser = this.userPool.getCurrentUser();
+      if (cognitoUser) {
+        cognitoUser.getSession((err: any, session: CognitoUserSession) => {
+          if (err) {
+            this.logout();
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      } else {
+        this.logout();
+        reject(new Error('No user session available'));
+      }
+    });
+  };
+
   // public refreshAccessToken = async (): Promise<string> => {
   //   return new Promise((resolve, reject) => {
   //     const cognitoUser = this.userPool.getCurrentUser();
@@ -84,7 +103,7 @@ export class AuthService {
   //         const refreshToken = new CognitoRefreshToken({ RefreshToken: refreshTokenString });
   //         cognitoUser.refreshSession(refreshToken, (err, session: CognitoUserSession) => {
   //           if (err) {
-  //             this.logout(); // Use stored navigate function
+  //             this.logout();
   //             reject(err);
   //           } else {
   //             const newAccessToken = session.getAccessToken().getJwtToken();
@@ -93,11 +112,11 @@ export class AuthService {
   //           }
   //         });
   //       } else {
-  //         this.logout(); // Use stored navigate function
+  //         this.logout();
   //         reject(new Error('No refresh token available'));
   //       }
   //     } else {
-  //       this.logout(); // Use stored navigate function
+  //       this.logout();
   //       reject(new Error('No user session available'));
   //     }
   //   });

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CognitoService } from 'src/app/services/cognito.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { ModalService } from 'src/app/services/modal.service';
 @Component({
   selector: 'app-top-bar',
@@ -9,7 +9,7 @@ import { ModalService } from 'src/app/services/modal.service';
 export class TopBarComponent {
   showDropdown: boolean = false;
   constructor(
-    private cognitoService: CognitoService,
+    private authService: AuthService,
     private modalService: ModalService
   ) {}
 
@@ -27,7 +27,7 @@ export class TopBarComponent {
 
   handleYesSelect = () => {
     this.modalService.close();
-    this.cognitoService.logOut();
+    this.authService.logout;
   };
 
   showModal() {
