@@ -6,5 +6,10 @@ export const environment = {
   putTranscript:'https://ly3c14q59d.execute-api.ca-central-1.amazonaws.com/prod/postTranscript',
   postData:'https://ly3c14q59d.execute-api.ca-central-1.amazonaws.com/prod/adminapplambdaconfig',
   getEventDetails:'https://7stlmv62vk.execute-api.ca-central-1.amazonaws.com/prod/getEventDetails',
-  postCurrentSessionId:'https://yg4vlhyu1g.execute-api.ca-central-1.amazonaws.com/prod/getCurrentSessionDetails'
+  postCurrentSessionId:'https://yg4vlhyu1g.execute-api.ca-central-1.amazonaws.com/prod/getCurrentSessionDetails',
+  USER_POOL_WEB_CLIENT_ID:'',
+  AUTH_API_END_POINT:'https://cognito-idp.ca-central-1.amazonaws.com',
+  REQUEST_ACCESS_API:'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
+  REQUEST_ACCESS_API_KEY:'SJy5md3ZKq91fpQxKipPmcpldqOjahL67xwfmBXj',
+  USER_POOL_ID:'ca-central-1_OQOEfllk7',
 };

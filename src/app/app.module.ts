@@ -24,7 +24,7 @@ import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.c
 import { AuthInterceptorService } from './services/auth-interceptor.service';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { OtpComponent } from './components/otp/otp.component';
-
+import { AuthApiService } from './services/auth-api.service';
 import { ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
@@ -54,6 +54,7 @@ import { ReactiveFormsModule } from '@angular/forms';
       useClass: AuthInterceptorService,
       multi: true,
     },
+    AuthApiService
   ],
   bootstrap: [AppComponent],
 })

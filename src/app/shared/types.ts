@@ -37,3 +37,22 @@ export interface PostData {
   theme?: string;
   primarySessionId?: any;
 }
+export interface AuthResponse {
+  data: any;
+  AuthenticationResult: {
+    AccessToken: string;
+    ExpiresIn: number;
+    IdToken: string;
+    RefreshToken: string;
+    TokenType: string;
+  };
+  ChallengeParameters: {};
+}
+export interface CognitoError extends Error {
+  code: string;
+}
+
+export interface CustomChallengeResponse {
+  __type?: string;
+  Session?: string;
+}

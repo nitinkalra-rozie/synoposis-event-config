@@ -41,6 +41,7 @@
     "readable-stream": "^3.4.0",
     "rxjs": "6.0.0",
     "stream": "0.0.2",
+    "toastify-js": "^1.12.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.8.26"
   },
