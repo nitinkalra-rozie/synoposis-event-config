@@ -937,10 +937,7 @@ export class SessionContentComponent implements OnInit {
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
           console.log('sid here ', this.currentSessionId);
-          if (sessionDetails.GenerateInsights) {
-            this.realtimeInsides(this.transcription);
-          }
-          if (this.currentSessionId && this.isSessionInProgress) {
+          if (sessionDetails) {
             this.backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
                 console.log(data);
@@ -949,6 +946,9 @@ export class SessionContentComponent implements OnInit {
                 this.showFailureMessage('Failed to store transcript', error);
               }
             );
+          }
+          if (sessionDetails.GenerateInsights) {
+            this.realtimeInsides(this.transcription);
           }
         }
       }

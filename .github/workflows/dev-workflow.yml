@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - development
-      - feature/intgreation
+      - feature/otp-login
 env:
   deployment: dev 
 
