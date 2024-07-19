@@ -9,6 +9,7 @@ import MicrophoneStream from 'microphone-stream'; // collect microphone input as
 import { PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
 import { ModalService } from 'src/app/services/modal.service';
+import { MicrophoneService } from 'src/app/services/microphone.service';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
@@ -122,7 +123,8 @@ export class SessionContentComponent implements OnInit {
 
   constructor(
     private backendApiService: BackendApiService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private micService: MicrophoneService
   ) {}
 
   ngOnInit() {
@@ -358,8 +360,7 @@ export class SessionContentComponent implements OnInit {
 
   findSessionById = (event: string, SessionId: string) => {
     const session = this.eventDetails.find(
-      (session: { Event: string; SessionId: string }) =>
-        session.Event === event && session.SessionId === SessionId
+      (session: { Event: string; SessionId: string }) => session.Event === event && session.SessionId === SessionId
     );
     return session ? session : null;
   };
@@ -461,49 +462,56 @@ export class SessionContentComponent implements OnInit {
     }
   }
 
-  startListening(): void {
+  async startListening(): Promise<void> {
     this.modalService.close();
-    if (
-      this.selectedDay !== '' &&
-      this.selectedSessionTitle !== '' &&
-      this.selectedDomain !== '' &&
-      this.selectedEvent !== ''
-    ) {
-      localStorage.setItem('currentSessionTitle', this.selectedSessionTitle);
-      const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-      localStorage.setItem('currentSessionId', session.SessionId);
-      localStorage.setItem('currentPrimarySessionId', session.PrimarySessionId);
-      localStorage.setItem('currentDay', this.selectedDay);
-      localStorage.setItem('selectedEvent', this.selectedEvent);
-      localStorage.setItem('domain', this.selectedDomain);
-      localStorage.setItem('isSessionInProgress', '1');
-      this.isSessionInProgress = true;
-      this.startRecording();
-      this.backendApiService
-        .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId)
-        .subscribe(
-          (data: any) => {
-            console.log(data);
-            this.startListeningClicked = true;
-            this.showSuccessMessage('Start session message sent successfully!');
-          },
-          (error: any) => {
-            this.showFailureMessage('Failed to send start session message.', error);
-          }
-        );
-      if (session.Type == 'BreakoutSession') {
-        this.showBreakdownInProgress();
+    const hasPermission = await this.micService.checkAndRequestMicrophonePermission();
+
+    if (hasPermission) {
+      console.log('Microphone permission granted');
+      if (
+        this.selectedDay !== '' &&
+        this.selectedSessionTitle !== '' &&
+        this.selectedDomain !== '' &&
+        this.selectedEvent !== ''
+      ) {
+        localStorage.setItem('currentSessionTitle', this.selectedSessionTitle);
+        const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
+        localStorage.setItem('currentSessionId', session.SessionId);
+        localStorage.setItem('currentPrimarySessionId', session.PrimarySessionId);
+        localStorage.setItem('currentDay', this.selectedDay);
+        localStorage.setItem('selectedEvent', this.selectedEvent);
+        localStorage.setItem('domain', this.selectedDomain);
+        localStorage.setItem('isSessionInProgress', '1');
+        this.isSessionInProgress = true;
+        this.startRecording();
+        this.backendApiService
+          .postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId)
+          .subscribe(
+            (data: any) => {
+              console.log(data);
+              this.startListeningClicked = true;
+              this.showSuccessMessage('Start session message sent successfully!');
+            },
+            (error: any) => {
+              this.showFailureMessage('Failed to send start session message.', error);
+            }
+          );
+        if (session.Type == 'BreakoutSession') {
+          this.showBreakdownInProgress();
+        } else {
+          this.showLoadingInsights();
+        }
       } else {
-        this.showLoadingInsights();
+        this.modalService.open(
+          'Confirm Action',
+          'Please select the Event , Day , Domain and Speaker Name to start the session',
+          'ok',
+          () => {},
+          this.handleNoSelect
+        );
       }
     } else {
-      this.modalService.open(
-        'Confirm Action',
-        'Please select the Event , Day , Domain and Speaker Name to start the session',
-        'ok',
-        () => {},
-        this.handleNoSelect
-      );
+      console.log('Microphone permission denied');
     }
   }
 
@@ -545,7 +553,7 @@ export class SessionContentComponent implements OnInit {
   showBreakdownInProgress() {
     let postData: PostData = {};
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    const primarySession=this.findSessionById(sessionDetails.Event,sessionDetails.PrimarySessionId);
+    const primarySession = this.findSessionById(sessionDetails.Event, sessionDetails.PrimarySessionId);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -668,7 +676,7 @@ export class SessionContentComponent implements OnInit {
 
   showSummary(): void {
     // Check if a keynote type is selected
-    this.sessionIds = [];    
+    this.sessionIds = [];
     if (this.selectedOptions.length <= 0) {
       this.modalService.open(
         'Confirm Action',
