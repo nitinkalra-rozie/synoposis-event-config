@@ -27,7 +27,7 @@ export class TopBarComponent {
 
   handleYesSelect = () => {
     this.modalService.close();
-    this.authService.logout;
+    this.authService.logout();
   };
 
   showModal() {
