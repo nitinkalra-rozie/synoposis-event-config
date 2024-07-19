@@ -4,8 +4,6 @@
 
 export const environment = {
   production: false,
-  cognitoUserPoolId:'elsa-at-event-auth-dev-client',
-  cognitoAppClientId:'ckj0esj3hj5utldceksic8p9f',
   getTranscriberPreSignedUrl:' https://rnfzrkj1ib.execute-api.ca-central-1.amazonaws.com/dev/getPreSignedUrl',
   putTranscript:'https://rnfzrkj1ib.execute-api.ca-central-1.amazonaws.com/dev/postTranscript',
   postData:'https://rnfzrkj1ib.execute-api.ca-central-1.amazonaws.com/dev/adminapplambdaconfig',
