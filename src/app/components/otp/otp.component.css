@@ -1,0 +1,274 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.otp-container {
+  display: flex;
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+}
+
+.otp-left-side {
+  position: relative;
+  width: 45%;
+  background-image: url('../../../assets/login/Frame.png');
+  background-position-y: center;
+  background-size: cover !important;
+}
+
+.otp-left-side::before {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 15%;
+  width: 55%;
+  height: 40%;
+  background-image: url('../../../assets/login/login_card2.svg');
+  background-size: cover;
+  border-radius: 0.7rem;
+  z-index: 1;
+}
+
+.otp-left-side::after {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 25%;
+  width: 55%;
+  height: 40%;
+  background-image: url('../../../assets/login/login_card1.svg');
+  background-size: cover;
+  border-radius: 0.7rem;
+  z-index: 2;
+}
+
+.otp-right {
+  flex: 65%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.enter-otp {
+  text-align: left;
+  margin-bottom: 9rem;
+  margin-right: 24rem;
+  font-family: 'Lexend';
+}
+
+.enter-otp h2 {
+  font-size: 1.8rem;
+  font-weight: 350;
+  margin-top: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.enter-otp h3 {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: rgb(81, 80, 80);
+  margin-top: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.enter-otp h4 {
+  font-size: 0.6rem;
+  font-weight: 350;
+  color: rgba(164, 161, 161, 0.717);
+  margin-top: 3.5rem;
+  margin-bottom: 0.8rem;
+  margin-left: 0.1rem;
+}
+
+.otp-inputs {
+  display: flex;
+}
+
+.otp-inputs input[type=number] {
+  -moz-appearance: textfield;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  margin-right: 10px;
+  text-align: center;
+  border: 1px solid #7478c2;
+  border-radius: 5px;
+}
+
+.otp-inputs input[type=number]::placeholder {
+  color: black;
+}
+
+.enter-otp button {
+  border: none;
+  color: #ffffff;
+  height: 1.8rem;
+  width: 25%;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  background: #534ad8;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Lexend';
+}
+
+.otp-bg {
+  background-image: url('../../../assets/login/rozie-logo.svg');
+  width: 12rem;
+  height: 2.3rem;
+  margin-top: 6rem;
+  margin-bottom: 1rem;
+  background-size: cover;
+  margin-right: 35.3rem;
+}
+
+.otp-sub {
+  font-size: 0.5rem;
+  color: #999;
+  text-align: left;
+  margin-left: 3.6rem;
+  margin-bottom: 0.1rem;
+  margin-right: 1.2rem;
+  font-family: 'Lexend';
+}
+
+.otp-resend-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.otp-resend-container h5 {
+  font-size: 0.9rem;
+  font-weight: 350;
+  color: rgb(81, 80, 80);
+  margin-right: 10rem;
+}
+
+.otp-resend-container .otp-resend-link {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.otp-resend-container .otp-resend-link:hover {
+  color: darkblue;
+}
+
+.otp-footer {
+  display: none;
+}
+
+.social-media {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .otp-container {
+    flex-direction: column;
+  }
+
+  .otp-left-side {
+    height: 42%;
+    width: 100%;
+  }
+
+  .otp-left-side::before {
+    top: 53%;
+    left: 43%;
+    transform: translate(-50%, -50%);
+    margin-left: 1rem;
+    size: 1rem;
+    height: 20rem;
+    width: 19rem;
+  }
+
+  .otp-left-side::after {
+    content: none;
+  }
+
+  .otp-right {
+    height: 58%;
+    width: 100%;
+    flex: 1;
+  }
+
+  .enter-otp {
+    margin-bottom: -4rem;
+    margin-top: auto;
+    margin-right: 0;
+  }
+
+  .otp-resend-container {
+    justify-content: center;
+    margin-top: 1rem;
+    margin-right: 0;
+    margin-bottom: 0rem;
+  }
+
+  .otp-resend-container h5 {
+    margin-right: 0;
+  }
+
+  .otp-bg {
+    margin-right: 11.3rem;
+    margin-bottom: auto;
+    margin-top: 2rem;
+  }
+
+  .otp-sub {
+    display: none;
+  }
+
+  .otp-footer {
+    display: flex;
+    font-size: small;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFFFFF;
+    margin-top: 6rem;
+    padding: 10px 20px;
+  }
+
+  .otp-footer .rights,
+  .otp-footer .Privacy,
+  .otp-footer .social-media {
+    display: flex;
+  }
+
+  .otp-footer .rights {
+    margin-right: 10px;
+  }
+
+  .otp-footer .Privacy {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .otp-footer .social-media {
+    margin-left: 10px;
+  }
+
+  .otp-footer .social-media a {
+    margin-right: 9px;
+    margin-left: 2px;
+  }
+}

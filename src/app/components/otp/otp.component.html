@@ -1,0 +1,50 @@
+<div class="otp-container">
+  <div class="otp-left-side"></div>
+  <div class="otp-right">
+    <div class="otp-bg"></div>
+    <div class="enter-otp">
+      <h2>Have you received a code?</h2>
+      <h3>A one time OTP has been sent to email address  </h3>
+      <h4>Enter 4 digits code</h4>
+      <form (ngSubmit)="handleSubmit()">
+        <div class="otp-inputs">
+          <input
+            *ngFor="let digit of otp; let i = index"
+            type="number"
+          
+          />
+        </div>
+        <button type="submit">Verify</button>
+      </form>
+      <div class="otp-resend-container">
+        <h5>Didn't receive the code?</h5>
+        <p class="otp-resend-link" (click)="handleResendOTP()">Resend</p>
+        <p *ngIf="resendClicked">OTP has been resent</p>
+      </div>
+      <div class="otp-footer">
+        <div class="rights">© 2024 RozieAI.</div>
+        <div class="Privacy">
+          <a href="/assets/docs/RozieAI+Privacy+Policy_web_version_v1.pdf" target="_blank">Privacy Policy</a>
+        </div>
+        <div class="social-media">
+          <a href="https://www.facebook.com/rozieai/" target="_blank" rel="noreferrer">
+            <img src="assets/img/all/facebook-round.svg" alt="Facebook" />
+          </a>
+          <a href="https://twitter.com/RozieAi" target="_blank" rel="noreferrer">
+            <img src="assets/img/all/twitter.svg" alt="Twitter" />
+          </a>
+          <a href="https://www.linkedin.com/company/rozieai/" target="_blank" rel="noreferrer">
+            <img src="assets/img/all/linkedin.svg" alt="LinkedIn" />
+          </a>
+        </div>
+      </div>
+      <p class="otp-sub">
+        Disclaimer: By proceeding with login, you agree to receive a one-time password (OTP) via SMS or email to
+        authenticate your identity. Your phone number or email address will only be used for the purpose of sending
+        this OTP and will not be shared with any third parties. Please ensure that you have access to the provided
+        phone number or email ID to complete the login process. If you encounter any issues, please contact our
+        support team for assistance.
+      </p>
+    </div>
+  </div>
+</div>

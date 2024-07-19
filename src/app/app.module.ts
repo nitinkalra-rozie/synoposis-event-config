@@ -22,6 +22,10 @@ import { OutsideClickDirective } from './directives/outside-click.directive';
 import { TruncatePipe } from './components/main-drop-down/truncate.pipe';
 import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.component';
 import { AuthInterceptorService } from './services/auth-interceptor.service';
+import { LoginPageComponent } from './components/login-page/login-page.component';
+import { OtpComponent } from './components/otp/otp.component';
+
+import { ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,8 +44,10 @@ import { AuthInterceptorService } from './services/auth-interceptor.service';
     OutsideClickDirective,
     TruncatePipe,
     PopUpWindowComponent,
+    LoginPageComponent,
+    OtpComponent,
   ],
-  imports: [HttpClientModule, AppRoutingModule, FormsModule, CommonModule, BrowserModule, SharedModule],
+  imports: [HttpClientModule, AppRoutingModule, FormsModule, CommonModule, BrowserModule, SharedModule, ReactiveFormsModule ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
