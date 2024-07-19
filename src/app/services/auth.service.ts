@@ -75,31 +75,31 @@ export class AuthService {
     return localStorage.getItem('refreshToken');
   };
 
-  public refreshAccessToken = async (): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const cognitoUser = this.userPool.getCurrentUser();
-      if (cognitoUser) {
-        const refreshTokenString = this.getRefreshToken();
-        if (refreshTokenString) {
-          const refreshToken = new CognitoRefreshToken({ RefreshToken: refreshTokenString });
-          cognitoUser.refreshSession(refreshToken, (err, session: CognitoUserSession) => {
-            if (err) {
-              this.logout(); // Use stored navigate function
-              reject(err);
-            } else {
-              const newAccessToken = session.getAccessToken().getJwtToken();
-              localStorage.setItem('accessToken', newAccessToken);
-              resolve(newAccessToken);
-            }
-          });
-        } else {
-          this.logout(); // Use stored navigate function
-          reject(new Error('No refresh token available'));
-        }
-      } else {
-        this.logout(); // Use stored navigate function
-        reject(new Error('No user session available'));
-      }
-    });
-  };
+  // public refreshAccessToken = async (): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     const cognitoUser = this.userPool.getCurrentUser();
+  //     if (cognitoUser) {
+  //       const refreshTokenString = this.getRefreshToken();
+  //       if (refreshTokenString) {
+  //         const refreshToken = new CognitoRefreshToken({ RefreshToken: refreshTokenString });
+  //         cognitoUser.refreshSession(refreshToken, (err, session: CognitoUserSession) => {
+  //           if (err) {
+  //             this.logout(); // Use stored navigate function
+  //             reject(err);
+  //           } else {
+  //             const newAccessToken = session.getAccessToken().getJwtToken();
+  //             localStorage.setItem('accessToken', newAccessToken);
+  //             resolve(newAccessToken);
+  //           }
+  //         });
+  //       } else {
+  //         this.logout(); // Use stored navigate function
+  //         reject(new Error('No refresh token available'));
+  //       }
+  //     } else {
+  //       this.logout(); // Use stored navigate function
+  //       reject(new Error('No user session available'));
+  //     }
+  //   });
+  // };
 }

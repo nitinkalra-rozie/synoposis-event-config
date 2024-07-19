@@ -18,10 +18,13 @@ const poolData = {
 const userPool = new CognitoUserPool(poolData);
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LoginService {
-  constructor(private authApiService: AuthApiService, private authService: AuthService) {}
+  constructor(
+    private authApiService: AuthApiService,
+    private authService: AuthService
+  ) {}
 
   signUp(email: string): Observable<any> {
     const attributeList: CognitoUserAttribute[] = [];
@@ -79,15 +82,13 @@ export class LoginService {
       AuthFlow: 'CUSTOM_AUTH',
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
     };
+    this.authApiService.updateBaseUrl(environment.AUTH_API_END_POINT || '');
+    this.authApiService.updateHeaders({
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
+      'Content-Type': 'application/x-amz-json-1.1',
+    });
 
-    return from(
-      this.authApiService.post<CustomChallengeResponse>(
-        '/',
-        requestBody,
-        undefined,
-        'initiateAuth'
-      )
-    ).pipe(
+    return from(this.authApiService.post<CustomChallengeResponse>('/', requestBody)).pipe(
       map(response => {
         // Ensure the response adheres to CustomChallengeResponse
         if (response.__type !== 'NotAuthorizedException') {
@@ -107,10 +108,12 @@ export class LoginService {
       catchError(error => {
         const cognitoError = error as CognitoError;
         console.error('Error calling custom challenge API:', cognitoError);
-        return from(Promise.resolve({
-          success: false,
-          message: 'Error calling custom challenge API',
-        } as CustomChallengeResponse)); // Type assertion
+        return from(
+          Promise.resolve({
+            success: false,
+            message: 'Email is not yet verified',
+          } as CustomChallengeResponse)
+        ); // Type assertion
       })
     );
   }
@@ -126,15 +129,13 @@ export class LoginService {
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
       Session: localStorage.getItem('sessionToken'),
     };
+    this.authApiService.updateBaseUrl(environment.AUTH_API_END_POINT || '');
+    this.authApiService.updateHeaders({
+      'X-Amz-Target': 'AWSCognitoIdentityProviderService.RespondToAuthChallenge',
+      'Content-Type': 'application/x-amz-json-1.1',
+    });
 
-    return from(
-      this.authApiService.post<AuthResponse>(
-        '/',
-        requestBody,
-        undefined,
-        'respondToAuthChallenge'
-      )
-    ).pipe(
+    return from(this.authApiService.post<AuthResponse>('/', requestBody)).pipe(
       map(response => {
         if (response.AuthenticationResult && response.AuthenticationResult.IdToken) {
           this.authService.saveAuthInLocal(response);
@@ -157,16 +158,13 @@ export class LoginService {
 
   requestAccess(email: string): Observable<boolean> {
     const requestBody = { email };
+    this.authApiService.updateBaseUrl(environment.REQUEST_ACCESS_API || '');
+    this.authApiService.updateHeaders({
+      'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
+      'Content-Type': 'application/json',
+    });
 
-    return from(
-      this.authApiService.post<{ status: number }>(
-        '/',
-        requestBody,
-        undefined,
-        'requestAccess',
-        'requestAccess'
-      )
-    ).pipe(
+    return from(this.authApiService.post<{ status: number }>('/', requestBody)).pipe(
       map(response => response.status === 200),
       catchError(error => {
         console.error('Error sending request for access:', error);

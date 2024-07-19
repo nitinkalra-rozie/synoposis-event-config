@@ -6,99 +6,33 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class AuthApiService {
-  private baseURLs: Record<string, string>= {
-    default: environment.AUTH_API_END_POINT || '',
-    requestAccess: environment.REQUEST_ACCESS_API || '',
-  };;
-  private defaultHeaders: Record<string, Record<string, string>>={
-    default: {
-      'Content-Type': 'application/json',
-    },
-    initiateAuth: {
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
-      'Content-Type': 'application/x-amz-json-1.1',
-    },
-    respondToAuthChallenge: {
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.RespondToAuthChallenge',
-      'Content-Type': 'application/x-amz-json-1.1',
-    },
-    synopsis: {
-      Authorization: localStorage.getItem('idToken') || '',
-      'Content-Type': 'application/json',
-    },
-    webClient: {
-      'Content-Type': 'application/json',
-      'Custom-Header': 'AnotherServiceHeader',
-    },
-    requestAccess: {
-      'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
-      'Content-Type': 'application/json',
-    },
-  };;
+  private baseURL: string = environment.AUTH_API_END_POINT || '';
+  private headers: HttpHeaders;
 
   constructor(private http: HttpClient) {
-    this.baseURLs = {
-      default: environment.AUTH_API_END_POINT || '',
-      requestAccess: environment.REQUEST_ACCESS_API || '',
-    };
-
-    this.defaultHeaders = {
-      default: {
-        'Content-Type': 'application/json',
-      },
-      initiateAuth: {
-        'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-      respondToAuthChallenge: {
-        'X-Amz-Target': 'AWSCognitoIdentityProviderService.RespondToAuthChallenge',
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-      synopsis: {
-        Authorization: localStorage.getItem('idToken') || '',
-        'Content-Type': 'application/json',
-      },
-      webClient: {
-        'Content-Type': 'application/json',
-        'Custom-Header': 'AnotherServiceHeader',
-      },
-      requestAccess: {
-        'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
-        'Content-Type': 'application/json',
-      },
-    };
+    this.headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: localStorage.getItem('idToken') || '',
+    });
   }
 
-  private getHeaders(
-    headerType?: keyof typeof this.defaultHeaders,
-    headers?: Record<string, string>
-  ): Record<string, string> {
-    let combinedHeaders: Record<string, string> = {};
+  public updateHeaders(headers: Record<string, string>): void {
+    this.headers = new HttpHeaders(headers);
+  }
 
-    if (headerType) {
-      combinedHeaders = { ...this.defaultHeaders[headerType] };
-    }
-
-    if (headers) {
-      combinedHeaders = { ...combinedHeaders, ...headers };
-    }
-
-    return combinedHeaders;
+  public updateBaseUrl(url: string): void {
+    this.baseURL = url;
   }
 
   private async request<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
     body?: Record<string, any>,
-    params?: Record<string, string | number | boolean>,
-    headers?: Record<string, string>,
-    baseURLType: keyof typeof this.baseURLs = 'default',
-    headerType?: keyof typeof this.defaultHeaders
+    params?: Record<string, string | number | boolean>
   ): Promise<T> {
-    const url = this.baseURLs[baseURLType] + endpoint;
-    const requestHeaders = this.getHeaders(headerType, headers);
+    const url = this.baseURL + endpoint;
     const httpOptions = {
-      headers: new HttpHeaders(requestHeaders),
+      headers: this.headers,
       params: new HttpParams({ fromObject: params as Record<string, string> }),
     };
 
@@ -121,45 +55,27 @@ export class AuthApiService {
     }
   }
 
-  public async get<T>(
-    endpoint: string,
-    params?: Record<string, string | number | boolean>,
-    baseURLType: keyof typeof this.baseURLs = 'default',
-    headerType?: keyof typeof this.defaultHeaders,
-    headers?: Record<string, string>
-  ): Promise<T> {
-    return this.request<T>('GET', endpoint, undefined, params, headers, baseURLType, headerType);
+  public get<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+    return this.request<T>('GET', endpoint, undefined, params);
   }
 
-  public async post<T>(
+  public post<T>(
     endpoint: string,
     body: Record<string, any>,
-    params?: Record<string, string | number | boolean>,
-    baseURLType: keyof typeof this.baseURLs = 'default',
-    headerType?: keyof typeof this.defaultHeaders,
-    headers?: Record<string, string>
+    params?: Record<string, string | number | boolean>
   ): Promise<T> {
-    return this.request<T>('POST', endpoint, body, params, headers, baseURLType, headerType);
+    return this.request<T>('POST', endpoint, body, params);
   }
 
-  public async put<T>(
+  public put<T>(
     endpoint: string,
     body: Record<string, any>,
-    params?: Record<string, string | number | boolean>,
-    baseURLType: keyof typeof this.baseURLs = 'default',
-    headerType?: keyof typeof this.defaultHeaders,
-    headers?: Record<string, string>
+    params?: Record<string, string | number | boolean>
   ): Promise<T> {
-    return this.request<T>('PUT', endpoint, body, params, headers, baseURLType, headerType);
+    return this.request<T>('PUT', endpoint, body, params);
   }
 
-  public async delete<T>(
-    endpoint: string,
-    params?: Record<string, string | number | boolean>,
-    baseURLType: keyof typeof this.baseURLs = 'default',
-    headerType?: keyof typeof this.defaultHeaders,
-    headers?: Record<string, string>
-  ): Promise<T> {
-    return this.request<T>('DELETE', endpoint, undefined, params, headers, baseURLType, headerType);
+  public delete<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+    return this.request<T>('DELETE', endpoint, undefined, params);
   }
 }

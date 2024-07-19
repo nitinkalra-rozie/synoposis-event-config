@@ -58,6 +58,8 @@ export class LoginPageComponent {
     this.requestingAccess = true;
     try {
       const success = await this.loginService.requestAccess(email).toPromise();
+      console.log('success', success);
+      
       if (success) {
         this.emailForm.reset();
         this.errorMessage = '';

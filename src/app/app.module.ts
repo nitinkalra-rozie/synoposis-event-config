@@ -47,14 +47,22 @@ import { ReactiveFormsModule } from '@angular/forms';
     LoginPageComponent,
     OtpComponent,
   ],
-  imports: [HttpClientModule, AppRoutingModule, FormsModule, CommonModule, BrowserModule, SharedModule, ReactiveFormsModule ],
+  imports: [
+    HttpClientModule,
+    AppRoutingModule,
+    FormsModule,
+    CommonModule,
+    BrowserModule,
+    SharedModule,
+    ReactiveFormsModule,
+  ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,
       multi: true,
     },
-    AuthApiService
+    AuthApiService,
   ],
   bootstrap: [AppComponent],
 })
