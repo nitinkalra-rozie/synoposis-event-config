@@ -24,6 +24,8 @@ import { LoginPageComponent } from './components/login-page/login-page.component
 import { OtpComponent } from './components/otp/otp.component';
 import { AuthApiService } from './services/auth-api.service';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FooterComponent } from './components/shared/footer/footer.component';
+import { FooterMobileComponent } from './components/shared/footer-mobile/footer-mobile.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,6 +44,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     PopUpWindowComponent,
     LoginPageComponent,
     OtpComponent,
+    FooterComponent,
+    FooterMobileComponent,
   ],
   imports: [
     HttpClientModule,

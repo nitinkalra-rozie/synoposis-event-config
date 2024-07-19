@@ -9,7 +9,6 @@ html {
   padding: 0;
   height: 100vh;
   width: 100vw;
-  background-color: #6660a8;
 }
 
 .left-side {
@@ -18,6 +17,7 @@ html {
   background-image: url('../../../assets/login/Frame.png');
   background-position-y: center;
   background-size: cover !important;
+    box-sizing: border-box;
 }
 
 .left-side::before {
@@ -28,7 +28,7 @@ html {
   width: 55%;
   height: 40%;
   background-image: url('../../../assets/login/login_card2.svg');
-  background-size: cover;
+  background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 1;
 }
@@ -41,7 +41,7 @@ html {
   width: 55%;
   height: 40%;
   background-image: url('../../../assets/login/login_card1.svg');
-  background-size: cover;
+  background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 2;
 }
@@ -53,36 +53,51 @@ html {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+    box-sizing: border-box;
 }
 
 .email-model {
   text-align: left;
   margin-top: 10rem;
-  margin-bottom: 12rem;
+  margin-bottom: 11rem;
   font-family: 'Lexend';
   margin-left: 3rem;
+
 }
 
 .email-model h2 {
-  font-size: 1.8rem;
-  font-weight: 350;
+  color: var(--background-variant-9000000, #000);
+  font-family: Lexend;
+  font-size: 34px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.085px;
   margin-top: 1.5rem;
   margin-bottom: 10px;
   width: 100%;
 }
 
 .email-model h3 {
-  font-size: 0.9rem;
+  color: var(--background-variant-6475258, #475258);
+  font-family: Lexend;
+  font-size: 18px;
+  font-style: normal;
   font-weight: 400;
-  color: rgb(81, 80, 80);
+  line-height: normal;
   margin-top: 1.6rem;
   margin-bottom: 1rem;
 }
 
 .email-model h4 {
-  font-size: 14px;
-  font-weight: 550;
-  color: #7478c2;
+  color: var(--background-variant-4-adbdcc, #ADBDCC);
+
+ 
+  font-family: Lexend;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
   margin-top: 3.5rem;
   margin-bottom: 0.5rem;
   margin-left: 0.1rem;
@@ -102,7 +117,7 @@ html {
 }
 
 .email-model p {
-  width: 70%;
+  width: 95%;
 }
 
 .email-model input {
@@ -163,28 +178,33 @@ html {
   height: 2.3rem;
   margin-top: 9rem;
   margin-bottom: 1rem;
-  background-size: cover;
+  background-size: cover !important;
 }
 
 .sub {
-  font-size: 0.5rem;
-  color: #999;
+  color: var(--background-variant-4-adbdcc, #ADBDCC);
+  font-family: Lexend;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.1px;
   text-align: left;
-  margin-bottom: 1.5rem;
-  margin-top: 10rem;
+  margin-bottom: 0rem;
+  margin-top: 14rem;
+
   font-family: 'Lexend';
 }
 
-.login-footer {
-  display: none;
-}
 
-.social-media {
-  display: flex;
-  gap: 10px;
-}
 
-@media (max-width: 768px) {
+
+
+@media  (max-width: 768px) {
+
+  .left-side::after{
+    display: none;
+  } 
   .login-container {
     flex-direction: column;
     width: 100%;
@@ -261,45 +281,46 @@ html {
   .bg {
     margin-right: 15rem;
     margin-bottom: auto;
+    margin-top: 2%;
   }
 
   .sub {
     display: none;
   }
 
-  .login-footer {
-    display: flex;
-    font-size: small;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #ffffff;
-    margin-top: 3rem;
-    margin-left: 0;
-    overflow-x: hidden;
-    width: 90%;
+}
+
+@media(min-width:769px) and  (max-width: 1024px) {
+  .left-side {
+    width: 50%;
   }
 
-  .rights,
-  .Privacy,
-  .social-media {
-    display: flex;
+  .right-side {
+    width: 50%;
   }
-
-  .rights {
-    margin-right: 10px;
+  .left-side::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 55%;
+    height: 40%;
+    background-image: url('../../../assets/login/login_card1.svg');
+    background-size: 100% 100%;
+    border-radius: 0.7rem;
+    z-index: 1;
   }
-
-  .Privacy {
-    margin-right: 10px;
-    margin-left: 10px;
+  
+  .left-side {
+    position: relative;
+    width: 50%;
+    background-image: url('../../../assets/login/Frame.png');
+    background-position-y: center;
+    background-size:cover !important;
+      box-sizing: border-box;
   }
-
-  .social-media {
-    margin-left: 10px;
-  }
-
-  .social-media a {
-    margin-right: 9px;
-    margin-left: 2px;
+  .left-side::after {
+display: none;
   }
 }
+

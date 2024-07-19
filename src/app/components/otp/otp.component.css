@@ -23,6 +23,7 @@ input[type=number]::-webkit-outer-spin-button {
   background-image: url('../../../assets/login/Frame.png');
   background-position-y: center;
   background-size: cover !important;
+  box-sizing: border-box;
 }
 
 .otp-left-side::before {
@@ -33,7 +34,7 @@ input[type=number]::-webkit-outer-spin-button {
   width: 55%;
   height: 40%;
   background-image: url('../../../assets/login/login_card2.svg');
-  background-size: cover;
+  background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 1;
 }
@@ -46,7 +47,7 @@ input[type=number]::-webkit-outer-spin-button {
   width: 55%;
   height: 40%;
   background-image: url('../../../assets/login/login_card1.svg');
-  background-size: cover;
+  background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 2;
 }
@@ -58,6 +59,7 @@ input[type=number]::-webkit-outer-spin-button {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .enter-otp {
@@ -65,27 +67,42 @@ input[type=number]::-webkit-outer-spin-button {
   margin-bottom: 9rem;
   margin-right: 24rem;
   font-family: 'Lexend';
+  margin-left: 3rem;
 }
 
 .enter-otp h2 {
-  font-size: 1.8rem;
-  font-weight: 350;
-  margin-top: 1.5rem;
+
+  color: var(--background-variant-9000000, #000);
+
+/* Headers/ H4 - Regular - 34|Auto */
+font-family: Lexend;
+font-size: 34px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+letter-spacing: 0.085px;
+  margin-top: 1.2rem;
   margin-bottom: 10px;
 }
 
 .enter-otp h3 {
-  font-size: 0.9rem;
+  color: var(--background-variant-6475258, #475258);
+  font-family: Lexend;
+  font-size: 18px;
+  font-style: normal;
   font-weight: 400;
-  color: rgb(81, 80, 80);
+  line-height: normal;
   margin-top: 1.6rem;
   margin-bottom: 1rem;
 }
 
 .enter-otp h4 {
-  font-size: 0.6rem;
-  font-weight: 350;
-  color: rgba(164, 161, 161, 0.717);
+  color: var(--background-variant-4-adbdcc, #ADBDCC);
+  font-family: Lexend;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
   margin-top: 3.5rem;
   margin-bottom: 0.8rem;
   margin-left: 0.1rem;
@@ -99,11 +116,17 @@ input[type=number]::-webkit-outer-spin-button {
   -moz-appearance: textfield;
   width: 30px;
   height: 30px;
-  font-size: 1.2rem;
-  margin-right: 10px;
+  color: var(--background-variant-6475258, #475258);
   text-align: center;
-  border: 1px solid #7478c2;
-  border-radius: 5px;
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.14px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--background-variant-3-bfccd-9, #BFCCD9);
 }
 
 .otp-inputs input[type=number]::placeholder {
@@ -112,19 +135,23 @@ input[type=number]::-webkit-outer-spin-button {
 
 .enter-otp button {
   border: none;
-  color: #ffffff;
   height: 1.8rem;
-  width: 25%;
+  width: 35%;
   padding: 0.5rem;
   border-radius: 0.4rem;
   margin-top: 2rem;
-  font-size: 0.8rem;
+  color: var(--background-primary-ffffff, #FFF);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px; 
+  letter-spacing: -0.14px;
   background: #534ad8;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'Lexend';
 }
 
 .otp-bg {
@@ -138,32 +165,48 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .otp-sub {
-  font-size: 0.5rem;
-  color: #999;
+  color: var(--background-variant-4-adbdcc, #ADBDCC);
+  font-family: Lexend;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.1px;
   text-align: left;
-  margin-left: 3.6rem;
   margin-bottom: 0.1rem;
   margin-right: 1.2rem;
   font-family: 'Lexend';
+  width:90%;
+  margin-left: 2rem;
+  /* margin-right: 3rem; */
 }
 
 .otp-resend-container {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+ 
   margin-top: 2rem;
 }
 
 .otp-resend-container h5 {
-  font-size: 0.9rem;
-  font-weight: 350;
-  color: rgb(81, 80, 80);
-  margin-right: 10rem;
+  color: var(--background-variant-6475258, #475258);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
 }
 
 .otp-resend-container .otp-resend-link {
-  color: blue;
-  text-decoration: underline;
+  color: var(--primary-varient-2534-ad-8, #534AD8);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
+  text-decoration: none;
   cursor: pointer;
   font-size: 0.9rem;
 }
@@ -215,8 +258,18 @@ input[type=number]::-webkit-outer-spin-button {
     margin-bottom: -4rem;
     margin-top: auto;
     margin-right: 0;
+    margin-left: 2rem;
   }
+.enter-otp h2{
+  color: var(--background-variant-9000000, #000);
 
+
+font-family: Lexend;
+font-size: 24px;
+font-style: normal;
+font-weight: 400;
+line-height: normal;
+}
   .otp-resend-container {
     justify-content: center;
     margin-top: 1rem;
@@ -232,43 +285,50 @@ input[type=number]::-webkit-outer-spin-button {
     margin-right: 11.3rem;
     margin-bottom: auto;
     margin-top: 2rem;
+   margin-left: 3.5rem;
   }
 
   .otp-sub {
     display: none;
   }
+}
 
-  .otp-footer {
-    display: flex;
-    font-size: small;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #FFFFFF;
-    margin-top: 6rem;
-    padding: 10px 20px;
+
+@media(min-width:769px) and  (max-width: 1024px) {
+  .otp-left-side {
+    width: 50%;
   }
 
-  .otp-footer .rights,
-  .otp-footer .Privacy,
-  .otp-footer .social-media {
-    display: flex;
+  .otp-right-side {
+    width: 50%;
   }
+ 
+  
 
-  .otp-footer .rights {
-    margin-right: 10px;
+  .otp-left-side {
+    position: relative;
+    width: 50%;
+    background-image: url('../../../assets/login/Frame.png');
+    background-position-y: center;
+    background-size: cover !important;
+    box-sizing: border-box;
   }
-
-  .otp-footer .Privacy {
-    margin-right: 10px;
-    margin-left: 10px;
+  
+  .otp-left-side::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 55%;
+    height: 40%;
+    background-image: url('../../../assets/login/login_card1.svg');
+    background-size: 100% 100%;
+    border-radius: 0.7rem;
+    z-index: 1;
   }
-
-  .otp-footer .social-media {
-    margin-left: 10px;
+  
+  .otp-left-side::after {
+display: none;
   }
-
-  .otp-footer .social-media a {
-    margin-right: 9px;
-    margin-left: 2px;
-  }
+  
 }
