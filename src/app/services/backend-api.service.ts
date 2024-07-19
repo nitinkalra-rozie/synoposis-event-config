@@ -27,7 +27,7 @@ export class BackendApiService {
   domain:string='';
   
   getTranscriberPreSignedUrl(body:any){
-    const refreshToken = localStorage.getItem('Idtoken');
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
@@ -35,7 +35,7 @@ export class BackendApiService {
   }
 
   putTranscript(transcript:any){
-    const refreshToken = localStorage.getItem('Idtoken');
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
@@ -50,7 +50,7 @@ export class BackendApiService {
   }
   // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any 
   postData(data:PostData){
-    const refreshToken = localStorage.getItem('Idtoken');
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
@@ -73,14 +73,14 @@ export class BackendApiService {
     return this.http.post(environment.postData, body,{ headers: headers });
   }
   getEventDetails(){
-    const refreshToken = localStorage.getItem('Idtoken');
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
     return this.http.post(environment.getEventDetails,{},{ headers: headers });
   }
   postCurrentSessionId(sessionId:any, eventName:any, domain:any, primarySessionId:any){
-    const refreshToken = localStorage.getItem('Idtoken');
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${refreshToken}`
     });
