@@ -15,7 +15,7 @@
             type="number"
             [value]="digit"
             (input)="handleOtpChange(i, $event.target.value)"
-            (keydown)="handleKeyDown(i, $event)"
+            (keydown)="handleKeyDown(i, $event.target.value)"
             (paste)="handlePaste($event)"
             maxlength="1"
             required
