@@ -10,7 +10,7 @@ import { AuthResponse } from '../shared/types';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private static instance: AuthService;
@@ -24,27 +24,27 @@ export class AuthService {
     });
   }
 
-  public static getInstance(): AuthService {
+  public static getInstance = (): AuthService => {
     if (!AuthService.instance) {
       AuthService.instance = new AuthService();
     }
     return AuthService.instance;
-  }
+  };
 
-  public setNavigateFunction(navigate: (path: string) => void): void {
+  public setNavigateFunction = (navigate: (path: string) => void): void => {
     this.navigateFunction = navigate;
-  }
+  };
 
-  public async saveAuthInLocal(data: AuthResponse): Promise<void> {
+  public saveAuthInLocal = async (data: AuthResponse): Promise<void> => {
     const {
       AuthenticationResult: { AccessToken, IdToken, RefreshToken },
     } = data;
     localStorage.setItem('accessToken', AccessToken);
     localStorage.setItem('idToken', IdToken);
     localStorage.setItem('refreshToken', RefreshToken);
-  }
+  };
 
-  public logout(): void {
+  public logout = (): void => {
     const cognitoUser = this.userPool.getCurrentUser();
     if (cognitoUser) {
       cognitoUser.signOut();
@@ -56,26 +56,26 @@ export class AuthService {
     if (this.navigateFunction) {
       this.navigateFunction('/login'); // Navigate to login page
     }
-  }
+  };
 
-  public isAuthenticated(): boolean {
+  public isAuthenticated = (): boolean => {
     const cognitoUser = this.userPool.getCurrentUser();
     return cognitoUser !== null;
-  }
+  };
 
-  public getAccessToken(): string | null {
+  public getAccessToken = (): string | null => {
     return localStorage.getItem('accessToken');
-  }
+  };
 
-  public getIdToken(): string | null {
+  public getIdToken = (): string | null => {
     return localStorage.getItem('idToken');
-  }
+  };
 
-  public getRefreshToken(): string | null {
+  public getRefreshToken = (): string | null => {
     return localStorage.getItem('refreshToken');
-  }
+  };
 
-  public async refreshAccessToken(): Promise<string> {
+  public refreshAccessToken = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
       const cognitoUser = this.userPool.getCurrentUser();
       if (cognitoUser) {
@@ -101,5 +101,5 @@ export class AuthService {
         reject(new Error('No user session available'));
       }
     });
-  }
+  };
 }
