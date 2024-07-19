@@ -29,6 +29,7 @@ export class LoginPageComponent  {
   
     handleRequestAccess() {
       const email = this.emailForm.get('email').value;
+      this.router.navigate(['/otp']); 
       // Handle request access logic here...
     }
   }
