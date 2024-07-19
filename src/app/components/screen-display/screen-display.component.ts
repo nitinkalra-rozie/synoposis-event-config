@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { EventCardType, ScreenDisplayType } from 'src/app/shared/enums';
+import { EventCardType, EventDetailType, ScreenDisplayType } from 'src/app/shared/enums';
 
 @Component({
   selector: 'app-screen-display',
@@ -14,6 +14,7 @@ export class ScreenDisplayComponent {
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
   @Input() title: string = '';
+  @Input() selectedSessionType: string = '';
   @Input() sessionDay: string = '';
   @Input() icon: string | null = null;
   @Input() imageUrl: string;
@@ -54,9 +55,7 @@ export class ScreenDisplayComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       if (changes['sessionTitles'].currentValue != changes['sessionTitles'].previousValue) {
-
-        
-        if(this.isSessionInProgress){
+        if (this.isSessionInProgress) {
           this.selectedSessions = [localStorage.getItem('currentSessionTitle') || ''];
         } else {
           this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
@@ -134,5 +133,17 @@ export class ScreenDisplayComponent {
     }
     this.selectedSessions = [...tempArray];
     this.onSessionsChange.emit({ values: [...tempArray] });
+  };
+
+  getEndButtonText = () => {
+    if (this.selectedSessionType === EventDetailType.BreakoutSession) {
+      return 'End Breakout Session';
+    }
+
+    if (this.selectedSessionType === EventDetailType.IntroSession) {
+      return 'End Intro Session';
+    }
+
+    return 'End Session';
   };
 }

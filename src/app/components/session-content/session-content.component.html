@@ -13,7 +13,7 @@
       [showStartListeningButton]="false" [showStopScreenButton]="false" [showStopScreenButton]="false"
       [ShowCombineDropdown]="false" [shoEventDropDown]="true" [cards]="event_cards"></app-screen-display>
 
-    <app-screen-display [sessionDay]="selectedDay" [type]="ScreenDisplayType.SessionSpecific"
+    <app-screen-display [selectedSessionType]="selectedSessionType" [sessionDay]="selectedDay" [type]="ScreenDisplayType.SessionSpecific"
       (onMainSessionChange)="handleMainSessionChange($event)"
       (onMainSessionDayChange)="handleMainSessionDayChange($event)" [eventDays]="eventDays"
       [sessionTitles]="sessionTitles" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"

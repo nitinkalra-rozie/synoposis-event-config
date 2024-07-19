@@ -17,7 +17,7 @@
       </div>
       <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="onEndSession()">
         <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
-        <span class="button-text">End Session</span>
+        <span class="button-text">{{getEndButtonText()}}</span>
       </button>
     </div>
   </div>
