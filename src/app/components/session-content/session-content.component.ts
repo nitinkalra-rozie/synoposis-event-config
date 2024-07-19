@@ -6,7 +6,7 @@ import * as createHash from 'create-hash';
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-import { PostData } from 'src/app/shared/types';
+import { EventDetail, PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
 import { ModalService } from 'src/app/services/modal.service';
 import { MicrophoneService } from 'src/app/services/microphone.service';
@@ -32,7 +32,7 @@ export class SessionContentComponent implements OnInit {
   selectedReportType: string = '';
   selectedDay: string = '';
   selectedMultiSessionDay: string = '';
-  eventDetails: any = [];
+  eventDetails: EventDetail[] = [];
   eventDays: any = [];
   eventNames: any = [];
   selectedSessionTitle: string = '';
@@ -918,6 +918,7 @@ export class SessionContentComponent implements OnInit {
   };
 
   handleEventStreamMessage = messageJson => {
+    const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     let results = messageJson.Transcript.Results;
     console.log('messageJSON got from the transcribe', JSON.stringify(messageJson));
     if (results.length > 0) {
@@ -936,7 +937,7 @@ export class SessionContentComponent implements OnInit {
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
           console.log('sid here ', this.currentSessionId);
-          if (this.currentSessionId && this.currentPrimarySessionId == this.currentSessionId) {
+          if (sessionDetails.GenerateInsights) {
             this.realtimeInsides(this.transcription);
           }
           if (this.currentSessionId && this.isSessionInProgress) {

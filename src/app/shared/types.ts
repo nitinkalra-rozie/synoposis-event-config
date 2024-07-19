@@ -21,7 +21,9 @@ export interface EventDetail {
 
   PrimarySessionId: string;
   Type: EventDetailType;
-  // BreakoutSessions?: BreakoutSession[]; 
+  GenerateInsights: boolean;
+  sid: number;
+  // BreakoutSessions?: BreakoutSession[];
 }
 
 export interface PostData {
