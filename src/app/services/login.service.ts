@@ -111,7 +111,7 @@ export class LoginService {
         return from(
           Promise.resolve({
             success: false,
-            message: 'Email is not yet verified',
+            message: 'Email is not verified',
           } as CustomChallengeResponse)
         ); // Type assertion
       })
