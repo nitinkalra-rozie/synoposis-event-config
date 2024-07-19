@@ -54,7 +54,13 @@ export class ScreenDisplayComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       if (changes['sessionTitles'].currentValue != changes['sessionTitles'].previousValue) {
-        this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
+
+        
+        if(this.isSessionInProgress){
+          this.selectedSessions = [localStorage.getItem('currentSessionTitle') || ''];
+        } else {
+          this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
+        }
         if (this.type === ScreenDisplayType.MultiSession) {
           this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
         }
