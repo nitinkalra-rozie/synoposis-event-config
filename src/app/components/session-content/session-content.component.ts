@@ -467,7 +467,6 @@ export class SessionContentComponent implements OnInit {
     const hasPermission = await this.micService.checkAndRequestMicrophonePermission();
 
     if (hasPermission) {
-      console.log('Microphone permission granted');
       if (
         this.selectedDay !== '' &&
         this.selectedSessionTitle !== '' &&
@@ -512,6 +511,13 @@ export class SessionContentComponent implements OnInit {
       }
     } else {
       console.log('Microphone permission denied');
+      this.modalService.open(
+        'Confirm Action',
+        "Please allow permission to browser microphone services",
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
     }
   }
 
