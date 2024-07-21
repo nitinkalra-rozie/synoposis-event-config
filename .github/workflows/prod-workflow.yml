@@ -46,3 +46,4 @@ jobs:
         echo "ACM_CERTIFICATE_ARN=$certificate_arn" >> $GITHUB_ENV
     - name: Deploy Static Website
       run: sls deploy --config serverless-prd.yml --region ca-central-1 --stage prod -E ACM_CERTIFICATE_ARN=$ACM_CERTIFICATE_ARN -E DOMAIN_NAME=$DOMAIN_NAME -E HOSTED_ZONE_ID=$HOSTED_ZONE_ID
+
