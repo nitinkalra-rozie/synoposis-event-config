@@ -28,11 +28,6 @@ export class OtpComponent implements OnInit {
   }
 
   handleOtpChange(index: number, value: string) {
-    // Ensure that only a single digit is accepted
-    // if (value.length === 1 && index < this.otp.length - 1) {
-    //   this.inputs.nativeElement.children[index + 1].focus();
-    // }
-
     if (!isNaN(Number(value)) && value.length === 1) {
       this.otp[index] = value;
       if (this.otp.every(digit => digit !== '')) {
@@ -49,15 +44,7 @@ export class OtpComponent implements OnInit {
       }
     }
   }
-
-  // handleKeyDown(index: number, event: KeyboardEvent) {
-  //   if (event.key === 'Backspace' && index > 0 && this.otp[index] === '') {
-  //     const prevInput = this.inputsRef && this.inputsRef.nativeElement.children[index - 1];
-  //     if (prevInput) {
-  //       (prevInput as HTMLInputElement).focus();
-  //     }
-  //   }
-  // }
+  
 
   handleKeyDown(index: number, event: KeyboardEvent) {
     const input = event.target as HTMLInputElement;

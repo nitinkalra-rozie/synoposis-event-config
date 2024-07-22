@@ -4,8 +4,8 @@ html {
   padding: 0;
 }
 
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
+input[type='text']::-webkit-inner-spin-button,
+input[type='text']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
@@ -20,6 +20,9 @@ input[type='number']::-webkit-outer-spin-button {
   padding: 0;
   height: 100vh;
   width: 100%;
+}
+.left-space-5px{
+  margin-left: 5px;
 }
 
 .otp-left-side {
@@ -116,7 +119,7 @@ input[type='number']::-webkit-outer-spin-button {
   display: flex;
 }
 
-.otp-inputs input[type='number'] {
+.otp-inputs input[type='text'] {
   -moz-appearance: textfield;
   width: 30px;
   height: 30px;
@@ -133,7 +136,7 @@ input[type='number']::-webkit-outer-spin-button {
   border: 1px solid var(--background-variant-3-bfccd-9, #bfccd9);
 }
 
-.otp-inputs input[type='number']::placeholder {
+.otp-inputs input[type='text']::placeholder {
   color: black;
 }
 

@@ -13,7 +13,7 @@
           <input
             *ngFor="let digit of otp; let i = index ;trackBy: trackByFn"
             (input)="handleOtpChange(i, $event.target.value)"
-            type="number"
+            type="text"
             [value]="digit"
             (keydown)="handleKeyDown(i, $event)"
             (paste)="handlePaste($event)"
@@ -27,11 +27,11 @@
         <button [disabled]="submitPressed" type="submit">Verify Code</button>
       </form>
       <div class="otp-resend-container">
-        <h5>Didn't receive the code?</h5>
-        <p *ngIf="!resendClicked" class="otp-resend-link" (click)="handleResendOTP()">
+        <h5 *ngIf="!resendClicked">Didn't receive the code?</h5>
+        <p *ngIf="!resendClicked" class="otp-resend-link left-space-5px" (click)="handleResendOTP()">
           Resend
         </p>
-        <p *ngIf="resendClicked"> OTP has been resent</p>
+        <p *ngIf="resendClicked" class="left-space-5px"> OTP has been resent</p>
       </div>
     </div>
     <p class="otp-sub">
