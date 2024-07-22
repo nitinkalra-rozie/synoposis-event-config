@@ -6,8 +6,7 @@ on:
       - production
       - feature/otp-login
      
-    
-
+  
 env:
   deployment: prod 
   ACCESS_KEY: ${{secrets.ACCESS_KEY}}

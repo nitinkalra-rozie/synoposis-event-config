@@ -13,9 +13,8 @@ export class OtpComponent implements OnInit {
   resendClicked = false;
   submitPressed = false;
   email: string = '';
-  errorMessage: string;
+  errorMessage: string = '';
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
-  @ViewChild('inputs') inputs: ElementRef;
 
   constructor(
     private router: Router,
@@ -29,10 +28,6 @@ export class OtpComponent implements OnInit {
 
   handleOtpChange(index: number, value: string) {
     // Ensure that only a single digit is accepted
-    // if (value.length === 1 && index < this.otp.length - 1) {
-    //   this.inputs.nativeElement.children[index + 1].focus();
-    // }
-
     if (!isNaN(Number(value)) && value.length === 1) {
       this.otp[index] = value;
       if (this.otp.every(digit => digit !== '')) {
@@ -42,26 +37,19 @@ export class OtpComponent implements OnInit {
 
       // Move focus to the next input
       if (index < this.otp.length - 1) {
-        const nextInput = this.inputsRef && this.inputsRef.nativeElement.children[index + 1];
+        const nextInput = this.inputsRef.nativeElement.children[index + 1] as HTMLInputElement;
         if (nextInput) {
-          (nextInput as HTMLInputElement).focus();
+          nextInput.focus();
         }
       }
+    } else {
+      this.otp[index] = '';
     }
   }
 
-  // handleKeyDown(index: number, event: KeyboardEvent) {
-  //   if (event.key === 'Backspace' && index > 0 && this.otp[index] === '') {
-  //     const prevInput = this.inputsRef && this.inputsRef.nativeElement.children[index - 1];
-  //     if (prevInput) {
-  //       (prevInput as HTMLInputElement).focus();
-  //     }
-  //   }
-  // }
-
   handleKeyDown(index: number, event: KeyboardEvent) {
     const input = event.target as HTMLInputElement;
-  
+
     if (event.key === 'Backspace') {
       if (index > 0 && this.otp[index] === '') {
         this.otp[index - 1] = '';
@@ -88,8 +76,6 @@ export class OtpComponent implements OnInit {
       }
     }
   }
-  
-  
 
   trackByFn(index: number, obj: any) {
     return index;
@@ -144,9 +130,9 @@ export class OtpComponent implements OnInit {
       this.handleSubmit();
       return;
     }
-    const lastInput = this.inputsRef && this.inputsRef.nativeElement.children[lastIndex];
+    const lastInput = this.inputsRef.nativeElement.children[lastIndex] as HTMLInputElement;
     if (lastInput) {
-      (lastInput as HTMLInputElement).focus();
+      lastInput.focus();
     }
   }
 }
