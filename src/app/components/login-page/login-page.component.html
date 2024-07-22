@@ -22,7 +22,7 @@
           <p *ngIf="errorMessage && !errorMessage.includes('don\'t have your email address')" class="error-message">
             {{ errorMessage }}
           </p>
-          <button *ngIf="!errorMessage" type="submit" [disabled]="!isEmailValid || emailForm.invalid">Proceed</button>
+          <button *ngIf="!errorMessage" type="submit" [disabled]="processedClicked || !isEmailValid || emailForm.invalid">Proceed</button>
         </form>
       </ng-container>
       <ng-template #accessSent>

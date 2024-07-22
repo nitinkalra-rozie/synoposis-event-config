@@ -7,13 +7,14 @@ import { LoginService } from 'src/app/services/login.service';
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
-  styleUrls: ['./login-page.component.css']
+  styleUrls: ['./login-page.component.css'],
 })
 export class LoginPageComponent {
   emailForm: FormGroup;
   errorMessage: string = '';
   requestingAccess: boolean = false;
   isEmailValid: boolean = false;
+  processedClicked: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -22,7 +23,7 @@ export class LoginPageComponent {
     private loginService: LoginService
   ) {
     this.emailForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
     });
   }
 
@@ -39,14 +40,17 @@ export class LoginPageComponent {
   async handleSignUp() {
     const email = this.emailForm.get('email').value;
     if (this.emailForm.valid && this.isEmailValid) {
+      this.processedClicked = true;
       try {
         const response = await this.loginService.signUp(email).toPromise();
+        this.processedClicked = false;
         if (response.success) {
           this.router.navigate(['/otp'], { queryParams: { email } });
         } else {
           this.errorMessage = response.message;
         }
       } catch (error) {
+        this.processedClicked = false;
         console.error('Sign up failed', error);
         this.errorMessage = 'An error occurred while signing up.';
       }
@@ -59,7 +63,7 @@ export class LoginPageComponent {
     try {
       const success = await this.loginService.requestAccess(email).toPromise();
       console.log('success', success);
-      
+
       if (success) {
         this.emailForm.reset();
         this.errorMessage = '';
