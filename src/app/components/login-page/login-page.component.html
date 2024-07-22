@@ -1,6 +1,6 @@
 <div class="login-container">
   <div class="left-side">
-        <app-footer></app-footer>
+    <app-footer></app-footer>
   </div>
 
   <div class="right-side">
@@ -11,7 +11,7 @@
         <h3>Explore the Synopsis for Events Admin Dashboard</h3>
         <h4>Email Address</h4>
         <form [formGroup]="emailForm" (ngSubmit)="handleSignUp()">
-          
+
           <div class="input-wrapper">
             <input type="email" placeholder="Enter your Email Address" formControlName="email"
               (input)="handleEmailChange()" [class.valid]="isEmailValid" required />
@@ -32,7 +32,7 @@
       <button *ngIf="!requestingAccess && errorMessage" (click)="handleRequestAccess()">
         Request Access
       </button>
-      
+
       <p class="sub">
         Disclaimer: By proceeding with login, you agree to receive a one-time password (OTP) via SMS or email to
         authenticate your identity. Your phone number or email address will only be used for the purpose of sending
@@ -41,6 +41,8 @@
         support team for assistance.
       </p>
     </div>
-    <app-footer-mobile></app-footer-mobile>
+    <div class="footer-wrapper">
+      <app-footer-mobile></app-footer-mobile>
+    </div>
   </div>
 </div>

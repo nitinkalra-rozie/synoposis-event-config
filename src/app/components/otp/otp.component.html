@@ -24,7 +24,7 @@
         <p *ngIf="errorMessage" class="error-message">
           Please check your OTP!
         </p>
-        <button type="submit">Verify Code</button>
+        <button [disabled]="submitPressed" type="submit">Verify Code</button>
       </form>
       <div class="otp-resend-container">
         <h5>Didn't receive the code?</h5>
