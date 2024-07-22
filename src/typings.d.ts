@@ -3,6 +3,9 @@
 export {}; // This line turns the file into a module
 
 declare global {
+
+
+  type WakeLockType = 'screen';
   interface Navigator {
     permissions?: Permissions;
   }
