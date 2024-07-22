@@ -7,8 +7,8 @@ import { AuthResponse, CustomChallengeResponse, CognitoError } from '../shared/t
 import { environment } from 'src/environments/environment';
 import { CognitoUser, CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
 import Toastify from 'toastify-js';
-import { Observable, from } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable, from, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 const poolData = {
   UserPoolId: environment.USER_POOL_ID, // Your user pool id here
@@ -24,7 +24,7 @@ export class LoginService {
   constructor(
     private authApiService: AuthApiService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   signUp(email: string): Observable<any> {
     const attributeList: CognitoUserAttribute[] = [];
@@ -145,12 +145,12 @@ export class LoginService {
             text: 'Can you please verify the OTP again?',
             backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
           }).showToast();
-          console.error('Error calling custom challenge API. Response:', response);
+          console.error('Error calling OTP Verification API. Response:', response);
           return null;
         }
       }),
       catchError(error => {
-        console.error('Error calling custom challenge API:', error);
+        console.error('Error calling OTP Verification API:', error);
         return from(Promise.resolve(null));
       })
     );
@@ -174,25 +174,29 @@ export class LoginService {
   }
 
   resendOtp(email: string): Observable<void> {
-    const userData = {
-      Username: email,
-      Pool: userPool,
-    };
-
-    const cognitoUser = new CognitoUser(userData);
-
-    return new Observable(observer => {
-      cognitoUser.resendConfirmationCode((err, result) => {
-        if (err) {
-          const cognitoError = err as CognitoError;
-          console.error('Error resending OTP:', cognitoError);
-          observer.error(cognitoError);
-        } else {
-          console.log('OTP resent successfully:', result);
-          observer.next();
-          observer.complete();
-        }
-      });
-    });
+    return new Observable<void>((observer) => {
+      try {
+        console.log("Inside resendOtp, email:", email);
+        this.signUp(email).pipe(
+          switchMap(() => {
+            observer.next(); 
+            observer.complete(); 
+            return new Observable<void>((obs) => obs.complete());
+          }),
+          catchError((error) => {
+            console.error("Error in signUp:", error);
+            observer.error(error); 
+            return throwError(error);
+          })
+        ).subscribe();
+      } catch (error) {
+        console.error("Error in resendOtp:", error);
+        observer.error(error);
+      }
+    }).pipe(
+      catchError((error) => {
+        return throwError(error);
+      })
+    );
   }
 }

@@ -91,8 +91,8 @@ export class OtpComponent implements OnInit {
 
   async handleResendOTP() {
     try {
-      await this.loginService.resendOtp(this.email);
       this.resendClicked = true;
+      await this.loginService.signUp(this.email).toPromise();
     } catch (error) {
       console.error('Error during OTP resend', error);
     }
