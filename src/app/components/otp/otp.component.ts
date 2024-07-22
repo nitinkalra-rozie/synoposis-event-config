@@ -34,7 +34,11 @@ export class OtpComponent implements OnInit {
     // }
 
     if (!isNaN(Number(value)) && value.length === 1) {
-      // this.otp[index] = value;
+      this.otp[index] = value;
+      if (this.otp.every(digit => digit !== '')) {
+        this.handleSubmit();
+        return;
+      }
 
       // Move focus to the next input
       if (index < this.otp.length - 1) {
@@ -42,11 +46,6 @@ export class OtpComponent implements OnInit {
         if (nextInput) {
           (nextInput as HTMLInputElement).focus();
         }
-      }
-
-      // Submit when all digits are filled
-      if (this.otp.every(digit => digit !== '')) {
-        this.handleSubmit();
       }
     }
   }
@@ -58,6 +57,10 @@ export class OtpComponent implements OnInit {
         (prevInput as HTMLInputElement).focus();
       }
     }
+  }
+
+  trackByFn(index: number, obj: any) {
+    return index;
   }
 
   handleSubmit() {
@@ -105,6 +108,10 @@ export class OtpComponent implements OnInit {
 
     this.otp = otpArray;
     const lastIndex = otpArray.length - 1;
+    if (this.otp.every(digit => digit !== '')) {
+      this.handleSubmit();
+      return;
+    }
     const lastInput = this.inputsRef && this.inputsRef.nativeElement.children[lastIndex];
     if (lastInput) {
       (lastInput as HTMLInputElement).focus();

@@ -141,10 +141,10 @@ export class LoginService {
           this.authService.saveAuthInLocal(response);
           return response;
         } else {
-          Toastify({
-            text: 'Can you please verify the OTP again?',
-            backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
-          }).showToast();
+          // Toastify({
+          //   text: 'Can you please verify the OTP again?',
+          //   backgroundColor: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+          // }).showToast();
           console.error('Error calling OTP Verification API. Response:', response);
           return null;
         }

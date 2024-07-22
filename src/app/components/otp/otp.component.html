@@ -11,10 +11,10 @@
       <form (submit)="handleSubmit()">
         <div class="otp-inputs" #inputs>
           <input
-            *ngFor="let digit of otp; let i = index"
+            *ngFor="let digit of otp; let i = index ;trackBy: trackByFn"
+            (input)="handleOtpChange(i, $event.target.value)"
             type="number"
             [value]="digit"
-            (input)="handleOtpChange(i, $event.target.value)"
             (keydown)="handleKeyDown(i, $event)"
             (paste)="handlePaste($event)"
             maxlength="1"
