@@ -235,7 +235,9 @@ input[type='text']::-webkit-outer-spin-button {
   .otp-container {
     flex-direction: column;
   }
-
+  .enter-otp h4{
+    margin-top: 0px;
+  }
   .otp-left-side {
     height: 46%;
     width: 100%;
