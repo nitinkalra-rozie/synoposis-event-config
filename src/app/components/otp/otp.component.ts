@@ -50,14 +50,46 @@ export class OtpComponent implements OnInit {
     }
   }
 
+  // handleKeyDown(index: number, event: KeyboardEvent) {
+  //   if (event.key === 'Backspace' && index > 0 && this.otp[index] === '') {
+  //     const prevInput = this.inputsRef && this.inputsRef.nativeElement.children[index - 1];
+  //     if (prevInput) {
+  //       (prevInput as HTMLInputElement).focus();
+  //     }
+  //   }
+  // }
+
   handleKeyDown(index: number, event: KeyboardEvent) {
-    if (event.key === 'Backspace' && index > 0 && this.otp[index] === '') {
-      const prevInput = this.inputsRef && this.inputsRef.nativeElement.children[index - 1];
-      if (prevInput) {
-        (prevInput as HTMLInputElement).focus();
+    const input = event.target as HTMLInputElement;
+  
+    if (event.key === 'Backspace') {
+      if (index > 0 && this.otp[index] === '') {
+        this.otp[index - 1] = '';
+        const prevInput = this.inputsRef.nativeElement.children[index - 1] as HTMLInputElement;
+        if (prevInput) {
+          prevInput.focus();
+        }
+      } else if (this.otp[index] !== '') {
+        this.otp[index] = '';
+      }
+    } else if (event.key === 'ArrowLeft') {
+      if (index > 0) {
+        const prevInput = this.inputsRef.nativeElement.children[index - 1] as HTMLInputElement;
+        if (prevInput) {
+          prevInput.focus();
+        }
+      }
+    } else if (event.key === 'ArrowRight') {
+      if (index < this.otp.length - 1) {
+        const nextInput = this.inputsRef.nativeElement.children[index + 1] as HTMLInputElement;
+        if (nextInput) {
+          nextInput.focus();
+        }
       }
     }
   }
+  
+  
 
   trackByFn(index: number, obj: any) {
     return index;
