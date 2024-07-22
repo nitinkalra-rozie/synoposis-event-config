@@ -2,7 +2,9 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "types": []
+    "types": [
+      "dom-screen-wake-lock"
+    ]
   },
   "exclude": [
     "test.ts",
