@@ -169,7 +169,10 @@ html {
   color: red;
   max-width: 65%;
 }
-
+.email-link{
+  color: blue; 
+  text-decoration: underline;
+}
 .bg {
   background-image: url('../../../assets/login/rozie-logo.svg');
   width: 12rem;
