@@ -111,7 +111,7 @@ export class LoginService {
         return from(
           Promise.resolve({
             success: false,
-            message: 'Email is not verified',
+            message: 'This email is not enabled. Please connect with us at hello@rozie.ai to get the access.',
           } as CustomChallengeResponse)
         ); // Type assertion
       })

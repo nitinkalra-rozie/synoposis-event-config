@@ -13,7 +13,7 @@
         <form [formGroup]="emailForm" (ngSubmit)="handleSignUp()">
 
           <div class="input-wrapper">
-            <input type="email" placeholder="Enter your Email Address" formControlName="email"
+            <input type="email" placeholder="Enter Your Email Address" formControlName="email"
               (input)="handleEmailChange()" [class.valid]="isEmailValid" required />
             <div *ngIf="errorMessage && errorMessage.includes('don\'t have your email address')">
               {{ errorMessage }}

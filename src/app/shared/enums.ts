@@ -1,6 +1,6 @@
 export enum ThemeOptions {
-  dark = 'dark',
-  light = 'light',
+  dark = 'Dark',
+  light = 'Light',
 }
 
 export enum EventDetailType {
