@@ -56,7 +56,7 @@
     <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
   </div>
 
-  <div class="dropdown-content t4" *ngIf="dropDownVisible">
+  <div class="dropdown-content t4" *ngIf="dropDownVisible" >
     <div class="content-title">Select</div>
     <div class="drop-down-item t4" *ngFor="let item of getT4Content()" (click)="handleT4DropDownSelect(item.label)">
       <img *ngIf="item.checked; else empty" class="checked-box" src="assets/v2-icons/checked_box.svg" alt="" />

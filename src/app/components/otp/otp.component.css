@@ -262,8 +262,8 @@ input[type='text']::-webkit-outer-spin-button {
   }
 
   .enter-otp {
-    margin-bottom: -4rem;
-    margin-top: auto;
+    margin-bottom: revert-layer;
+    margin-top: -1rem;
     margin-right: 1rem;
     margin-left: 2rem;
   }
@@ -277,10 +277,7 @@ input[type='text']::-webkit-outer-spin-button {
     line-height: normal;
   }
   .otp-resend-container {
-    justify-content: center;
-    margin-top: 1rem;
-    margin-right: 0;
-    margin-bottom: 0rem;
+   margin-top: 0px;
   }
 
   .otp-resend-container h5 {
