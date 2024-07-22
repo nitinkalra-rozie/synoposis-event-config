@@ -31,18 +31,6 @@
   <app-root>
     <div class="loader"></div>
   </app-root>
-  <video id="hiddenVideo" autoplay muted></video>
-  <video id="hiddenVideo" playsinline muted autoplay loop src="https://rawgit.com/bower-media-samples/big-buck-bunny-480p-30s/master/video.mp4" height=0></video>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var video = document.getElementById('hiddenVideo');
-      if (video) {
-        video.play().catch(function (error) {
-          console.error('Error playing video:', error);
-        });
-      }
-    });
-  </script>
 </body>
 </html>
 

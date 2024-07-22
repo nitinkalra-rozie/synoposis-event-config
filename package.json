@@ -27,6 +27,7 @@
     "@angular/router": "^6.1.0",
     "@aws-sdk/eventstream-marshaller": "^0.1.0-preview.2",
     "@aws-sdk/util-utf8-node": "^0.1.0-preview.1",
+    "@types/dom-screen-wake-lock": "^1.0.3",
     "ajv": "^6.9.1",
     "amazon-cognito-identity-js": "^6.3.12",
     "angular-crypto": "^0.0.3",
