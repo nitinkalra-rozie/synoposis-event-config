@@ -27,6 +27,7 @@ import { AuthService } from './services/auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { FooterMobileComponent } from './components/shared/footer-mobile/footer-mobile.component';
+import { WakeLockService } from './services/wake-lock.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -64,8 +65,10 @@ import { FooterMobileComponent } from './components/shared/footer-mobile/footer-
       multi: true,
     },
     AuthApiService,
-    AuthService
+    AuthService,
+    WakeLockService
   ],
+
   bootstrap: [AppComponent],
 })
 export class AppModule {}
