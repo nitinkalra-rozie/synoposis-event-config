@@ -155,7 +155,6 @@ export class SessionContentComponent implements OnInit {
     var wakeLockEnabled = false;
     var toggleEl = document.querySelector("#session-content");
     toggleEl.addEventListener('click', function() {
-      console.log("sid ",wakeLockEnabled);
       if (!wakeLockEnabled) {
         noSleep.enable();
         wakeLockEnabled = true;
