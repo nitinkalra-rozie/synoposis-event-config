@@ -7,7 +7,7 @@
 
   <div class="dropdown-content" *ngIf="dropDownVisible" appOutSideClick (outSideClick)="onOutsideClick()">
     <div class="content-title">Select</div>
-    <div class="drop-down-item" *ngFor="let item of dropdownContent" (click)="handleDropDownSelect(item)">
+    <div class="drop-down-item" *ngFor="let item of dropdownContent" (click)="handleDropDownSelect(item)" [class.selected]="selectedValue[0]==item">
       <div class="item-text">{{item}}</div>
     </div>
   </div>

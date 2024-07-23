@@ -149,6 +149,7 @@ export class SessionContentComponent implements OnInit {
     if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
       this.startRecording();
       this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
+      this.rotateSessionTitles(this.selectedSessionTitle);
     }
   }
 
@@ -234,6 +235,7 @@ export class SessionContentComponent implements OnInit {
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     this.selectedSessionType = session.Type;
     localStorage.setItem('selectedSessionType', this.selectedSessionType.toString());
+    this.rotateSessionTitles(this.selectedSessionTitle);
   };
 
   handleSessionsChange = ({ values }: { values: string[] }) => {
@@ -270,6 +272,18 @@ export class SessionContentComponent implements OnInit {
     filteredByDay.sort((a, b) => a.sid - b.sid);
     this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
     this.options = this.sessionTitles;
+  }
+
+  rotateSessionTitles(currentSession: string): void {
+    const index = this.sessionTitles.indexOf(currentSession);
+    
+    if (index === -1) {
+      return 
+    }
+    this.sessionTitles= [
+      ...this.sessionTitles.slice(index),
+      ...this.sessionTitles.slice(0, index)
+    ];
   }
 
   populatePrimarySessionTitles() {

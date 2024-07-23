@@ -150,6 +150,10 @@
   align-self: stretch;
 }
 
+.drop-down-item.selected {
+  background: var(--selection-selected-f-7-f-6-ff, #f7f6ff);
+}
+
 .item-text.t2 {
   color: var(--background-variant-6475258, #475258);
   font-family: Lexend;
