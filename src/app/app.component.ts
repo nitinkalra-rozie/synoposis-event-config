@@ -9,7 +9,7 @@ import { WakeLockService } from './services/wake-lock.service';
 export class AppComponent {
   constructor(private wakeLockService :WakeLockService ){}
   ngOnInit(){
-this.wakeLockService.requestWakeLock();
+    this.wakeLockService.requestWakeLock();
   }
   ngOnDestroy(){
     this.wakeLockService.releaseWakeLock();
