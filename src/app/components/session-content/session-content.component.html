@@ -6,7 +6,7 @@
     {{ failureMessage }}
   </div>
 </div>
-<div class="session-content">
+<div class="session-content" id="session-content">
   <div class="padding-combine">
     <app-screen-display (onEventSpecificDayChange)="handleEventSpecificDayChange($event)"
       [type]="ScreenDisplayType.EventSpecific" [eventDays]="eventDays" [title]="'Event-Specific Screens'"
