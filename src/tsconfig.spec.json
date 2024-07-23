@@ -6,7 +6,6 @@
     "types": [
       "jasmine",
       "node",
-      "dom-screen-wake-lock"
     ]
   },
   "files": [

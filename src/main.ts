@@ -3,7 +3,8 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
-
+import NoSleep from '@uriopass/nosleep.js';
+var noSleep = new NoSleep();
 if (environment.production) {
   // enableProdMode();
 }
@@ -13,13 +14,15 @@ if (environment.production) {
   }
   console.debug = console.error = () => { };
 }
-tryKeepScreenAlive(1000000);
-function tryKeepScreenAlive(minutes) {
-  navigator.wakeLock.request("screen").then(lock => {
-    setTimeout(() => lock.release(), minutes * 60 * 1000);
-  });
-}
-
-tryKeepScreenAlive(10);
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.log(err));
+
+var wakeLockEnabled = false;
+var toggleEl = document.querySelector("#index-body");
+toggleEl.addEventListener('click', function() {
+  if (!wakeLockEnabled) {
+    noSleep.enable();
+    wakeLockEnabled = true;
+  } else {
+  }
+}, false);

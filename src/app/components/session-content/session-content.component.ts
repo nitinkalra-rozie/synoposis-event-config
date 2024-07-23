@@ -10,8 +10,6 @@ import { EventDetail, PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
 import { ModalService } from 'src/app/services/modal.service';
 import { MicrophoneService } from 'src/app/services/microphone.service';
-import NoSleep from '@uriopass/nosleep.js';
-var noSleep = new NoSleep();
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
   selector: 'app-session-content',
@@ -152,15 +150,6 @@ export class SessionContentComponent implements OnInit {
       this.startRecording();
       this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
     }
-    var wakeLockEnabled = false;
-    var toggleEl = document.querySelector("#session-content");
-    toggleEl.addEventListener('click', function() {
-      if (!wakeLockEnabled) {
-        noSleep.enable();
-        wakeLockEnabled = true;
-      } else {
-      }
-    }, false);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
