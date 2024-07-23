@@ -647,6 +647,7 @@ export class SessionContentComponent implements OnInit {
     postData.sessionId = session.SessionId;
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = session.SessionSubject;
+    postData.sessionDescription = session.SessionDescription;
     this.isSessionInProgress = false;
     if (session.Type == 'BreakoutSession') {
       postData.action = 'endBreakoutSession';
@@ -768,6 +769,7 @@ export class SessionContentComponent implements OnInit {
     postData.action = 'realTimeInsights';
     postData.sessionTitle = sessionDetails.SessionSubject;
     postData.transcript = transcript;
+    postData.sessionDescription = sessionDetails.SessionDescription;
     this.backendApiService.postData(postData).subscribe(() => {
       // Handle success or error if needed
     });

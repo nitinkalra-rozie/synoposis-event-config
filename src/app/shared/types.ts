@@ -16,6 +16,7 @@ export interface EventDetail {
   SessionSubject: string;
   EventDay: string;
   SessionTitle: string;
+  SessionDescription: string;
   SessionId: string;
   SpeakersInfo: SpeakerInfo[];
 
@@ -38,6 +39,7 @@ export interface PostData {
   sessionTitle?: string;
   theme?: string;
   primarySessionId?: any;
+  sessionDescription?: string;
 }
 export interface AuthResponse {
   data: any;
