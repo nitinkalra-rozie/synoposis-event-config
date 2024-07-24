@@ -3,7 +3,7 @@ name: elsa-at-event-admin-prod-deploy
 on:
   push:
     branches:
-      - production
+      - master
    
      
   
