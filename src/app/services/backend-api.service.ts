@@ -1,60 +1,48 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { PostData } from '../shared/types';
 
-interface PostData {
-  action?: string;
-  sessionId?: any;
-  eventName?: string;
-  domain?: string;
-  day?: string;
-  keyNoteData?: any;
-  transcript?: string;
-  screenTimeout?: number;
-  sessionTitle?: string;
-  theme?: string;
-}
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
-
 export class BackendApiService {
-  constructor(private http: HttpClient) { }
-  currentSessionId:string='';
-  eventDay:string='';
-  eventName:string='';
-  domain:string='';
-  
-  getTranscriberPreSignedUrl(body:any){
-    const refreshToken = localStorage.getItem('Idtoken');
+  constructor(private http: HttpClient) {}
+  currentSessionId: string = '';
+  eventDay: string = '';
+  eventName: string = '';
+  domain: string = '';
+
+  getTranscriberPreSignedUrl(body: any) {
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`
+      Authorization: `Bearer ${refreshToken}`,
     });
-    return this.http.post(environment.getTranscriberPreSignedUrl, body,{ headers: headers });
+    return this.http.post(environment.getTranscriberPreSignedUrl, body, { headers: headers });
   }
 
-  putTranscript(transcript:any){
-    const refreshToken = localStorage.getItem('Idtoken');
+  putTranscript(transcript: any) {
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`
+      Authorization: `Bearer ${refreshToken}`,
     });
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
-      Transcript: transcript,
+      primarySessionId: localStorage.getItem('currentPrimarySessionId'),
+      transcript: transcript,
       eventName: localStorage.getItem('selectedEvent'),
-      domain: localStorage.getItem('domain')
-    }
+      domain: localStorage.getItem('domain'),
+    };
     return this.http.post(environment.putTranscript, body, { headers: headers });
   }
-  // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any 
-  postData(data:PostData){
-    const refreshToken = localStorage.getItem('Idtoken');
+  // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any
+  postData(data: PostData) {
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`
+      Authorization: `Bearer ${refreshToken}`,
     });
-    let body={
-      action:data.action,
+    let body = {
+      action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
       eventName: data.eventName || localStorage.getItem('selectedEvent'),
       domain: data.domain || localStorage.getItem('domain'),
@@ -63,33 +51,34 @@ export class BackendApiService {
       screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15,
       sessionTitle: data.sessionTitle || '',
       theme: data.theme,
-      transcript : data.transcript
+      transcript: data.transcript,
+      sessionDescription: data.sessionDescription,
+    };
+    if (data.action === 'realTimeInsights') {
+      body.keyNoteData = {};
+      body.transcript = data.transcript;
     }
-    if(data.action === 'realTimeInsights'){
-      body.keyNoteData = {}
-      body.transcript = data.transcript
-    }
-    return this.http.post(environment.postData, body,{ headers: headers });
+    return this.http.post(environment.postData, body, { headers: headers });
   }
-  getEventDetails(){
-    const refreshToken = localStorage.getItem('Idtoken');
+  getEventDetails() {
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`
+      Authorization: `Bearer ${refreshToken}`,
     });
-    return this.http.post(environment.getEventDetails,{},{ headers: headers });
+    return this.http.post(environment.getEventDetails, {}, { headers: headers });
   }
-  postCurrentSessionId(sessionId:any,  eventName:any, domain:any){
-    const refreshToken = localStorage.getItem('Idtoken');
+  postCurrentSessionId(sessionId: any, eventName: any, domain: any, primarySessionId: any) {
+    const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${refreshToken}`
+      Authorization: `Bearer ${refreshToken}`,
     });
-    console.log("Inside postCurrent", sessionId)
-    const body={
+    console.log('Inside postCurrent', sessionId);
+    const body = {
       sessionId: sessionId,
       eventName: eventName,
-      domain: domain
-
-    }
-    return this.http.post(environment.postCurrentSessionId, body,{ headers: headers });
+      domain: domain,
+      primarySessionId: primarySessionId,
+    };
+    return this.http.post(environment.postCurrentSessionId, body, { headers: headers });
   }
 }

@@ -1,0 +1,37 @@
+<div class="alert-box" [ngClass]="{'success': successMessage, 'failure': failureMessage}">
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="failureMessage" class="alert alert-danger" role="alert">
+    {{ failureMessage }}
+  </div>
+</div>
+<div class="session-content" id="session-content">
+  <div class="padding-combine">
+    <app-screen-display (onEventSpecificDayChange)="handleEventSpecificDayChange($event)"
+      [type]="ScreenDisplayType.EventSpecific" [eventDays]="eventDays" [title]="'Event-Specific Screens'"
+      [showStartListeningButton]="false" [showStopScreenButton]="false" [showStopScreenButton]="false"
+      [ShowCombineDropdown]="false" [shoEventDropDown]="true" [cards]="event_cards"></app-screen-display>
+
+    <app-screen-display [selectedSessionType]="selectedSessionType" [sessionDay]="selectedDay" [type]="ScreenDisplayType.SessionSpecific"
+      (onMainSessionChange)="handleMainSessionChange($event)"
+      (onMainSessionDayChange)="handleMainSessionDayChange($event)" [eventDays]="eventDays"
+      [sessionTitles]="sessionTitles" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
+      [showStopScreenButton]="true" [showStopScreenButton]="true" [ShowCombineDropdown]="true"
+      [sessionValueDropdown]="true" [subSessionValueDropdown]="false" [cards]="session_cards"
+      [isSessionInProgress]="isSessionInProgress" [showStartListeningButton]="true" [showStopScreenButton]="true"
+      (startListening)="startListeningPopUp()" (stopListening)="stopListening()"
+      (endSession)="endSessionPopUpPostInsights()"></app-screen-display>
+
+    <app-screen-display [sessionDay]="selectedMultiSessionDay" [type]="ScreenDisplayType.MultiSession"
+      [eventDays]="eventDays" (onSessionsChange)="handleSessionsChange($event)"
+      (onMultiSessionDayChange)="handleMultiSessionDayChange($event)" [sessionTitles]="primarySessionTitles"
+      [title]="'Daily Screens'" [showStartListeningButton]="false" [showStopScreenButton]="false"
+      [showStopScreenButton]="false" [ShowCombineDropdown]="true" [sessionValueDropdown]="false"
+      [subSessionValueDropdown]="true" [cards]="multi_session_card"></app-screen-display>
+  </div>
+
+  <div class="transcript" *ngIf="isSessionInProgress">
+    {{transcription}}
+  </div>
+</div>

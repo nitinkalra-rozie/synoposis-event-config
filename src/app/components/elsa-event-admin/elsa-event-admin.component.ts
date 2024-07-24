@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
-import { CognitoService } from 'src/app/services/cognito.service';
+import { AuthService } from '../../services/auth.service'
 declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
 import * as createHash from 'create-hash';
@@ -65,7 +65,7 @@ export class ElsaEventAdminComponent {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  selectedDomain: string = '';
+  selectedDomain: string = 'Healthcare';
   // const options = [
   //   "Banking and Finance",
   //   "Healthcare",
@@ -79,11 +79,7 @@ export class ElsaEventAdminComponent {
   borderColor: string = '#000'; // Default border color
   dropdownVisible: boolean = false;
   options_domain: string[] = [
-    "Banking and Finance",
     "Healthcare",
-    "Airline",
-    "Telecommunications",
-    "Other",
   ];// Replace with your options
   dropdown: string = 'path-to-dropdown-icon.png';
 
@@ -91,14 +87,15 @@ export class ElsaEventAdminComponent {
 
   //***************************************
 
-  constructor(private backendApiService: BackendApiService, private cognitoService: CognitoService) { }
+  constructor(private backendApiService: BackendApiService, private authService: AuthService) { }
 
   ngOnInit(): void {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle = localStorage.getItem('currentSessionTitle') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
-    this.selectedDomain = localStorage.getItem('domain') || '';
+    // this.selectedDomain = localStorage.getItem('domain') || '';
+    this.selectedDomain = 'Healthcare';
     this.getEventDetails();
     this.transcriptTimeOut = parseInt(localStorage.getItem('transcriptTimeOut')) || 60
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15
@@ -109,7 +106,7 @@ export class ElsaEventAdminComponent {
     }
   }
   logout() {
-    this.cognitoService.logOut();
+    this.authService.logout();
   }
 
   showWelcomeMessageBanner(): void {
@@ -440,7 +437,7 @@ export class ElsaEventAdminComponent {
       localStorage.setItem("selectedEvent", this.selectedEvent);
       localStorage.setItem("domain", this.selectedDomain);
       this.startRecording();
-      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain).subscribe((data: any) => {
+      this.backendApiService.postCurrentSessionId(session.SessionId, this.selectedEvent, this.selectedDomain, session.PrimarySessionId).subscribe((data: any) => {
         console.log(data);
         this.showSuccessMessage('Start session message sent successfully!');
       },

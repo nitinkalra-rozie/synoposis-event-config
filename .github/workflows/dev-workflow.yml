@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - development
+
 env:
   deployment: dev 
+
 
 jobs:
   deploy:

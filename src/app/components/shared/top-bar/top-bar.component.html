@@ -1,0 +1,21 @@
+<div class="app-container">
+  <app-side-bar></app-side-bar>
+  <div class="top-bar">
+    <div class="bar-left-content">
+      <div class="title">
+        <p>Synopsis for Events - Admin Dashboard</p>
+      </div>
+    </div>
+
+    <div class="menu-icon">
+      <div class="icon">
+        <div class="profile-icon-wrapper" (click)="toggleDropdown()" appOutSideClick (outSideClick)="onOutsideClick()">
+          <img src="../../../../assets/profile-icon.svg" alt="icon3" class="profile-icon" />
+          <div class="dropdown" *ngIf="showDropdown">
+            <li (click)="logout()">Log out</li>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

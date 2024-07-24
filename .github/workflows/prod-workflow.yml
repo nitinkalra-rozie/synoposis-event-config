@@ -3,8 +3,10 @@ name: elsa-at-event-admin-prod-deploy
 on:
   push:
     branches:
-      - production
-
+      - master
+   
+     
+  
 env:
   deployment: prod 
   ACCESS_KEY: ${{secrets.ACCESS_KEY}}
@@ -25,7 +27,7 @@ jobs:
     - name: Install fullstack-serverless
       run: npm install --save-dev fullstack-serverless
     - name: Install Serverless Framework
-      run: npm install -g serverless
+      run: npm install -g serverless@3.38.0
     - name: Install Angular CLI
       run: npm install -g @angular/cli@12.x
     - name: Install Packages
@@ -45,3 +47,4 @@ jobs:
         echo "ACM_CERTIFICATE_ARN=$certificate_arn" >> $GITHUB_ENV
     - name: Deploy Static Website
       run: sls deploy --config serverless-prd.yml --region ca-central-1 --stage prod -E ACM_CERTIFICATE_ARN=$ACM_CERTIFICATE_ARN -E DOMAIN_NAME=$DOMAIN_NAME -E HOSTED_ZONE_ID=$HOSTED_ZONE_ID
+

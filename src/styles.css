@@ -18,9 +18,9 @@
   
 
 body{
-    background: url('./assets/bg.svg'),linear-gradient(0deg, #000 9.03%, #5519BD 117.42%);
+    /* background: url('./assets/bg.svg'),linear-gradient(0deg, #000 9.03%, #5519BD 117.42%);
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: cover; */
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

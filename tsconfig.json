@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es5",
     "typeRoots": [
       "node_modules/@types"
@@ -18,6 +19,10 @@
       "dom"
     ]
   },
+  "include": [
+    "src/**/*.ts",
+    "src/typings.d.ts",
+  ],
   "angularCompilerOptions": {
     "enableIvy": true
   }

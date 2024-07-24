@@ -13,7 +13,6 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "postinstall": "node patch.js"
-   
   },
   "private": true,
   "dependencies": {
@@ -28,6 +27,7 @@
     "@angular/router": "^6.1.0",
     "@aws-sdk/eventstream-marshaller": "^0.1.0-preview.2",
     "@aws-sdk/util-utf8-node": "^0.1.0-preview.1",
+    "@uriopass/nosleep.js": "^0.12.2",
     "ajv": "^6.9.1",
     "amazon-cognito-identity-js": "^6.3.12",
     "angular-crypto": "^0.0.3",
@@ -42,6 +42,7 @@
     "readable-stream": "^3.4.0",
     "rxjs": "6.0.0",
     "stream": "0.0.2",
+    "toastify-js": "^1.12.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.8.26"
   },
@@ -53,6 +54,7 @@
     "@types/jasmine": "~2.8.6",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
+    "@types/toastify-js": "^1.12.3",
     "codelyzer": "~4.2.1",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
@@ -61,6 +63,7 @@
     "karma-coverage-istanbul-reporter": "~2.0.0",
     "karma-jasmine": "~1.1.1",
     "karma-jasmine-html-reporter": "^0.2.2",
+    "prettier": "^3.3.3",
     "protractor": "~5.4.0",
     "ts-node": "~5.0.1",
     "tslint": "~5.9.1",
