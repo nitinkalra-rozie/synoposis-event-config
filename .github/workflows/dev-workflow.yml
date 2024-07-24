@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - development
-      - feature/sleep-screen
 
 env:
   deployment: dev 
