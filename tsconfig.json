@@ -2,6 +2,7 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "importHelpers": true,
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -17,13 +18,19 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@syn/pipes": [
+        "src/app/@pipes/index.ts"
+      ],
+    }
   },
   "include": [
     "src/**/*.ts",
     "src/typings.d.ts",
   ],
   "angularCompilerOptions": {
-    "enableIvy": true
+    "enableIvy": false,
+    "strictTemplates": true,
   }
 }

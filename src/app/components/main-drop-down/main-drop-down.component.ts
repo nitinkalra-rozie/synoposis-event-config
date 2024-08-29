@@ -59,7 +59,7 @@ export class MainDropDownComponent implements OnInit {
 
   isMobileDevice = () => {
     return window.innerWidth < 768;
-  }
+  };
 
   truncateText = (text = '', maxLengthDesktop, maxLengthMobile) => {
     const maxLength = this.isMobileDevice() ? maxLengthMobile : maxLengthDesktop;
@@ -69,7 +69,7 @@ export class MainDropDownComponent implements OnInit {
   getSelectedText = () => {
     const maxLengthDesktop = 40;
     const maxLengthMobile = 25;
-  
+
     const tempText = this.truncateText(this.selectedValue[0], maxLengthDesktop, maxLengthMobile);
     if (this.selectedValue && this.selectedValue.length === 1) {
       return tempText;

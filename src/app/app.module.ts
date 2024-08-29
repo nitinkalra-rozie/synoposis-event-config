@@ -9,7 +9,6 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SideBarComponent } from './components/shared/side-bar/side-bar.component';
 import { TopBarComponent } from './components/shared/top-bar/top-bar.component';
-import { SharedModule } from './shared/shared.module';
 import { ElsaEventAdminV2Component } from './components/elsa-event-admin-v2/elsa-event-admin-v2.component';
 import { EventControlsComponent } from './components/event-controls/event-controls.component';
 import { MainDropDownComponent } from './components/main-drop-down/main-drop-down.component';
@@ -17,7 +16,6 @@ import { TimeSelectorComponent } from './components/time-selector/time-selector.
 import { SessionContentComponent } from './components/session-content/session-content.component';
 import { ScreenDisplayComponent } from './components/screen-display/screen-display.component';
 import { OutsideClickDirective } from './directives/outside-click.directive';
-import { TruncatePipe } from './components/main-drop-down/truncate.pipe';
 import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.component';
 import { AuthInterceptorService } from './services/auth-interceptor.service';
 import { LoginPageComponent } from './components/login-page/login-page.component';
@@ -27,6 +25,7 @@ import { AuthService } from './services/auth.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { FooterMobileComponent } from './components/shared/footer-mobile/footer-mobile.component';
+import { TruncatePipe } from './@pipes';
 
 @NgModule({
   declarations: [
@@ -42,12 +41,12 @@ import { FooterMobileComponent } from './components/shared/footer-mobile/footer-
     SessionContentComponent,
     ScreenDisplayComponent,
     OutsideClickDirective,
-    TruncatePipe,
     PopUpWindowComponent,
     LoginPageComponent,
     OtpComponent,
     FooterComponent,
     FooterMobileComponent,
+    TruncatePipe,
   ],
   imports: [
     HttpClientModule,
@@ -55,7 +54,6 @@ import { FooterMobileComponent } from './components/shared/footer-mobile/footer-
     FormsModule,
     CommonModule,
     BrowserModule,
-    SharedModule,
     ReactiveFormsModule,
   ],
   providers: [
@@ -65,7 +63,7 @@ import { FooterMobileComponent } from './components/shared/footer-mobile/footer-
       multi: true,
     },
     AuthApiService,
-    AuthService
+    AuthService,
   ],
 
   bootstrap: [AppComponent],
