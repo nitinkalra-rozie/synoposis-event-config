@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+// TODO: update to use Amplify v6. means aws-amplify@6.*.*
+// Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import {
   CognitoUserPool,
   CognitoUser,

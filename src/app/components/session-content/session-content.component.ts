@@ -2,9 +2,15 @@ import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
+// TODO: Consider replacing create-hash with one package. Look at crypto-js, hash.js, js-sha256 or SubtleCrypto (Web Crypto API)
 import * as createHash from 'create-hash';
+// TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
+// Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
+// TODO: use @smithy/util-utf8 instead of @aws-sdk/util-utf8-node.
+// Check - https://www.npmjs.com/package/@aws-sdk/util-utf8-node and https://www.npmjs.com/package/@aws-sdk/util-utf8
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
+// TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { EventDetail, PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';

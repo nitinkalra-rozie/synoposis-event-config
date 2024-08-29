@@ -5,6 +5,8 @@ import { AuthApiService } from './auth-api.service';
 import { AuthService } from './auth.service';
 import { AuthResponse, CustomChallengeResponse, CognitoError } from '../shared/types';
 import { environment } from 'src/environments/environment';
+// TODO: update to use Amplify v6. means aws-amplify@6.*.*
+// Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import { CognitoUser, CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
