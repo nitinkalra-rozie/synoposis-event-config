@@ -14,7 +14,7 @@ export class OtpComponent implements OnInit {
   submitPressed = false;
   email: string = '';
   errorMessage: string = '';
-  @ViewChild('inputs') inputsRef: ElementRef | undefined;
+  @ViewChild('inputs', { static: false }) inputsRef: ElementRef | undefined;
 
   constructor(
     private router: Router,
@@ -43,7 +43,6 @@ export class OtpComponent implements OnInit {
       }
     }
   }
-  
 
   handleKeyDown(index: number, event: KeyboardEvent) {
     const input = event.target as HTMLInputElement;
