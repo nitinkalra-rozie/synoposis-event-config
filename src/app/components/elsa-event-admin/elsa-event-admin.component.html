@@ -103,7 +103,7 @@
         </div>
           <div class="dropdown-content" [ngClass]="{'show': dropdownOpen}">
             <label *ngFor="let option of options">
-              <input type="checkbox" [value]="option" (change)="toggleSelection($event.target.value)">
+              <input type="checkbox" [value]="option" (change)="toggleSelection($event)">
               {{ option }}
             </label>
           </div>

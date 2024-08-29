@@ -458,11 +458,13 @@ export class ElsaEventAdminComponent {
     return session ? session : null;
   }
 
-  toggleSelection(option: string) {
-    if (this.selectedOptions.includes(option)) {
-      this.selectedOptions = this.selectedOptions.filter(item => item !== option);
+  toggleSelection(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+    if (this.selectedOptions.includes(value)) {
+      this.selectedOptions = this.selectedOptions.filter(item => item !== value);
     } else {
-      this.selectedOptions.push(option);
+      this.selectedOptions.push(value);
     }
   }
 

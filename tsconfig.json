@@ -31,7 +31,6 @@
     "src/typings.d.ts",
   ],
   "angularCompilerOptions": {
-    "enableIvy": false,
     "strictTemplates": true,
   }
 }

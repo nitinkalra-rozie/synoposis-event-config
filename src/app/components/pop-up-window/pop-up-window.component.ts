@@ -13,8 +13,8 @@ export class PopUpWindowComponent implements OnInit, OnDestroy {
   isVisible = false;
   buttonType: 'yes_no' | 'ok' = 'yes_no';
   private subscription: Subscription;
-  private onConfirm: () => void;
-  private onCancel: () => void;
+  public onConfirm: () => void;
+  public onCancel: () => void;
 
   constructor(private modalService: ModalService) {}
 

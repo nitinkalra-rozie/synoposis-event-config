@@ -20,7 +20,14 @@ export class ScreenDisplayComponent {
   @Input() imageUrl: string;
   @Input() ShowCombineDropdown: boolean = false;
   @Input() shoEventDropDown: boolean = false;
-  @Input() cards: Array<{ title: string; imageUrl: string; icon?: string }> = [];
+  @Input() cards: Array<{
+    displayFunction: () => void;
+    title: string;
+    imageUrl: string;
+    daySelector?: boolean;
+    icon?: string;
+    cardType?: EventCardType;
+  }> = [];
   @Input() sessionValueDropdown: boolean = false;
   @Input() subSessionValueDropdown: boolean = false;
   @Input() isSessionInProgress: boolean = false;

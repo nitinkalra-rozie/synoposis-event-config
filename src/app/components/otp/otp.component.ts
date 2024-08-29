@@ -26,7 +26,9 @@ export class OtpComponent implements OnInit {
     this.email = urlParams.get('email') || '';
   }
 
-  handleOtpChange(index: number, value: string) {
+  handleOtpChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
     if (!isNaN(Number(value)) && value.length === 1) {
       this.otp[index] = value;
       if (this.otp.every(digit => digit !== '')) {

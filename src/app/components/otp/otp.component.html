@@ -12,7 +12,7 @@
         <div class="otp-inputs" #inputs>
           <input
             *ngFor="let digit of otp; let i = index ;trackBy: trackByFn"
-            (input)="handleOtpChange(i, $event.target.value)"
+            (input)="handleOtpChange(i, $event)"
             type="text"
             [value]="digit"
             (keydown)="handleKeyDown(i, $event)"

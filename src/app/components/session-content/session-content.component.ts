@@ -21,7 +21,7 @@ export class SessionContentComponent implements OnInit {
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
-  @Input() transcriptTimeOutProp: string;
+  @Input() transcriptTimeOutProp: number;
   
 
   isSessionInProgress: boolean = false;
