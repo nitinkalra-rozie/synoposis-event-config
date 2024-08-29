@@ -30,7 +30,6 @@
     "@uriopass/nosleep.js": "^0.12.2",
     "ajv": "^6.9.1",
     "amazon-cognito-identity-js": "^6.3.12",
-    "angular-crypto": "^0.0.3",
     "asymmetric-crypto": "^1.0.2",
     "browserify": "^16.5.0",
     "core-js": "^2.5.4",

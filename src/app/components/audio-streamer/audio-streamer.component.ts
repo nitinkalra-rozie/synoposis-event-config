@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 declare const Buffer;
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
 import * as createHash from 'create-hash';
-import { createPresignedURL } from '../../helpers/aws-signature-v4'; // to generate our pre-signed URL
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
