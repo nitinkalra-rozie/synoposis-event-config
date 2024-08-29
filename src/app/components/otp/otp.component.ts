@@ -14,7 +14,7 @@ export class OtpComponent implements OnInit {
   submitPressed = false;
   email: string = '';
   errorMessage: string = '';
-  @ViewChild('inputs', { static: false }) inputsRef: ElementRef | undefined;
+  @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
   constructor(
     private router: Router,
