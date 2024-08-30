@@ -114,7 +114,7 @@ plugins:
 custom:
   fullstack:
     bucketName: ${self:service}
-    distributionFolder: /dist/Angularproject
+    distributionFolder: /dist/synopsis-admin-dashboard
     indexDocument: index.html
     errorDocument: index.html
     compressWebContent: true

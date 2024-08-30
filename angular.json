@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Angularproject": {
+    "synopsis-admin-dashboard": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,18 +13,13 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/Angularproject",
+            "outputPath": "dist/synopsis-admin-dashboard",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.css"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
+            "styles": ["src/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -100,20 +95,19 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-          },
+          "options": {},
           "configurations": {
             "production": {
-              "browserTarget": "Angularproject:build:production"
+              "browserTarget": "synopsis-admin-dashboard:build:production"
             },
             "dev": {
-              "browserTarget": "Angularproject:build:dev"
+              "browserTarget": "synopsis-admin-dashboard:build:dev"
             },
             "prod": {
-              "browserTarget": "Angularproject:build:prod"
+              "browserTarget": "synopsis-admin-dashboard:build:prod"
             },
             "development": {
-              "browserTarget": "Angularproject:build:development"
+              "browserTarget": "synopsis-admin-dashboard:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -121,7 +115,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Angularproject:build"
+            "browserTarget": "synopsis-admin-dashboard:build"
           }
         },
         "test": {
@@ -131,62 +125,16 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
-            "styles": [
-              "src/styles.css"
-            ],
+            "styles": ["src/styles.css"],
             "scripts": [],
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ]
+            "assets": ["src/favicon.ico", "src/assets"]
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": [
-              "src/tsconfig.app.json",
-              "src/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
-        }
-      }
-    },
-    "Angularproject-e2e": {
-      "root": "e2e/",
-      "projectType": "application",
-      "architect": {
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "Angularproject:serve:production"
-            },
-            "dev": {
-              "devServerTarget": "Angularproject:serve:dev"
-            },
-            "prod": {
-              "devServerTarget": "Angularproject:serve:prod"
-            },
-            "development": {
-              "devServerTarget": "Angularproject:serve:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": "e2e/tsconfig.e2e.json",
-            "exclude": [
-              "**/node_modules/**"
-            ]
+            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
+            "exclude": ["**/node_modules/**"]
           }
         }
       }
