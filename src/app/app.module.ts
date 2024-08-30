@@ -4,7 +4,6 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { AudioStreamerComponent } from './components/audio-streamer/audio-streamer.component';
 import { AppRoutingModule } from './app-routing.module';
-import { ElsaEventAdminComponent } from './components/elsa-event-admin/elsa-event-admin.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SideBarComponent } from './components/shared/side-bar/side-bar.component';
@@ -31,7 +30,6 @@ import { TruncatePipe } from './@pipes';
   declarations: [
     AppComponent,
     AudioStreamerComponent,
-    ElsaEventAdminComponent,
     SideBarComponent,
     TopBarComponent,
     ElsaEventAdminV2Component,
