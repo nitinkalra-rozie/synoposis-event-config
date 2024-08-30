@@ -10,9 +10,7 @@
     "build:prod": "ng build --configuration=prod",
     "start:dev": "ng serve --configuration=dev",
     "start:prod": "ng serve --configuration=prod",
-    "lint": "ng lint",
-    "e2e": "ng e2e",
-    "postinstall": "node patch.js"
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
