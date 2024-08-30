@@ -16,7 +16,8 @@
     "typeRoots": ["node_modules/@types"],
     "lib": ["es2017", "dom"],
     "paths": {
-      "@syn/pipes": ["src/app/@pipes/index.ts"]
+      "@syn/pipes": ["src/app/@pipes/index.ts"],
+      "@syn/utils": ["src/app/@utils/index.ts"],
     }
   },
   "include": ["src/**/*.ts", "src/typings.d.ts"],

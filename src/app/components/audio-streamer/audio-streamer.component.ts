@@ -1,8 +1,5 @@
 import { Component } from '@angular/core';
-declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
-// TODO: Consider replacing create-hash with one package. Look at crypto-js, hash.js, js-sha256 or SubtleCrypto (Web Crypto API)
-import * as createHash from 'create-hash';
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
@@ -12,6 +9,8 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 // TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { BackendApiService } from 'src/app/services/backend-api.service';
+import { generateSHA256HashHex } from '@syn/utils';
+
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -90,7 +89,7 @@ createPresignedUrlNew = async () => {
       endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
       path: '/stream-transcription-websocket',
       service: 'transcribe',
-      hash:createHash('sha256').update('', 'utf8').digest('hex'),
+      hash: await generateSHA256HashHex(''),
       options:{
         key: 'AKIA3SVZJVX56UU2YEWT',
         secret: '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',
@@ -156,7 +155,7 @@ createPresignedUrlNew = async () => {
 
     // add the right JSON headers and structure to the message
     let audioEventMessage = this.getAudioEventMessage(
-      Buffer.from(pcmEncodedBuffer)
+      new Uint8Array(pcmEncodedBuffer)
     );
 
     //convert the JSON object + headers into a binary event stream message
@@ -171,7 +170,7 @@ createPresignedUrlNew = async () => {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
+      let emptyMessage = this.getAudioEventMessage(new Uint8Array(0));
       // @ts-ignore
       let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
@@ -207,7 +206,7 @@ createPresignedUrlNew = async () => {
     this.socket.onmessage = message => {
       //convert the binary event stream message to JSON
       let messageWrapper = eventStreamMarshaller.unmarshall(
-        Buffer(message.data)
+        new Uint8Array(message.data)
       );
       let messageBody = JSON.parse(
         String.fromCharCode.apply(String, messageWrapper.body)

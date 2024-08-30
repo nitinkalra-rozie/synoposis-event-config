@@ -1,9 +1,6 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
-declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
-// TODO: Consider replacing create-hash with one package. Look at crypto-js, hash.js, js-sha256 or SubtleCrypto (Web Crypto API)
-import * as createHash from 'create-hash';
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
@@ -16,6 +13,8 @@ import { EventDetail, PostData } from 'src/app/shared/types';
 import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 'src/app/shared/enums';
 import { ModalService } from 'src/app/services/modal.service';
 import { MicrophoneService } from 'src/app/services/microphone.service';
+import { generateSHA256HashHex } from '@syn/utils';
+
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
   selector: 'app-session-content',
@@ -863,7 +862,7 @@ export class SessionContentComponent implements OnInit {
       endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
       path: '/stream-transcription-websocket',
       service: 'transcribe',
-      hash: createHash('sha256').update('', 'utf8').digest('hex'),
+      hash: await generateSHA256HashHex(''),
       options: {
         protocol: 'wss',
         expires: 15,
@@ -903,7 +902,7 @@ export class SessionContentComponent implements OnInit {
     let pcmEncodedBuffer = pcmEncode(downsampledBuffer);
 
     // add the right JSON headers and structure to the message
-    let audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
+    let audioEventMessage = this.getAudioEventMessage(new Uint8Array(pcmEncodedBuffer));
 
     //convert the JSON object + headers into a binary event stream message
     // @ts-ignore
@@ -920,7 +919,7 @@ export class SessionContentComponent implements OnInit {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
+      let emptyMessage = this.getAudioEventMessage(new Uint8Array(0));
       // @ts-ignore
       let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
@@ -986,7 +985,7 @@ export class SessionContentComponent implements OnInit {
     // handle inbound messages from Amazon Transcribe
     this.socket.onmessage = message => {
       //convert the binary event stream message to JSON
-      let messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
+      let messageWrapper = eventStreamMarshaller.unmarshall(new Uint8Array(message.data));
       let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
       if (this.isSessionInProgress && messageWrapper.headers[':message-type'].value === 'event') {
         this.handleEventStreamMessage(messageBody);
