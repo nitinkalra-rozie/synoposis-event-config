@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
@@ -155,7 +156,7 @@ createPresignedUrlNew = async () => {
 
     // add the right JSON headers and structure to the message
     let audioEventMessage = this.getAudioEventMessage(
-      new Uint8Array(pcmEncodedBuffer)
+      Buffer.from(pcmEncodedBuffer)
     );
 
     //convert the JSON object + headers into a binary event stream message
@@ -170,7 +171,7 @@ createPresignedUrlNew = async () => {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      let emptyMessage = this.getAudioEventMessage(new Uint8Array(0));
+     let emptyMessage = this.getAudioEventMessage(new Uint8Array(0));
       // @ts-ignore
       let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
@@ -206,7 +207,7 @@ createPresignedUrlNew = async () => {
     this.socket.onmessage = message => {
       //convert the binary event stream message to JSON
       let messageWrapper = eventStreamMarshaller.unmarshall(
-        new Uint8Array(message.data)
+        Buffer(message.data)
       );
       let messageBody = JSON.parse(
         String.fromCharCode.apply(String, messageWrapper.body)
