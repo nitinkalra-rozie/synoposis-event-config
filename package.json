@@ -27,6 +27,7 @@
     "@uriopass/nosleep.js": "^0.12.2",
     "amazon-cognito-identity-js": "^6.3.12",
     "browserify": "^16.5.2",
+    "buffer": "^6.0.3",
     "core-js": "^2.6.12",
     "microphone-stream": "^5.3.1",
     "query-string": "^6.14.1",
