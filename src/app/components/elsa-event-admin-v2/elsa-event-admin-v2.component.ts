@@ -7,7 +7,7 @@ import { EventDetail, PostData } from 'src/app/shared/types';
 @Component({
   selector: 'app-elsa-event-admin-v2',
   templateUrl: './elsa-event-admin-v2.component.html',
-  styleUrls: ['./elsa-event-admin-v2.component.css'],
+  styleUrls: ['./elsa-event-admin-v2.component.scss'],
 })
 export class ElsaEventAdminV2Component implements OnInit {
   eventNames: Array<string> = [];

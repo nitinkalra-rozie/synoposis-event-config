@@ -4,7 +4,7 @@ import { ModalService } from 'src/app/services/modal.service';
 @Component({
   selector: 'app-top-bar',
   templateUrl: './top-bar.component.html',
-  styleUrls: ['./top-bar.component.css'],
+  styleUrls: ['./top-bar.component.scss'],
 })
 export class TopBarComponent {
   showDropdown: boolean = false;

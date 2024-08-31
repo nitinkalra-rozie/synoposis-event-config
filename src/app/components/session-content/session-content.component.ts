@@ -20,7 +20,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_nod
 @Component({
   selector: 'app-session-content',
   templateUrl: './session-content.component.html',
-  styleUrls: ['./session-content.component.css'],
+  styleUrls: ['./session-content.component.scss'],
 })
 export class SessionContentComponent implements OnInit {
   ScreenDisplayType = ScreenDisplayType;

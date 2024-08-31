@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 @Component({
   selector: 'app-main-drop-down',
   templateUrl: './main-drop-down.component.html',
-  styleUrls: ['./main-drop-down.component.css'],
+  styleUrls: ['./main-drop-down.component.scss'],
 })
 export class MainDropDownComponent implements OnInit {
   dropDownVisible: boolean = false;

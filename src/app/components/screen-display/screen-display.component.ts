@@ -4,7 +4,7 @@ import { EventCardType, EventDetailType, ScreenDisplayType } from 'src/app/share
 @Component({
   selector: 'app-screen-display',
   templateUrl: './screen-display.component.html',
-  styleUrls: ['./screen-display.component.css'],
+  styleUrls: ['./screen-display.component.scss'],
 })
 export class ScreenDisplayComponent {
   selectedSessions: string[] = [];

@@ -6,7 +6,7 @@ import { PostData } from 'src/app/shared/types';
 @Component({
   selector: 'app-event-controls',
   templateUrl: './event-controls.component.html',
-  styleUrls: ['./event-controls.component.css'],
+  styleUrls: ['./event-controls.component.scss'],
 })
 export class EventControlsComponent implements OnInit {
   public PostDataEnum = PostDataEnum;

@@ -6,7 +6,7 @@ import { AuthResponse } from 'src/app/shared/types';
 @Component({
   selector: 'app-otp',
   templateUrl: './otp.component.html',
-  styleUrls: ['./otp.component.css'], // Ensure this path is correct
+  styleUrls: ['./otp.component.scss'], // Ensure this path is correct
 })
 export class OtpComponent implements OnInit {
   otp: string[] = ['', '', '', '', '', ''];

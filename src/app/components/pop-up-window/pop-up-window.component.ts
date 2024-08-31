@@ -5,7 +5,7 @@ import { ModalService } from 'src/app/services/modal.service';
 @Component({
   selector: 'app-pop-up-window',
   templateUrl: './pop-up-window.component.html',
-  styleUrls: ['./pop-up-window.component.css']
+  styleUrls: ['./pop-up-window.component.scss']
 })
 export class PopUpWindowComponent implements OnInit, OnDestroy {
   title = '';
