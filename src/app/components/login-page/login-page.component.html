@@ -22,7 +22,7 @@
           <p *ngIf="errorMessage && !errorMessage.includes('don\'t have your email address')" class="error-message">
             This email is not enabled. Please connect with us at 
             <a href="mailto:hello@rozie.ai" class="email-link">
-              hello@rozie.ai
+              hello&#64;rozie.ai
             </a> to get the access.
           </p>          
           <button *ngIf="!errorMessage" type="submit" [disabled]="processedClicked || !isEmailValid || emailForm.invalid">Proceed</button>

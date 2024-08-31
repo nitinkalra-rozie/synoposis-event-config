@@ -22,9 +22,26 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.scss"],
-            "scripts": []
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "buffer",
+              "microphone-stream",
+              "@aws-sdk/eventstream-marshaller",
+              "@aws-sdk/util-utf8-node",
+              "amazon-cognito-identity-js",
+              "@uriopass/nosleep.js",
+              "@aws-crypto/crc32",
+              "@aws-crypto/sha256-js",
+              "isomorphic-unfetch",
+              "js-cookie"
+            ]
           },
           "configurations": {
             "production": {
@@ -102,16 +119,16 @@
           "options": {},
           "configurations": {
             "production": {
-              "browserTarget": "synopsis-admin-dashboard:build:production"
+              "buildTarget": "synopsis-admin-dashboard:build:production"
             },
             "dev": {
-              "browserTarget": "synopsis-admin-dashboard:build:dev"
+              "buildTarget": "synopsis-admin-dashboard:build:dev"
             },
             "prod": {
-              "browserTarget": "synopsis-admin-dashboard:build:prod"
+              "buildTarget": "synopsis-admin-dashboard:build:prod"
             },
             "development": {
-              "browserTarget": "synopsis-admin-dashboard:build:development"
+              "buildTarget": "synopsis-admin-dashboard:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -119,7 +136,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "synopsis-admin-dashboard:build"
+            "buildTarget": "synopsis-admin-dashboard:build"
           }
         },
         "test": {
@@ -129,16 +146,26 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "src/styles.scss"
+            ],
             "scripts": [],
-            "assets": ["src/favicon.ico", "src/assets"]
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ]
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
-            "tsConfig": ["src/tsconfig.app.json", "src/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**"]
+            "tsConfig": [
+              "src/tsconfig.app.json",
+              "src/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
           }
         }
       }
