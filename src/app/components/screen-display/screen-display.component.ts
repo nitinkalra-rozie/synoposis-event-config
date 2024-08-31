@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { EventCardType, EventDetailType, ScreenDisplayType } from 'src/app/shared/enums';
+import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
 
 @Component({
-  selector: 'app-screen-display',
-  templateUrl: './screen-display.component.html',
-  styleUrls: ['./screen-display.component.scss'],
+    selector: 'app-screen-display',
+    templateUrl: './screen-display.component.html',
+    styleUrls: ['./screen-display.component.scss'],
+    standalone: true,
+    imports: [MainDropDownComponent],
 })
 export class ScreenDisplayComponent {
   selectedSessions: string[] = [];

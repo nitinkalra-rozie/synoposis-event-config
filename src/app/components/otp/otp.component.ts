@@ -2,11 +2,20 @@ import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service'; // Ensure this import path is correct
 import { AuthResponse } from 'src/app/shared/types';
+import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
+import { FormsModule } from '@angular/forms';
+import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
-  selector: 'app-otp',
-  templateUrl: './otp.component.html',
-  styleUrls: ['./otp.component.scss'], // Ensure this path is correct
+    selector: 'app-otp',
+    templateUrl: './otp.component.html',
+    styleUrls: ['./otp.component.scss'],
+    standalone: true,
+    imports: [
+        FooterComponent,
+        FormsModule,
+        FooterMobileComponent,
+    ],
 })
 export class OtpComponent implements OnInit {
   otp: string[] = ['', '', '', '', '', ''];

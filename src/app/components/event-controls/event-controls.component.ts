@@ -2,11 +2,14 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { INITIAL_POST_DATA, TimeWindows, TransitionTimes } from 'src/app/shared/constants';
 import { PostDataEnum, ThemeOptions, TimeWindowsEnum, TransitionTimesEnum } from 'src/app/shared/enums';
 import { PostData } from 'src/app/shared/types';
+import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
 
 @Component({
-  selector: 'app-event-controls',
-  templateUrl: './event-controls.component.html',
-  styleUrls: ['./event-controls.component.scss'],
+    selector: 'app-event-controls',
+    templateUrl: './event-controls.component.html',
+    styleUrls: ['./event-controls.component.scss'],
+    standalone: true,
+    imports: [MainDropDownComponent],
 })
 export class EventControlsComponent implements OnInit {
   public PostDataEnum = PostDataEnum;

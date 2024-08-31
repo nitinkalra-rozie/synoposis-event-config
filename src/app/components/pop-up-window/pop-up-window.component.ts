@@ -3,9 +3,10 @@ import { Subscription } from 'rxjs';
 import { ModalService } from 'src/app/services/modal.service';
 
 @Component({
-  selector: 'app-pop-up-window',
-  templateUrl: './pop-up-window.component.html',
-  styleUrls: ['./pop-up-window.component.scss']
+    selector: 'app-pop-up-window',
+    templateUrl: './pop-up-window.component.html',
+    styleUrls: ['./pop-up-window.component.scss'],
+    standalone: true
 })
 export class PopUpWindowComponent implements OnInit, OnDestroy {
   title = '';

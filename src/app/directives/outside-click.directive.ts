@@ -1,7 +1,8 @@
 import { Directive, ElementRef, Output, EventEmitter, Renderer2 } from '@angular/core';
 
 @Directive({
-  selector: '[appOutSideClick]',
+    selector: '[appOutSideClick]',
+    standalone: true,
 })
 export class OutsideClickDirective {
   @Output() outSideClick: EventEmitter<void> = new EventEmitter();

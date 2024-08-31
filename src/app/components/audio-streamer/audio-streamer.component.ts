@@ -19,9 +19,10 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
 );
 
 @Component({
-  selector: 'app-audio-streamer',
-  templateUrl: './audio-streamer.component.html',
-  styleUrls: ['./audio-streamer.component.scss']
+    selector: 'app-audio-streamer',
+    templateUrl: './audio-streamer.component.html',
+    styleUrls: ['./audio-streamer.component.scss'],
+    standalone: true
 })
 export class AudioStreamerComponent  {
   title = 'AngularTranscribe';

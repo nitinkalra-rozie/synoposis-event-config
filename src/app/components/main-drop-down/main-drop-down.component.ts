@@ -1,9 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TruncatePipe } from '../../@pipes/truncate.pipe';
+import { OutsideClickDirective } from '../../directives/outside-click.directive';
 
 @Component({
-  selector: 'app-main-drop-down',
-  templateUrl: './main-drop-down.component.html',
-  styleUrls: ['./main-drop-down.component.scss'],
+    selector: 'app-main-drop-down',
+    templateUrl: './main-drop-down.component.html',
+    styleUrls: ['./main-drop-down.component.scss'],
+    standalone: true,
+    imports: [OutsideClickDirective, TruncatePipe],
 })
 export class MainDropDownComponent implements OnInit {
   dropDownVisible: boolean = false;

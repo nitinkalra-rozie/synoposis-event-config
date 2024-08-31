@@ -3,11 +3,20 @@ import { BackendApiService } from 'src/app/services/backend-api.service';
 import { INITIAL_POST_DATA, TimeWindows, TransitionTimes } from 'src/app/shared/constants';
 import { EventDetailType, PostDataEnum, ThemeOptions, TimeWindowsEnum } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
+import { SessionContentComponent } from '../session-content/session-content.component';
+import { EventControlsComponent } from '../event-controls/event-controls.component';
+import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 
 @Component({
-  selector: 'app-elsa-event-admin-v2',
-  templateUrl: './elsa-event-admin-v2.component.html',
-  styleUrls: ['./elsa-event-admin-v2.component.scss'],
+    selector: 'app-elsa-event-admin-v2',
+    templateUrl: './elsa-event-admin-v2.component.html',
+    styleUrls: ['./elsa-event-admin-v2.component.scss'],
+    standalone: true,
+    imports: [
+        TopBarComponent,
+        EventControlsComponent,
+        SessionContentComponent,
+    ],
 })
 export class ElsaEventAdminV2Component implements OnInit {
   eventNames: Array<string> = [];

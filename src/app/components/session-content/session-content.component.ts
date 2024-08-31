@@ -15,12 +15,16 @@ import { EventCardType, EventDetailType, ScreenDisplayType, ThemeOptions } from 
 import { ModalService } from 'src/app/services/modal.service';
 import { MicrophoneService } from 'src/app/services/microphone.service';
 import { generateSHA256HashHex } from '@syn/utils';
+import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
+import { NgClass } from '@angular/common';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
-  selector: 'app-session-content',
-  templateUrl: './session-content.component.html',
-  styleUrls: ['./session-content.component.scss'],
+    selector: 'app-session-content',
+    templateUrl: './session-content.component.html',
+    styleUrls: ['./session-content.component.scss'],
+    standalone: true,
+    imports: [NgClass, ScreenDisplayComponent],
 })
 export class SessionContentComponent implements OnInit {
   ScreenDisplayType = ScreenDisplayType;
