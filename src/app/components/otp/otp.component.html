@@ -1,6 +1,6 @@
 <div class="otp-container">
-  <div class="otp-left-side"> 
-      <app-footer></app-footer>
+  <div class="otp-left-side">
+    <app-footer></app-footer>
   </div>
   <div class="otp-right">
     <div class="otp-bg"></div>
@@ -10,31 +10,40 @@
       <h4>Enter 6 digits code</h4>
       <form (submit)="handleSubmit()">
         <div class="otp-inputs" #inputs>
-          <input
-            *ngFor="let digit of otp; let i = index ;trackBy: trackByFn"
-            (input)="handleOtpChange(i, $event)"
-            type="text"
-            [value]="digit"
-            (keydown)="handleKeyDown(i, $event)"
-            (paste)="handlePaste($event)"
-            maxlength="1"
-            inputmode="numeric"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            required
-          />
+          @for (digit of otp; track trackByFn(i, digit); let i = $index) {
+            <input
+              (input)="handleOtpChange(i, $event)"
+              type="text"
+              [value]="digit"
+              (keydown)="handleKeyDown(i, $event)"
+              (paste)="handlePaste($event)"
+              maxlength="1"
+              inputmode="numeric"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              required
+              />
+          }
         </div>
-        <p *ngIf="errorMessage" class="error-message">
-          Please check your OTP!
-        </p>
+        @if (errorMessage) {
+          <p class="error-message">
+            Please check your OTP!
+          </p>
+        }
         <button [disabled]="submitPressed" type="submit">Verify Code</button>
       </form>
       <div class="otp-resend-container">
-        <h5 *ngIf="!resendClicked">Didn't receive the code?</h5>
-        <p *ngIf="!resendClicked" class="otp-resend-link left-space-5px" (click)="handleResendOTP()">
-          Resend
-        </p>
-        <p *ngIf="resendClicked" class="left-space-5px"> OTP has been resent</p>
+        @if (!resendClicked) {
+          <h5>Didn't receive the code?</h5>
+        }
+        @if (!resendClicked) {
+          <p class="otp-resend-link left-space-5px" (click)="handleResendOTP()">
+            Resend
+          </p>
+        }
+        @if (resendClicked) {
+          <p class="left-space-5px"> OTP has been resent</p>
+        }
       </div>
     </div>
     <p class="otp-sub">

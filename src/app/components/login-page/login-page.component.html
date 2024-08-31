@@ -6,35 +6,41 @@
   <div class="right-side">
     <div class="email-model">
       <div class="bg"></div>
-      <ng-container *ngIf="!requestingAccess; else accessSent">
+      @if (!requestingAccess) {
         <h2>Log in </h2>
         <h3>Explore the Synopsis for Events Admin Dashboard</h3>
         <h4>Email Address</h4>
         <form [formGroup]="emailForm" (ngSubmit)="handleSignUp()">
-
           <div class="input-wrapper">
             <input type="email" placeholder="Enter Your Email Address" formControlName="email"
               (input)="handleEmailChange()" [class.valid]="isEmailValid" required />
-            <div *ngIf="errorMessage && errorMessage.includes('don\'t have your email address')">
-              {{ errorMessage }}
-            </div>
+            @if (errorMessage && errorMessage.includes('don\'t have your email address')) {
+              <div>
+                {{ errorMessage }}
+              </div>
+            }
           </div>
-          <p *ngIf="errorMessage && !errorMessage.includes('don\'t have your email address')" class="error-message">
-            This email is not enabled. Please connect with us at 
-            <a href="mailto:hello@rozie.ai" class="email-link">
-              hello&#64;rozie.ai
-            </a> to get the access.
-          </p>          
-          <button *ngIf="!errorMessage" type="submit" [disabled]="processedClicked || !isEmailValid || emailForm.invalid">Proceed</button>
+          @if (errorMessage && !errorMessage.includes('don\'t have your email address')) {
+            <p class="error-message">
+              This email is not enabled. Please connect with us at
+              <a href="mailto:hello@rozie.ai" class="email-link">
+                hello&#64;rozie.ai
+              </a> to get the access.
+            </p>
+          }
+          @if (!errorMessage) {
+            <button type="submit" [disabled]="processedClicked || !isEmailValid || emailForm.invalid">Proceed</button>
+          }
         </form>
-      </ng-container>
-      <ng-template #accessSent>
+      } @else {
         <h5>Your request to access the Rozie Synopsis has been sent.</h5>
         <h6>You will receive an email if and when your request is approved.</h6>
-      </ng-template>
-      <button *ngIf="!requestingAccess && errorMessage" (click)="handleRequestAccess()">
-        Request Access
-      </button>
+      }
+      @if (!requestingAccess && errorMessage) {
+        <button (click)="handleRequestAccess()">
+          Request Access
+        </button>
+      }
 
       <p class="sub">
         Disclaimer: By proceeding with login, you agree to receive a one-time password (OTP) via SMS or email to

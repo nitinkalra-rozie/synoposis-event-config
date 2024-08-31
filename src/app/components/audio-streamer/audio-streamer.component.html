@@ -1,7 +1,11 @@
 <div class="stream-mic-icon">
   <div class="img-wrapper">
-      <img src="../../../assets/mic_mute_icon.svg" alt="" title="click to start stream" *ngIf="!isStreaming" (click)="startRecording()">
-      <img src="../../../assets/mic_icon.svg" alt="" title="click to stop stream" *ngIf="isStreaming" (click)="closeSocket()">
+    @if (!isStreaming) {
+      <img src="../../../assets/mic_mute_icon.svg" alt="" title="click to start stream" (click)="startRecording()">
+    }
+    @if (isStreaming) {
+      <img src="../../../assets/mic_icon.svg" alt="" title="click to stop stream" (click)="closeSocket()">
+    }
   </div>
 </div>
 <div class="transcription-output">

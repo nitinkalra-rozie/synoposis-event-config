@@ -2,63 +2,81 @@
   <div class="box-title">
     <span class="main-title">{{ title }}</span>
     <div class="button-container">
-      <button class="dynamic-button-start" *ngIf="showStartListeningButton" (click)="onStartListening()"
-        [disabled]="isSessionInProgress">
-        <img src="../../../assets/admin screen/mic_none.svg" alt="Start Listening Icon" class="button-icon" />
-        <span class="button-text">Start Listening</span>
-      </button>
-      <button class="dynamic-button-stop" *ngIf="showStopScreenButton" (click)="onStopListening()"
-        [disabled]="!isSessionInProgress">
-        <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
-        <span class="button-text">Pause Listening</span>
-      </button>
+      @if (showStartListeningButton) {
+        <button class="dynamic-button-start" (click)="onStartListening()"
+          [disabled]="isSessionInProgress">
+          <img src="../../../assets/admin screen/mic_none.svg" alt="Start Listening Icon" class="button-icon" />
+          <span class="button-text">Start Listening</span>
+        </button>
+      }
+      @if (showStopScreenButton) {
+        <button class="dynamic-button-stop" (click)="onStopListening()"
+          [disabled]="!isSessionInProgress">
+          <img src="../../../assets/admin screen/stop.svg" alt="Stop Screen Icon" class="button-icon" />
+          <span class="button-text">Pause Listening</span>
+        </button>
+      }
       <div class="vline">
         <img src="../../../assets/admin screen/vline.svg" alt="vertical v line" />
       </div>
-      <button class="dynamic-button-End" *ngIf="showStopScreenButton" (click)="onEndSession()">
-        <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
-        <span class="button-text">{{getEndButtonText()}}</span>
-      </button>
+      @if (showStopScreenButton) {
+        <button class="dynamic-button-End" (click)="onEndSession()">
+          <img src="../../../assets/admin screen/close.svg" alt="Stop Screen Icon" class="button-icon" />
+          <span class="button-text">{{getEndButtonText()}}</span>
+        </button>
+      }
     </div>
   </div>
 
-  <div class="combine-dropdown" *ngIf="ShowCombineDropdown">
-    <div class="session-day-wrapper">
-      <app-main-drop-down dropdownTitle="Select Day" [selectedValue]="[sessionDay]" [dropdownContent]="eventDays"
+  @if (ShowCombineDropdown) {
+    <div class="combine-dropdown">
+      <div class="session-day-wrapper">
+        <app-main-drop-down dropdownTitle="Select Day" [selectedValue]="[sessionDay]" [dropdownContent]="eventDays"
         (onDropdownSelect)="handleSessionDayDropdownSelect($event)"></app-main-drop-down>
-    </div>
-    <div *ngIf="sessionValueDropdown">
-      <div class="sessions-wrapper">
-        <app-main-drop-down [disabled]="(type === ScreenDisplayType.SessionSpecific)  && isSessionInProgress"
-          dropdownTitle="Select Session" [selectedValue]="selectedSessions" [dropdownContent]="sessionTitles"
-          (onDropdownSelect)="handleSelectSessionSelect($event)"></app-main-drop-down> <!-- session value -->
       </div>
+      @if (sessionValueDropdown) {
+        <div>
+          <div class="sessions-wrapper">
+            <app-main-drop-down [disabled]="(type === ScreenDisplayType.SessionSpecific)  && isSessionInProgress"
+              dropdownTitle="Select Session" [selectedValue]="selectedSessions" [dropdownContent]="sessionTitles"
+            (onDropdownSelect)="handleSelectSessionSelect($event)"></app-main-drop-down> <!-- session value -->
+          </div>
+        </div>
+      }
+      @if (subSessionValueDropdown) {
+        <div>
+          <div class="sessions-wrapper">
+            <app-main-drop-down dropdownTitle="Select Sessions" [selectedValue]="selectedSessions"
+              [dropdownContent]="sessionTitles" (onDropdownSelect)="handleSelectSessionsSelect($event)"
+            type="t4"></app-main-drop-down>
+          </div>
+        </div>
+      }
     </div>
-    <div *ngIf="subSessionValueDropdown">
-      <div class="sessions-wrapper">
-        <app-main-drop-down dropdownTitle="Select Sessions" [selectedValue]="selectedSessions"
-          [dropdownContent]="sessionTitles" (onDropdownSelect)="handleSelectSessionsSelect($event)"
-          type="t4"></app-main-drop-down>
-      </div>
-    </div>
-  </div>
+  }
 
   <div class="card-container">
-    <div class="card" *ngFor="let card of cards">
-      <div class="card-combine">
-        <img [src]="card.imageUrl" alt="Card image" class="card-image" />
-        <div class="card-border">
-          <img [src]="card.icon" alt="Icon" class="icon" *ngIf="card.icon" />
-          <span class="title">{{ card.title }}</span>
-          <div class="button-container">
-            <div class="day-selector" *ngIf="shoEventDropDown && card.daySelector">
-              <app-main-drop-down type="t3" [selectedValue]="[eventDay[card.cardType]]" [dropdownContent]="eventDays"
-                (onDropdownSelect)="handleEventDayDropdownSelect($event, card.cardType)"></app-main-drop-down>
+    @for (card of cards; track card) {
+      <div class="card">
+        <div class="card-combine">
+          <img [src]="card.imageUrl" alt="Card image" class="card-image" />
+          <div class="card-border">
+            @if (card.icon) {
+              <img [src]="card.icon" alt="Icon" class="icon" />
+            }
+            <span class="title">{{ card.title }}</span>
+            <div class="button-container">
+              @if (shoEventDropDown && card.daySelector) {
+                <div class="day-selector">
+                  <app-main-drop-down type="t3" [selectedValue]="[eventDay[card.cardType]]" [dropdownContent]="eventDays"
+                  (onDropdownSelect)="handleEventDayDropdownSelect($event, card.cardType)"></app-main-drop-down>
+                </div>
+              }
+              <button class="show-button" (click)="cardDisplayFunction(card.displayFunction)">Display</button>
             </div>
-            <button class="show-button" (click)="cardDisplayFunction(card.displayFunction)">Display</button>
           </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 </div>

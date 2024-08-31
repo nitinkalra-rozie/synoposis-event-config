@@ -11,9 +11,11 @@
       <div class="icon">
         <div class="profile-icon-wrapper" (click)="toggleDropdown()" appOutSideClick (outSideClick)="onOutsideClick()">
           <img src="../../../../assets/profile-icon.svg" alt="icon3" class="profile-icon" />
-          <div class="dropdown" *ngIf="showDropdown">
-            <li (click)="logout()">Log out</li>
-          </div>
+          @if (showDropdown) {
+            <div class="dropdown">
+              <li (click)="logout()">Log out</li>
+            </div>
+          }
         </div>
       </div>
     </div>
