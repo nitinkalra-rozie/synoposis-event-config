@@ -1,9 +1,15 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-
-import { AppModule } from './app/app.module';
+import { enableProdMode, importProvidersFrom } from '@angular/core';
 import { environment } from './environments/environment';
 import NoSleep from '@uriopass/nosleep.js';
+import { AppComponent } from './app/app.component';
+import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AppRoutingModule } from './app/app-routing.module';
+import { AuthService } from './app/services/auth.service';
+import { AuthApiService } from './app/services/auth-api.service';
+import { AuthInterceptorService } from './app/services/auth-interceptor.service';
+import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
 var noSleep = new NoSleep();
 if (environment.production) {
   // enableProdMode();
@@ -14,7 +20,19 @@ if (environment.production) {
   }
   console.debug = console.error = () => { };
 }
-platformBrowserDynamic().bootstrapModule(AppModule)
+bootstrapApplication(AppComponent, {
+    providers: [
+        importProvidersFrom(AppRoutingModule, FormsModule, CommonModule, BrowserModule, ReactiveFormsModule),
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptorService,
+            multi: true,
+        },
+        AuthApiService,
+        AuthService,
+        provideHttpClient(withInterceptorsFromDi()),
+    ]
+})
   .catch(err => console.log(err));
 
 var wakeLockEnabled = false;
