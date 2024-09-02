@@ -88,7 +88,7 @@ export class SessionContentComponent implements OnInit {
     {
       cardType: EventCardType.Welcome,
       title: 'Welcome Screen',
-      imageUrl: '../../../assets/admin screen/welcomw_screen.svg',
+      imageUrl: '../../../assets/admin screen/welcome_screen.svg',
       daySelector:true,
       displayFunction: () => this.showWelcomeMessageBanner(),
     },

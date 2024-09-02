@@ -58,10 +58,6 @@ export class ScreenDisplayComponent {
     [EventCardType.Info]: '',
   };
 
-  constructor() {}
-
-  ngOnInit() {}
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
       if (changes['sessionTitles'].currentValue != changes['sessionTitles'].previousValue) {
