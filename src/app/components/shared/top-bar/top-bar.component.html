@@ -9,8 +9,15 @@
 
     <div class="menu-icon">
       <div class="icon">
-        <div class="profile-icon-wrapper" (click)="toggleDropdown()" appOutSideClick (outSideClick)="onOutsideClick()">
-          <img src="../../../../assets/profile-icon.svg" alt="icon3" class="profile-icon" />
+        <div
+          class="profile-icon-wrapper"
+          (click)="toggleDropdown()"
+          (outSideClick)="onOutsideClick()"
+          appOutSideClick>
+          <img
+            class="profile-icon"
+            alt="icon3"
+            src="../../../../assets/profile-icon.svg" />
           @if (showDropdown) {
             <div class="dropdown">
               <li (click)="logout()">Log out</li>

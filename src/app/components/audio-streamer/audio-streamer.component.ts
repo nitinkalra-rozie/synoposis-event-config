@@ -13,7 +13,10 @@ import { BackendApiService } from 'src/app/services/backend-api.service';
 import { generateSHA256HashHex } from '@syn/utils';
 
 // our converter between binary event streams messages and JSON
-const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
+const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
+  util_utf8_node.toUtf8,
+  util_utf8_node.fromUtf8
+);
 
 @Component({
   selector: 'app-audio-streamer',
@@ -46,7 +49,10 @@ export class AudioStreamerComponent {
       // ...then we convert the mic stream to binary event stream messages when the promise resolves
       .then(this.streamAudioToWebSocket)
       .catch(function (error) {
-        console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
+        console.log(
+          'There was an error streaming your audio to Amazon Transcribe. Please try again.',
+          error
+        );
       });
   }
   streamAudioToWebSocket = (userMediaStream) => {
@@ -93,14 +99,20 @@ export class AudioStreamerComponent {
         protocol: 'wss',
         expires: 15,
         region: 'us-east-1',
-        query: 'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate,
+        query:
+          'language-code=' +
+          this.languageCode +
+          '&media-encoding=pcm&sample-rate=' +
+          this.sampleRate,
       },
     };
-    await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data: any) => {
-      console.log('inside  createPresignedUrlNew', JSON.stringify(data));
-      const url = data.data;
-      this.openWebsocketAndStartStream(url);
-    });
+    await this.backendApiService
+      .getTranscriberPreSignedUrl(body)
+      .subscribe((data: any) => {
+        console.log('inside  createPresignedUrlNew', JSON.stringify(data));
+        const url = data.data;
+        this.openWebsocketAndStartStream(url);
+      });
     // let endpoint = 'transcribestreaming.' + this.region + '.amazonaws.com:8443';
     // console.log('start createPresignedUrlNew start '+ endpoint );
     // // get a preauthenticated URL that we can use to establish our WebSocket
@@ -124,9 +136,9 @@ export class AudioStreamerComponent {
     //   }
     // );
   };
-  getAudioEventMessage = (buffer) => 
+  getAudioEventMessage = (buffer) =>
     // wrap the audio data in a JSON envelope
-     ({
+    ({
       headers: {
         ':message-type': {
           type: 'string',
@@ -138,8 +150,7 @@ export class AudioStreamerComponent {
         },
       },
       body: buffer,
-    })
-  ;
+    });
   convertAudioToBinaryMessage = (audioChunk) => {
     const raw = MicrophoneStream.toRaw(audioChunk);
 
@@ -150,7 +161,9 @@ export class AudioStreamerComponent {
     const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
 
     // add the right JSON headers and structure to the message
-    const audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
+    const audioEventMessage = this.getAudioEventMessage(
+      Buffer.from(pcmEncodedBuffer)
+    );
 
     //convert the JSON object + headers into a binary event stream message
     // @ts-ignore
@@ -172,7 +185,10 @@ export class AudioStreamerComponent {
   };
   handleEventStreamMessage = (messageJson) => {
     const results = messageJson.Transcript.Results;
-    console.log('messageJSON got from the transcribe', JSON.stringify(messageJson));
+    console.log(
+      'messageJSON got from the transcribe',
+      JSON.stringify(messageJson)
+    );
     if (results.length > 0) {
       if (results[0].Alternatives.length > 0) {
         let transcript = results[0].Alternatives[0].Transcript;
@@ -188,9 +204,11 @@ export class AudioStreamerComponent {
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
-          this.backendApiService.putTranscript(messageJson).subscribe((data: any) => {
-            console.log(data);
-          });
+          this.backendApiService
+            .putTranscript(messageJson)
+            .subscribe((data: any) => {
+              console.log(data);
+            });
         }
       }
     }
@@ -199,8 +217,12 @@ export class AudioStreamerComponent {
     // handle inbound messages from Amazon Transcribe
     this.socket.onmessage = (message) => {
       //convert the binary event stream message to JSON
-      const messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
-      const messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
+      const messageWrapper = eventStreamMarshaller.unmarshall(
+        Buffer(message.data)
+      );
+      const messageBody = JSON.parse(
+        String.fromCharCode.apply(String, messageWrapper.body)
+      );
       if (messageWrapper.headers[':message-type'].value === 'event') {
         this.handleEventStreamMessage(messageBody);
       } else {

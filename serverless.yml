@@ -1,23 +1,23 @@
 service: elsa-event-admin-app
-frameworkVersion: "3"
+frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
   stage: ${opt:stage, "dev"}
   region: ${opt:region, "ca-central-1"}
   stackTags:
-    REPOSITORY: "synopsis-admin-dashboard"
+    REPOSITORY: 'synopsis-admin-dashboard'
   iamRoleStatements:
     - Effect: Allow
-      Action: 
-        - "s3:*"
-        - "s3:PutBucketPublicAccessBlock"
-        - "s3:DeletePublicAccessBlock"
-        - "s3:PutObject"
-        - "s3:PutObjectAcl"
-        - "s3:PutObjectTagging"
-        - "cloudformation:*"
-      Resource: "*"
+      Action:
+        - 's3:*'
+        - 's3:PutBucketPublicAccessBlock'
+        - 's3:DeletePublicAccessBlock'
+        - 's3:PutObject'
+        - 's3:PutObjectAcl'
+        - 's3:PutObjectTagging'
+        - 'cloudformation:*'
+      Resource: '*'
 
 resources:
   Resources:
@@ -33,31 +33,30 @@ resources:
         WebsiteConfiguration:
           IndexDocument: index.html
           ErrorDocument: index.html
-        PublicAccessBlockConfiguration: 
+        PublicAccessBlockConfiguration:
           BlockPublicAcls: FALSE
           BlockPublicPolicy: FALSE
           IgnorePublicAcls: FALSE
-          RestrictPublicBuckets: FALSE      
+          RestrictPublicBuckets: FALSE
   extensions:
     WebAppS3BucketPolicy:
       Properties:
         PolicyDocument:
-          Version: "2012-10-17"
+          Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
                 - s3:GetObject
               Resource: !Join
-                - ""
+                - ''
                 - - !GetAtt WebAppS3Bucket.Arn
-                  - "/*"
+                  - '/*'
               Principal:
                 CanonicalUser: !GetAtt OriginAccessIdentity.S3CanonicalUserId
-                AWS: "*"
-
+                AWS: '*'
 
 plugins:
-  - fullstack-serverless 
+  - fullstack-serverless
 custom:
   fullstack:
     bucketName: ${self:service}
@@ -68,7 +67,7 @@ custom:
     clientCommand: ng build --configuration=${env:deployment}
     clientSrcPath: ./
     noConfirm: true
-    invalidationPaths: /* 
+    invalidationPaths: /*
     spa:
       errorConfigurations:
         - errorCode: 404
@@ -77,7 +76,7 @@ custom:
 
 package:
   individually: true
-  
+
   exclude:
     - node_modules/**
     - venv/**
@@ -85,7 +84,6 @@ package:
     - tsconfig.json
     - README.md
     - create_project.txt
-    - angular.json 
+    - angular.json
     - package-lock.json
     - package.json
-    

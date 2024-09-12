@@ -22,14 +22,16 @@ export class PopUpWindowComponent implements OnInit, OnDestroy {
   private _subscription: Subscription;
 
   ngOnInit(): void {
-    this._subscription = this.modalService.getModalState().subscribe((state) => {
-      this.isVisible = state.isVisible;
-      this.title = state.title || '';
-      this.message = state.message || '';
-      this.onConfirm = state.onConfirm;
-      this.onCancel = state.onCancel;
-      this.buttonType = state.buttonType || 'yes_no';
-    });
+    this._subscription = this.modalService
+      .getModalState()
+      .subscribe((state) => {
+        this.isVisible = state.isVisible;
+        this.title = state.title || '';
+        this.message = state.message || '';
+        this.onConfirm = state.onConfirm;
+        this.onCancel = state.onCancel;
+        this.buttonType = state.buttonType || 'yes_no';
+      });
   }
 
   ngOnDestroy(): void {

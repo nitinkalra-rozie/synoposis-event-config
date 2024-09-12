@@ -7,15 +7,11 @@ import { FormsModule } from '@angular/forms';
 import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
-    selector: 'app-otp',
-    templateUrl: './otp.component.html',
-    styleUrls: ['./otp.component.scss'],
-    standalone: true,
-    imports: [
-        FooterComponent,
-        FormsModule,
-        FooterMobileComponent,
-    ],
+  selector: 'app-otp',
+  templateUrl: './otp.component.html',
+  styleUrls: ['./otp.component.scss'],
+  standalone: true,
+  imports: [FooterComponent, FormsModule, FooterMobileComponent],
 })
 export class OtpComponent implements OnInit {
   otp: string[] = ['', '', '', '', '', ''];
@@ -47,7 +43,9 @@ export class OtpComponent implements OnInit {
 
       // Move focus to the next input
       if (index < this.otp.length - 1) {
-        const nextInput = this.inputsRef.nativeElement.children[index + 1] as HTMLInputElement;
+        const nextInput = this.inputsRef.nativeElement.children[
+          index + 1
+        ] as HTMLInputElement;
         if (nextInput) {
           nextInput.focus();
         }
@@ -61,7 +59,9 @@ export class OtpComponent implements OnInit {
     if (event.key === 'Backspace') {
       if (index > 0 && this.otp[index] === '') {
         this.otp[index - 1] = '';
-        const prevInput = this.inputsRef.nativeElement.children[index - 1] as HTMLInputElement;
+        const prevInput = this.inputsRef.nativeElement.children[
+          index - 1
+        ] as HTMLInputElement;
         if (prevInput) {
           prevInput.focus();
         }
@@ -70,14 +70,18 @@ export class OtpComponent implements OnInit {
       }
     } else if (event.key === 'ArrowLeft') {
       if (index > 0) {
-        const prevInput = this.inputsRef.nativeElement.children[index - 1] as HTMLInputElement;
+        const prevInput = this.inputsRef.nativeElement.children[
+          index - 1
+        ] as HTMLInputElement;
         if (prevInput) {
           prevInput.focus();
         }
       }
     } else if (event.key === 'ArrowRight') {
       if (index < this.otp.length - 1) {
-        const nextInput = this.inputsRef.nativeElement.children[index + 1] as HTMLInputElement;
+        const nextInput = this.inputsRef.nativeElement.children[
+          index + 1
+        ] as HTMLInputElement;
         if (nextInput) {
           nextInput.focus();
         }
@@ -102,7 +106,11 @@ export class OtpComponent implements OnInit {
     this.loginService.OTPVerification(this.email, inputOtp).subscribe(
       (responseData: AuthResponse | null) => {
         this.submitPressed = false;
-        if (responseData && responseData.AuthenticationResult && responseData.AuthenticationResult.IdToken) {
+        if (
+          responseData &&
+          responseData.AuthenticationResult &&
+          responseData.AuthenticationResult.IdToken
+        ) {
           console.log('sid auth ', responseData.AuthenticationResult.IdToken);
           this.router.navigate(['/admin']);
         } else {
@@ -138,7 +146,9 @@ export class OtpComponent implements OnInit {
       this.handleSubmit();
       return;
     }
-    const lastInput = this.inputsRef.nativeElement.children[lastIndex] as HTMLInputElement;
+    const lastInput = this.inputsRef.nativeElement.children[
+      lastIndex
+    ] as HTMLInputElement;
     if (lastInput) {
       lastInput.focus();
     }

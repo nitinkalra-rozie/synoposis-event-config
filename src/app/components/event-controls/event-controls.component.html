@@ -2,20 +2,26 @@
   <div class="content-header">
     <div class="header-text">Event Controls</div>
     <div class="reset-button" (click)="handleResetClick()">
-      <img class="arrow-down" src="assets/v2-icons/refresh.svg" alt="" />
+      <img class="arrow-down" alt="" src="assets/v2-icons/refresh.svg" />
       <div class="button-text">Reset to Default</div>
     </div>
   </div>
   <div class="content-wrapper">
     <div class="select-event-wrapper">
-      <app-main-drop-down [selectedValue]="[postData?.eventName]" dropdownTitle="Select Event"
-        [dropdownContent]="eventNames"
+      <app-main-drop-down
         [disabled]="true"
-        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"></app-main-drop-down>
+        [dropdownContent]="eventNames"
+        [selectedValue]="[postData?.eventName]"
+        (onDropdownSelect)="
+          handleDropdownSelect($event, PostDataEnum.EventName)
+        "
+        dropdownTitle="Select Event"></app-main-drop-down>
     </div>
     <div class="select-theme-wrapper">
-      <app-main-drop-down (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
-        [selectedValue]="[postData?.theme]" [dropdownContent]="themeOptions"
+      <app-main-drop-down
+        [dropdownContent]="themeOptions"
+        [selectedValue]="[postData?.theme]"
+        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
         dropdownTitle="Select Theme"></app-main-drop-down>
     </div>
     <!-- <div class="session-insights-wrapper">

@@ -3,10 +3,17 @@
     <div class="modal-content">
       <div class="title-section">
         <div class="title-left">
-          <img class="title-icon" src="assets/v2-icons/warning_amber.svg" alt="" />
+          <img
+            class="title-icon"
+            alt=""
+            src="assets/v2-icons/warning_amber.svg" />
           <div class="title-text">{{ title }}</div>
         </div>
-        <img (click)="onCancel()" class="close-icon" src="assets/v2-icons/close.svg" alt="" />
+        <img
+          class="close-icon"
+          (click)="onCancel()"
+          alt=""
+          src="assets/v2-icons/close.svg" />
       </div>
       <div class="message">{{ message }}</div>
       <div class="modal-actions">

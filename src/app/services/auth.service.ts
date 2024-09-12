@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
-import { CognitoUserPool, CognitoUserSession } from 'amazon-cognito-identity-js';
+import {
+  CognitoUserPool,
+  CognitoUserSession,
+} from 'amazon-cognito-identity-js';
 import { AuthResponse } from '../shared/types';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
@@ -50,11 +53,13 @@ export class AuthService {
     return cognitoUser !== null;
   };
 
-  public getAccessToken = (): string | null => localStorage.getItem('accessToken');
+  public getAccessToken = (): string | null =>
+    localStorage.getItem('accessToken');
 
   public getIdToken = (): string | null => localStorage.getItem('idToken');
 
-  public getRefreshToken = (): string | null => localStorage.getItem('refreshToken');
+  public getRefreshToken = (): string | null =>
+    localStorage.getItem('refreshToken');
 
   public checkSession = (): Promise<void> =>
     new Promise((resolve, reject) => {

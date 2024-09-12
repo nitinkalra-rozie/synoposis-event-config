@@ -3,11 +3,18 @@
 import { Injectable } from '@angular/core';
 import { AuthApiService } from './auth-api.service';
 import { AuthService } from './auth.service';
-import { AuthResponse, CustomChallengeResponse, CognitoError } from '../shared/types';
+import {
+  AuthResponse,
+  CustomChallengeResponse,
+  CognitoError,
+} from '../shared/types';
 import { environment } from 'src/environments/environment';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
-import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
+import {
+  CognitoUserAttribute,
+  CognitoUserPool,
+} from 'amazon-cognito-identity-js';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -38,34 +45,42 @@ export class LoginService {
     attributeList.push(attributeEmail);
 
     return new Observable((observer) => {
-      userPool.signUp(email, 'TempPassword123!', attributeList, [], async (err, result) => {
-        if (err) {
-          const error = err as CognitoError;
-          if (error.code === 'UsernameExistsException') {
+      userPool.signUp(
+        email,
+        'TempPassword123!',
+        attributeList,
+        [],
+        async (err, result) => {
+          if (err) {
+            const error = err as CognitoError;
+            if (error.code === 'UsernameExistsException') {
+              try {
+                const challengeResult =
+                  await this.callCustomChallengeAPI(email).toPromise();
+                observer.next(challengeResult);
+                observer.complete();
+              } catch (challengeErr) {
+                observer.error(challengeErr);
+              }
+            } else {
+              console.error('Error signing up user:', err);
+              observer.error(err);
+            }
+          } else {
+            const cognitoUser = result.user;
+            console.log('User name is ' + cognitoUser.getUsername());
+
             try {
-              const challengeResult = await this.callCustomChallengeAPI(email).toPromise();
+              const challengeResult =
+                await this.callCustomChallengeAPI(email).toPromise();
               observer.next(challengeResult);
               observer.complete();
             } catch (challengeErr) {
               observer.error(challengeErr);
             }
-          } else {
-            console.error('Error signing up user:', err);
-            observer.error(err);
-          }
-        } else {
-          const cognitoUser = result.user;
-          console.log('User name is ' + cognitoUser.getUsername());
-
-          try {
-            const challengeResult = await this.callCustomChallengeAPI(email).toPromise();
-            observer.next(challengeResult);
-            observer.complete();
-          } catch (challengeErr) {
-            observer.error(challengeErr);
           }
         }
-      });
+      );
     }).pipe(
       catchError((error) => {
         console.error('Error in signUp:', error);
@@ -89,7 +104,9 @@ export class LoginService {
       'Content-Type': 'application/x-amz-json-1.1',
     });
 
-    return from(this.authApiService.post<CustomChallengeResponse>('/', requestBody)).pipe(
+    return from(
+      this.authApiService.post<CustomChallengeResponse>('/', requestBody)
+    ).pipe(
       map((response) => {
         // Ensure the response adheres to CustomChallengeResponse
         if (response.__type !== 'NotAuthorizedException') {
@@ -102,7 +119,8 @@ export class LoginService {
         } else {
           return {
             success: false,
-            message: 'Sorry, seems like we don\'t have your email address in our database',
+            message:
+              "Sorry, seems like we don't have your email address in our database",
           } as CustomChallengeResponse; // Type assertion
         }
       }),
@@ -112,7 +130,8 @@ export class LoginService {
         return from(
           Promise.resolve({
             success: false,
-            message: 'This email is not enabled. Please connect with us at hello@rozie.ai to get the access.',
+            message:
+              'This email is not enabled. Please connect with us at hello@rozie.ai to get the access.',
           } as CustomChallengeResponse)
         ); // Type assertion
       })
@@ -132,17 +151,24 @@ export class LoginService {
     };
     this.authApiService.updateBaseUrl(environment.AUTH_API_END_POINT || '');
     this.authApiService.updateHeaders({
-      'X-Amz-Target': 'AWSCognitoIdentityProviderService.RespondToAuthChallenge',
+      'X-Amz-Target':
+        'AWSCognitoIdentityProviderService.RespondToAuthChallenge',
       'Content-Type': 'application/x-amz-json-1.1',
     });
 
     return from(this.authApiService.post<AuthResponse>('/', requestBody)).pipe(
       map((response) => {
-        if (response.AuthenticationResult && response.AuthenticationResult.IdToken) {
+        if (
+          response.AuthenticationResult &&
+          response.AuthenticationResult.IdToken
+        ) {
           this.authService.saveAuthInLocal(response);
           return response;
         } else {
-          console.error('Error calling OTP Verification API. Response:', response);
+          console.error(
+            'Error calling OTP Verification API. Response:',
+            response
+          );
           return null;
         }
       }),
@@ -161,7 +187,9 @@ export class LoginService {
       'Content-Type': 'application/json',
     });
 
-    return from(this.authApiService.post<{ status: number }>('/', requestBody)).pipe(
+    return from(
+      this.authApiService.post<{ status: number }>('/', requestBody)
+    ).pipe(
       map((response) => response.status === 200),
       catchError((error) => {
         console.error('Error sending request for access:', error);
@@ -192,8 +220,6 @@ export class LoginService {
         console.error('Error in resendOtp:', error);
         observer.error(error);
       }
-    }).pipe(
-      catchError((error) => throwError(error))
-    );
+    }).pipe(catchError((error) => throwError(error)));
   }
 }

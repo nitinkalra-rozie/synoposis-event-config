@@ -1,5 +1,11 @@
 import { Component } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { LoginService } from 'src/app/services/login.service';
@@ -7,16 +13,16 @@ import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.com
 import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
-    selector: 'app-login-page',
-    templateUrl: './login-page.component.html',
-    styleUrls: ['./login-page.component.scss'],
-    standalone: true,
-    imports: [
-        FooterComponent,
-        FormsModule,
-        ReactiveFormsModule,
-        FooterMobileComponent,
-    ],
+  selector: 'app-login-page',
+  templateUrl: './login-page.component.html',
+  styleUrls: ['./login-page.component.scss'],
+  standalone: true,
+  imports: [
+    FooterComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    FooterMobileComponent,
+  ],
 })
 export class LoginPageComponent {
   emailForm: UntypedFormGroup;

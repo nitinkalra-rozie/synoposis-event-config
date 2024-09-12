@@ -3,19 +3,29 @@
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
     }
-    <div class="text-wrapper" (click)="toggleDropdown()" [class.open]="dropDownVisible">
-      <div class="selected-text truncate">{{ selectedValue[0] | truncate }}</div>
-      <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
+    <div
+      class="text-wrapper"
+      [class.open]="dropDownVisible"
+      (click)="toggleDropdown()">
+      <div class="selected-text truncate">
+        {{ selectedValue[0] | truncate }}
+      </div>
+      <img
+        class="arrow-down"
+        alt=""
+        src="assets/v2-icons/keyboard_arrow_down.svg" />
     </div>
     @if (dropDownVisible) {
-      <div class="dropdown-content" appOutSideClick (outSideClick)="onOutsideClick()">
+      <div
+        class="dropdown-content"
+        (outSideClick)="onOutsideClick()"
+        appOutSideClick>
         <div class="content-title">Select</div>
         @for (item of dropdownContent; track item) {
           <div
             class="drop-down-item"
-            (click)="handleDropDownSelect(item)"
             [class.selected]="selectedValue[0] === item"
-            >
+            (click)="handleDropDownSelect(item)">
             <div class="item-text">{{ item }}</div>
           </div>
         }
@@ -29,24 +39,33 @@
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
     }
-    <div class="text-wrapper t2" (click)="toggleDropdown()" [class.open]="dropDownVisible">
+    <div
+      class="text-wrapper t2"
+      [class.open]="dropDownVisible"
+      (click)="toggleDropdown()">
       <div class="selected-text">{{ selectedValue[0] }}</div>
       <!-- <div class="icon-wrapper">
       <img class="pencil" src="assets/v2-icons/pencil_icon.svg" alt="" />
     </div> -->
-    <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
-  </div>
-  @if (dropDownVisible) {
-    <div class="dropdown-content t2" appOutSideClick (outSideClick)="onOutsideClick()">
-      <div class="content-title">Select Time</div>
-      @for (item of dropdownContent; track item) {
-        <div class="drop-down-item t2" (click)="handleDropDownSelect(item)">
-          <div class="item-text t2">{{ item }}</div>
-        </div>
-      }
+      <img
+        class="arrow-down"
+        alt=""
+        src="assets/v2-icons/keyboard_arrow_down.svg" />
     </div>
-  }
-</div>
+    @if (dropDownVisible) {
+      <div
+        class="dropdown-content t2"
+        (outSideClick)="onOutsideClick()"
+        appOutSideClick>
+        <div class="content-title">Select Time</div>
+        @for (item of dropdownContent; track item) {
+          <div class="drop-down-item t2" (click)="handleDropDownSelect(item)">
+            <div class="item-text t2">{{ item }}</div>
+          </div>
+        }
+      </div>
+    }
+  </div>
 }
 
 @if (type === 't3') {
@@ -54,12 +73,21 @@
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
     }
-    <div class="text-wrapper t3" (click)="toggleDropdown()" [class.open]="dropDownVisible">
+    <div
+      class="text-wrapper t3"
+      [class.open]="dropDownVisible"
+      (click)="toggleDropdown()">
       <div class="selected-text t3">{{ selectedValue[0] }}</div>
-      <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
+      <img
+        class="arrow-down"
+        alt=""
+        src="assets/v2-icons/keyboard_arrow_down.svg" />
     </div>
     @if (dropDownVisible) {
-      <div class="dropdown-content t3" appOutSideClick (outSideClick)="onOutsideClick()">
+      <div
+        class="dropdown-content t3"
+        (outSideClick)="onOutsideClick()"
+        appOutSideClick>
         <div class="content-title">Select</div>
         @for (item of dropdownContent; track item) {
           <div class="drop-down-item t3" (click)="handleDropDownSelect(item)">
@@ -72,11 +100,17 @@
 }
 
 @if (type === 't4') {
-  <div class="drop-down-container" appOutSideClick (outSideClick)="onOutsideClick()">
+  <div
+    class="drop-down-container"
+    (outSideClick)="onOutsideClick()"
+    appOutSideClick>
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
     }
-    <div class="text-wrapper" (click)="toggleDropdown()" [class.open]="dropDownVisible">
+    <div
+      class="text-wrapper"
+      [class.open]="dropDownVisible"
+      (click)="toggleDropdown()">
       <div class="selected-text">
         {{ getSelectedText() }}
         @if (this.selectedValue && this.selectedValue.length > 1) {
@@ -85,17 +119,28 @@
           </div>
         }
       </div>
-      <img class="arrow-down" src="assets/v2-icons/keyboard_arrow_down.svg" alt="" />
+      <img
+        class="arrow-down"
+        alt=""
+        src="assets/v2-icons/keyboard_arrow_down.svg" />
     </div>
     @if (dropDownVisible) {
       <div class="dropdown-content t4" (click)="$event.stopPropagation()">
         <div class="content-title">Select</div>
         @for (item of getT4Content(); track item) {
-          <div class="drop-down-item t4" (click)="handleT4DropDownSelect(item.label)">
+          <div
+            class="drop-down-item t4"
+            (click)="handleT4DropDownSelect(item.label)">
             @if (item.checked) {
-              <img class="checked-box" src="assets/v2-icons/checked_box.svg" alt="" />
+              <img
+                class="checked-box"
+                alt=""
+                src="assets/v2-icons/checked_box.svg" />
             } @else {
-              <img class="checked-box" src="assets/v2-icons/check_box.svg" alt="" />
+              <img
+                class="checked-box"
+                alt=""
+                src="assets/v2-icons/check_box.svg" />
             }
             <div class="item-text t4">{{ item.label }}</div>
           </div>

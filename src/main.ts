@@ -9,7 +9,11 @@ import { AppRoutingModule } from './app/app-routing.module';
 import { AuthService } from './app/services/auth.service';
 import { AuthApiService } from './app/services/auth-api.service';
 import { AuthInterceptorService } from './app/services/auth-interceptor.service';
-import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  withInterceptorsFromDi,
+  provideHttpClient,
+} from '@angular/common/http';
 const noSleep = new NoSleep();
 if (environment.production) {
   // enableProdMode();
@@ -22,7 +26,13 @@ if (environment.production) {
 }
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(AppRoutingModule, FormsModule, CommonModule, BrowserModule, ReactiveFormsModule),
+    importProvidersFrom(
+      AppRoutingModule,
+      FormsModule,
+      CommonModule,
+      BrowserModule,
+      ReactiveFormsModule
+    ),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,

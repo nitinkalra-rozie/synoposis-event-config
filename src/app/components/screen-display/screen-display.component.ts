@@ -1,13 +1,24 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges, OnChanges } from '@angular/core';
-import { EventCardType, EventDetailType, ScreenDisplayType } from 'src/app/shared/enums';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  SimpleChanges,
+  OnChanges,
+} from '@angular/core';
+import {
+  EventCardType,
+  EventDetailType,
+  ScreenDisplayType,
+} from 'src/app/shared/enums';
 import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
 
 @Component({
-    selector: 'app-screen-display',
-    templateUrl: './screen-display.component.html',
-    styleUrls: ['./screen-display.component.scss'],
-    standalone: true,
-    imports: [MainDropDownComponent],
+  selector: 'app-screen-display',
+  templateUrl: './screen-display.component.html',
+  styleUrls: ['./screen-display.component.scss'],
+  standalone: true,
+  imports: [MainDropDownComponent],
 })
 export class ScreenDisplayComponent implements OnChanges {
   selectedSessions: string[] = [];
@@ -41,11 +52,16 @@ export class ScreenDisplayComponent implements OnChanges {
   @Output() stopListening: EventEmitter<void> = new EventEmitter<void>();
   @Output() endSession: EventEmitter<void> = new EventEmitter<void>();
 
-  @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() onSessionsChange: EventEmitter<{ values: string[] }> = new EventEmitter<{ values: string[] }>();
-  @Output() onEventSpecificDayChange: EventEmitter<Record<string, string>> = new EventEmitter<Record<string, string>>();
-  @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
-  @Output() onMultiSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onMainSessionChange: EventEmitter<string> =
+    new EventEmitter<string>();
+  @Output() onSessionsChange: EventEmitter<{ values: string[] }> =
+    new EventEmitter<{ values: string[] }>();
+  @Output() onEventSpecificDayChange: EventEmitter<Record<string, string>> =
+    new EventEmitter<Record<string, string>>();
+  @Output() onMainSessionDayChange: EventEmitter<string> =
+    new EventEmitter<string>();
+  @Output() onMultiSessionDayChange: EventEmitter<string> =
+    new EventEmitter<string>();
 
   // startListeningClicked: boolean = false;
   // showStopScreenButtonClicked: boolean = false;
@@ -58,17 +74,26 @@ export class ScreenDisplayComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sessionTitles'] && changes['sessionTitles'].currentValue) {
-      if (changes['sessionTitles'].currentValue != changes['sessionTitles'].previousValue) {
+      if (
+        changes['sessionTitles'].currentValue !=
+        changes['sessionTitles'].previousValue
+      ) {
         if (this.isSessionInProgress) {
-          this.selectedSessions = [localStorage.getItem('currentSessionTitle') || ''];
+          this.selectedSessions = [
+            localStorage.getItem('currentSessionTitle') || '',
+          ];
         } else {
           this.selectedSessions = [changes['sessionTitles'].currentValue[0]];
         }
         if (this.type === ScreenDisplayType.MultiSession) {
-          this.onMainSessionChange.emit(changes['sessionTitles'].currentValue[0]);
+          this.onMainSessionChange.emit(
+            changes['sessionTitles'].currentValue[0]
+          );
         }
         if (this.type === ScreenDisplayType.SessionSpecific) {
-          this.onSessionsChange.emit({ values: [changes['sessionTitles'].currentValue[0]] });
+          this.onSessionsChange.emit({
+            values: [changes['sessionTitles'].currentValue[0]],
+          });
         }
       }
     }

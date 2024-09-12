@@ -1,10 +1,18 @@
 <div class="stream-mic-icon">
   <div class="img-wrapper">
     @if (!isStreaming) {
-      <img src="../../../assets/mic_mute_icon.svg" alt="" title="click to start stream" (click)="startRecording()">
+      <img
+        (click)="startRecording()"
+        alt=""
+        src="../../../assets/mic_mute_icon.svg"
+        title="click to start stream" />
     }
     @if (isStreaming) {
-      <img src="../../../assets/mic_icon.svg" alt="" title="click to stop stream" (click)="closeSocket()">
+      <img
+        (click)="closeSocket()"
+        alt=""
+        src="../../../assets/mic_icon.svg"
+        title="click to stop stream" />
     }
   </div>
 </div>

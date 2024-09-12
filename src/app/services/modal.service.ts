@@ -14,7 +14,8 @@ interface ModalState {
   providedIn: 'root',
 })
 export class ModalService {
-  private _modalState: BehaviorSubject<ModalState> = new BehaviorSubject<ModalState>({ isVisible: false });
+  private _modalState: BehaviorSubject<ModalState> =
+    new BehaviorSubject<ModalState>({ isVisible: false });
 
   getModalState(): Observable<ModalState> {
     return this._modalState.asObservable();
@@ -27,7 +28,14 @@ export class ModalService {
     onConfirm?: () => void,
     onCancel?: () => void
   ): void {
-    this._modalState.next({ isVisible: true, title, message, onConfirm, onCancel, buttonType });
+    this._modalState.next({
+      isVisible: true,
+      title,
+      message,
+      onConfirm,
+      onCancel,
+      buttonType,
+    });
   }
 
   close(): void {

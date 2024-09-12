@@ -1,22 +1,27 @@
 import { Component, OnInit } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
-import { INITIAL_POST_DATA, TimeWindows, TransitionTimes } from 'src/app/shared/constants';
-import { EventDetailType, PostDataEnum, ThemeOptions, TimeWindowsEnum } from 'src/app/shared/enums';
+import {
+  INITIAL_POST_DATA,
+  TimeWindows,
+  TransitionTimes,
+} from 'src/app/shared/constants';
+import {
+  EventDetailType,
+  PostDataEnum,
+  ThemeOptions,
+  TimeWindowsEnum,
+} from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 import { SessionContentComponent } from '../session-content/session-content.component';
 import { EventControlsComponent } from '../event-controls/event-controls.component';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 
 @Component({
-    selector: 'app-elsa-event-admin-v2',
-    templateUrl: './elsa-event-admin-v2.component.html',
-    styleUrls: ['./elsa-event-admin-v2.component.scss'],
-    standalone: true,
-    imports: [
-        TopBarComponent,
-        EventControlsComponent,
-        SessionContentComponent,
-    ],
+  selector: 'app-elsa-event-admin-v2',
+  templateUrl: './elsa-event-admin-v2.component.html',
+  styleUrls: ['./elsa-event-admin-v2.component.scss'],
+  standalone: true,
+  imports: [TopBarComponent, EventControlsComponent, SessionContentComponent],
 })
 export class ElsaEventAdminV2Component implements OnInit {
   eventNames: string[] = [];
@@ -41,19 +46,32 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.initializeData();
   }
 
-  getKeyByValue = (value, object) => Object.keys(object).find((key) => object[key] === value);
+  getKeyByValue = (value, object) =>
+    Object.keys(object).find((key) => object[key] === value);
 
   initializeData = () => {
     this.postData = { ...INITIAL_POST_DATA };
     this.transcriptTimeOut = this.transcriptTimeOut = {
-      label: this.getKeyByValue(parseInt(localStorage.getItem('transcriptTimeOut')) || 60, TimeWindows),
+      label: this.getKeyByValue(
+        parseInt(localStorage.getItem('transcriptTimeOut')) || 60,
+        TimeWindows
+      ),
       value: parseInt(localStorage.getItem('transcriptTimeOut')) || 60,
     };
-    localStorage.setItem('transcriptTimeOut', this.transcriptTimeOut.value.toString());
+    localStorage.setItem(
+      'transcriptTimeOut',
+      this.transcriptTimeOut.value.toString()
+    );
 
     if (!parseInt(localStorage.getItem('postInsideInterval'))) {
-      localStorage.setItem('postInsideInterval', this.postData.screenTimeout.toString());
-      localStorage.setItem('postInsideValue', this.getKeyByValue(this.postData.screenTimeout, TransitionTimes));
+      localStorage.setItem(
+        'postInsideInterval',
+        this.postData.screenTimeout.toString()
+      );
+      localStorage.setItem(
+        'postInsideValue',
+        this.getKeyByValue(this.postData.screenTimeout, TransitionTimes)
+      );
     }
 
     this.getEventDetails();
@@ -67,13 +85,20 @@ export class ElsaEventAdminV2Component implements OnInit {
   };
 
   populateEventNames = () => {
-    this.eventNames = Array.from(new Set(this.eventDetails.map((event) => event.Event)));
-    this.updatePostData({ key: PostDataEnum.EventName, value: this.eventNames[0] });
+    this.eventNames = Array.from(
+      new Set(this.eventDetails.map((event) => event.Event))
+    );
+    this.updatePostData({
+      key: PostDataEnum.EventName,
+      value: this.eventNames[0],
+    });
   };
 
   populateSessionTitles() {
     const filteredByDay = this.eventDetails.filter(
-      (event) => event.Event === this.postData.eventName && event.EventDay === this.postData.day
+      (event) =>
+        event.Event === this.postData.eventName &&
+        event.EventDay === this.postData.day
     );
     this.sessionTitles = filteredByDay.map((event) => event.SessionTitle);
     this.primarySessionTitles = filteredByDay
@@ -83,13 +108,20 @@ export class ElsaEventAdminV2Component implements OnInit {
   }
 
   populateEventDays() {
-    const filteredByEvent = this.eventDetails.filter((event) => event.Event === this.postData.eventName);
-    this.eventDays = Array.from(new Set(filteredByEvent.map((event) => event.EventDay)));
+    const filteredByEvent = this.eventDetails.filter(
+      (event) => event.Event === this.postData.eventName
+    );
+    this.eventDays = Array.from(
+      new Set(filteredByEvent.map((event) => event.EventDay))
+    );
   }
 
   onEventChange = () => {
     this.populateEventDays();
-    this.updatePostData({ key: PostDataEnum.Day, value: this.eventDays.length > 0 ? this.eventDays[0] : '' });
+    this.updatePostData({
+      key: PostDataEnum.Day,
+      value: this.eventDays.length > 0 ? this.eventDays[0] : '',
+    });
     this.onDayChange();
   };
 
@@ -103,10 +135,17 @@ export class ElsaEventAdminV2Component implements OnInit {
 
   onDayChange = () => {
     this.populateSessionTitles();
-    this.selectedSessionTitle = this.sessionTitles.length > 0 ? this.sessionTitles[0] : '';
-    const sessionDetails = this.findSession(this.postData.eventName, this.selectedSessionTitle);
+    this.selectedSessionTitle =
+      this.sessionTitles.length > 0 ? this.sessionTitles[0] : '';
+    const sessionDetails = this.findSession(
+      this.postData.eventName,
+      this.selectedSessionTitle
+    );
     if (sessionDetails) {
-      this.updatePostData({ key: PostDataEnum.SessionId, value: sessionDetails.SessionId });
+      this.updatePostData({
+        key: PostDataEnum.SessionId,
+        value: sessionDetails.SessionId,
+      });
     }
   };
 
@@ -124,7 +163,10 @@ export class ElsaEventAdminV2Component implements OnInit {
   onTranscriptTimeOutChange = () => {
     // This function will be triggered whenever the value of transcriptTimeOut changes
     console.log('transcriptTimeOut changed to:', this.transcriptTimeOut);
-    localStorage.setItem('transcriptTimeOut', this.transcriptTimeOut.value.toString());
+    localStorage.setItem(
+      'transcriptTimeOut',
+      this.transcriptTimeOut.value.toString()
+    );
     // You can call any other functions or perform any other actions here
   };
 

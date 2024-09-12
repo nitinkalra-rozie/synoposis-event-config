@@ -1,4 +1,12 @@
-import { Directive, ElementRef, Output, EventEmitter, Renderer2, OnInit, OnDestroy } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  Output,
+  EventEmitter,
+  Renderer2,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 
 @Directive({
   selector: '[appOutSideClick]',
@@ -18,7 +26,11 @@ export class OutsideClickDirective implements OnInit, OnDestroy {
 
   //Add the listener when the dropdown component is rendered
   ngOnInit(): void {
-    this._listener = this.renderer.listen('document', 'click', this.onDocumentClick);
+    this._listener = this.renderer.listen(
+      'document',
+      'click',
+      this.onDocumentClick
+    );
   }
 
   //To reduce unnecessary memory leaks you need to use the clean-up

@@ -1,70 +1,64 @@
-
 .footer {
-    position: absolute;
-    display: flex;
-    font-size: 12px;
-    bottom: 4%;
-    padding: 0 10%;
-    width: 100%;
-  }
+  position: absolute;
+  display: flex;
+  font-size: 12px;
+  bottom: 4%;
+  padding: 0 10%;
+  width: 100%;
+}
 .left-contanier {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-  }
-  
-  .rights {
-    color: var(--background-variant-7343536, #343536);
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.rights {
+  color: var(--background-variant-7343536, #343536);
   font-family: Lexend;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
+}
+
+.Privacy a {
+  text-decoration: none;
+  color: var(--background-variant-7343536, #343536);
+  font-family: Lexend;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.terms a {
+  text-decoration: none;
+  color: var(--background-variant-7343536, #343536);
+  font-family: Lexend;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.social-media {
+  display: flex;
+  align-items: flex-end;
+  margin-left: 27%;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    display: none;
   }
-  
-  .Privacy a {
-    text-decoration: none;
-    color: var(--background-variant-7343536, #343536);
-    font-family: Lexend;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-  
+}
+@media (max-width: 1400px) {
+  .footer {
+    width: 90%;
   }
-  
-  .terms a {
-    text-decoration: none;
-    color: var(--background-variant-7343536, #343536);
-    font-family: Lexend;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-  }
-  
   .social-media {
     display: flex;
     align-items: flex-end;
-    margin-left: 27%;
-  
+    margin-left: 24%;
   }
-
-  @media (max-width: 768px) {
-    .footer{
-      display:none;
-    }
-
-  }
-  @media(max-width:1400px){
-    .footer {
-        width: 90%;
-      }
-      .social-media {
-        display: flex;
-        align-items: flex-end;
-        margin-left: 24%;
-      
-      }
-    
 }

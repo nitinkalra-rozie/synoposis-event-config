@@ -9,7 +9,9 @@ export class MicrophoneService {
 
   async checkAndRequestMicrophonePermission(): Promise<boolean> {
     try {
-      const permStatus = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+      const permStatus = await navigator.permissions.query({
+        name: 'microphone' as PermissionName,
+      });
 
       if (permStatus.state === 'granted') {
         return true;

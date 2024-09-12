@@ -1,22 +1,12 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "projects/**/*"
-  ],
-  "plugins": [
-    "unused-imports",
-    "@typescript-eslint",
-    "@angular-eslint"
-  ],
+  "ignorePatterns": ["projects/**/*"],
+  "plugins": ["unused-imports", "@typescript-eslint", "@angular-eslint"],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "parserOptions": {
-        "project": [
-          "tsconfig.json"
-        ],
+        "project": ["tsconfig.json"],
         "createDefaultProgram": true
       },
       "extends": [
@@ -52,36 +42,20 @@
         "@typescript-eslint/naming-convention": [
           "error",
           {
-            "selector": [
-              "enumMember"
-            ],
-            "format": [
-              "PascalCase"
-            ]
+            "selector": ["enumMember"],
+            "format": ["PascalCase"]
           },
           {
             "selector": "property",
-            "modifiers": [
-              "private"
-            ],
-            "format": [
-              "strictCamelCase"
-            ],
+            "modifiers": ["private"],
+            "format": ["strictCamelCase"],
             "leadingUnderscore": "require"
           }
         ],
-        "@angular-eslint/use-lifecycle-interface": [
-          "error"
-        ],
-        "@angular-eslint/no-input-rename": [
-          "error"
-        ],
-        "@angular-eslint/no-inputs-metadata-property": [
-          "error"
-        ],
-        "@angular-eslint/no-outputs-metadata-property": [
-          "error"
-        ],
+        "@angular-eslint/use-lifecycle-interface": ["error"],
+        "@angular-eslint/no-input-rename": ["error"],
+        "@angular-eslint/no-inputs-metadata-property": ["error"],
+        "@angular-eslint/no-outputs-metadata-property": ["error"],
         "no-var": "error",
         "prefer-const": "error",
         "brace-style": [
@@ -91,9 +65,7 @@
             "allowSingleLine": false
           }
         ],
-        "@typescript-eslint/unified-signatures": [
-          "off"
-        ],
+        "@typescript-eslint/unified-signatures": ["off"],
         "@typescript-eslint/consistent-indexed-object-style": "error",
         "arrow-parens": [
           "error",
@@ -102,10 +74,7 @@
             "requireForBlockBody": false
           }
         ],
-        "arrow-body-style": [
-          "error",
-          "as-needed"
-        ],
+        "arrow-body-style": ["error", "as-needed"],
         "@typescript-eslint/member-ordering": [
           "error",
           {
@@ -166,10 +135,7 @@
         ],
         "no-underscore-dangle": "off",
         "object-shorthand": "off",
-        "quote-props": [
-          "error",
-          "as-needed"
-        ],
+        "quote-props": ["error", "as-needed"],
         "quotes": [
           "error",
           "single",
@@ -178,18 +144,12 @@
           }
         ],
         "unused-imports/no-unused-imports": "error",
-        "@typescript-eslint/no-unused-expressions": [
-          "off"
-        ]
+        "@typescript-eslint/no-unused-expressions": ["off"]
       }
     },
     {
-      "files": [
-        "*.html"
-      ],
-      "extends": [
-        "plugin:@angular-eslint/template/recommended"
-      ],
+      "files": ["*.html"],
+      "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {}
     }
   ]

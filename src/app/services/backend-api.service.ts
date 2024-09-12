@@ -16,7 +16,9 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
-    return this.http.post(environment.getTranscriberPreSignedUrl, body, { headers: headers });
+    return this.http.post(environment.getTranscriberPreSignedUrl, body, {
+      headers: headers,
+    });
   }
 
   putTranscript(transcript: any): Observable<Object> {
@@ -31,7 +33,9 @@ export class BackendApiService {
       eventName: localStorage.getItem('selectedEvent'),
       domain: localStorage.getItem('domain'),
     };
-    return this.http.post(environment.putTranscript, body, { headers: headers });
+    return this.http.post(environment.putTranscript, body, {
+      headers: headers,
+    });
   }
   // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any
   postData(data: PostData): Observable<Object> {
@@ -63,9 +67,18 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
-    return this.http.post(environment.getEventDetails, { event: environment.eventName }, { headers: headers });
+    return this.http.post(
+      environment.getEventDetails,
+      { event: environment.eventName },
+      { headers: headers }
+    );
   }
-  postCurrentSessionId(sessionId: any, eventName: any, domain: any, primarySessionId: any): Observable<Object> {
+  postCurrentSessionId(
+    sessionId: any,
+    eventName: any,
+    domain: any,
+    primarySessionId: any
+  ): Observable<Object> {
     const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -77,6 +90,8 @@ export class BackendApiService {
       domain: domain,
       primarySessionId: primarySessionId,
     };
-    return this.http.post(environment.postCurrentSessionId, body, { headers: headers });
+    return this.http.post(environment.postCurrentSessionId, body, {
+      headers: headers,
+    });
   }
 }

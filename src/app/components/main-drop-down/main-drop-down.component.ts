@@ -64,8 +64,12 @@ export class MainDropDownComponent implements OnInit {
   isMobileDevice = () => window.innerWidth < 768;
 
   truncateText = (text = '', maxLengthDesktop, maxLengthMobile) => {
-    const maxLength = this.isMobileDevice() ? maxLengthMobile : maxLengthDesktop;
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    const maxLength = this.isMobileDevice()
+      ? maxLengthMobile
+      : maxLengthDesktop;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + '...'
+      : text;
   };
 
   // TODO: @refactor this function
@@ -77,7 +81,11 @@ export class MainDropDownComponent implements OnInit {
       return '';
     }
 
-    const tempText = this.truncateText(this.selectedValue[0], maxLengthDesktop, maxLengthMobile);
+    const tempText = this.truncateText(
+      this.selectedValue[0],
+      maxLengthDesktop,
+      maxLengthMobile
+    );
     if (this.selectedValue.length === 1) {
       return tempText;
     } else if (this.selectedValue.length > 1) {

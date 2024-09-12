@@ -14,7 +14,10 @@
 
   .logopart {
     padding: 20px 19px;
-    background: var(--gradients-purple-534-ad-8834-c-9-d, linear-gradient(45deg, #534ad8 -23.5%, #834c9d 107.38%));
+    background: var(
+      --gradients-purple-534-ad-8834-c-9-d,
+      linear-gradient(45deg, #534ad8 -23.5%, #834c9d 107.38%)
+    );
   }
 
   .logo {

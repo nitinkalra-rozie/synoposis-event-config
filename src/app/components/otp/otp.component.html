@@ -9,26 +9,23 @@
       <h3>A one time code has sent to your email</h3>
       <h4>Enter 6 digits code</h4>
       <form (submit)="handleSubmit()">
-        <div class="otp-inputs" #inputs>
+        <div #inputs class="otp-inputs">
           @for (digit of otp; track trackByFn(i, digit); let i = $index) {
             <input
-              (input)="handleOtpChange(i, $event)"
-              type="text"
               [value]="digit"
+              (input)="handleOtpChange(i, $event)"
               (keydown)="handleKeyDown(i, $event)"
               (paste)="handlePaste($event)"
+              inputmode="numeric"
+              inputmode="numeric"
               maxlength="1"
-              inputmode="numeric"
-              inputmode="numeric"
               pattern="[0-9]*"
               required
-              />
+              type="text" />
           }
         </div>
         @if (errorMessage) {
-          <p class="error-message">
-            Please check your OTP!
-          </p>
+          <p class="error-message">Please check your OTP!</p>
         }
         <button [disabled]="submitPressed" type="submit">Verify Code</button>
       </form>
@@ -42,16 +39,18 @@
           </p>
         }
         @if (resendClicked) {
-          <p class="left-space-5px"> OTP has been resent</p>
+          <p class="left-space-5px">OTP has been resent</p>
         }
       </div>
     </div>
     <p class="otp-sub">
-      Disclaimer: By proceeding with login, you agree to receive a one-time password (OTP) via SMS or email to
-      authenticate your identity. Your phone number or email address will only be used for the purpose of sending
-      this OTP and will not be shared with any third parties. Please ensure that you have access to the provided
-      phone number or email ID to complete the login process. If you encounter any issues, please contact our
-      support team for assistance.
+      Disclaimer: By proceeding with login, you agree to receive a one-time
+      password (OTP) via SMS or email to authenticate your identity. Your phone
+      number or email address will only be used for the purpose of sending this
+      OTP and will not be shared with any third parties. Please ensure that you
+      have access to the provided phone number or email ID to complete the login
+      process. If you encounter any issues, please contact our support team for
+      assistance.
     </p>
     <app-footer-mobile></app-footer-mobile>
   </div>

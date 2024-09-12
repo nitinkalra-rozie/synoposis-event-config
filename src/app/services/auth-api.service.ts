@@ -24,19 +24,33 @@ export class AuthApiService {
     this._baseUrl = url;
   }
 
-  get<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+  get<T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean>
+  ): Promise<T> {
     return this.request<T>('GET', endpoint, undefined, params);
   }
 
-  post<T>(endpoint: string, body: Record<string, any>, params?: Record<string, string | number | boolean>): Promise<T> {
+  post<T>(
+    endpoint: string,
+    body: Record<string, any>,
+    params?: Record<string, string | number | boolean>
+  ): Promise<T> {
     return this.request<T>('POST', endpoint, body, params);
   }
 
-  put<T>(endpoint: string, body: Record<string, any>, params?: Record<string, string | number | boolean>): Promise<T> {
+  put<T>(
+    endpoint: string,
+    body: Record<string, any>,
+    params?: Record<string, string | number | boolean>
+  ): Promise<T> {
     return this.request<T>('PUT', endpoint, body, params);
   }
 
-  delete<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+  delete<T>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean>
+  ): Promise<T> {
     return this.request<T>('DELETE', endpoint, undefined, params);
   }
 
