@@ -60,7 +60,7 @@ plugins:
 custom:
   fullstack:
     bucketName: ${self:service}
-    distributionFolder: /dist/synopsis-admin-dashboard
+    distributionFolder: /dist/synopsis-admin-dashboard/browser
     indexDocument: index.html
     errorDocument: index.html
     compressWebContent: true
