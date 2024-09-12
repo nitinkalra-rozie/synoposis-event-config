@@ -6,6 +6,7 @@
   padding: 0 10%;
   width: 100%;
 }
+
 .left-contanier {
   display: flex;
   justify-content: space-between;
@@ -47,15 +48,17 @@
   margin-left: 27%;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .footer {
     display: none;
   }
 }
-@media (max-width: 1400px) {
+
+@media (width <= 1400px) {
   .footer {
     width: 90%;
   }
+
   .social-media {
     display: flex;
     align-items: flex-end;

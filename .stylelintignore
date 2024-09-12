@@ -1,0 +1,16 @@
+/node_modules
+/dist
+*.ts
+*.js
+*.html
+*.json
+*.ttf
+*.svg
+*.txt
+*.png
+*.ico
+*.yml
+*.md
+*.yaml
+*.pdf
+/LICENSE

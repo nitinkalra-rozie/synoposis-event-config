@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   cursor: pointer;
-  font-family: 'Lexend';
+  font-family: Lexend;
 }
 
 .text-wrapper {
@@ -21,11 +21,12 @@
 .text-wrapper.t2 {
   border-radius: 4px;
   border: 1px solid var(--background-variant-3-bfccd-9, #bfccd9);
+
   /* background: var(--background-secondary-e-1-e-5-ea, #e1e5ea); */
 }
 
 .text-wrapper.t3 {
-  padding: 0px 5px 0px 10px;
+  padding: 0 5px 0 10px;
   flex: 1 0 0;
   border-radius: 4px;
   border: 1px solid var(--background-variant-3-bfccd-9, #bfccd9);
@@ -81,7 +82,7 @@
   margin-top: 8px;
   border-radius: 4px;
   background: var(--background-primary-ffffff, #fff);
-  box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px 0 rgb(0 0 0 / 20%);
   font-family: Lexend;
   font-size: 14px;
   font-weight: 400;
@@ -89,7 +90,7 @@
   letter-spacing: -0.01em;
   text-align: left;
   color: #475258;
-  padding: 16px 0px;
+  padding: 16px 0;
   align-items: flex-start;
   gap: 5px;
   align-self: stretch;
@@ -99,9 +100,9 @@
 
 .dropdown-content.t2 {
   width: 55%;
-  right: 0px;
+  right: 0;
   display: flex;
-  padding: 16px 0px;
+  padding: 16px 0;
   flex-direction: column;
   align-items: flex-start;
   gap: 5px;
@@ -109,10 +110,10 @@
 }
 
 .dropdown-content.t3 {
-  right: 0px;
+  right: 0;
   display: flex;
   width: 160px;
-  padding: 16px 0px;
+  padding: 16px 0;
   flex-direction: column;
   align-items: flex-start;
   gap: 5px;
@@ -121,7 +122,7 @@
 
 .dropdown-content.t4 {
   display: flex;
-  padding: 16px 0px;
+  padding: 16px 0;
   flex-direction: column;
   align-items: flex-start;
   gap: 5px;
@@ -173,6 +174,7 @@
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
+
   /* 171.429% */
   letter-spacing: -0.14px;
 }
@@ -180,7 +182,6 @@
 .drop-down-title {
   flex: 1 0 0;
   color: var(--background-variant-6475258, #475258);
-
   margin-bottom: 8px;
   font-family: Lexend;
   font-size: 13px;
@@ -198,7 +199,7 @@
   flex-shrink: 0;
   border-radius: 24px;
   background-color: var(--background-primary-ffffff, #fff);
-  filter: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 1px 3px rgb(0 0 0 / 25%));
 }
 
 .pencil {
@@ -237,7 +238,7 @@
   flex-shrink: 0;
   border-radius: 100px;
   background: var(--background-primary-ffffff, #fff);
-  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 25%);
   display: flex;
   justify-content: center;
   align-items: center;

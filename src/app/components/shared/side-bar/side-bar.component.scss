@@ -7,7 +7,7 @@
   top: 0;
   left: 0;
 
-  @media (max-width: 767px) {
+  @media (width <= 767px) {
     height: 0;
     position: unset;
   }
@@ -24,7 +24,7 @@
     width: 32px;
     height: 31.474px;
 
-    @media (max-width: 767px) {
+    @media (width <= 767px) {
       width: 32px;
       height: 31.474px;
       flex-shrink: 0;
@@ -52,11 +52,11 @@
   .icon img {
     max-width: 100%;
   }
+
   .back-button {
     position: fixed;
     padding-bottom: 18.94px;
     bottom: 0;
-
     padding-left: 24px;
 
     .left-icon {
@@ -69,7 +69,7 @@
       background: var(--primary-varient-3423-ab-4, #423ab4);
     }
 
-    @media (max-width: 767px) {
+    @media (width <= 767px) {
       display: none;
     }
   }

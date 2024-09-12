@@ -2,12 +2,13 @@
   margin-top: 20px;
   border-radius: 4px;
   background: var(--background-primary-ffffff, #fff);
-  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 25%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
 }
+
 .box-title {
   display: flex;
   padding: 18px 24px;
@@ -74,6 +75,7 @@
   font-weight: 400;
   line-height: 18px;
 }
+
 .combine-dropdown {
   display: flex;
   padding: 20px 24px;
@@ -81,11 +83,9 @@
   align-items: center;
   gap: 18px;
 }
+
 .card-container {
-  display: flex;
   flex-wrap: wrap;
-  gap: 35px;
-  padding: 20px 24px;
   display: flex;
   padding: 20px 24px;
   align-items: flex-start;
@@ -99,9 +99,11 @@
   text-align: center;
   max-width: 400px;
 }
+
 .card-combine {
   max-width: 400px;
 }
+
 .card-image {
   max-width: 100%;
   height: auto;
@@ -113,10 +115,11 @@
   padding: 10px 14px;
   align-items: center;
   justify-content: space-between;
-  border-radius: 0px 0px 4px 4px;
+  border-radius: 0 0 4px 4px;
   background: linear-gradient(43deg, #22292e -4.79%, #45545c 107.92%);
   gap: 8px;
 }
+
 .icon {
   width: 20px;
   height: 20px;
@@ -164,24 +167,28 @@
   width: 200px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .button-text {
     display: none;
   }
+
   .vline {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
   }
+
   .combine-dropdown {
     align-items: unset;
     flex-direction: column;
     width: -webkit-fill-available;
   }
+
   .title {
     white-space: normal;
     display: flex;
     align-self: self-start;
   }
+
   .sessions-wrapper {
     width: 100%;
   }

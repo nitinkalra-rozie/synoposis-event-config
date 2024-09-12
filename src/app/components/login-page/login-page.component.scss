@@ -48,7 +48,7 @@ html {
 
 .right-side {
   width: 65%;
-  background-color: #ffffff;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,7 +60,7 @@ html {
   text-align: left;
   margin-top: 10rem;
   margin-bottom: 11rem;
-  font-family: 'Lexend';
+  font-family: Lexend;
   margin-left: 3rem;
 }
 
@@ -90,7 +90,6 @@ html {
 
 .email-model h4 {
   color: var(--background-variant-4-adbdcc, #adbdcc);
-
   font-family: Lexend;
   font-size: 13px;
   font-style: normal;
@@ -126,7 +125,7 @@ html {
   margin-bottom: 10px;
   font-size: 1rem;
   outline: none;
-  font-family: 'Lexend';
+  font-family: Lexend;
 }
 
 .email-model input.valid {
@@ -146,7 +145,7 @@ html {
 
 .email-model button {
   border: none;
-  color: #ffffff;
+  color: #fff;
   height: 1.8rem;
   width: auto;
   padding: 0.5rem;
@@ -158,20 +157,22 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'Lexend';
+  font-family: Lexend;
 }
 
 .email-model button:disabled {
-  background-color: rgb(197, 192, 192);
+  background-color: rgb(197 192 192);
 }
 
 .error-message {
   color: red;
 }
+
 .email-link {
   color: blue;
   text-decoration: underline;
 }
+
 .bg {
   background-image: url('../../../assets/login/rozie-logo.svg');
   width: 12rem;
@@ -183,23 +184,22 @@ html {
 
 .sub {
   color: var(--background-variant-4-adbdcc, #adbdcc);
-  font-family: Lexend;
   font-size: 10px;
   font-style: normal;
   font-weight: 400;
   line-height: 16px;
   letter-spacing: -0.1px;
   text-align: left;
-  margin-bottom: 0rem;
+  margin-bottom: 0;
   margin-top: 14rem;
-
-  font-family: 'Lexend';
+  font-family: Lexend;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .left-side::after {
     display: none;
   }
+
   .login-container {
     flex-direction: column;
     width: 100%;
@@ -234,7 +234,7 @@ html {
 
   .email-model {
     margin-left: 0;
-    margin-top: 0px;
+    margin-top: 0;
     margin-bottom: 0;
     width: 80%;
   }
@@ -280,7 +280,8 @@ html {
   .bg {
     margin-right: 15rem;
     margin-bottom: auto;
-    margin-top: 0px;
+    margin-top: 0;
+
     /* height: 2.5rem; */
   }
 
@@ -289,7 +290,7 @@ html {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (width >= 769px) and (width <= 1024px) {
   .left-side {
     width: 50%;
   }
@@ -297,6 +298,7 @@ html {
   .right-side {
     width: 50%;
   }
+
   .left-side::before {
     content: '';
     position: absolute;
@@ -318,6 +320,7 @@ html {
     background-size: cover !important;
     box-sizing: border-box;
   }
+
   .left-side::after {
     display: none;
   }

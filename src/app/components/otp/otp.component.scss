@@ -6,7 +6,7 @@ html {
 
 input[type='text']::-webkit-inner-spin-button,
 input[type='text']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
@@ -21,6 +21,7 @@ input[type='text']::-webkit-outer-spin-button {
   height: 100vh;
   width: 100%;
 }
+
 .left-space-5px {
   margin-left: 5px;
 }
@@ -62,7 +63,7 @@ input[type='text']::-webkit-outer-spin-button {
 
 .otp-right {
   flex: 65%;
-  background-color: #ffffff;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,7 +75,7 @@ input[type='text']::-webkit-outer-spin-button {
   text-align: left;
   margin-bottom: 9rem;
   margin-right: 24rem;
-  font-family: 'Lexend';
+  font-family: Lexend;
   margin-left: 3rem;
 }
 
@@ -120,7 +121,7 @@ input[type='text']::-webkit-outer-spin-button {
 }
 
 .otp-inputs input[type='text'] {
-  -moz-appearance: textfield;
+  appearance: textfield;
   width: 30px;
   height: 30px;
   color: var(--background-variant-6475258, #475258);
@@ -173,7 +174,6 @@ input[type='text']::-webkit-outer-spin-button {
 
 .otp-sub {
   color: var(--background-variant-4-adbdcc, #adbdcc);
-  font-family: Lexend;
   font-size: 10px;
   font-style: normal;
   font-weight: 400;
@@ -182,16 +182,16 @@ input[type='text']::-webkit-outer-spin-button {
   text-align: left;
   margin-bottom: 0.1rem;
   margin-right: 1.2rem;
-  font-family: 'Lexend';
+  font-family: Lexend;
   width: 90%;
   margin-left: 2rem;
+
   /* margin-right: 3rem; */
 }
 
 .otp-resend-container {
   display: flex;
   align-items: center;
-
   margin-top: 2rem;
 }
 
@@ -208,7 +208,6 @@ input[type='text']::-webkit-outer-spin-button {
 .otp-resend-container .otp-resend-link {
   color: var(--primary-varient-2534-ad-8, #534ad8);
   font-family: Lexend;
-  font-size: 14px;
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
@@ -231,13 +230,15 @@ input[type='text']::-webkit-outer-spin-button {
   gap: 10px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .otp-container {
     flex-direction: column;
   }
+
   .enter-otp h4 {
-    margin-top: 0px;
+    margin-top: 0;
   }
+
   .otp-left-side {
     height: 46%;
     width: 100%;
@@ -278,8 +279,9 @@ input[type='text']::-webkit-outer-spin-button {
     font-weight: 400;
     line-height: normal;
   }
+
   .otp-resend-container {
-    margin-top: 0px;
+    margin-top: 0;
   }
 
   .otp-resend-container h5 {
@@ -287,10 +289,7 @@ input[type='text']::-webkit-outer-spin-button {
   }
 
   .otp-bg {
-    margin-right: 11.3rem;
-    margin-bottom: auto;
-    margin-top: 2rem;
-    margin-left: 5rem;
+    margin: 2rem 11.3rem auto 5rem;
   }
 
   .otp-sub {
@@ -298,7 +297,7 @@ input[type='text']::-webkit-outer-spin-button {
   }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (width >= 769px) and (width <= 1024px) {
   .otp-left-side {
     width: 50%;
   }

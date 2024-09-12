@@ -2,13 +2,13 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .login-footer {
     display: flex;
     font-size: small;
     justify-content: space-between;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #fff;
     padding-top: 2rem;
     padding-bottom: 20px;
     margin-left: 0;
