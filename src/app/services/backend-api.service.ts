@@ -65,7 +65,7 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
-    return this.http.post(environment.getEventDetails, {}, { headers: headers });
+    return this.http.post(environment.getEventDetails, { event: environment.eventName }, { headers: headers });
   }
   postCurrentSessionId(sessionId: any, eventName: any, domain: any, primarySessionId: any) {
     const refreshToken = localStorage.getItem('idToken');

@@ -209,7 +209,7 @@ export class SessionContentComponent implements OnInit {
 
   getEventDetails() {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
-      this.eventDetails = data;
+      this.eventDetails = data.data;
       this.populateEventNames();
       this.selectDefaultOptions();
     });

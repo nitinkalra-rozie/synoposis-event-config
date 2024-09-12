@@ -63,7 +63,7 @@ export class ElsaEventAdminV2Component implements OnInit {
 
   getEventDetails = () => {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
-      this.eventDetails = data;
+      this.eventDetails = data.data;
       this.populateEventNames();
     });
   };
