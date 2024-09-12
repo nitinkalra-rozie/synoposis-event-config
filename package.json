@@ -8,8 +8,8 @@
     "test": "ng test",
     "build:dev": "ng build --configuration=dev",
     "build:prod": "ng build --configuration=prod",
-    "start:dev": "ng serve --configuration=dev",
-    "start:prod": "ng serve --configuration=prod",
+    "start:dev": "ng serve --configuration=dev --port 4201",
+    "start:prod": "ng serve --configuration=prod --port 4201",
     "lint": "ng lint"
   },
   "private": true,
