@@ -34,7 +34,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() transcriptTimeOutProp: number;
 
   isSessionInProgress = false;
-  selectedTheme: string = ThemeOptions.light;
+  selectedTheme: string = ThemeOptions.Light;
   selectedEvent = '';
   selectedKeynoteType = '';
   selectedSessionType = '';

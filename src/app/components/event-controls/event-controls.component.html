@@ -11,16 +11,16 @@
       <app-main-drop-down [selectedValue]="[postData?.eventName]" dropdownTitle="Select Event"
         [dropdownContent]="eventNames"
         [disabled]="true"
-        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.eventName)"></app-main-drop-down>
+        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"></app-main-drop-down>
     </div>
     <div class="select-theme-wrapper">
-      <app-main-drop-down (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.theme)"
+      <app-main-drop-down (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
         [selectedValue]="[postData?.theme]" [dropdownContent]="themeOptions"
         dropdownTitle="Select Theme"></app-main-drop-down>
     </div>
     <!-- <div class="session-insights-wrapper">
       <app-main-drop-down type="t2" [selectedValue]="[transcriptTimeOut.label]"
-        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.screenTimeout)"
+        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.ScreenTimeout)"
         dropdownTitle="Time Window for Real-time Session Insights" [dropdownContent]="timeWindows"></app-main-drop-down>
     </div>
     <div class="session-insights-wrapper">

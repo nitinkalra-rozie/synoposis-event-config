@@ -1,16 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-    selector: 'app-time-selector',
-    templateUrl: './time-selector.component.html',
-    styleUrls: ['./time-selector.component.scss'],
-    standalone: true
+  selector: 'app-time-selector',
+  templateUrl: './time-selector.component.html',
+  styleUrls: ['./time-selector.component.scss'],
+  standalone: true,
 })
-export class TimeSelectorComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-}
+export class TimeSelectorComponent {}

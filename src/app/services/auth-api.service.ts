@@ -6,22 +6,38 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root',
 })
 export class AuthApiService {
-  private baseURL: string = environment.AUTH_API_END_POINT || '';
-  private headers: HttpHeaders;
-
   constructor(private http: HttpClient) {
-    this.headers = new HttpHeaders({
+    this._headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: localStorage.getItem('idToken') || '',
     });
   }
 
+  private _baseUrl: string = environment.AUTH_API_END_POINT || '';
+  private _headers: HttpHeaders;
+
   updateHeaders(headers: Record<string, string>): void {
-    this.headers = new HttpHeaders(headers);
+    this._headers = new HttpHeaders(headers);
   }
 
   updateBaseUrl(url: string): void {
-    this.baseURL = url;
+    this._baseUrl = url;
+  }
+
+  get<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+    return this.request<T>('GET', endpoint, undefined, params);
+  }
+
+  post<T>(endpoint: string, body: Record<string, any>, params?: Record<string, string | number | boolean>): Promise<T> {
+    return this.request<T>('POST', endpoint, body, params);
+  }
+
+  put<T>(endpoint: string, body: Record<string, any>, params?: Record<string, string | number | boolean>): Promise<T> {
+    return this.request<T>('PUT', endpoint, body, params);
+  }
+
+  delete<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+    return this.request<T>('DELETE', endpoint, undefined, params);
   }
 
   private async request<T>(
@@ -30,9 +46,9 @@ export class AuthApiService {
     body?: Record<string, any>,
     params?: Record<string, string | number | boolean>
   ): Promise<T> {
-    const url = this.baseURL + endpoint;
+    const url = this._baseUrl + endpoint;
     const httpOptions = {
-      headers: this.headers,
+      headers: this._headers,
       params: new HttpParams({ fromObject: params as Record<string, string> }),
     };
 
@@ -53,29 +69,5 @@ export class AuthApiService {
       console.error(`Error with ${method} request to ${url}`, error);
       throw error;
     }
-  }
-
-  get<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
-    return this.request<T>('GET', endpoint, undefined, params);
-  }
-
-  post<T>(
-    endpoint: string,
-    body: Record<string, any>,
-    params?: Record<string, string | number | boolean>
-  ): Promise<T> {
-    return this.request<T>('POST', endpoint, body, params);
-  }
-
-  put<T>(
-    endpoint: string,
-    body: Record<string, any>,
-    params?: Record<string, string | number | boolean>
-  ): Promise<T> {
-    return this.request<T>('PUT', endpoint, body, params);
-  }
-
-  delete<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
-    return this.request<T>('DELETE', endpoint, undefined, params);
   }
 }

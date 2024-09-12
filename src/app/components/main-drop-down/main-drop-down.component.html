@@ -14,7 +14,7 @@
           <div
             class="drop-down-item"
             (click)="handleDropDownSelect(item)"
-            [class.selected]="selectedValue[0] == item"
+            [class.selected]="selectedValue[0] === item"
             >
             <div class="item-text">{{ item }}</div>
           </div>

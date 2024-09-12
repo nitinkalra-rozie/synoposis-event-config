@@ -2,18 +2,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
+// TODO: @refactor this service to use defined types instead of objects
 export class BackendApiService {
   constructor(private http: HttpClient) {}
-  currentSessionId = '';
-  eventDay = '';
-  eventName = '';
-  domain = '';
 
-  getTranscriberPreSignedUrl(body: any) {
+  getTranscriberPreSignedUrl(body: any): Observable<Object> {
     const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -21,7 +19,7 @@ export class BackendApiService {
     return this.http.post(environment.getTranscriberPreSignedUrl, body, { headers: headers });
   }
 
-  putTranscript(transcript: any) {
+  putTranscript(transcript: any): Observable<Object> {
     const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -36,7 +34,7 @@ export class BackendApiService {
     return this.http.post(environment.putTranscript, body, { headers: headers });
   }
   // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any
-  postData(data: PostData) {
+  postData(data: PostData): Observable<Object> {
     const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -60,14 +58,14 @@ export class BackendApiService {
     }
     return this.http.post(environment.postData, body, { headers: headers });
   }
-  getEventDetails() {
+  getEventDetails(): Observable<Object> {
     const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
     return this.http.post(environment.getEventDetails, { event: environment.eventName }, { headers: headers });
   }
-  postCurrentSessionId(sessionId: any, eventName: any, domain: any, primarySessionId: any) {
+  postCurrentSessionId(sessionId: any, eventName: any, domain: any, primarySessionId: any): Observable<Object> {
     const refreshToken = localStorage.getItem('idToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,

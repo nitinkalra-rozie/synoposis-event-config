@@ -21,7 +21,7 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 export class ElsaEventAdminV2Component implements OnInit {
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];
-  themeOptions: ThemeOptions[] = [ThemeOptions.dark, ThemeOptions.light];
+  themeOptions: ThemeOptions[] = [ThemeOptions.Dark, ThemeOptions.Light];
   successMessage = '';
   failureMessage = '';
   postData: PostData = {};
@@ -31,7 +31,7 @@ export class ElsaEventAdminV2Component implements OnInit {
   options: string[] = [];
   selectedSessionTitle: string;
   transcriptTimeOut: { label: string; value: number } = {
-    label: TimeWindowsEnum['60 Seconds'],
+    label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
 
@@ -68,7 +68,7 @@ export class ElsaEventAdminV2Component implements OnInit {
 
   populateEventNames = () => {
     this.eventNames = Array.from(new Set(this.eventDetails.map((event) => event.Event)));
-    this.updatePostData({ key: PostDataEnum.eventName, value: this.eventNames[0] });
+    this.updatePostData({ key: PostDataEnum.EventName, value: this.eventNames[0] });
   };
 
   populateSessionTitles() {
@@ -89,7 +89,7 @@ export class ElsaEventAdminV2Component implements OnInit {
 
   onEventChange = () => {
     this.populateEventDays();
-    this.updatePostData({ key: PostDataEnum.day, value: this.eventDays.length > 0 ? this.eventDays[0] : '' });
+    this.updatePostData({ key: PostDataEnum.Day, value: this.eventDays.length > 0 ? this.eventDays[0] : '' });
     this.onDayChange();
   };
 
@@ -106,7 +106,7 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.selectedSessionTitle = this.sessionTitles.length > 0 ? this.sessionTitles[0] : '';
     const sessionDetails = this.findSession(this.postData.eventName, this.selectedSessionTitle);
     if (sessionDetails) {
-      this.updatePostData({ key: PostDataEnum.sessionId, value: sessionDetails.SessionId });
+      this.updatePostData({ key: PostDataEnum.SessionId, value: sessionDetails.SessionId });
     }
   };
 
@@ -130,21 +130,21 @@ export class ElsaEventAdminV2Component implements OnInit {
 
   updatePostData = ({ key, value }: { key: PostDataEnum; value: string }) => {
     const tempKey = key as string;
-    if (key === PostDataEnum.screenTimeout) {
+    if (key === PostDataEnum.ScreenTimeout) {
       this.postData[tempKey] = TimeWindows[value];
     } else {
       this.postData[tempKey] = value;
     }
     switch (key) {
-      case PostDataEnum.theme:
+      case PostDataEnum.Theme:
         this.postData.action = 'updateTheme';
         break;
 
-      case PostDataEnum.eventName:
+      case PostDataEnum.EventName:
         this.onEventChange();
         break;
 
-      case PostDataEnum.screenTimeout:
+      case PostDataEnum.ScreenTimeout:
         this.transcriptTimeOut = {
           label: TimeWindowsEnum[value],
           value: TimeWindows[value],
@@ -163,7 +163,7 @@ export class ElsaEventAdminV2Component implements OnInit {
     localStorage.removeItem('postInsideValue');
     this.initializeData();
     this.transcriptTimeOut = {
-      label: TimeWindowsEnum['60 Seconds'],
+      label: TimeWindowsEnum.Seconds60,
       value: TimeWindows['60 Seconds'],
     };
   };

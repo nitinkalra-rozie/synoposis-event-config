@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
-import {
-  CognitoUserPool,
-  CognitoUserSession,
-} from 'amazon-cognito-identity-js';
+import { CognitoUserPool, CognitoUserSession } from 'amazon-cognito-identity-js';
 import { AuthResponse } from '../shared/types';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
@@ -12,33 +9,32 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  private static instance: AuthService;
-  private userPool: CognitoUserPool;
-  private navigateFunction: ((path: string) => void) | null = null;
-
-    constructor(private router: Router,) {
-    this.userPool = new CognitoUserPool({
+  constructor(private router: Router) {
+    this._userPool = new CognitoUserPool({
       UserPoolId: environment.USER_POOL_ID,
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
     });
   }
 
+  private _userPool: CognitoUserPool;
+  private _navigateFunction: ((path: string) => void) | null = null;
+
   public setNavigateFunction = (navigate: (path: string) => void): void => {
-    this.navigateFunction = navigate;
+    this._navigateFunction = navigate;
   };
 
   public saveAuthInLocal = async (data: AuthResponse): Promise<void> => {
     const {
       AuthenticationResult: { AccessToken, IdToken, RefreshToken },
     } = data;
-    console.log('auth data1 ',data.AuthenticationResult);
+    console.log('auth data1 ', data.AuthenticationResult);
     localStorage.setItem('accessToken', AccessToken);
     localStorage.setItem('idToken', IdToken);
     localStorage.setItem('refreshToken', RefreshToken);
   };
 
   public logout = (): void => {
-    const cognitoUser = this.userPool.getCurrentUser();
+    const cognitoUser = this._userPool.getCurrentUser();
     if (cognitoUser) {
       cognitoUser.signOut();
     }
@@ -46,8 +42,7 @@ export class AuthService {
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('sessionToken');
-    this.router.navigate(['/login']); 
-
+    this.router.navigate(['/login']);
   };
 
   public isAuthenticated = (): boolean => {
@@ -61,8 +56,9 @@ export class AuthService {
 
   public getRefreshToken = (): string | null => localStorage.getItem('refreshToken');
 
-  public checkSession = (): Promise<void> => new Promise((resolve, reject) => {
-      const cognitoUser = this.userPool.getCurrentUser();
+  public checkSession = (): Promise<void> =>
+    new Promise((resolve, reject) => {
+      const cognitoUser = this._userPool.getCurrentUser();
       if (cognitoUser) {
         cognitoUser.getSession((err: any, session: CognitoUserSession) => {
           if (err) {

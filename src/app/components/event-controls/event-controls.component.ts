@@ -16,11 +16,11 @@ export class EventControlsComponent implements OnInit {
   timeWindows;
   transitionTimes;
   postInsideInterval: number = TransitionTimes['15 Seconds'];
-  postInsideValue: string = TransitionTimesEnum['15 Seconds'];
+  postInsideValue: string = TransitionTimesEnum.Seconds15;
 
   @Input() eventNames: string[] = [];
   @Input() transcriptTimeOut: { label: string; value: number } = {
-    label: TimeWindowsEnum['60 Seconds'],
+    label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
   @Input() postData: PostData = INITIAL_POST_DATA;
@@ -37,7 +37,7 @@ export class EventControlsComponent implements OnInit {
     this.timeWindows = Object.keys(TimeWindows);
     this.transitionTimes = Object.keys(TransitionTimes);
     this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15;
-    this.postInsideValue = localStorage.getItem('postInsideValue') || TransitionTimesEnum['15 Seconds'];
+    this.postInsideValue = localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
   }
 
   onPostInsideIntervalChange = (value: string) => {
@@ -60,7 +60,7 @@ export class EventControlsComponent implements OnInit {
 
   handleResetClick = () => {
     this.postInsideInterval = TransitionTimes['15 Seconds'];
-    this.postInsideValue = TransitionTimesEnum['15 Seconds'];
+    this.postInsideValue = TransitionTimesEnum.Seconds15;
     this.onReset.emit();
   };
 }
