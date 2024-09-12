@@ -1,13 +1,13 @@
 import {
   Component,
   Input,
+  OnChanges,
   OnInit,
   SimpleChanges,
-  OnChanges,
 } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
+import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
 declare const Buffer;
-import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
 import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting binary event stream messages to and from JSON
@@ -15,19 +15,19 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 // Check - https://www.npmjs.com/package/@aws-sdk/util-utf8-node and https://www.npmjs.com/package/@aws-sdk/util-utf8
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 // TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
+import { NgClass } from '@angular/common';
+import { generateSHA256HashHex } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-import { EventDetail, PostData } from 'src/app/shared/types';
+import { MicrophoneService } from 'src/app/services/microphone.service';
+import { ModalService } from 'src/app/services/modal.service';
 import {
   EventCardType,
   EventDetailType,
   ScreenDisplayType,
   ThemeOptions,
 } from 'src/app/shared/enums';
-import { ModalService } from 'src/app/services/modal.service';
-import { MicrophoneService } from 'src/app/services/microphone.service';
-import { generateSHA256HashHex } from '@syn/utils';
+import { EventDetail, PostData } from 'src/app/shared/types';
 import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
-import { NgClass } from '@angular/common';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -1110,7 +1110,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
-          console.log('sid here ', this.currentSessionId);
+          console.log('current session id:', this.currentSessionId);
           if (sessionDetails) {
             this.backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
