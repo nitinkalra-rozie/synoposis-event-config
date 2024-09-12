@@ -6,7 +6,7 @@ provider:
   stage: ${opt:stage, "dev"}
   region: ${opt:region, "ca-central-1"}
   stackTags:
-    REPOSITORY: "elsa-at-event-mic-app"
+    REPOSITORY: "synopsis-admin-dashboard"
   iamRoleStatements:
     - Effect: Allow
       Action: 
