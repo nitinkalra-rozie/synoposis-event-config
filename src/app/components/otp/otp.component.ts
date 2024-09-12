@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service'; // Ensure this import path is correct
 import { AuthResponse } from 'src/app/shared/types';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
-import { FormsModule } from '@angular/forms';
 import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
@@ -111,7 +111,10 @@ export class OtpComponent implements OnInit {
           responseData.AuthenticationResult &&
           responseData.AuthenticationResult.IdToken
         ) {
-          console.log('auth id token:', responseData.AuthenticationResult.IdToken);
+          console.log(
+            'auth id token:',
+            responseData.AuthenticationResult.IdToken
+          );
           this.router.navigate(['/admin']);
         } else {
           this.errorMessage = 'Wrong otp!';
