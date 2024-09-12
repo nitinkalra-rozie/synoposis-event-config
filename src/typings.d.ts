@@ -1,7 +1,6 @@
 export {}; // This line turns the file into a module
 
 declare global {
-
   interface Navigator {
     permissions?: Permissions;
     readonly wakeLock: WakeLock;
@@ -22,5 +21,4 @@ declare global {
 
   // This is necessary if TypeScript does not recognize "PermissionName" type.
   type PermissionName = 'microphone' | 'geolocation' | 'notifications' | any;
-
 }

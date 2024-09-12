@@ -1,0 +1,9 @@
+# remove the following once the refactoring is done for the components
+/src/app/components/session-content/session-content.component.ts
+/src/app/components/screen-display/screen-display.component.ts
+/src/app/components/otp/otp.component.ts
+/src/app/components/main-drop-down/main-drop-down.component.ts
+/src/app/components/login-page/login-page.component.ts
+/src/app/components/event-controls/event-controls.component.ts
+/src/app/components/elsa-event-admin-v2/elsa-event-admin-v2.component.ts
+/src/app/components/audio-streamer/audio-streamer.component.ts

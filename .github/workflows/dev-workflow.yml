@@ -6,29 +6,30 @@ on:
       - development
 
 env:
-  deployment: dev 
-
+  deployment: dev
 
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-          node-version: "16.x"
-    - name: Install fullstack-serverless
-      run: npm install --save-dev fullstack-serverless
-    - name: Install Serverless Framework
-      run: npm install -g serverless@3.38.0
-    - name: Install Angular CLI
-      run: npm install -g @angular/cli@12.x
-    - name: Install Packages
-      run: npm install --legacy-peer-deps
-    - name: Serverless AWS Authentication
-      run: sls config credentials --provider aws --key ${{ secrets.ACCESS_KEY}} --secret ${{ secrets.SECRET_ACCESS_KEY }}
-    - name: export command for openssl
-      run: export NODE_OPTIONS=--openssl-legacy-provider
-    - name: Deploy Static Website
-      run: sls deploy --region ca-central-1 --stage dev 
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '20.x'
+      - name: Install fullstack-serverless
+        run: npm install --save-dev fullstack-serverless
+      - name: Install Serverless Framework
+        run: npm install -g serverless@3.38.0
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli@18.x
+      - name: Install Packages
+        run: npm install --legacy-peer-deps
+      - name: Serverless AWS Authentication
+        run:
+          sls config credentials --provider aws --key ${{ secrets.ACCESS_KEY}}
+          --secret ${{ secrets.SECRET_ACCESS_KEY }}
+      - name: export command for openssl
+        run: export NODE_OPTIONS=--openssl-legacy-provider
+      - name: Deploy Static Website
+        run: sls deploy --region ca-central-1 --stage dev

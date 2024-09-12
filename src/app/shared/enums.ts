@@ -1,6 +1,6 @@
 export enum ThemeOptions {
-  dark = 'Dark',
-  light = 'Light',
+  Dark = 'Dark',
+  Light = 'Light',
 }
 
 export enum EventDetailType {
@@ -22,26 +22,26 @@ export enum EventCardType {
 }
 
 export enum PostDataEnum {
-  action = 'action',
-  sessionId = 'sessionId',
-  eventName = 'eventName',
-  domain = 'domain',
-  day = 'day',
-  keyNoteData = 'keyNoteData',
-  transcript = 'transcript',
-  screenTimeout = 'screenTimeout',
-  sessionTitle = 'sessionTitle',
-  theme = 'theme',
+  Action = 'action',
+  SessionId = 'sessionId',
+  EventName = 'eventName',
+  Domain = 'domain',
+  Day = 'day',
+  KeyNoteData = 'keyNoteData',
+  Transcript = 'transcript',
+  ScreenTimeout = 'screenTimeout',
+  SessionTitle = 'sessionTitle',
+  Theme = 'theme',
 }
 
 export enum TimeWindowsEnum {
-  '60 Seconds' = '60 Seconds',
-  '75 Seconds' = '75 Seconds',
-  '90 Seconds' = '90 Seconds',
+  Seconds60 = '60 Seconds',
+  Seconds75 = '75 Seconds',
+  Seconds90 = '90 Seconds',
 }
 
 export enum TransitionTimesEnum {
-  '15 Seconds' = '15 Seconds',
-  '30 Seconds' = '30 Seconds',
-  '45 Seconds' = '45 Seconds',
+  Seconds15 = '15 Seconds',
+  Seconds30 = '30 Seconds',
+  Seconds45 = '45 Seconds',
 }

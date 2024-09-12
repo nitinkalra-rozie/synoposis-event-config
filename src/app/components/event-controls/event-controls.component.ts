@@ -1,28 +1,43 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { INITIAL_POST_DATA, TimeWindows, TransitionTimes } from 'src/app/shared/constants';
-import { PostDataEnum, ThemeOptions, TimeWindowsEnum, TransitionTimesEnum } from 'src/app/shared/enums';
+import {
+  INITIAL_POST_DATA,
+  TimeWindows,
+  TransitionTimes,
+} from 'src/app/shared/constants';
+import {
+  PostDataEnum,
+  ThemeOptions,
+  TimeWindowsEnum,
+  TransitionTimesEnum,
+} from 'src/app/shared/enums';
 import { PostData } from 'src/app/shared/types';
+import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
 
 @Component({
   selector: 'app-event-controls',
   templateUrl: './event-controls.component.html',
-  styleUrls: ['./event-controls.component.css'],
+  styleUrls: ['./event-controls.component.scss'],
+  standalone: true,
+  imports: [MainDropDownComponent],
 })
 export class EventControlsComponent implements OnInit {
   public PostDataEnum = PostDataEnum;
   timeWindows;
   transitionTimes;
   postInsideInterval: number = TransitionTimes['15 Seconds'];
-  postInsideValue: string = TransitionTimesEnum['15 Seconds'];
+  postInsideValue: string = TransitionTimesEnum.Seconds15;
 
   @Input() eventNames: string[] = [];
   @Input() transcriptTimeOut: { label: string; value: number } = {
-    label: TimeWindowsEnum['60 Seconds'],
+    label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
   @Input() postData: PostData = INITIAL_POST_DATA;
   @Input() themeOptions: ThemeOptions[];
-  @Output() onUpdatePostData: EventEmitter<{ key: PostDataEnum; value: string }>;
+  @Output() onUpdatePostData: EventEmitter<{
+    key: PostDataEnum;
+    value: string;
+  }>;
   @Output() onReset: EventEmitter<void>;
 
   constructor() {
@@ -33,8 +48,10 @@ export class EventControlsComponent implements OnInit {
   ngOnInit() {
     this.timeWindows = Object.keys(TimeWindows);
     this.transitionTimes = Object.keys(TransitionTimes);
-    this.postInsideInterval = parseInt(localStorage.getItem('postInsideInterval')) || 15;
-    this.postInsideValue = localStorage.getItem('postInsideValue') || TransitionTimesEnum['15 Seconds'];
+    this.postInsideInterval =
+      parseInt(localStorage.getItem('postInsideInterval')) || 15;
+    this.postInsideValue =
+      localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
   }
 
   onPostInsideIntervalChange = (value: string) => {
@@ -42,7 +59,10 @@ export class EventControlsComponent implements OnInit {
     this.postInsideInterval = TransitionTimes[value];
     this.postInsideValue = TransitionTimesEnum[value];
     console.log('postInsideInterval changed to:', this.postInsideInterval);
-    localStorage.setItem('postInsideInterval', this.postInsideInterval.toString());
+    localStorage.setItem(
+      'postInsideInterval',
+      this.postInsideInterval.toString()
+    );
     localStorage.setItem('postInsideValue', this.postInsideValue.toString());
     // You can call any other functions or perform any other actions here
   };
@@ -57,7 +77,7 @@ export class EventControlsComponent implements OnInit {
 
   handleResetClick = () => {
     this.postInsideInterval = TransitionTimes['15 Seconds'];
-    this.postInsideValue = TransitionTimesEnum['15 Seconds'];
+    this.postInsideValue = TransitionTimesEnum.Seconds15;
     this.onReset.emit();
   };
 }

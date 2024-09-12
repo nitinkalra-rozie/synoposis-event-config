@@ -1,36 +1,45 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { ModalService } from 'src/app/services/modal.service';
+import { OutsideClickDirective } from '../../../directives/outside-click.directive';
+import { SideBarComponent } from '../side-bar/side-bar.component';
 @Component({
   selector: 'app-top-bar',
   templateUrl: './top-bar.component.html',
-  styleUrls: ['./top-bar.component.css'],
+  styleUrls: ['./top-bar.component.scss'],
+  standalone: true,
+  imports: [SideBarComponent, OutsideClickDirective],
 })
 export class TopBarComponent {
-  showDropdown: boolean = false;
   constructor(
     private authService: AuthService,
     private modalService: ModalService
   ) {}
 
-  toggleDropdown() {
+  protected showDropdown = false;
+
+  protected toggleDropdown(): void {
     this.showDropdown = !this.showDropdown;
   }
 
-  onOutsideClick() {
+  protected onOutsideClick(): void {
     this.showDropdown = false;
   }
 
-  handleNoSelect = () => {
+  protected logout(): void {
+    this.showModal();
+  }
+
+  private handleNoSelect = (): void => {
     this.modalService.close();
   };
 
-  handleYesSelect = () => {
+  private handleYesSelect = (): void => {
     this.modalService.close();
     this.authService.logout();
   };
 
-  showModal() {
+  private showModal(): void {
     this.modalService.open(
       'Confirm Action',
       'Are you sure you want to log out?',
@@ -38,9 +47,5 @@ export class TopBarComponent {
       this.handleYesSelect,
       this.handleNoSelect
     );
-  }
-
-  logout() {
-    this.showModal();
   }
 }

@@ -1,19 +1,24 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service'; // Ensure this import path is correct
 import { AuthResponse } from 'src/app/shared/types';
+import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
+import { FooterComponent } from '../shared/footer/footer.component';
 
 @Component({
   selector: 'app-otp',
   templateUrl: './otp.component.html',
-  styleUrls: ['./otp.component.css'], // Ensure this path is correct
+  styleUrls: ['./otp.component.scss'],
+  standalone: true,
+  imports: [FooterComponent, FormsModule, FooterMobileComponent],
 })
 export class OtpComponent implements OnInit {
   otp: string[] = ['', '', '', '', '', ''];
   resendClicked = false;
   submitPressed = false;
-  email: string = '';
-  errorMessage: string = '';
+  email = '';
+  errorMessage = '';
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
   constructor(
@@ -26,24 +31,27 @@ export class OtpComponent implements OnInit {
     this.email = urlParams.get('email') || '';
   }
 
-  handleOtpChange(index: number, value: string) {
+  handleOtpChange(index: number, event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
     if (!isNaN(Number(value)) && value.length === 1) {
       this.otp[index] = value;
-      if (this.otp.every(digit => digit !== '')) {
+      if (this.otp.every((digit) => digit !== '')) {
         this.handleSubmit();
         return;
       }
 
       // Move focus to the next input
       if (index < this.otp.length - 1) {
-        const nextInput = this.inputsRef.nativeElement.children[index + 1] as HTMLInputElement;
+        const nextInput = this.inputsRef.nativeElement.children[
+          index + 1
+        ] as HTMLInputElement;
         if (nextInput) {
           nextInput.focus();
         }
       }
     }
   }
-  
 
   handleKeyDown(index: number, event: KeyboardEvent) {
     const input = event.target as HTMLInputElement;
@@ -51,7 +59,9 @@ export class OtpComponent implements OnInit {
     if (event.key === 'Backspace') {
       if (index > 0 && this.otp[index] === '') {
         this.otp[index - 1] = '';
-        const prevInput = this.inputsRef.nativeElement.children[index - 1] as HTMLInputElement;
+        const prevInput = this.inputsRef.nativeElement.children[
+          index - 1
+        ] as HTMLInputElement;
         if (prevInput) {
           prevInput.focus();
         }
@@ -60,14 +70,18 @@ export class OtpComponent implements OnInit {
       }
     } else if (event.key === 'ArrowLeft') {
       if (index > 0) {
-        const prevInput = this.inputsRef.nativeElement.children[index - 1] as HTMLInputElement;
+        const prevInput = this.inputsRef.nativeElement.children[
+          index - 1
+        ] as HTMLInputElement;
         if (prevInput) {
           prevInput.focus();
         }
       }
     } else if (event.key === 'ArrowRight') {
       if (index < this.otp.length - 1) {
-        const nextInput = this.inputsRef.nativeElement.children[index + 1] as HTMLInputElement;
+        const nextInput = this.inputsRef.nativeElement.children[
+          index + 1
+        ] as HTMLInputElement;
         if (nextInput) {
           nextInput.focus();
         }
@@ -92,15 +106,22 @@ export class OtpComponent implements OnInit {
     this.loginService.OTPVerification(this.email, inputOtp).subscribe(
       (responseData: AuthResponse | null) => {
         this.submitPressed = false;
-        if (responseData && responseData.AuthenticationResult && responseData.AuthenticationResult.IdToken) {
-          console.log('sid auth ', responseData.AuthenticationResult.IdToken);
+        if (
+          responseData &&
+          responseData.AuthenticationResult &&
+          responseData.AuthenticationResult.IdToken
+        ) {
+          console.log(
+            'auth id token:',
+            responseData.AuthenticationResult.IdToken
+          );
           this.router.navigate(['/admin']);
         } else {
           this.errorMessage = 'Wrong otp!';
           console.error('OTP verification failed or no token received');
         }
       },
-      error => {
+      (error) => {
         this.submitPressed = false;
         this.errorMessage = 'Wrong otp!';
         console.error('Error during OTP verification', error);
@@ -124,11 +145,13 @@ export class OtpComponent implements OnInit {
 
     this.otp = otpArray;
     const lastIndex = otpArray.length - 1;
-    if (this.otp.every(digit => digit !== '')) {
+    if (this.otp.every((digit) => digit !== '')) {
       this.handleSubmit();
       return;
     }
-    const lastInput = this.inputsRef.nativeElement.children[lastIndex] as HTMLInputElement;
+    const lastInput = this.inputsRef.nativeElement.children[
+      lastIndex
+    ] as HTMLInputElement;
     if (lastInput) {
       lastInput.focus();
     }

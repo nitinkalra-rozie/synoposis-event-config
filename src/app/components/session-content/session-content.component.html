@@ -1,37 +1,76 @@
-<div class="alert-box" [ngClass]="{'success': successMessage, 'failure': failureMessage}">
-  <div *ngIf="successMessage" class="alert alert-success" role="alert">
-    {{ successMessage }}
-  </div>
-  <div *ngIf="failureMessage" class="alert alert-danger" role="alert">
-    {{ failureMessage }}
-  </div>
+<div
+  class="alert-box"
+  [ngClass]="{ success: successMessage, failure: failureMessage }">
+  @if (successMessage) {
+    <div class="alert alert-success" role="alert">
+      {{ successMessage }}
+    </div>
+  }
+  @if (failureMessage) {
+    <div class="alert alert-danger" role="alert">
+      {{ failureMessage }}
+    </div>
+  }
 </div>
-<div class="session-content" id="session-content">
+<div id="session-content" class="session-content">
   <div class="padding-combine">
-    <app-screen-display (onEventSpecificDayChange)="handleEventSpecificDayChange($event)"
-      [type]="ScreenDisplayType.EventSpecific" [eventDays]="eventDays" [title]="'Event-Specific Screens'"
-      [showStartListeningButton]="false" [showStopScreenButton]="false" [showStopScreenButton]="false"
-      [ShowCombineDropdown]="false" [shoEventDropDown]="true" [cards]="event_cards"></app-screen-display>
+    <app-screen-display
+      [cards]="event_cards"
+      [eventDays]="eventDays"
+      [shoEventDropDown]="true"
+      [ShowCombineDropdown]="false"
+      [showStartListeningButton]="false"
+      [showStopScreenButton]="false"
+      [showStopScreenButton]="false"
+      [title]="'Event-Specific Screens'"
+      [type]="ScreenDisplayType.EventSpecific"
+      (onEventSpecificDayChange)="
+        handleEventSpecificDayChange($event)
+      "></app-screen-display>
 
-    <app-screen-display [selectedSessionType]="selectedSessionType" [sessionDay]="selectedDay" [type]="ScreenDisplayType.SessionSpecific"
+    <app-screen-display
+      [cards]="session_cards"
+      [eventDays]="eventDays"
+      [isSessionInProgress]="isSessionInProgress"
+      [selectedSessionType]="selectedSessionType"
+      [sessionDay]="selectedDay"
+      [sessionTitles]="sessionTitles"
+      [sessionValueDropdown]="true"
+      [ShowCombineDropdown]="true"
+      [showStartListeningButton]="true"
+      [showStartListeningButton]="true"
+      [showStopScreenButton]="true"
+      [showStopScreenButton]="true"
+      [showStopScreenButton]="true"
+      [subSessionValueDropdown]="false"
+      [title]="'Session-Specific Screens'"
+      [type]="ScreenDisplayType.SessionSpecific"
+      (endSession)="endSessionPopUpPostInsights()"
       (onMainSessionChange)="handleMainSessionChange($event)"
-      (onMainSessionDayChange)="handleMainSessionDayChange($event)" [eventDays]="eventDays"
-      [sessionTitles]="sessionTitles" [title]="'Session-Specific Screens'" [showStartListeningButton]="true"
-      [showStopScreenButton]="true" [showStopScreenButton]="true" [ShowCombineDropdown]="true"
-      [sessionValueDropdown]="true" [subSessionValueDropdown]="false" [cards]="session_cards"
-      [isSessionInProgress]="isSessionInProgress" [showStartListeningButton]="true" [showStopScreenButton]="true"
-      (startListening)="startListeningPopUp()" (stopListening)="stopListening()"
-      (endSession)="endSessionPopUpPostInsights()"></app-screen-display>
+      (onMainSessionDayChange)="handleMainSessionDayChange($event)"
+      (startListening)="startListeningPopUp()"
+      (stopListening)="stopListening()"></app-screen-display>
 
-    <app-screen-display [sessionDay]="selectedMultiSessionDay" [type]="ScreenDisplayType.MultiSession"
-      [eventDays]="eventDays" (onSessionsChange)="handleSessionsChange($event)"
-      (onMultiSessionDayChange)="handleMultiSessionDayChange($event)" [sessionTitles]="primarySessionTitles"
-      [title]="'Daily Screens'" [showStartListeningButton]="false" [showStopScreenButton]="false"
-      [showStopScreenButton]="false" [ShowCombineDropdown]="true" [sessionValueDropdown]="false"
-      [subSessionValueDropdown]="true" [cards]="multi_session_card"></app-screen-display>
+    <app-screen-display
+      [cards]="multi_session_card"
+      [eventDays]="eventDays"
+      [sessionDay]="selectedMultiSessionDay"
+      [sessionTitles]="primarySessionTitles"
+      [sessionValueDropdown]="false"
+      [ShowCombineDropdown]="true"
+      [showStartListeningButton]="false"
+      [showStopScreenButton]="false"
+      [showStopScreenButton]="false"
+      [subSessionValueDropdown]="true"
+      [title]="'Daily Screens'"
+      [type]="ScreenDisplayType.MultiSession"
+      (onMultiSessionDayChange)="handleMultiSessionDayChange($event)"
+      (onSessionsChange)="handleSessionsChange($event)"></app-screen-display>
   </div>
 
-  <div class="transcript" *ngIf="isSessionInProgress">
-    {{transcription}}
-  </div>
+  @if (isSessionInProgress) {
+    <div class="transcript">
+      {{ transcription }}
+    </div>
+  }
 </div>

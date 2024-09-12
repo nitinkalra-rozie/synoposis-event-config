@@ -1,22 +1,29 @@
-<div class="modal-backdrop" *ngIf="isVisible">
-  <div class="modal-content">
-    <div class="title-section">
-      <div class="title-left">
-        <img class="title-icon" src="assets/v2-icons/warning_amber.svg" alt="" />
-        <div class="title-text">{{ title }}</div>
+@if (isVisible) {
+  <div class="modal-backdrop">
+    <div class="modal-content">
+      <div class="title-section">
+        <div class="title-left">
+          <img
+            class="title-icon"
+            alt=""
+            src="assets/v2-icons/warning_amber.svg" />
+          <div class="title-text">{{ title }}</div>
+        </div>
+        <img
+          class="close-icon"
+          (click)="onCancel()"
+          alt=""
+          src="assets/v2-icons/close.svg" />
       </div>
-      <img (click)="onCancel()" class="close-icon" src="assets/v2-icons/close.svg" alt="" />
-    </div>
-    <div class="message">{{ message }}</div>
-    <div class="modal-actions">
-      <ng-container *ngIf="buttonType === 'yes_no'; else okBlock">
-        <div class="yes-button" (click)="onConfirm()">Yes</div>
-        <div class="no-button" (click)="onCancel()">No</div>
-      </ng-container>
-      <ng-template #okBlock>
-        <div class="yes-button" (click)="cancelAction()">OK</div>
-      </ng-template>
-      
+      <div class="message">{{ message }}</div>
+      <div class="modal-actions">
+        @if (buttonType === 'yes_no') {
+          <div class="yes-button" (click)="onConfirm()">Yes</div>
+          <div class="no-button" (click)="onCancel()">No</div>
+        } @else {
+          <div class="yes-button" (click)="cancelAction()">OK</div>
+        }
+      </div>
     </div>
   </div>
-</div>
+}

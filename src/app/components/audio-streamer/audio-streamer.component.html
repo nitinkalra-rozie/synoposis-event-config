@@ -1,23 +1,21 @@
 <div class="stream-mic-icon">
   <div class="img-wrapper">
-      <img src="../../../assets/mic_mute_icon.svg" alt="" title="click to start stream" *ngIf="!isStreaming" (click)="startRecording()">
-      <img src="../../../assets/mic_icon.svg" alt="" title="click to stop stream" *ngIf="isStreaming" (click)="closeSocket()">
+    @if (!isStreaming) {
+      <img
+        (click)="startRecording()"
+        alt=""
+        src="../../../assets/mic_mute_icon.svg"
+        title="click to start stream" />
+    }
+    @if (isStreaming) {
+      <img
+        (click)="closeSocket()"
+        alt=""
+        src="../../../assets/mic_icon.svg"
+        title="click to stop stream" />
+    }
   </div>
 </div>
 <div class="transcription-output">
   {{ transcription }}
 </div>
-<!-- <div class="main-div">
-  <div class="voice-input">
-      <div>
-        <img src="../../../assets/voice-effect.svg" alt="" />
-      </div>
-      <div class="flex recording">
-        <div class="recording-circle recording-circle-100"></div>
-           <div class="recording-circle recording-circle-120"></div>
-           <div class="recording-circle recording-circle-150"></div>
-           <div class="processing-circle processing-circle-140"></div>
-           <div class="processing-circle processing-circle-160"></div>
-     </div>
-  </div>
-</div> -->

@@ -9,18 +9,18 @@ export const INITIAL_POST_DATA = {
   screenTimeout: 15,
   sessionId: '',
   sessionTitle: '',
-  theme: ThemeOptions.light,
+  theme: ThemeOptions.Light,
   transcript: '',
 };
 
 export const TimeWindows = {
-  [TimeWindowsEnum['60 Seconds']]: 60,
-  [TimeWindowsEnum['75 Seconds']]: 75,
-  [TimeWindowsEnum['90 Seconds']]: 90,
+  [TimeWindowsEnum.Seconds60]: 60,
+  [TimeWindowsEnum.Seconds75]: 75,
+  [TimeWindowsEnum.Seconds90]: 90,
 };
 
 export const TransitionTimes = {
-  [TransitionTimesEnum['15 Seconds']]: 15,
-  [TransitionTimesEnum['30 Seconds']]: 30,
-  [TransitionTimesEnum['45 Seconds']]: 45,
+  [TransitionTimesEnum.Seconds15]: 15,
+  [TransitionTimesEnum.Seconds30]: 30,
+  [TransitionTimesEnum.Seconds45]: 45,
 };

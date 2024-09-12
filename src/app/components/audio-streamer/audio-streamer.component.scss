@@ -1,0 +1,23 @@
+.stream-mic-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 200px);
+
+  .img-wrapper {
+    padding: 10px;
+    border-radius: 50%;
+    background-color: white;
+
+    img {
+      height: 100px;
+      width: 100px;
+    }
+  }
+}
+
+.transcription-output {
+  font-size: 40px;
+  text-align: center;
+  color: white;
+}

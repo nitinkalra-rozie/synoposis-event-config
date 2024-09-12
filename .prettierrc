@@ -1,9 +1,31 @@
 {
-  "semi": true,
-  "tabWidth": 2,
-  "printWidth": 120,
+  "plugins": ["prettier-plugin-organize-attributes"],
   "singleQuote": true,
+  "tabWidth": 2,
+  "printWidth": 80,
   "trailingComma": "es5",
   "bracketSpacing": true,
-  "arrowParens": "avoid"
+  "semi": true,
+  "useTabs": false,
+  "proseWrap": "always",
+  "arrowParens": "always",
+  "htmlWhitespaceSensitivity": "css",
+  "bracketSameLine": true,
+  "endOfLine": "auto",
+  "attributeGroups": [
+    "$ANGULAR_STRUCTURAL_DIRECTIVE",
+    "$ANGULAR_ELEMENT_REF",
+    "^mat",
+    "^mat-",
+    "$ID",
+    "$NAME",
+    "$CLASS",
+    "$GENERAL",
+    "$ANGULAR_ANIMATION",
+    "$ANGULAR_ANIMATION_INPUT",
+    "$ANGULAR_INPUT",
+    "$ANGULAR_TWO_WAY_BINDING",
+    "$ANGULAR_OUTPUT"
+  ],
+  "attributeSort": "ASC"
 }
