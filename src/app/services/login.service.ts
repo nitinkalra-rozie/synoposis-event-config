@@ -1,14 +1,14 @@
 // src/app/services/login.service.ts
 
 import { Injectable } from '@angular/core';
-import { AuthApiService } from './auth-api.service';
-import { AuthService } from './auth.service';
+import { environment } from 'src/environments/environment';
 import {
   AuthResponse,
-  CustomChallengeResponse,
   CognitoError,
+  CustomChallengeResponse,
 } from '../shared/types';
-import { environment } from 'src/environments/environment';
+import { AuthApiService } from './auth-api.service';
+import { AuthService } from './auth.service';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import {
@@ -119,8 +119,7 @@ export class LoginService {
         } else {
           return {
             success: false,
-            message:
-              "Sorry, seems like we don't have your email address in our database",
+            message: `Sorry, seems like we don't have your email address in our database`,
           } as CustomChallengeResponse; // Type assertion
         }
       }),
