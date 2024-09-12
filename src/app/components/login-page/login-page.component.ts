@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
@@ -20,10 +20,10 @@ import { FooterComponent } from '../shared/footer/footer.component';
 })
 export class LoginPageComponent {
   emailForm: UntypedFormGroup;
-  errorMessage: string = '';
-  requestingAccess: boolean = false;
-  isEmailValid: boolean = false;
-  processedClicked: boolean = false;
+  errorMessage = '';
+  requestingAccess = false;
+  isEmailValid = false;
+  processedClicked = false;
 
   constructor(
     private fb: UntypedFormBuilder,

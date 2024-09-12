@@ -19,11 +19,11 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
     ],
 })
 export class ElsaEventAdminV2Component implements OnInit {
-  eventNames: Array<string> = [];
-  eventDetails: Array<EventDetail> = [];
+  eventNames: string[] = [];
+  eventDetails: EventDetail[] = [];
   themeOptions: ThemeOptions[] = [ThemeOptions.dark, ThemeOptions.light];
-  successMessage: string = '';
-  failureMessage: string = '';
+  successMessage = '';
+  failureMessage = '';
   postData: PostData = {};
   eventDays: string[] = [];
   sessionTitles: string[] = [];
@@ -41,9 +41,7 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.initializeData();
   }
 
-  getKeyByValue = (value, object) => {
-    return Object.keys(object).find(key => object[key] === value);
-  };
+  getKeyByValue = (value, object) => Object.keys(object).find((key) => object[key] === value);
 
   initializeData = () => {
     this.postData = { ...INITIAL_POST_DATA };
@@ -69,24 +67,24 @@ export class ElsaEventAdminV2Component implements OnInit {
   };
 
   populateEventNames = () => {
-    this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
+    this.eventNames = Array.from(new Set(this.eventDetails.map((event) => event.Event)));
     this.updatePostData({ key: PostDataEnum.eventName, value: this.eventNames[0] });
   };
 
   populateSessionTitles() {
     const filteredByDay = this.eventDetails.filter(
-      event => event.Event === this.postData.eventName && event.EventDay === this.postData.day
+      (event) => event.Event === this.postData.eventName && event.EventDay === this.postData.day
     );
-    this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
+    this.sessionTitles = filteredByDay.map((event) => event.SessionTitle);
     this.primarySessionTitles = filteredByDay
-      .filter(event => event.Type === EventDetailType.PrimarySession)
-      .map(event => event.SessionTitle);
+      .filter((event) => event.Type === EventDetailType.PrimarySession)
+      .map((event) => event.SessionTitle);
     this.options = this.sessionTitles;
   }
 
   populateEventDays() {
-    const filteredByEvent = this.eventDetails.filter(event => event.Event === this.postData.eventName);
-    this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
+    const filteredByEvent = this.eventDetails.filter((event) => event.Event === this.postData.eventName);
+    this.eventDays = Array.from(new Set(filteredByEvent.map((event) => event.EventDay)));
   }
 
   onEventChange = () => {

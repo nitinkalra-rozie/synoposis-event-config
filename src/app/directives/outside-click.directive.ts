@@ -1,11 +1,11 @@
-import { Directive, ElementRef, Output, EventEmitter, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, Output, EventEmitter, Renderer2, OnInit, OnDestroy } from '@angular/core';
 
 @Directive({
     selector: '[appOutSideClick]',
     standalone: true,
 })
-export class OutsideClickDirective {
-  @Output() outSideClick: EventEmitter<void> = new EventEmitter();
+export class OutsideClickDirective implements OnInit, OnDestroy {
+  @Output() outSideClick = new EventEmitter<void>();
   constructor(
     private element: ElementRef,
     private renderer: Renderer2

@@ -1,4 +1,4 @@
-import { enableProdMode, importProvidersFrom } from '@angular/core';
+import { importProvidersFrom } from '@angular/core';
 import { environment } from './environments/environment';
 import NoSleep from '@uriopass/nosleep.js';
 import { AppComponent } from './app/app.component';
@@ -10,7 +10,7 @@ import { AuthService } from './app/services/auth.service';
 import { AuthApiService } from './app/services/auth-api.service';
 import { AuthInterceptorService } from './app/services/auth-interceptor.service';
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
-var noSleep = new NoSleep();
+const noSleep = new NoSleep();
 if (environment.production) {
   // enableProdMode();
 }
@@ -39,10 +39,10 @@ bootstrapApplication(AppComponent, {
       },
     },
   ],
-}).catch(err => console.log(err));
+}).catch((err) => console.log(err));
 
-var wakeLockEnabled = false;
-var toggleEl = document.querySelector('#index-body');
+let wakeLockEnabled = false;
+const toggleEl = document.querySelector('#index-body');
 toggleEl.addEventListener(
   'click',
   function () {

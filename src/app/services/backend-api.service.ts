@@ -8,10 +8,10 @@ import { PostData } from '../shared/types';
 })
 export class BackendApiService {
   constructor(private http: HttpClient) {}
-  currentSessionId: string = '';
-  eventDay: string = '';
-  eventName: string = '';
-  domain: string = '';
+  currentSessionId = '';
+  eventDay = '';
+  eventName = '';
+  domain = '';
 
   getTranscriberPreSignedUrl(body: any) {
     const refreshToken = localStorage.getItem('idToken');
@@ -41,7 +41,7 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
-    let body = {
+    const body = {
       action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
       eventName: data.eventName || localStorage.getItem('selectedEvent'),

@@ -13,18 +13,15 @@ import { BackendApiService } from 'src/app/services/backend-api.service';
 import { generateSHA256HashHex } from '@syn/utils';
 
 // our converter between binary event streams messages and JSON
-const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
-  util_utf8_node.toUtf8,
-  util_utf8_node.fromUtf8
-);
+const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 
 @Component({
-    selector: 'app-audio-streamer',
-    templateUrl: './audio-streamer.component.html',
-    styleUrls: ['./audio-streamer.component.scss'],
-    standalone: true
+  selector: 'app-audio-streamer',
+  templateUrl: './audio-streamer.component.html',
+  styleUrls: ['./audio-streamer.component.scss'],
+  standalone: true,
 })
-export class AudioStreamerComponent  {
+export class AudioStreamerComponent {
   title = 'AngularTranscribe';
   languageCode = 'en-US';
   region = 'us-east-1';
@@ -36,22 +33,21 @@ export class AudioStreamerComponent  {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  constructor(private backendApiService: BackendApiService){
-
-  }
+  constructor(private backendApiService: BackendApiService) {}
   startRecording() {
-    this.isStreaming = !this.isStreaming
+    this.isStreaming = !this.isStreaming;
     console.log('recording');
-    window.navigator.mediaDevices.getUserMedia({
-      video: false,
-      audio: true
-  })
-  
-  // ...then we convert the mic stream to binary event stream messages when the promise resolves 
-  .then(this.streamAudioToWebSocket) 
-  .catch(function (error) {
-      console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
-  });
+    window.navigator.mediaDevices
+      .getUserMedia({
+        video: false,
+        audio: true,
+      })
+
+      // ...then we convert the mic stream to binary event stream messages when the promise resolves
+      .then(this.streamAudioToWebSocket)
+      .catch(function (error) {
+        console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
+      });
   }
   streamAudioToWebSocket = (userMediaStream) => {
     //let's get the mic input from the browser, via the microphone-stream module
@@ -63,49 +59,48 @@ export class AudioStreamerComponent  {
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
-   
-  }
+  };
 
-  openWebsocketAndStartStream(preSignedUrl:any){
-    console.log("inside openWebsocketAndStartStream",preSignedUrl);
-     //open up our WebSocket connection
-     this.socket = new WebSocket(preSignedUrl);
-     this.socket.binaryType = 'arraybuffer';
-     console.log('start streamAudioToWebSocket44444');
-     // when we get audio data from the mic, send it to the WebSocket if possible
-     this.socket.onopen = () => {
-       this.micStream.on('data', rawAudioChunk => {
-         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
-         let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
- 
-         if (this.socket.OPEN) this.socket.send(binary);
-       });
-     };
-     console.log('start streamAudioToWebSocket5555');
-     // handle messages, errors, and close events
-     this.wireSocketEvents();
+  openWebsocketAndStartStream(preSignedUrl: any) {
+    console.log('inside openWebsocketAndStartStream', preSignedUrl);
+    //open up our WebSocket connection
+    this.socket = new WebSocket(preSignedUrl);
+    this.socket.binaryType = 'arraybuffer';
+    console.log('start streamAudioToWebSocket44444');
+    // when we get audio data from the mic, send it to the WebSocket if possible
+    this.socket.onopen = () => {
+      this.micStream.on('data', (rawAudioChunk) => {
+        // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
+        const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+
+        if (this.socket.OPEN) this.socket.send(binary);
+      });
+    };
+    console.log('start streamAudioToWebSocket5555');
+    // handle messages, errors, and close events
+    this.wireSocketEvents();
   }
-createPresignedUrlNew = async () => {
-    let body = {
-      method:'GET',
+  createPresignedUrlNew = async () => {
+    const body = {
+      method: 'GET',
       endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
       path: '/stream-transcription-websocket',
       service: 'transcribe',
       hash: await generateSHA256HashHex(''),
-      options:{
+      options: {
         key: 'AKIA3SVZJVX56UU2YEWT',
         secret: '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',
         protocol: 'wss',
         expires: 15,
         region: 'us-east-1',
-        query:'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate
-      }
-    }
-  await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data:any)=>{
+        query: 'language-code=' + this.languageCode + '&media-encoding=pcm&sample-rate=' + this.sampleRate,
+      },
+    };
+    await this.backendApiService.getTranscriberPreSignedUrl(body).subscribe((data: any) => {
       console.log('inside  createPresignedUrlNew', JSON.stringify(data));
       const url = data.data;
       this.openWebsocketAndStartStream(url);
-    })
+    });
     // let endpoint = 'transcribestreaming.' + this.region + '.amazonaws.com:8443';
     // console.log('start createPresignedUrlNew start '+ endpoint );
     // // get a preauthenticated URL that we can use to establish our WebSocket
@@ -128,59 +123,56 @@ createPresignedUrlNew = async () => {
     //       this.sampleRate
     //   }
     // );
-
   };
-  getAudioEventMessage = (buffer) => {
+  getAudioEventMessage = (buffer) => 
     // wrap the audio data in a JSON envelope
-    return {
-      'headers': {
+     ({
+      headers: {
         ':message-type': {
           type: 'string',
-          value: 'event'
+          value: 'event',
         },
         ':event-type': {
           type: 'string',
-          value: 'AudioEvent'
-        }
+          value: 'AudioEvent',
+        },
       },
-      body: buffer
-    };
-  }
+      body: buffer,
+    })
+  ;
   convertAudioToBinaryMessage = (audioChunk) => {
-    let raw = MicrophoneStream.toRaw(audioChunk);
+    const raw = MicrophoneStream.toRaw(audioChunk);
 
-    if (raw == null) return;
+    if (raw === null) return null;
 
     // downsample and convert the raw audio bytes to PCM
-    let downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
-    let pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    const downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
+    const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
 
     // add the right JSON headers and structure to the message
-    let audioEventMessage = this.getAudioEventMessage(
-      Buffer.from(pcmEncodedBuffer)
-    );
+    const audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
 
     //convert the JSON object + headers into a binary event stream message
     // @ts-ignore
-    let binary = eventStreamMarshaller.marshall(audioEventMessage);
+    const binary = eventStreamMarshaller.marshall(audioEventMessage);
 
     return binary;
-  }
+  };
   closeSocket = () => {
-    this.isStreaming = !this.isStreaming
+    this.isStreaming = !this.isStreaming;
     if (this.socket.OPEN) {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-     let emptyMessage = this.getAudioEventMessage(new Uint8Array(0));
+      const emptyMessage = this.getAudioEventMessage(new Uint8Array(0));
       // @ts-ignore
-      let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+      const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
     }
-  }
+  };
   handleEventStreamMessage = (messageJson) => {
-    let results = messageJson.Transcript.Results;
-    console.log("messageJSON got from the transcribe", JSON.stringify(messageJson));
+    const results = messageJson.Transcript.Results;
+    console.log('messageJSON got from the transcribe', JSON.stringify(messageJson));
     if (results.length > 0) {
       if (results[0].Alternatives.length > 0) {
         let transcript = results[0].Alternatives[0].Transcript;
@@ -194,25 +186,21 @@ createPresignedUrlNew = async () => {
         // if this transcript segment is final, add it to the overall transcription
         if (!results[0].IsPartial) {
           //scroll the textarea down
-          this.transcription = transcript
+          this.transcription = transcript;
           // this.transcription += transcript + '\n';
-          this.backendApiService.putTranscript(messageJson).subscribe((data:any)=>{
+          this.backendApiService.putTranscript(messageJson).subscribe((data: any) => {
             console.log(data);
-          })
+          });
         }
       }
     }
-  }
+  };
   wireSocketEvents = () => {
     // handle inbound messages from Amazon Transcribe
-    this.socket.onmessage = message => {
+    this.socket.onmessage = (message) => {
       //convert the binary event stream message to JSON
-      let messageWrapper = eventStreamMarshaller.unmarshall(
-        Buffer(message.data)
-      );
-      let messageBody = JSON.parse(
-        String.fromCharCode.apply(String, messageWrapper.body)
-      );
+      const messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
+      const messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
       if (messageWrapper.headers[':message-type'].value === 'event') {
         this.handleEventStreamMessage(messageBody);
       } else {
@@ -222,13 +210,13 @@ createPresignedUrlNew = async () => {
       }
     };
 
-    this.socket.onerror = function() {
+    this.socket.onerror = function () {
       this.socketError = true;
       console.log('WebSocket connection error. Try again.');
       // toggleStartStop();
     };
 
-    this.socket.onclose = closeEvent => {
+    this.socket.onclose = (closeEvent) => {
       this.micStream.stop();
 
       // the close event immediately follows the error event; only handle one.
@@ -239,5 +227,5 @@ createPresignedUrlNew = async () => {
         // toggleStartStop();
       }
     };
-  }
+  };
 }

@@ -21,8 +21,8 @@ export class OtpComponent implements OnInit {
   otp: string[] = ['', '', '', '', '', ''];
   resendClicked = false;
   submitPressed = false;
-  email: string = '';
-  errorMessage: string = '';
+  email = '';
+  errorMessage = '';
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
   constructor(
@@ -40,7 +40,7 @@ export class OtpComponent implements OnInit {
     const value = inputElement.value;
     if (!isNaN(Number(value)) && value.length === 1) {
       this.otp[index] = value;
-      if (this.otp.every(digit => digit !== '')) {
+      if (this.otp.every((digit) => digit !== '')) {
         this.handleSubmit();
         return;
       }
@@ -110,7 +110,7 @@ export class OtpComponent implements OnInit {
           console.error('OTP verification failed or no token received');
         }
       },
-      error => {
+      (error) => {
         this.submitPressed = false;
         this.errorMessage = 'Wrong otp!';
         console.error('Error during OTP verification', error);
@@ -134,7 +134,7 @@ export class OtpComponent implements OnInit {
 
     this.otp = otpArray;
     const lastIndex = otpArray.length - 1;
-    if (this.otp.every(digit => digit !== '')) {
+    if (this.otp.every((digit) => digit !== '')) {
       this.handleSubmit();
       return;
     }

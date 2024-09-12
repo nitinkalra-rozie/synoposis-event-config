@@ -11,7 +11,7 @@ import { SideBarComponent } from '../side-bar/side-bar.component';
     imports: [SideBarComponent, OutsideClickDirective],
 })
 export class TopBarComponent {
-  showDropdown: boolean = false;
+  showDropdown = false;
   constructor(
     private authService: AuthService,
     private modalService: ModalService

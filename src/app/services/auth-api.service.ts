@@ -16,11 +16,11 @@ export class AuthApiService {
     });
   }
 
-  public updateHeaders(headers: Record<string, string>): void {
+  updateHeaders(headers: Record<string, string>): void {
     this.headers = new HttpHeaders(headers);
   }
 
-  public updateBaseUrl(url: string): void {
+  updateBaseUrl(url: string): void {
     this.baseURL = url;
   }
 
@@ -55,11 +55,11 @@ export class AuthApiService {
     }
   }
 
-  public get<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+  get<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
     return this.request<T>('GET', endpoint, undefined, params);
   }
 
-  public post<T>(
+  post<T>(
     endpoint: string,
     body: Record<string, any>,
     params?: Record<string, string | number | boolean>
@@ -67,7 +67,7 @@ export class AuthApiService {
     return this.request<T>('POST', endpoint, body, params);
   }
 
-  public put<T>(
+  put<T>(
     endpoint: string,
     body: Record<string, any>,
     params?: Record<string, string | number | boolean>
@@ -75,7 +75,7 @@ export class AuthApiService {
     return this.request<T>('PUT', endpoint, body, params);
   }
 
-  public delete<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
+  delete<T>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<T> {
     return this.request<T>('DELETE', endpoint, undefined, params);
   }
 }

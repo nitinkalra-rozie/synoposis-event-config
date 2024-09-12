@@ -3,21 +3,21 @@ import { TruncatePipe } from '../../@pipes/truncate.pipe';
 import { OutsideClickDirective } from '../../directives/outside-click.directive';
 
 @Component({
-    selector: 'app-main-drop-down',
-    templateUrl: './main-drop-down.component.html',
-    styleUrls: ['./main-drop-down.component.scss'],
-    standalone: true,
-    imports: [OutsideClickDirective, TruncatePipe],
+  selector: 'app-main-drop-down',
+  templateUrl: './main-drop-down.component.html',
+  styleUrls: ['./main-drop-down.component.scss'],
+  standalone: true,
+  imports: [OutsideClickDirective, TruncatePipe],
 })
 export class MainDropDownComponent implements OnInit {
-  dropDownVisible: boolean = false;
+  dropDownVisible = false;
 
   @Input() selectedValue = ['value'];
   @Input() type = 't1';
-  @Input() disabled: boolean = false;
+  @Input() disabled = false;
   @Input() dropdownContent = ['value'];
   @Input() dropdownTitle: string | undefined;
-  @Input() dropdownContentTitle: string = 'Select';
+  @Input() dropdownContentTitle = 'Select';
   @Output() onDropdownSelect: EventEmitter<string>;
 
   constructor() {
@@ -50,7 +50,7 @@ export class MainDropDownComponent implements OnInit {
   };
 
   getT4Content = () => {
-    const newContent = this.dropdownContent.map(item => {
+    const newContent = this.dropdownContent.map((item) => {
       if (this.selectedValue.includes(item)) {
         return { checked: true, label: item };
       }
@@ -61,24 +61,29 @@ export class MainDropDownComponent implements OnInit {
     return newContent;
   };
 
-  isMobileDevice = () => {
-    return window.innerWidth < 768;
-  };
+  isMobileDevice = () => window.innerWidth < 768;
 
   truncateText = (text = '', maxLengthDesktop, maxLengthMobile) => {
     const maxLength = this.isMobileDevice() ? maxLengthMobile : maxLengthDesktop;
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
+  // TODO: @refactor this function
   getSelectedText = () => {
     const maxLengthDesktop = 40;
     const maxLengthMobile = 25;
 
+    if (!this.selectedValue || this.selectedValue.length === 0) {
+      return '';
+    }
+
     const tempText = this.truncateText(this.selectedValue[0], maxLengthDesktop, maxLengthMobile);
-    if (this.selectedValue && this.selectedValue.length === 1) {
+    if (this.selectedValue.length === 1) {
       return tempText;
-    } else if (this.selectedValue && this.selectedValue.length > 1) {
+    } else if (this.selectedValue.length > 1) {
       return `${tempText} +`;
     }
+
+    return '';
   };
 }

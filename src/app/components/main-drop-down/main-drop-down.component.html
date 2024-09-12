@@ -1,4 +1,4 @@
-@if (type == 't1') {
+@if (type === 't1') {
   <div class="drop-down-container" [class.disabled-dropdown]="disabled">
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
@@ -24,7 +24,7 @@
   </div>
 }
 
-@if (type == 't2') {
+@if (type === 't2') {
   <div class="drop-down-container">
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
@@ -49,7 +49,7 @@
 </div>
 }
 
-@if (type == 't3') {
+@if (type === 't3') {
   <div class="drop-down-container t3">
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>
@@ -71,7 +71,7 @@
   </div>
 }
 
-@if (type == 't4') {
+@if (type === 't4') {
   <div class="drop-down-container" appOutSideClick (outSideClick)="onOutsideClick()">
     @if (dropdownTitle) {
       <div class="drop-down-title">{{ dropdownTitle }}</div>

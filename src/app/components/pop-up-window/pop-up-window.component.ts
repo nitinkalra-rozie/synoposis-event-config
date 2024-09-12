@@ -20,7 +20,7 @@ export class PopUpWindowComponent implements OnInit, OnDestroy {
   constructor(private modalService: ModalService) {}
 
   ngOnInit() {
-    this.subscription = this.modalService.getModalState().subscribe(state => {
+    this.subscription = this.modalService.getModalState().subscribe((state) => {
       this.isVisible = state.isVisible;
       this.title = state.title || '';
       this.message = state.message || '';

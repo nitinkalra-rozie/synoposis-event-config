@@ -3,9 +3,7 @@ import { Injectable } from '@angular/core';
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import {
   CognitoUserPool,
-  CognitoUser,
   CognitoUserSession,
-  CognitoRefreshToken,
 } from 'amazon-cognito-identity-js';
 import { AuthResponse } from '../shared/types';
 import { environment } from 'src/environments/environment';
@@ -33,7 +31,7 @@ export class AuthService {
     const {
       AuthenticationResult: { AccessToken, IdToken, RefreshToken },
     } = data;
-    console.log("auth data1 ",data.AuthenticationResult);
+    console.log('auth data1 ',data.AuthenticationResult);
     localStorage.setItem('accessToken', AccessToken);
     localStorage.setItem('idToken', IdToken);
     localStorage.setItem('refreshToken', RefreshToken);
@@ -57,20 +55,13 @@ export class AuthService {
     return cognitoUser !== null;
   };
 
-  public getAccessToken = (): string | null => {
-    return localStorage.getItem('accessToken');
-  };
+  public getAccessToken = (): string | null => localStorage.getItem('accessToken');
 
-  public getIdToken = (): string | null => {
-    return localStorage.getItem('idToken');
-  };
+  public getIdToken = (): string | null => localStorage.getItem('idToken');
 
-  public getRefreshToken = (): string | null => {
-    return localStorage.getItem('refreshToken');
-  };
+  public getRefreshToken = (): string | null => localStorage.getItem('refreshToken');
 
-  public checkSession = (): Promise<void> => {
-    return new Promise((resolve, reject) => {
+  public checkSession = (): Promise<void> => new Promise((resolve, reject) => {
       const cognitoUser = this.userPool.getCurrentUser();
       if (cognitoUser) {
         cognitoUser.getSession((err: any, session: CognitoUserSession) => {
@@ -86,7 +77,6 @@ export class AuthService {
         reject(new Error('No user session available'));
       }
     });
-  };
 
   // public refreshAccessToken = async (): Promise<string> => {
   //   return new Promise((resolve, reject) => {

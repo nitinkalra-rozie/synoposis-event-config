@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, OnChanges } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 declare const Buffer;
 import { pcmEncode, downsampleBuffer } from '../../helpers/audioUtils';
@@ -20,48 +20,47 @@ import { NgClass } from '@angular/common';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(util_utf8_node.toUtf8, util_utf8_node.fromUtf8);
 @Component({
-    selector: 'app-session-content',
-    templateUrl: './session-content.component.html',
-    styleUrls: ['./session-content.component.scss'],
-    standalone: true,
-    imports: [NgClass, ScreenDisplayComponent],
+  selector: 'app-session-content',
+  templateUrl: './session-content.component.html',
+  styleUrls: ['./session-content.component.scss'],
+  standalone: true,
+  imports: [NgClass, ScreenDisplayComponent],
 })
-export class SessionContentComponent implements OnInit {
+export class SessionContentComponent implements OnInit, OnChanges {
   ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
-  
 
-  isSessionInProgress: boolean = false;
+  isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.light;
-  selectedEvent: string = '';
-  selectedKeynoteType: string = '';
-  selectedSessionType: string = '';
-  selectedReportType: string = '';
-  selectedDay: string = '';
-  selectedMultiSessionDay: string = '';
+  selectedEvent = '';
+  selectedKeynoteType = '';
+  selectedSessionType = '';
+  selectedReportType = '';
+  selectedDay = '';
+  selectedMultiSessionDay = '';
   eventDetails: EventDetail[] = [];
   eventDays: any = [];
   eventNames: any = [];
-  selectedSessionTitle: string = '';
+  selectedSessionTitle = '';
   sessionTitles: string[] = [];
   primarySessionTitles: string[] = [];
   filteredEventData: any = [];
   options: string[] = [];
   selectedOptions: string[] = [];
-  dropdownOpen: boolean = false;
+  dropdownOpen = false;
   sessionIds = [];
-  successMessage: string = '';
-  failureMessage: string = '';
-  transctiptToInsides: string = '';
+  successMessage = '';
+  failureMessage = '';
+  transctiptToInsides = '';
   timeoutId: any = '';
   currentSessionId = '';
   currentPrimarySessionId = '';
-  postInsideInterval: number = 15;
-  transcriptTimeOut: number = 60;
-  lastFiveWords: string = '';
+  postInsideInterval = 15;
+  transcriptTimeOut = 60;
+  lastFiveWords = '';
   startListeningClicked = false;
 
   /*   */
@@ -76,9 +75,9 @@ export class SessionContentComponent implements OnInit {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  selectedDomain: string = 'Healthcare';
+  selectedDomain = 'Healthcare';
 
-  eventDay: { [key: string]: string } = {
+  eventDay: Record<string, string> = {
     [EventCardType.Welcome]: '',
     [EventCardType.ThankYou]: '',
     [EventCardType.Info]: '',
@@ -89,21 +88,21 @@ export class SessionContentComponent implements OnInit {
       cardType: EventCardType.Welcome,
       title: 'Welcome Screen',
       imageUrl: '../../../assets/admin screen/welcome_screen.svg',
-      daySelector:true,
+      daySelector: true,
       displayFunction: () => this.showWelcomeMessageBanner(),
     },
     {
       cardType: EventCardType.ThankYou,
       title: 'Thank You Screen',
       imageUrl: '../../../assets/admin screen/thank_you_page.svg',
-      daySelector:true,
+      daySelector: true,
       displayFunction: () => this.showThankYouScreen(),
     },
     {
       cardType: EventCardType.Info,
       title: 'Info Screen',
       imageUrl: '../../../assets/admin screen/qr_screen.svg',
-      daySelector:false,
+      daySelector: false,
       displayFunction: () => this.showInfoScreen(),
     },
   ];
@@ -111,20 +110,20 @@ export class SessionContentComponent implements OnInit {
     {
       title: 'Title & Speaker Name Screen',
       imageUrl: '../../../assets/admin screen/moderator_screen.svg',
-      daySelector:true,
+      daySelector: true,
       displayFunction: () => this.showKeyNote(),
     },
     {
       title: 'Real-time Insights Screen',
       imageUrl: '../../../assets/admin screen/realtime_screen.svg',
-      daySelector:true,
+      daySelector: true,
       displayFunction: () => this.showLoadingInsights(),
     },
     {
       title: 'Post Session Insights Screens',
       imageUrl: '../../../assets/admin screen/summary_screen.svg',
       icon: '../../../assets/admin screen/note.svg',
-      daySelector:true,
+      daySelector: true,
       displayFunction: () => this.endSessionPopUpPostInsights(),
     },
   ];
@@ -188,7 +187,7 @@ export class SessionContentComponent implements OnInit {
 
   onThemeChange() {
     console.log('theme change', this.selectedTheme);
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -262,49 +261,46 @@ export class SessionContentComponent implements OnInit {
     this.populatePrimarySessionTitles();
   };
 
-  handleEventSpecificDayChange = (dayObject: { [key: string]: string }) => {
+  handleEventSpecificDayChange = (dayObject: Record<string, string>) => {
     this.eventDay = dayObject;
   };
 
   populateEventNames() {
-    this.eventNames = Array.from(new Set(this.eventDetails.map(event => event.Event)));
+    this.eventNames = Array.from(new Set(this.eventDetails.map((event) => event.Event)));
   }
 
   populateEventDays() {
-    const filteredByEvent = this.eventDetails.filter(event => event.Event === this.selectedEvent);
-    this.eventDays = Array.from(new Set(filteredByEvent.map(event => event.EventDay)));
+    const filteredByEvent = this.eventDetails.filter((event) => event.Event === this.selectedEvent);
+    this.eventDays = Array.from(new Set(filteredByEvent.map((event) => event.EventDay)));
   }
 
   populateSessionTitles() {
     const filteredByDay = this.eventDetails.filter(
-      event => event.Event === this.selectedEvent && event.EventDay === this.selectedDay
+      (event) => event.Event === this.selectedEvent && event.EventDay === this.selectedDay
     );
     filteredByDay.sort((a, b) => a.sid - b.sid);
-    this.sessionTitles = filteredByDay.map(event => event.SessionTitle);
+    this.sessionTitles = filteredByDay.map((event) => event.SessionTitle);
     this.options = this.sessionTitles;
   }
 
   rotateSessionTitles(currentSession: string): void {
     const index = this.sessionTitles.indexOf(currentSession);
-    
+
     if (index === -1) {
-      return 
+      return;
     }
-    this.sessionTitles= [
-      ...this.sessionTitles.slice(index),
-      ...this.sessionTitles.slice(0, index)
-    ];
+    this.sessionTitles = [...this.sessionTitles.slice(index), ...this.sessionTitles.slice(0, index)];
   }
 
   populatePrimarySessionTitles() {
     const filteredByDay = this.eventDetails.filter(
-      event =>
+      (event) =>
         event.Event === this.selectedEvent &&
         event.EventDay === this.selectedMultiSessionDay &&
         event.Type === EventDetailType.PrimarySession
     );
     filteredByDay.sort((a, b) => a.sid - b.sid);
-    this.primarySessionTitles = filteredByDay.map(event => event.SessionTitle);
+    this.primarySessionTitles = filteredByDay.map((event) => event.SessionTitle);
   }
 
   private showSuccessMessage(message: string): void {
@@ -321,7 +317,7 @@ export class SessionContentComponent implements OnInit {
     }, 5000);
   }
   showWelcomeMessageBanner(): void {
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'welcome';
     postData.day = this.eventDay[EventCardType.Welcome];
     this.backendApiService.postData(postData).subscribe(
@@ -335,7 +331,7 @@ export class SessionContentComponent implements OnInit {
   }
   showSnapshot(): void {
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'snapshot';
     postData.day = this.selectedDay;
     postData.sessionId = sessionDetails.SessionId;
@@ -354,7 +350,7 @@ export class SessionContentComponent implements OnInit {
   }
 
   showThankYouScreen(): void {
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'thank_you';
     postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
@@ -372,7 +368,7 @@ export class SessionContentComponent implements OnInit {
 
   //it is qr screen
   showInfoScreen(): void {
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'qr_screen';
     postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
@@ -403,7 +399,7 @@ export class SessionContentComponent implements OnInit {
   };
 
   showBackupScreen(): void {
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'backup_screen';
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -425,13 +421,13 @@ export class SessionContentComponent implements OnInit {
       if (sessionDetails.Type == 'BreakoutSession') {
         this.modalService.open(
           'Confirm Action',
-          "Breakout session don't have Title & Speaker Name Screen",
+          'Breakout session don\'t have Title & Speaker Name Screen',
           'ok',
           () => {},
           this.handleNoSelect
         );
       } else {
-        let postData: PostData = {};
+        const postData: PostData = {};
         postData.day = this.selectedDay;
         postData.eventName = this.selectedEvent;
         postData.domain = this.selectedDomain;
@@ -461,7 +457,7 @@ export class SessionContentComponent implements OnInit {
   }
 
   showEndEvent() {
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'thank_you';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
@@ -563,13 +559,13 @@ export class SessionContentComponent implements OnInit {
   };
 
   showLoadingInsights() {
-    let postData: PostData = {};
+    const postData: PostData = {};
     if (this.selectedDay != '' && this.selectedSessionTitle != '') {
       const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
       if (sessionDetails.Type == 'BreakoutSession') {
         this.modalService.open(
           'Confirm Action',
-          "Breakout session don't have speaker name screen",
+          'Breakout session don\'t have speaker name screen',
           'ok',
           () => {},
           this.handleNoSelect
@@ -585,7 +581,7 @@ export class SessionContentComponent implements OnInit {
     } else {
       this.modalService.open(
         'Confirm Action',
-        "Breakout session don't have Real-time Insights Screen",
+        'Breakout session don\'t have Real-time Insights Screen',
         'ok',
         () => {},
         this.handleNoSelect
@@ -594,7 +590,7 @@ export class SessionContentComponent implements OnInit {
   }
 
   showBreakdownInProgress() {
-    let postData: PostData = {};
+    const postData: PostData = {};
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     const primarySession = this.findSessionById(sessionDetails.Event, sessionDetails.PrimarySessionId);
     postData.day = this.selectedDay;
@@ -606,7 +602,7 @@ export class SessionContentComponent implements OnInit {
   }
 
   showPostInsightsLoading() {
-    let postData: PostData = {};
+    const postData: PostData = {};
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -629,7 +625,7 @@ export class SessionContentComponent implements OnInit {
   }
 
   endEvent(): void {
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.action = 'thank_you';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
@@ -664,7 +660,7 @@ export class SessionContentComponent implements OnInit {
     this.startListeningClicked = false;
     const session = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     console.log('sessionId for end session', session);
-    let postData: PostData = {};
+    const postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -712,11 +708,11 @@ export class SessionContentComponent implements OnInit {
       );
       return;
     } else {
-      this.selectedOptions.forEach(element => {
+      this.selectedOptions.forEach((element) => {
         const session = this.findSession(this.selectedEvent, element);
         this.sessionIds.push(session.SessionId);
       });
-      let postData: PostData = {};
+      const postData: PostData = {};
       postData.action = 'summary_of_Single_Keynote';
       postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
@@ -783,7 +779,7 @@ export class SessionContentComponent implements OnInit {
   }
 
   getRealTimeInsights(transcript: string) {
-    let postData: PostData = {};
+    const postData: PostData = {};
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -829,7 +825,7 @@ export class SessionContentComponent implements OnInit {
         console.log('There was an error streaming your audio to Amazon Transcribe. Please try again.', error);
       });
   }
-  streamAudioToWebSocket = userMediaStream => {
+  streamAudioToWebSocket = (userMediaStream) => {
     //let's get the mic input from the browser, via the microphone-stream module
     this.startListeningClicked = true;
     console.log('start streamAudioToWebSocket');
@@ -850,9 +846,9 @@ export class SessionContentComponent implements OnInit {
     console.log('start streamAudioToWebSocket44444');
     // when we get audio data from the mic, send it to the WebSocket if possible
     this.socket.onopen = () => {
-      this.micStream.on('data', rawAudioChunk => {
+      this.micStream.on('data', (rawAudioChunk) => {
         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
-        let binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+        const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
 
         if (this.isSessionInProgress && this.socket.OPEN) this.socket.send(binary);
       });
@@ -862,7 +858,7 @@ export class SessionContentComponent implements OnInit {
     this.wireSocketEvents();
   }
   createPresignedUrlNew = async () => {
-    let body = {
+    const body = {
       method: 'GET',
       endpoint: 'transcribestreaming.' + this.region + '.amazonaws.com:8443',
       path: '/stream-transcription-websocket',
@@ -881,9 +877,9 @@ export class SessionContentComponent implements OnInit {
       this.openWebsocketAndStartStream(url);
     });
   };
-  getAudioEventMessage = buffer => {
+  getAudioEventMessage = (buffer) => 
     // wrap the audio data in a JSON envelope
-    return {
+     ({
       headers: {
         ':message-type': {
           type: 'string',
@@ -895,23 +891,23 @@ export class SessionContentComponent implements OnInit {
         },
       },
       body: buffer,
-    };
-  };
-  convertAudioToBinaryMessage = audioChunk => {
-    let raw = MicrophoneStream.toRaw(audioChunk);
+    })
+  ;
+  convertAudioToBinaryMessage = (audioChunk) => {
+    const raw = MicrophoneStream.toRaw(audioChunk);
 
-    if (raw == null) return;
+    if (raw == null) return null;
 
     // downsample and convert the raw audio bytes to PCM
-    let downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
-    let pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    const downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
+    const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
 
     // add the right JSON headers and structure to the message
-    let audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
+    const audioEventMessage = this.getAudioEventMessage(Buffer.from(pcmEncodedBuffer));
 
     //convert the JSON object + headers into a binary event stream message
     // @ts-ignore
-    let binary = eventStreamMarshaller.marshall(audioEventMessage);
+    const binary = eventStreamMarshaller.marshall(audioEventMessage);
 
     return binary;
   };
@@ -924,9 +920,9 @@ export class SessionContentComponent implements OnInit {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      let emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
+      const emptyMessage = this.getAudioEventMessage(Buffer.from(new Buffer([])));
       // @ts-ignore
-      let emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+      const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
       this.socket.send(emptyBuffer);
     }
     clearInterval(this.timeoutId);
@@ -949,9 +945,9 @@ export class SessionContentComponent implements OnInit {
     this.isStreaming = false;
   };
 
-  handleEventStreamMessage = messageJson => {
+  handleEventStreamMessage = (messageJson) => {
     const sessionDetails = this.findSession(this.selectedEvent, this.selectedSessionTitle);
-    let results = messageJson.Transcript.Results;
+    const results = messageJson.Transcript.Results;
     console.log('messageJSON got from the transcribe', JSON.stringify(messageJson));
     if (results.length > 0) {
       if (results[0].Alternatives.length > 0) {
@@ -988,10 +984,10 @@ export class SessionContentComponent implements OnInit {
   };
   wireSocketEvents = () => {
     // handle inbound messages from Amazon Transcribe
-    this.socket.onmessage = message => {
+    this.socket.onmessage = (message) => {
       //convert the binary event stream message to JSON
-      let messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
-      let messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
+      const messageWrapper = eventStreamMarshaller.unmarshall(Buffer(message.data));
+      const messageBody = JSON.parse(String.fromCharCode.apply(String, messageWrapper.body));
       if (this.isSessionInProgress && messageWrapper.headers[':message-type'].value === 'event') {
         this.handleEventStreamMessage(messageBody);
       } else {
@@ -1007,7 +1003,7 @@ export class SessionContentComponent implements OnInit {
       // toggleStartStop();
     };
 
-    this.socket.onclose = closeEvent => {
+    this.socket.onclose = (closeEvent) => {
       this.micStream.stop();
 
       // the close event immediately follows the error event; only handle one.

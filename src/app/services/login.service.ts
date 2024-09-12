@@ -7,7 +7,7 @@ import { AuthResponse, CustomChallengeResponse, CognitoError } from '../shared/t
 import { environment } from 'src/environments/environment';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
-import { CognitoUser, CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
+import { CognitoUserAttribute, CognitoUserPool } from 'amazon-cognito-identity-js';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -37,7 +37,7 @@ export class LoginService {
 
     attributeList.push(attributeEmail);
 
-    return new Observable(observer => {
+    return new Observable((observer) => {
       userPool.signUp(email, 'TempPassword123!', attributeList, [], async (err, result) => {
         if (err) {
           const error = err as CognitoError;
@@ -67,7 +67,7 @@ export class LoginService {
         }
       });
     }).pipe(
-      catchError(error => {
+      catchError((error) => {
         console.error('Error in signUp:', error);
         return from(Promise.reject(error));
       })
@@ -90,7 +90,7 @@ export class LoginService {
     });
 
     return from(this.authApiService.post<CustomChallengeResponse>('/', requestBody)).pipe(
-      map(response => {
+      map((response) => {
         // Ensure the response adheres to CustomChallengeResponse
         if (response.__type !== 'NotAuthorizedException') {
           const sessionToken = response.Session;
@@ -102,11 +102,11 @@ export class LoginService {
         } else {
           return {
             success: false,
-            message: "Sorry, seems like we don't have your email address in our database",
+            message: 'Sorry, seems like we don\'t have your email address in our database',
           } as CustomChallengeResponse; // Type assertion
         }
       }),
-      catchError(error => {
+      catchError((error) => {
         const cognitoError = error as CognitoError;
         console.error('Error calling custom challenge API:', cognitoError);
         return from(
@@ -137,7 +137,7 @@ export class LoginService {
     });
 
     return from(this.authApiService.post<AuthResponse>('/', requestBody)).pipe(
-      map(response => {
+      map((response) => {
         if (response.AuthenticationResult && response.AuthenticationResult.IdToken) {
           this.authService.saveAuthInLocal(response);
           return response;
@@ -146,7 +146,7 @@ export class LoginService {
           return null;
         }
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Error calling OTP Verification API:', error);
         return from(Promise.resolve(null));
       })
@@ -162,8 +162,8 @@ export class LoginService {
     });
 
     return from(this.authApiService.post<{ status: number }>('/', requestBody)).pipe(
-      map(response => response.status === 200),
-      catchError(error => {
+      map((response) => response.status === 200),
+      catchError((error) => {
         console.error('Error sending request for access:', error);
         return from(Promise.resolve(false));
       })
@@ -171,7 +171,7 @@ export class LoginService {
   }
 
   resendOtp(email: string): Observable<void> {
-    return new Observable<void>(observer => {
+    return new Observable<void>((observer) => {
       try {
         console.log('Inside resendOtp, email:', email);
         this.signUp(email)
@@ -179,9 +179,9 @@ export class LoginService {
             switchMap(() => {
               observer.next();
               observer.complete();
-              return new Observable<void>(obs => obs.complete());
+              return new Observable<void>((obs) => obs.complete());
             }),
-            catchError(error => {
+            catchError((error) => {
               console.error('Error in signUp:', error);
               observer.error(error);
               return throwError(error);
@@ -193,9 +193,7 @@ export class LoginService {
         observer.error(error);
       }
     }).pipe(
-      catchError(error => {
-        return throwError(error);
-      })
+      catchError((error) => throwError(error))
     );
   }
 }

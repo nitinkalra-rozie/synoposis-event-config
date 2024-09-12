@@ -1,22 +1,33 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "skipLibCheck": true,
     "baseUrl": "./",
-    "importHelpers": true,
     "outDir": "./dist/out-tsc",
-    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
+    // TODO: @refactor - Uncomment these once the project is refactored
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
     "declaration": false,
-    "module": "es2020",
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "emitDecoratorMetadata": true,
     "target": "ES2022",
+    "module": "ES2022",
+    "useDefineForClassFields": false,
     "typeRoots": [
       "node_modules/@types"
     ],
     "lib": [
-      "es2017",
+      "ES2022",
       "dom"
     ],
     "paths": {
@@ -27,10 +38,16 @@
         "src/app/@utils/index.ts"
       ]
     },
-    "useDefineForClassFields": false
   },
-  "include": ["src/**/*.ts", "src/typings.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/typings.d.ts"
+  ],
   "angularCompilerOptions": {
-    "strictTemplates": true
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true,
+    "annotateForClosureCompiler": false
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PopUpWindowComponent } from './components/pop-up-window/pop-up-window.component';
 @Component({

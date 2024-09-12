@@ -6,11 +6,11 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class TruncatePipe implements PipeTransform {
   transform(
-    value: string = '',
-    addPlus: boolean = false,
-    limit: number = 45,
-    completeWords: boolean = false,
-    ellipsis: string = '...'
+    value = '',
+    addPlus = false,
+    limit = 45,
+    completeWords = false,
+    ellipsis = '...'
   ): string {
     if (value.length <= limit) {
       return value;

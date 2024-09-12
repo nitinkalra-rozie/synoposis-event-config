@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges, OnChanges } from '@angular/core';
 import { EventCardType, EventDetailType, ScreenDisplayType } from 'src/app/shared/enums';
 import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
 
@@ -9,33 +9,33 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
     standalone: true,
     imports: [MainDropDownComponent],
 })
-export class ScreenDisplayComponent {
+export class ScreenDisplayComponent implements OnChanges {
   selectedSessions: string[] = [];
   ScreenDisplayType = ScreenDisplayType;
 
   @Input() type: ScreenDisplayType;
   @Input() eventDays: string[] = [];
   @Input() sessionTitles: string[] = [];
-  @Input() title: string = '';
-  @Input() selectedSessionType: string = '';
-  @Input() sessionDay: string = '';
+  @Input() title = '';
+  @Input() selectedSessionType = '';
+  @Input() sessionDay = '';
   @Input() icon: string | null = null;
   @Input() imageUrl: string;
-  @Input() ShowCombineDropdown: boolean = false;
-  @Input() shoEventDropDown: boolean = false;
-  @Input() cards: Array<{
+  @Input() ShowCombineDropdown = false;
+  @Input() shoEventDropDown = false;
+  @Input() cards: {
     displayFunction: () => void;
     title: string;
     imageUrl: string;
     daySelector?: boolean;
     icon?: string;
     cardType?: EventCardType;
-  }> = [];
-  @Input() sessionValueDropdown: boolean = false;
-  @Input() subSessionValueDropdown: boolean = false;
-  @Input() isSessionInProgress: boolean = false;
-  @Input() showStartListeningButton: boolean = false;
-  @Input() showStopScreenButton: boolean = false;
+  }[] = [];
+  @Input() sessionValueDropdown = false;
+  @Input() subSessionValueDropdown = false;
+  @Input() isSessionInProgress = false;
+  @Input() showStartListeningButton = false;
+  @Input() showStopScreenButton = false;
 
   @Output() startListening: EventEmitter<void> = new EventEmitter<void>();
   @Output() stopListening: EventEmitter<void> = new EventEmitter<void>();
@@ -43,16 +43,14 @@ export class ScreenDisplayComponent {
 
   @Output() onMainSessionChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() onSessionsChange: EventEmitter<{ values: string[] }> = new EventEmitter<{ values: string[] }>();
-  @Output() onEventSpecificDayChange: EventEmitter<{ [key: string]: string }> = new EventEmitter<{
-    [key: string]: string;
-  }>();
+  @Output() onEventSpecificDayChange: EventEmitter<Record<string, string>> = new EventEmitter<Record<string, string>>();
   @Output() onMainSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
   @Output() onMultiSessionDayChange: EventEmitter<string> = new EventEmitter<string>();
 
   // startListeningClicked: boolean = false;
   // showStopScreenButtonClicked: boolean = false;
 
-  eventDay: { [key: string]: string } = {
+  eventDay: Record<string, string> = {
     [EventCardType.Welcome]: '',
     [EventCardType.ThankYou]: '',
     [EventCardType.Info]: '',
@@ -120,7 +118,7 @@ export class ScreenDisplayComponent {
   };
 
   handleSelectSessionSelect = (value: string) => {
-    let tempArray = [value];
+    const tempArray = [value];
     this.selectedSessions = [...tempArray];
     this.onMainSessionChange.emit(value);
   };
@@ -128,7 +126,7 @@ export class ScreenDisplayComponent {
   handleSelectSessionsSelect = (value: string) => {
     let tempArray = [];
     if (this.selectedSessions.includes(value)) {
-      this.selectedSessions.forEach(element => {
+      this.selectedSessions.forEach((element) => {
         if (element !== value) {
           tempArray.push(element);
         }
