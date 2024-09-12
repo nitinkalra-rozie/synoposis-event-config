@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - development
+      - chore/SYN-80/upgrade-dependencies
 
 env:
   deployment: dev
