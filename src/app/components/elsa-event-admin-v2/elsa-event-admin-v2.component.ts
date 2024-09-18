@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { MultiSelectComponent } from '@syn/components';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -13,7 +14,6 @@ import {
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 import { EventControlsComponent } from '../event-controls/event-controls.component';
-import { MultiSelectComponent } from '../multi-select/multi-select.component';
 import { SessionContentComponent } from '../session-content/session-content.component';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 

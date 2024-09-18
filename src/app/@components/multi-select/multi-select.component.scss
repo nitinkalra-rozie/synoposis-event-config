@@ -1,5 +1,6 @@
 @use '../../styles/variables' as *;
 @use '../../styles/mixins' as *;
+@use '../../styles/buttons' as *;
 
 p {
   margin-block-start: 0;
@@ -66,7 +67,7 @@ p {
 .dropdown-container {
   border-radius: 4px;
   background-color: $primary-bg-color;
-  padding: 16px 0;
+  padding-top: 16px;
   box-shadow: $elevation-6dp;
   margin-top: 76px;
   position: absolute;
@@ -102,4 +103,10 @@ p {
   li {
     padding: 12px 0;
   }
+}
+
+.dropdown-footer {
+  @include d-flex-row;
+  justify-content: flex-end;
+  padding: 12px;
 }

@@ -27,7 +27,9 @@
     "lib": ["ES2022", "dom"],
     "paths": {
       "@syn/pipes": ["src/app/@pipes/index.ts"],
-      "@syn/utils": ["src/app/@utils/index.ts"]
+      "@syn/utils": ["src/app/@utils/index.ts"],
+      "@syn/components": ["src/app/@components/index.ts"],
+      "@syn/models": ["src/app/@models/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/typings.d.ts"],

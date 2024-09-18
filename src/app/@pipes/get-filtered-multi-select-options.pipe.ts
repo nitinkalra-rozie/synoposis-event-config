@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { MultiSelectOption } from 'src/app/models/multi-select';
+import { MultiSelectOption } from '@syn/models';
 
 @Pipe({
   name: 'getFilteredMultiSelectOptions',

@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CheckboxOption } from 'src/app/models/elsa-checkbox';
+import { CheckboxOption } from '@syn/models';
 
 @Component({
   selector: 'app-elsa-checkbox',

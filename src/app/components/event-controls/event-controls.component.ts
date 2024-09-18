@@ -6,8 +6,9 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { MultiSelectComponent } from '@syn/components';
+import { MultiSelectOption } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
-import { MultiSelectOption } from 'src/app/models/multi-select';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -21,7 +22,6 @@ import {
 } from 'src/app/shared/enums';
 import { PostData } from 'src/app/shared/types';
 import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
-import { MultiSelectComponent } from '../multi-select/multi-select.component';
 
 @Component({
   selector: 'app-event-controls',

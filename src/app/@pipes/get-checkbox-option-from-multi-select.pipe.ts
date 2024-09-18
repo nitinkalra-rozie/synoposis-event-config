@@ -1,6 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { MultiSelectOption } from 'src/app/models/multi-select';
-import { CheckboxOption } from '../models/elsa-checkbox';
+import { CheckboxOption, MultiSelectOption } from '@syn/models';
 
 @Pipe({
   name: 'getCheckboxOptionFromMultiSelect',

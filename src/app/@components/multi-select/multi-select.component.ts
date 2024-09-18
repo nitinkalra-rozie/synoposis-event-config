@@ -9,15 +9,14 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ElsaCheckboxComponent } from '@syn/components';
+import { CheckboxOption, MultiSelectOption } from '@syn/models';
 import {
   GetCheckboxOptionFromMultiSelectPipe,
   GetFilteredMultiSelectOptionsPipe,
   GetSelectedOptionsPipe,
 } from '@syn/pipes';
-import { getUUID } from '@syn/utils';
-import { CheckboxOption } from 'src/app/models/elsa-checkbox';
-import { MultiSelectOption } from 'src/app/models/multi-select';
-import { ElsaCheckboxComponent } from '../elsa-checkbox/elsa-checkbox.component';
+import { generateUniqueId } from '@syn/utils';
 
 @Component({
   selector: 'app-multi-select',
@@ -62,6 +61,7 @@ export class MultiSelectComponent implements OnInit {
   protected searchText: string = '';
   protected isDropdownOpen: boolean = false;
   protected elementId: string;
+  protected optionsRef: MultiSelectOption[] = [];
 
   @HostListener('document:mousedown', ['$event'])
   mousedown(e: Event): void {
@@ -83,10 +83,10 @@ export class MultiSelectComponent implements OnInit {
       '--checkbox-label-max-length',
       `${this.styleConfig().width - 72}px`
     );
-
-    this.elementId = getUUID();
-
-    // this.onAllOptionToggle(this.fixedOption);
+    this.elementId = generateUniqueId();
+    if (this.options()) {
+      this.optionsRef = structuredClone(this.options());
+    }
   }
 
   protected onAllOptionToggle(selectedOption: CheckboxOption<string>): void {
