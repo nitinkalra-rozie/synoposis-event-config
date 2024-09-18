@@ -1,17 +1,19 @@
 <app-top-bar></app-top-bar>
 <div class="main-content">
   <app-event-controls
+    [eventDays]="eventDays"
     [eventNames]="eventNames"
+    [eventTracks]="eventTracks()"
     [postData]="postData"
     [themeOptions]="themeOptions"
     [transcriptTimeOut]="transcriptTimeOut"
     (onReset)="handleReset()"
     (onUpdatePostData)="updatePostData($event)"></app-event-controls>
-  <div class="session-wrapper">
+  <!-- <div class="session-wrapper">
     <app-session-content
       [eventControls]="postData"
       [selectedEventProp]="postData.eventName"
       [selectedThemeProp]="postData.theme"
       [transcriptTimeOutProp]="postData.screenTimeout"></app-session-content>
-  </div>
+  </div> -->
 </div>

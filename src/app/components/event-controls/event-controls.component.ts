@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  input,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
+import { MultiSelectOption } from 'src/app/models/multi-select';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -12,13 +21,19 @@ import {
 } from 'src/app/shared/enums';
 import { PostData } from 'src/app/shared/types';
 import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
+import { MultiSelectComponent } from '../multi-select/multi-select.component';
 
 @Component({
   selector: 'app-event-controls',
   templateUrl: './event-controls.component.html',
   styleUrls: ['./event-controls.component.scss'],
+  providers: [GetMultiSelectOptionFromStringPipe],
   standalone: true,
-  imports: [MainDropDownComponent],
+  imports: [
+    MainDropDownComponent,
+    MultiSelectComponent,
+    GetMultiSelectOptionFromStringPipe,
+  ],
 })
 export class EventControlsComponent implements OnInit {
   public PostDataEnum = PostDataEnum;
@@ -34,6 +49,11 @@ export class EventControlsComponent implements OnInit {
   };
   @Input() postData: PostData = INITIAL_POST_DATA;
   @Input() themeOptions: ThemeOptions[];
+
+  // new inputs
+  eventTracks = input.required<string[]>();
+  eventDays = input.required<string[]>();
+
   @Output() onUpdatePostData: EventEmitter<{
     key: PostDataEnum;
     value: string;
@@ -79,5 +99,9 @@ export class EventControlsComponent implements OnInit {
     this.postInsideInterval = TransitionTimes['15 Seconds'];
     this.postInsideValue = TransitionTimesEnum.Seconds15;
     this.onReset.emit();
+  };
+
+  onOptionSelect = (selectedOptions: MultiSelectOption[]) => {
+    // todo
   };
 }

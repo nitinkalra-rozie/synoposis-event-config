@@ -1,0 +1,20 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+.btn-primary-default {
+  @include button-style(
+    $primary-color-variant-2,
+    $selection-variant-3,
+    $primary-bg-color
+  );
+  @include body-regular;
+}
+
+.btn-primary-default-small {
+  @include button-style(
+    $primary-color-variant-2,
+    $selection-variant-3,
+    $primary-bg-color
+  );
+  @include caption-regular;
+}

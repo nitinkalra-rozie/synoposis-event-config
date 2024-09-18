@@ -1,6 +1,9 @@
+@use '../../styles/variables' as *;
+
 .main-content {
-  margin: 20px;
-  margin-left: 90px;
+  background-color: $primary-bg-color-variant-1;
+  height: calc(100% - 70px);
+  padding: 20px 20px 20px 90px;
 }
 
 .session-wrapper {
@@ -10,6 +13,7 @@
 
 @media (width <= 767px) {
   .main-content {
-    margin-left: 20px;
+    padding-left: 20px;
+    height: calc(100% - 110px);
   }
 }

@@ -1,0 +1,14 @@
+<div class="checkbox-container" [title]="option().label">
+  <label
+    class="checkbox-label"
+    (mouseout)="showTooltip = false"
+    (mouseover)="showTooltip = true">
+    <input
+      class="checkbox-input"
+      [checked]="option().isChecked"
+      (change)="stateChanged.emit(option())"
+      type="checkbox" />
+    <span class="checkbox-custom"></span>
+    {{ option().label }}
+  </label>
+</div>

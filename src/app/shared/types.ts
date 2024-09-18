@@ -25,6 +25,8 @@ export interface EventDetail {
   GenerateInsights: boolean;
   sid: number;
   // BreakoutSessions?: BreakoutSession[];
+
+  Track: string;
 }
 
 export interface PostData {

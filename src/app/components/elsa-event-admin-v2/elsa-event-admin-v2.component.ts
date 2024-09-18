@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -12,8 +12,9 @@ import {
   TimeWindowsEnum,
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
-import { SessionContentComponent } from '../session-content/session-content.component';
 import { EventControlsComponent } from '../event-controls/event-controls.component';
+import { MultiSelectComponent } from '../multi-select/multi-select.component';
+import { SessionContentComponent } from '../session-content/session-content.component';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 
 @Component({
@@ -21,7 +22,12 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
   templateUrl: './elsa-event-admin-v2.component.html',
   styleUrls: ['./elsa-event-admin-v2.component.scss'],
   standalone: true,
-  imports: [TopBarComponent, EventControlsComponent, SessionContentComponent],
+  imports: [
+    TopBarComponent,
+    EventControlsComponent,
+    SessionContentComponent,
+    MultiSelectComponent,
+  ],
 })
 export class ElsaEventAdminV2Component implements OnInit {
   eventNames: string[] = [];
@@ -39,6 +45,9 @@ export class ElsaEventAdminV2Component implements OnInit {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
+
+  //#region New component state
+  eventTracks = signal<string[]>([]);
 
   constructor(private backendApiService: BackendApiService) {}
 
@@ -113,6 +122,14 @@ export class ElsaEventAdminV2Component implements OnInit {
     );
     this.eventDays = Array.from(
       new Set(filteredByEvent.map((event) => event.EventDay))
+    );
+
+    this.populateEventTracks(filteredByEvent);
+  }
+
+  populateEventTracks(eventDetailsForEvent: EventDetail[]) {
+    this.eventTracks.set(
+      Array.from(new Set(eventDetailsForEvent.map((event) => event.Track)))
     );
   }
 

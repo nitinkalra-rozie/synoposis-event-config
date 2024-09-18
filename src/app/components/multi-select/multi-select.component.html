@@ -1,0 +1,73 @@
+<div class="select-container" [id]="elementId">
+  <div class="trigger-container">
+    @if (label) {
+      <p class="trigger-label">{{ label() }}</p>
+    }
+    <div
+      class="trigger-view"
+      [ngClass]="{ active: isDropdownOpen }"
+      (mousedown)="onDropdownToggle()">
+      <p class="selected-label">
+        {{
+          selectedLabelKey()
+            ? (options() | getSelectedOptions)[0][selectedLabelKey()]
+            : (options() | getSelectedOptions)[0]
+        }}
+      </p>
+      <div class="selection-info">
+        @if ((options() | getSelectedOptions)?.length > 0) {
+          <img
+            alt="add"
+            height="18"
+            ngSrc="assets/v2-icons/add.svg"
+            width="18" />
+          <p class="extra-selection-count">
+            {{ (options() | getSelectedOptions).length - 1 }}
+          </p>
+        }
+        <img
+          alt="arrow_down"
+          height="18"
+          ngSrc="assets/v2-icons/keyboard_arrow_down.svg"
+          width="18" />
+      </div>
+    </div>
+  </div>
+  <div
+    #dropdownContainer
+    class="dropdown-container"
+    [style.width.px]="styleConfig().width">
+    <input
+      class="search-input"
+      [(ngModel)]="searchText"
+      placeholder="Search"
+      type="text" />
+    <ul class="options-list">
+      @if (
+        searchText.toLocaleLowerCase().trim() === '' ||
+        'all'.includes(searchText.toLocaleLowerCase().trim())
+      ) {
+        <li>
+          <app-elsa-checkbox
+            [option]="fixedOption"
+            (stateChanged)="onAllOptionToggle($event)"></app-elsa-checkbox>
+        </li>
+      }
+      @for (
+        aOption of searchText
+          | getFilteredMultiSelectOptions: options()
+          | getCheckboxOptionFromMultiSelect;
+        track aOption.label
+      ) {
+        <li>
+          <app-elsa-checkbox
+            [option]="aOption"
+            (stateChanged)="onCustomOptionToggle($event)"></app-elsa-checkbox>
+        </li>
+      }
+    </ul>
+    <div class="dropdown-footer">
+      <button>Apply</button>
+    </div>
+  </div>
+</div>

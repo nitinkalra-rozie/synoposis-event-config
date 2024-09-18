@@ -1,0 +1,24 @@
+import { Pipe, PipeTransform } from '@angular/core';
+import { MultiSelectOption } from 'src/app/models/multi-select';
+
+@Pipe({
+  name: 'getFilteredMultiSelectOptions',
+  standalone: true,
+})
+export class GetFilteredMultiSelectOptionsPipe implements PipeTransform {
+  transform(
+    searchText: string,
+    options: MultiSelectOption[]
+  ): MultiSelectOption[] {
+    if (!options) {
+      return [];
+    }
+    if (!searchText) {
+      return options;
+    }
+
+    return options.filter((aOption) =>
+      aOption.label.toLowerCase().includes(searchText.toLowerCase().trim())
+    );
+  }
+}
