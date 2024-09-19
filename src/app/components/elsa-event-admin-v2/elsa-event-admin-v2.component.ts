@@ -1,5 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MultiSelectComponent } from '@syn/components';
+import { MultiSelectOption } from '@syn/models';
+import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
+import { DashboardFiltersStateService } from '@syn/services';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -22,14 +25,24 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
   templateUrl: './elsa-event-admin-v2.component.html',
   styleUrls: ['./elsa-event-admin-v2.component.scss'],
   standalone: true,
+  providers: [GetMultiSelectOptionFromStringPipe],
   imports: [
     TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
     MultiSelectComponent,
+    GetMultiSelectOptionFromStringPipe,
   ],
 })
 export class ElsaEventAdminV2Component implements OnInit {
+  //#region DI
+  filtersStateService = inject(DashboardFiltersStateService);
+  backendApiService = inject(BackendApiService);
+  getMultiSelectOptionFromStringPipe = inject(
+    GetMultiSelectOptionFromStringPipe
+  );
+  //#endregion
+
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];
   themeOptions: ThemeOptions[] = [ThemeOptions.Dark, ThemeOptions.Light];
@@ -45,11 +58,6 @@ export class ElsaEventAdminV2Component implements OnInit {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
-
-  //#region New component state
-  eventTracks = signal<string[]>([]);
-
-  constructor(private backendApiService: BackendApiService) {}
 
   ngOnInit() {
     this.initializeData();
@@ -94,9 +102,16 @@ export class ElsaEventAdminV2Component implements OnInit {
   };
 
   populateEventNames = () => {
+    // to be removed later after assessing the usage and impact
     this.eventNames = Array.from(
       new Set(this.eventDetails.map((event) => event.Event))
     );
+
+    // set initial values. all deselected by default
+    const eventNamesArray: MultiSelectOption[] =
+      this.getMultiSelectOptionFromStringPipe.transform(this.eventNames);
+    this.filtersStateService.setEventNames(eventNamesArray);
+
     this.updatePostData({
       key: PostDataEnum.EventName,
       value: this.eventNames[0],
@@ -120,16 +135,24 @@ export class ElsaEventAdminV2Component implements OnInit {
     const filteredByEvent = this.eventDetails.filter(
       (event) => event.Event === this.postData.eventName
     );
+
+    // to be removed later after assessing the usage and impact
     this.eventDays = Array.from(
       new Set(filteredByEvent.map((event) => event.EventDay))
     );
+    // set initial values. all deselected by default
+    const eventDaysArray: MultiSelectOption[] =
+      this.getMultiSelectOptionFromStringPipe.transform(this.eventDays);
+    this.filtersStateService.setEventDays(eventDaysArray);
 
     this.populateEventTracks(filteredByEvent);
   }
 
   populateEventTracks(eventDetailsForEvent: EventDetail[]) {
-    this.eventTracks.set(
-      Array.from(new Set(eventDetailsForEvent.map((event) => event.Track)))
+    this.filtersStateService.setEventTracks(
+      this.getMultiSelectOptionFromStringPipe.transform(
+        Array.from(new Set(eventDetailsForEvent.map((event) => event.Track)))
+      )
     );
   }
 

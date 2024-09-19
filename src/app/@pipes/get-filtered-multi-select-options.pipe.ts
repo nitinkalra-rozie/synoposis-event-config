@@ -7,8 +7,8 @@ import { MultiSelectOption } from '@syn/models';
 })
 export class GetFilteredMultiSelectOptionsPipe implements PipeTransform {
   transform(
-    searchText: string,
-    options: MultiSelectOption[]
+    options: MultiSelectOption[],
+    searchText: string
   ): MultiSelectOption[] {
     if (!options) {
       return [];

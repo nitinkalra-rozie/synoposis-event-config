@@ -1,7 +1,8 @@
 import {
   Component,
+  computed,
   EventEmitter,
-  input,
+  inject,
   Input,
   OnInit,
   Output,
@@ -9,6 +10,7 @@ import {
 import { MultiSelectComponent } from '@syn/components';
 import { MultiSelectOption } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
+import { DashboardFiltersStateService } from '@syn/services';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -36,6 +38,10 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
   ],
 })
 export class EventControlsComponent implements OnInit {
+  //#region DI
+  filtersStateService = inject(DashboardFiltersStateService);
+  //#endregion
+
   public PostDataEnum = PostDataEnum;
   timeWindows;
   transitionTimes;
@@ -50,9 +56,8 @@ export class EventControlsComponent implements OnInit {
   @Input() postData: PostData = INITIAL_POST_DATA;
   @Input() themeOptions: ThemeOptions[];
 
-  // new inputs
-  eventTracks = input.required<string[]>();
-  eventDays = input.required<string[]>();
+  eventTracks = computed(() => this.filtersStateService.eventTracks());
+  eventDays = computed(() => this.filtersStateService.eventDays());
 
   @Output() onUpdatePostData: EventEmitter<{
     key: PostDataEnum;
@@ -101,7 +106,41 @@ export class EventControlsComponent implements OnInit {
     this.onReset.emit();
   };
 
-  onOptionSelect = (selectedOptions: MultiSelectOption[]) => {
-    // todo
+  onEventTracksSelect = (selectedOptions: MultiSelectOption[]) => {
+    const tracksCopy = [...this.eventTracks()];
+    const selectedLabels: string[] = [];
+    for (const aOption of selectedOptions) {
+      if (aOption.isSelected) {
+        selectedLabels.push(aOption.label);
+      }
+    }
+    const selectedTracksSet = new Set(selectedLabels);
+    tracksCopy.forEach((aOption) => {
+      if (selectedTracksSet.has(aOption.label)) {
+        aOption.isSelected = true;
+      } else {
+        aOption.isSelected = false;
+      }
+    });
+    this.filtersStateService.setEventTracks(tracksCopy);
+  };
+
+  onEventDaysSelect = (selectedOptions: MultiSelectOption[]) => {
+    const daysCopy = [...this.eventDays()];
+    const selectedLabels: string[] = [];
+    for (const aOption of selectedOptions) {
+      if (aOption.isSelected) {
+        selectedLabels.push(aOption.label);
+      }
+    }
+    const selectedDaysSet = new Set(selectedLabels);
+    daysCopy.forEach((aOption) => {
+      if (selectedDaysSet.has(aOption.label)) {
+        aOption.isSelected = true;
+      } else {
+        aOption.isSelected = false;
+      }
+    });
+    this.filtersStateService.setEventDays(daysCopy);
   };
 }

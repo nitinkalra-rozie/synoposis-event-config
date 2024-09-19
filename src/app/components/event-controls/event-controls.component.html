@@ -8,16 +8,17 @@
       dropdownTitle="Select Event"></app-main-drop-down>
 
     <app-multi-select
-      [options]="eventDays() | getMultiSelectOptionFromString"
+      [options]="eventDays()"
+      (optionSelected)="onEventDaysSelect($event)"
       label="Select Days"></app-multi-select>
 
     <app-multi-select
-      [options]="eventTracks() | getMultiSelectOptionFromString"
-      (optionSelected)="onOptionSelect($event)"
+      [options]="eventTracks()"
+      (optionSelected)="onEventTracksSelect($event)"
       label="Select Track"></app-multi-select>
 
     <!-- <app-main-drop-down
-      [disabled]="true"
+      [disabled]="false"
       [dropdownContent]="eventDays()"
       [selectedValue]="[postData?.eventName]"
       (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"

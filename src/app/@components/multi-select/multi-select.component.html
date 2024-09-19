@@ -8,21 +8,27 @@
       [ngClass]="{ active: isDropdownOpen }"
       (mousedown)="onDropdownToggle()">
       <p class="selected-label">
+        <!-- todo: add tooltip -->
         {{
           selectedLabelKey()
-            ? (options() | getSelectedOptions)[0][selectedLabelKey()]
-            : (options() | getSelectedOptions)[0]
+            ? (optionsRef | getSelectedOptions)[0][selectedLabelKey()]
+            : ((optionsRef | getSelectedOptions)[0]?.label ?? '')
         }}
       </p>
       <div class="selection-info">
-        @if ((options() | getSelectedOptions)?.length > 0) {
+        @if ((optionsRef | getSelectedOptions)?.length > 1) {
           <img
             alt="add"
             height="18"
             ngSrc="assets/v2-icons/add.svg"
             width="18" />
-          <p class="extra-selection-count">
-            {{ (options() | getSelectedOptions).length - 1 }}
+          <p
+            class="extra-selection-count"
+            [ngClass]="{
+              'double-digits':
+                (optionsRef | getSelectedOptions).length - 1 >= 10,
+            }">
+            {{ (optionsRef | getSelectedOptions).length - 1 }}
           </p>
         }
         <img
@@ -54,8 +60,8 @@
         </li>
       }
       @for (
-        aOption of searchText
-          | getFilteredMultiSelectOptions: options()
+        aOption of optionsRef
+          | getFilteredMultiSelectOptions: searchText
           | getCheckboxOptionFromMultiSelect;
         track aOption.label
       ) {
@@ -67,7 +73,9 @@
       }
     </ul>
     <div class="dropdown-footer">
-      <button class="btn-primary-default">Apply</button>
+      <button class="btn-primary-default" (click)="onApplySelection()">
+        Apply
+      </button>
     </div>
   </div>
 </div>

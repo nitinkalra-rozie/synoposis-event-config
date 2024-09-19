@@ -26,6 +26,7 @@ p {
   .trigger-view {
     .selected-label {
       @include body-regular;
+      @include ellipsis;
       color: $primary-bg-color-variant-6;
     }
 
@@ -55,13 +56,20 @@ p {
 }
 
 .extra-selection-count {
-  @include body-regular;
-  @include flex-center;
-  color: $primary-bg-color-variant-6;
-  width: 20px;
-  height: 20px;
-  box-shadow: $box-shadow-simple-drop-2;
-  border-radius: 100%;
+  &.double-digits {
+    width: 26px;
+    border-radius: 1000px;
+  }
+
+  & {
+    @include body-regular;
+    @include flex-center;
+    color: $primary-bg-color-variant-6;
+    width: 18px;
+    height: 18px;
+    box-shadow: $box-shadow-simple-drop-2;
+    border-radius: 100%;
+  }
 }
 
 .dropdown-container {

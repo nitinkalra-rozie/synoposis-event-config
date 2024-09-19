@@ -6,7 +6,7 @@ import { MultiSelectOption } from '@syn/models';
   standalone: true,
 })
 export class GetMultiSelectOptionFromStringPipe implements PipeTransform {
-  transform(options: string[]): MultiSelectOption[] {
+  transform(options: string[], defaultSelection = false): MultiSelectOption[] {
     if (!options) {
       return [];
     }
@@ -14,6 +14,7 @@ export class GetMultiSelectOptionFromStringPipe implements PipeTransform {
     return options.map((aOption) => ({
       key: aOption,
       label: aOption,
+      isSelected: defaultSelection,
     }));
   }
 }

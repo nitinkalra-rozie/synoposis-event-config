@@ -1,6 +1,7 @@
 import { NgClass, NgOptimizedImage } from '@angular/common';
 import {
   Component,
+  effect,
   ElementRef,
   HostListener,
   input,
@@ -17,6 +18,7 @@ import {
   GetSelectedOptionsPipe,
 } from '@syn/pipes';
 import { generateUniqueId } from '@syn/utils';
+import { isEqual } from 'lodash';
 
 @Component({
   selector: 'app-multi-select',
@@ -39,6 +41,14 @@ import { generateUniqueId } from '@syn/utils';
   styleUrl: './multi-select.component.scss',
 })
 export class MultiSelectComponent implements OnInit {
+  constructor() {
+    effect(() => {
+      if (!isEqual(this.options(), this.optionsRef)) {
+        this.optionsRef = structuredClone(this.options());
+      }
+    });
+  }
+
   @ViewChild('dropdownContainer')
   protected dropdownContainer: ElementRef<HTMLDivElement>;
 
@@ -69,12 +79,9 @@ export class MultiSelectComponent implements OnInit {
     const parentClass = target.closest('.select-container');
     const parentId = target.closest(`#${this.elementId}`);
 
-    if (!(parentClass && parentId)) {
-      this.isDropdownOpen = false;
-      this.dropdownContainer.nativeElement.classList.remove('visible');
-      setTimeout(() => {
-        this.dropdownContainer.nativeElement.style.display = 'none';
-      }, 300);
+    if (!(parentClass && parentId) && this.isDropdownOpen) {
+      this.closeDropdown();
+      this.resetFields();
     }
   }
 
@@ -84,34 +91,83 @@ export class MultiSelectComponent implements OnInit {
       `${this.styleConfig().width - 72}px`
     );
     this.elementId = generateUniqueId();
-    if (this.options()) {
-      this.optionsRef = structuredClone(this.options());
-    }
   }
 
   protected onAllOptionToggle(selectedOption: CheckboxOption<string>): void {
     this.fixedOption.isChecked = !selectedOption.isChecked;
-    this.optionSelected.emit(this.options());
+    if (this.fixedOption.isChecked) {
+      this.optionsRef = [
+        ...this.optionsRef.map((aOption) => ({
+          ...aOption,
+          isSelected: true,
+        })),
+      ];
+    } else {
+      this.optionsRef = [
+        ...this.optionsRef.map((aOption) => ({
+          ...aOption,
+          isSelected: false,
+        })),
+      ];
+    }
+
+    console.log('this.optionsRef', this.optionsRef);
   }
 
   protected onCustomOptionToggle(
     selectedOption: CheckboxOption<MultiSelectOption>
   ): void {
-    console.log('onCustomOptionToggle', selectedOption);
+    this.optionsRef = [
+      ...this.optionsRef.map((aOption) => {
+        if (aOption.label === selectedOption.label) {
+          return {
+            ...aOption,
+            isSelected: !aOption.isSelected,
+          };
+        }
+        return aOption;
+      }),
+    ];
+
+    if (this.optionsRef.every((aOption) => aOption.isSelected)) {
+      this.fixedOption.isChecked = true;
+    } else {
+      this.fixedOption.isChecked = false;
+    }
   }
 
   protected onDropdownToggle(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
-    if (!this.isDropdownOpen) {
-      this.dropdownContainer.nativeElement.classList.remove('visible');
-      setTimeout(() => {
-        this.dropdownContainer.nativeElement.style.display = 'none';
-      }, 300);
-    } else {
+    if (this.isDropdownOpen) {
       this.dropdownContainer.nativeElement.style.display = 'block';
       setTimeout(() => {
         this.dropdownContainer.nativeElement.classList.add('visible');
       });
+    } else {
+      this.closeDropdown();
+      this.resetFields();
     }
   }
+
+  protected onApplySelection = (): void => {
+    this.optionSelected.emit(this.optionsRef);
+    this.closeDropdown();
+    this.searchText = '';
+  };
+
+  private resetFields = (): void => {
+    this.searchText = '';
+    if (this.options().some((aOption) => !aOption.isSelected)) {
+      this.fixedOption.isChecked = false;
+    }
+    this.optionsRef = structuredClone(this.options());
+  };
+
+  private closeDropdown = (): void => {
+    this.isDropdownOpen = false;
+    this.dropdownContainer.nativeElement.classList.remove('visible');
+    setTimeout(() => {
+      this.dropdownContainer.nativeElement.style.display = 'none';
+    }, 300);
+  };
 }
