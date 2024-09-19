@@ -15,5 +15,5 @@ export class ElsaCheckboxComponent<T> {
 
   public stateChanged = output<CheckboxOption<T>>();
 
-  protected showTooltip = false;
+  protected isLabelTooltipVisible: boolean = false;
 }

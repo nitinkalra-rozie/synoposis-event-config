@@ -12,6 +12,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ElsaCheckboxComponent } from '@syn/components';
+import { OverflowDetectorDirective } from '@syn/directives';
 import { CheckboxOption, MultiSelectOption } from '@syn/models';
 import {
   GetCheckboxOptionFromMultiSelectPipe,
@@ -38,6 +39,7 @@ import { isEqual } from 'lodash';
     FormsModule,
     GetFilteredMultiSelectOptionsPipe,
     MatTooltipModule,
+    OverflowDetectorDirective,
   ],
   templateUrl: './multi-select.component.html',
   styleUrl: './multi-select.component.scss',
@@ -47,12 +49,15 @@ export class MultiSelectComponent implements OnInit {
     effect(() => {
       if (!isEqual(this.options(), this.optionsRef)) {
         this.optionsRef = structuredClone(this.options());
+        this.onAllOptionToggle(this.fixedOption);
       }
     });
   }
 
   @ViewChild('dropdownContainer')
   protected dropdownContainer: ElementRef<HTMLDivElement>;
+  @ViewChild('selectedLabelRef')
+  protected selectedLabelRef: ElementRef<HTMLParagraphElement>;
 
   public options = input.required<MultiSelectOption[]>();
   public label = input<string>();
@@ -74,6 +79,7 @@ export class MultiSelectComponent implements OnInit {
   protected isDropdownOpen: boolean = false;
   protected elementId: string;
   protected optionsRef: MultiSelectOption[] = [];
+  protected isLabelTooltipVisible: boolean = false;
 
   @HostListener('document:mousedown', ['$event'])
   mousedown(e: Event): void {
@@ -112,8 +118,6 @@ export class MultiSelectComponent implements OnInit {
         })),
       ];
     }
-
-    console.log('this.optionsRef', this.optionsRef);
   }
 
   protected onCustomOptionToggle(

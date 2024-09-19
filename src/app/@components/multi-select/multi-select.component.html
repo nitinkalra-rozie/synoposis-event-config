@@ -8,6 +8,8 @@
       [ngClass]="{ active: isDropdownOpen }"
       (mousedown)="onDropdownToggle()">
       <p
+        #selectedLabelRef
+        #tooltip="matTooltip"
         matTooltipClass="tooltip-text-only"
         matTooltipPosition="after"
         class="selected-label"
@@ -15,16 +17,25 @@
           selectedLabelKey()
             ? (optionsRef | getSelectedOptions)[0][selectedLabelKey()]
             : ((optionsRef | getSelectedOptions)[0]?.label ?? '')
-        ">
-        <!-- todo: add tooltip -->
-        {{
-          selectedLabelKey()
-            ? (optionsRef | getSelectedOptions)[0][selectedLabelKey()]
-            : ((optionsRef | getSelectedOptions)[0]?.label ?? '')
-        }}
+        "
+        [matTooltipDisabled]="!isLabelTooltipVisible"
+        (overflowChanged)="isLabelTooltipVisible = $event"
+        appOverflowDetector>
+        @if (fixedOption.isChecked) {
+          {{ fixedOption.label }}
+        } @else {
+          {{
+            selectedLabelKey()
+              ? (optionsRef | getSelectedOptions)[0][selectedLabelKey()]
+              : ((optionsRef | getSelectedOptions)[0]?.label ?? '')
+          }}
+        }
       </p>
       <div class="selection-info">
-        @if ((optionsRef | getSelectedOptions)?.length > 1) {
+        @if (
+          (optionsRef | getSelectedOptions)?.length > 1 &&
+          !fixedOption.isChecked
+        ) {
           <img
             alt="add"
             height="18"
