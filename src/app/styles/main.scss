@@ -1,6 +1,6 @@
-@use 'variables' as *;
-@use 'mixins' as *;
-@use 'buttons' as *;
+@use './helpers/variables' as *;
+@use './helpers/mixins' as *;
+@use './helpers/buttons' as *;
 
 @font-face {
   font-family: Lexend;

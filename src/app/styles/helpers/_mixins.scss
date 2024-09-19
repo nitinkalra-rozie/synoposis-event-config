@@ -401,3 +401,15 @@
     box-shadow: $elevation-1dp;
   }
 }
+
+@mixin tooltip($max-width) {
+  @include tooltip-body;
+  height: auto;
+  max-width: $max-width !important;
+  color: $primary-bg-color-variant-6 !important;
+  background: $primary-bg-color;
+  box-shadow: 0 5px 22px 0 $shadow;
+  border: 1px solid $secondary-bg-color;
+  border-radius: 8px;
+  padding: 10px 15px !important;
+}
