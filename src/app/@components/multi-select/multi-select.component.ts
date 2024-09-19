@@ -10,6 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ElsaCheckboxComponent } from '@syn/components';
 import { CheckboxOption, MultiSelectOption } from '@syn/models';
 import {
@@ -36,6 +37,7 @@ import { isEqual } from 'lodash';
     GetSelectedOptionsPipe,
     FormsModule,
     GetFilteredMultiSelectOptionsPipe,
+    MatTooltipModule,
   ],
   templateUrl: './multi-select.component.html',
   styleUrl: './multi-select.component.scss',

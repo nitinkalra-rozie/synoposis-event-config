@@ -14,6 +14,7 @@ import {
   withInterceptorsFromDi,
   provideHttpClient,
 } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 const noSleep = new NoSleep();
 if (environment.production) {
   // enableProdMode();
@@ -47,7 +48,7 @@ bootstrapApplication(AppComponent, {
         disableImageSizeWarning: true,
         disableImageLazyLoadWarning: true,
       },
-    },
+    }, provideAnimationsAsync(),
   ],
 }).catch((err) => console.log(err));
 

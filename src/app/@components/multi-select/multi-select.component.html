@@ -7,7 +7,15 @@
       class="trigger-view"
       [ngClass]="{ active: isDropdownOpen }"
       (mousedown)="onDropdownToggle()">
-      <p class="selected-label">
+      <p
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="after"
+        class="selected-label"
+        [matTooltip]="
+          selectedLabelKey()
+            ? (optionsRef | getSelectedOptions)[0][selectedLabelKey()]
+            : ((optionsRef | getSelectedOptions)[0]?.label ?? '')
+        ">
         <!-- todo: add tooltip -->
         {{
           selectedLabelKey()

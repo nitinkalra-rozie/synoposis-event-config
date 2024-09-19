@@ -1,7 +1,7 @@
-@use '../helpers/mixins' as *;
+@use '../helpers/helpers-dir' as *;
 
 .mdc-tooltip.tooltip-text-only {
-  @include custom-tooltip(unset);
+  @include tooltip(unset);
 
   .mdc-tooltip__surface {
     background-color: transparent;

@@ -1,6 +1,5 @@
-@use './helpers/variables' as *;
-@use './helpers/mixins' as *;
-@use './helpers/buttons' as *;
+@use './helpers/helpers-dir' as *;
+@use './material//material-dir' as *;
 
 @font-face {
   font-family: Lexend;
@@ -33,4 +32,13 @@ body {
 
 body {
   margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
 }

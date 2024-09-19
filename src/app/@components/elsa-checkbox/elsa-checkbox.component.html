@@ -1,8 +1,14 @@
-<div class="checkbox-container" [title]="option().label">
-  <label
-    class="checkbox-label"
-    (mouseout)="showTooltip = false"
-    (mouseover)="showTooltip = true">
+<div
+  #tooltip="matTooltip"
+  matTooltipClass="tooltip-text-only"
+  matTooltipPosition="after"
+  class="checkbox-container"
+  [matTooltip]="option().label"
+  [matTooltipDisabled]="toolTip.scrollWidth <= toolTip.clientWidth"
+  (blur)="tooltip.hide()"
+  (mouseleave)="tooltip.hide()"
+  (mouseover)="tooltip.show()">
+  <label #toolTip class="checkbox-label">
     <input
       class="checkbox-input"
       [checked]="option().isChecked"
