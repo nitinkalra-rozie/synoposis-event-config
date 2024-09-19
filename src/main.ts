@@ -48,7 +48,8 @@ bootstrapApplication(AppComponent, {
         disableImageSizeWarning: true,
         disableImageLazyLoadWarning: true,
       },
-    }, provideAnimationsAsync(),
+    },
+    provideAnimationsAsync(),
   ],
 }).catch((err) => console.log(err));
 
