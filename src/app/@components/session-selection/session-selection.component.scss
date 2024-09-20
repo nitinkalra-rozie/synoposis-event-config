@@ -1,0 +1,98 @@
+@use '../../styles/helpers/helpers-dir' as *;
+
+app-syn-single-select {
+  width: 52.5vw;
+  max-width: 756px;
+}
+
+.session-selection-container {
+  @include d-flex-column;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.header-row {
+  @include d-flex-row;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.btn-start-listening {
+  border-radius: 100px;
+  margin-left: 24px;
+
+  &:disabled {
+    opacity: 50%;
+    background: $primary-color-variant-2;
+  }
+
+  > mat-icon {
+    @include flex-center;
+    width: 16px;
+    height: 16px;
+    color: $primary-bg-color;
+    margin-right: 5px;
+    font-size: 16px;
+  }
+
+  > p {
+    @include caption-regular;
+  }
+}
+
+.content {
+  @include d-flex-row;
+  flex-wrap: wrap;
+  padding: 20px;
+  align-items: flex-start;
+  height: 100%;
+  flex: 1;
+  width: 100%;
+}
+
+$skeleton-content-width: 31.5vw;
+.sample-skeleton {
+  width: $skeleton-content-width;
+  max-width: 424px;
+  height: 100%;
+  max-height: 310px;
+  background-color: $primary-bg-color-variant-1;
+  border-radius: 4px;
+  margin-right: 40px;
+}
+
+.session-info-item {
+  width: 25.7vw;
+  max-width: 370.33px;
+  // height: 29vh;
+  // height: 100%;
+  max-height: 270px;
+  @include d-flex-column;
+  justify-content: flex-end;
+  object-fit: cover;
+  box-shadow: $box-shadow-simple-drop-2;
+  border-radius: 2px;
+  margin-right: 20px;
+
+  > img {
+    position: relative;
+    width: 25.7vw;
+    max-width: 370.33px;
+    object-fit: cover;
+  }
+
+  .item-footer {
+    @include d-flex-row;
+    justify-content: space-between;
+    padding: 0 14px;
+    background-color: $primary-color-variant-2;
+    width: calc(100% - 28px);
+    border-radius: 0px 0px 2px 2px;
+    height: 45px;
+
+    > p {
+      @include subhead-medium;
+      color: $primary-bg-color;
+    }
+  }
+}

@@ -1,1 +1,42 @@
-<p>session-selection works!</p>
+<div class="session-selection-container">
+  <div class="header-row">
+    <app-syn-single-select
+      [options]="availableSessions()"
+      [selectedOption]="activeSession()"
+      (optionSelected)="onOptionSelect($event)"></app-syn-single-select>
+    <button
+      class="btn-primary-default btn-start-listening"
+      [disabled]="activeSession() === null">
+      <mat-icon>settings_voice</mat-icon>
+      <p>Start Listening</p>
+    </button>
+  </div>
+  <div class="content">
+    <ng-container
+      *ngTemplateOutlet="
+        sessionInfo;
+        context: { $implicit: { title: 'Session Title', key: 'session_title' } }
+      "></ng-container>
+    <ng-container
+      *ngTemplateOutlet="
+        sessionInfo;
+        context: {
+          $implicit: { title: 'Session Insights', key: 'session_insights' },
+        }
+      "></ng-container>
+  </div>
+</div>
+
+<ng-template #sessionInfo let-data>
+  @if (activeSession() === null) {
+    <div class="sample-skeleton"></div>
+  } @else {
+    <div class="session-info-item">
+      <img alt="" src="assets/admin-screen/summary_screen.svg" />
+      <div class="item-footer">
+        <p>{{ data.title }}</p>
+        <button class="btn-primary-white-small">Project to Screen</button>
+      </div>
+    </div>
+  }
+</ng-template>

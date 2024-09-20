@@ -112,21 +112,21 @@ export class SessionContentComponent implements OnInit, OnChanges {
     {
       cardType: EventCardType.Welcome,
       title: 'Welcome Screen',
-      imageUrl: '../../../assets/admin screen/welcome_screen.svg',
+      imageUrl: '../../../assets/admin-screen/welcome_screen.svg',
       daySelector: true,
       displayFunction: () => this.showWelcomeMessageBanner(),
     },
     {
       cardType: EventCardType.ThankYou,
       title: 'Thank You Screen',
-      imageUrl: '../../../assets/admin screen/thank_you_page.svg',
+      imageUrl: '../../../assets/admin-screen/thank_you_page.svg',
       daySelector: true,
       displayFunction: () => this.showThankYouScreen(),
     },
     {
       cardType: EventCardType.Info,
       title: 'Info Screen',
-      imageUrl: '../../../assets/admin screen/qr_screen.svg',
+      imageUrl: '../../../assets/admin-screen/qr_screen.svg',
       daySelector: false,
       displayFunction: () => this.showInfoScreen(),
     },
@@ -134,20 +134,20 @@ export class SessionContentComponent implements OnInit, OnChanges {
   session_cards = [
     {
       title: 'Title & Speaker Name Screen',
-      imageUrl: '../../../assets/admin screen/moderator_screen.svg',
+      imageUrl: '../../../assets/admin-screen/moderator_screen.svg',
       daySelector: true,
       displayFunction: () => this.showKeyNote(),
     },
     {
       title: 'Real-time Insights Screen',
-      imageUrl: '../../../assets/admin screen/realtime_screen.svg',
+      imageUrl: '../../../assets/admin-screen/realtime_screen.svg',
       daySelector: true,
       displayFunction: () => this.showLoadingInsights(),
     },
     {
       title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin screen/summary_screen.svg',
-      icon: '../../../assets/admin screen/note.svg',
+      imageUrl: '../../../assets/admin-screen/summary_screen.svg',
+      icon: '../../../assets/admin-screen/note.svg',
       daySelector: true,
       displayFunction: () => this.endSessionPopUpPostInsights(),
     },
@@ -155,8 +155,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
   multi_session_card = [
     {
       title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin screen/summary_screen.svg',
-      icon: '../../../assets/admin screen/note.svg',
+      imageUrl: '../../../assets/admin-screen/summary_screen.svg',
+      icon: '../../../assets/admin-screen/note.svg',
       displayFunction: () => this.showSummary(),
     },
   ];

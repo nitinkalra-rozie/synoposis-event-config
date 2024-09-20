@@ -10,7 +10,7 @@
           <img
             class="button-icon"
             alt="Start Listening Icon"
-            src="../../../assets/admin screen/mic_none.svg" />
+            src="../../../assets/admin-screen/mic_none.svg" />
           <span class="button-text">Start Listening</span>
         </button>
       }
@@ -22,21 +22,21 @@
           <img
             class="button-icon"
             alt="Stop Screen Icon"
-            src="../../../assets/admin screen/stop.svg" />
+            src="../../../assets/admin-screen/stop.svg" />
           <span class="button-text">Pause Listening</span>
         </button>
       }
       <div class="vline">
         <img
           alt="vertical v line"
-          src="../../../assets/admin screen/vline.svg" />
+          src="../../../assets/admin-screen/vline.svg" />
       </div>
       @if (showStopScreenButton) {
         <button class="dynamic-button-End" (click)="onEndSession()">
           <img
             class="button-icon"
             alt="Stop Screen Icon"
-            src="../../../assets/admin screen/close.svg" />
+            src="../../../assets/admin-screen/close.svg" />
           <span class="button-text">{{ getEndButtonText() }}</span>
         </button>
       }

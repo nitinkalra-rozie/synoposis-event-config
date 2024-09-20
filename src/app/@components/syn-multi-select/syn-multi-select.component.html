@@ -8,7 +8,6 @@
       [ngClass]="{ active: isDropdownOpen }"
       (mousedown)="onDropdownToggle()">
       <p
-        #selectedLabelRef
         #tooltip="matTooltip"
         matTooltipClass="tooltip-text-only"
         matTooltipPosition="after"
@@ -80,7 +79,7 @@
       }
       @for (
         aOption of optionsRef
-          | getFilteredMultiSelectOptions: searchText
+          | getFilteredDropdownOptions: searchText
           | getCheckboxOptionFromMultiSelect;
         track aOption.label
       ) {

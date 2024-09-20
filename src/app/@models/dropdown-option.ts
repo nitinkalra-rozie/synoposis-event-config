@@ -1,4 +1,4 @@
-export interface MultiSelectOption {
+export interface DropdownOption {
   key: string;
   label: string;
   isSelected?: boolean;

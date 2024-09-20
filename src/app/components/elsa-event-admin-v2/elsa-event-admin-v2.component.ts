@@ -1,8 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { SynMultiSelectComponent } from '@syn/components';
-import { MultiSelectOption } from '@syn/models';
-import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
-import { DashboardFiltersStateService } from '@syn/services';
+import { DropdownOption } from '@syn/models';
+import {
+  GetDropdownOptionFromObjectPipe,
+  GetMultiSelectOptionFromStringPipe,
+} from '@syn/pipes';
+import {
+  DashboardFiltersStateService,
+  SessionStateService,
+} from '@syn/services';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -25,22 +31,28 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
   templateUrl: './elsa-event-admin-v2.component.html',
   styleUrls: ['./elsa-event-admin-v2.component.scss'],
   standalone: true,
-  providers: [GetMultiSelectOptionFromStringPipe],
+  providers: [
+    GetMultiSelectOptionFromStringPipe,
+    GetDropdownOptionFromObjectPipe,
+  ],
   imports: [
     TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
     SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
+    GetDropdownOptionFromObjectPipe,
   ],
 })
 export class ElsaEventAdminV2Component implements OnInit {
   //#region DI
   filtersStateService = inject(DashboardFiltersStateService);
+  sessionStateService = inject(SessionStateService);
   backendApiService = inject(BackendApiService);
   getMultiSelectOptionFromStringPipe = inject(
     GetMultiSelectOptionFromStringPipe
   );
+  getDropdownOptionFromObjectPipe = inject(GetDropdownOptionFromObjectPipe);
   //#endregion
 
   eventNames: string[] = [];
@@ -98,6 +110,16 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
       this.populateEventNames();
+      this.sessionStateService.setAvailableSessions(
+        this.getDropdownOptionFromObjectPipe.transform<any>(
+          this.eventDetails,
+          'SessionTitle',
+          'SessionId',
+          false,
+          'Status',
+          'STARTED'
+        )
+      );
     });
   };
 
@@ -108,7 +130,7 @@ export class ElsaEventAdminV2Component implements OnInit {
     );
 
     // set initial values. all deselected by default
-    const eventNamesArray: MultiSelectOption[] =
+    const eventNamesArray: DropdownOption[] =
       this.getMultiSelectOptionFromStringPipe.transform(this.eventNames);
     this.filtersStateService.setEventNames(eventNamesArray);
 
@@ -141,7 +163,7 @@ export class ElsaEventAdminV2Component implements OnInit {
       new Set(filteredByEvent.map((event) => event.EventDay))
     );
     // set initial values. all deselected by default
-    const eventDaysArray: MultiSelectOption[] =
+    const eventDaysArray: DropdownOption[] =
       this.getMultiSelectOptionFromStringPipe.transform(this.eventDays);
     this.filtersStateService.setEventDays(eventDaysArray);
 

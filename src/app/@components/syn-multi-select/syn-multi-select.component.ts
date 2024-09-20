@@ -13,10 +13,10 @@ import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SynCheckboxComponent } from '@syn/components';
 import { OverflowDetectorDirective } from '@syn/directives';
-import { CheckboxOption, MultiSelectOption } from '@syn/models';
+import { CheckboxOption, DropdownOption } from '@syn/models';
 import {
   GetCheckboxOptionFromMultiSelectPipe,
-  GetFilteredMultiSelectOptionsPipe,
+  GetFilteredDropdownOptionsPipe,
   GetSelectedOptionsPipe,
 } from '@syn/pipes';
 import { generateUniqueId } from '@syn/utils';
@@ -28,7 +28,7 @@ import { isEqual } from 'lodash';
   providers: [
     GetCheckboxOptionFromMultiSelectPipe,
     GetSelectedOptionsPipe,
-    GetFilteredMultiSelectOptionsPipe,
+    GetFilteredDropdownOptionsPipe,
   ],
   imports: [
     NgOptimizedImage,
@@ -37,7 +37,7 @@ import { isEqual } from 'lodash';
     GetCheckboxOptionFromMultiSelectPipe,
     GetSelectedOptionsPipe,
     FormsModule,
-    GetFilteredMultiSelectOptionsPipe,
+    GetFilteredDropdownOptionsPipe,
     MatTooltipModule,
     OverflowDetectorDirective,
   ],
@@ -56,10 +56,8 @@ export class SynMultiSelectComponent implements OnInit {
 
   @ViewChild('dropdownContainer')
   protected dropdownContainer: ElementRef<HTMLDivElement>;
-  @ViewChild('selectedLabelRef')
-  protected selectedLabelRef: ElementRef<HTMLParagraphElement>;
 
-  public options = input.required<MultiSelectOption[]>();
+  public options = input.required<DropdownOption[]>();
   public label = input<string>();
   public selectedLabelKey = input<string>();
   public styleConfig = input<{
@@ -68,7 +66,7 @@ export class SynMultiSelectComponent implements OnInit {
     width: 240,
   });
 
-  public optionSelected = output<MultiSelectOption[]>();
+  public optionSelected = output<DropdownOption[]>();
 
   protected fixedOption: CheckboxOption<string> = {
     label: 'All',
@@ -78,7 +76,7 @@ export class SynMultiSelectComponent implements OnInit {
   protected searchText: string = '';
   protected isDropdownOpen: boolean = false;
   protected elementId: string;
-  protected optionsRef: MultiSelectOption[] = [];
+  protected optionsRef: DropdownOption[] = [];
   protected isLabelTooltipVisible: boolean = false;
 
   @HostListener('document:mousedown', ['$event'])
@@ -121,7 +119,7 @@ export class SynMultiSelectComponent implements OnInit {
   }
 
   protected onCustomOptionToggle(
-    selectedOption: CheckboxOption<MultiSelectOption>
+    selectedOption: CheckboxOption<DropdownOption>
   ): void {
     this.optionsRef = [
       ...this.optionsRef.map((aOption) => {

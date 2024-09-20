@@ -241,7 +241,7 @@
   line-height: 18px !important;
 }
 
-@mixin subhead {
+@mixin subhead-medium {
   @include font-medium;
   font-size: 15px;
   letter-spacing: 0;
@@ -250,7 +250,7 @@
 
 @mixin subhead-regular {
   @include font-regular();
-  font-size: 16px;
+  font-size: 15px;
   letter-spacing: 0;
   line-height: 18px !important;
 }
@@ -294,7 +294,7 @@
   @include font-regular;
   font-size: 12px;
   letter-spacing: 0;
-  line-height: 15px;
+  line-height: 16button-stylepx;
 }
 
 @mixin caption-sm {
@@ -357,6 +357,8 @@
   @include flex-center();
   @include body-regular();
   height: 40px;
+  padding-block: 0;
+  padding-inline: 0;
   padding: 0 10px;
   background-color: $primary-bg-color;
   border: none;
@@ -394,6 +396,7 @@
   &:disabled {
     background: $primary-bg-color-variant-3;
     color: $primary-bg-color;
+    pointer-events: none;
   }
 
   &:active {

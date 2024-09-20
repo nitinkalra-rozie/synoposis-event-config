@@ -1,12 +1,12 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { MultiSelectOption } from '@syn/models';
+import { DropdownOption } from '@syn/models';
 
 @Pipe({
   name: 'getMultiSelectOptionFromString',
   standalone: true,
 })
 export class GetMultiSelectOptionFromStringPipe implements PipeTransform {
-  transform(options: string[], defaultSelection = false): MultiSelectOption[] {
+  transform(options: string[], defaultSelection = false): DropdownOption[] {
     if (!options) {
       return [];
     }

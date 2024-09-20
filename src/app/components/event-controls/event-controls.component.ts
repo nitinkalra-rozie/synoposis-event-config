@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { SynMultiSelectComponent } from '@syn/components';
-import { MultiSelectOption } from '@syn/models';
+import { DropdownOption } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
 import { DashboardFiltersStateService } from '@syn/services';
 import {
@@ -106,7 +106,7 @@ export class EventControlsComponent implements OnInit {
     this.onReset.emit();
   };
 
-  onEventTracksSelect = (selectedOptions: MultiSelectOption[]) => {
+  onEventTracksSelect = (selectedOptions: DropdownOption[]) => {
     const tracksCopy = [...this.eventTracks()];
     const selectedLabels: string[] = [];
     for (const aOption of selectedOptions) {
@@ -125,7 +125,7 @@ export class EventControlsComponent implements OnInit {
     this.filtersStateService.setEventTracks(tracksCopy);
   };
 
-  onEventDaysSelect = (selectedOptions: MultiSelectOption[]) => {
+  onEventDaysSelect = (selectedOptions: DropdownOption[]) => {
     const daysCopy = [...this.eventDays()];
     const selectedLabels: string[] = [];
     for (const aOption of selectedOptions) {

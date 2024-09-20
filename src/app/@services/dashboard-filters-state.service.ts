@@ -1,5 +1,5 @@
 import { Injectable, Signal, signal } from '@angular/core';
-import { MultiSelectOption } from '@syn/models';
+import { DropdownOption } from '@syn/models';
 
 @Injectable({
   providedIn: 'root',
@@ -14,23 +14,23 @@ export class DashboardFiltersStateService {
     this.eventDays = this._eventDaysSignal.asReadonly();
   }
 
-  public readonly eventNames: Signal<MultiSelectOption[]>;
-  public readonly eventTracks: Signal<MultiSelectOption[]>;
-  public readonly eventDays: Signal<MultiSelectOption[]>;
+  public readonly eventNames: Signal<DropdownOption[]>;
+  public readonly eventTracks: Signal<DropdownOption[]>;
+  public readonly eventDays: Signal<DropdownOption[]>;
 
-  private _eventNamesSignal = signal<MultiSelectOption[]>([]);
-  private _eventTracksSignal = signal<MultiSelectOption[]>([]);
-  private _eventDaysSignal = signal<MultiSelectOption[]>([]);
+  private _eventNamesSignal = signal<DropdownOption[]>([]);
+  private _eventTracksSignal = signal<DropdownOption[]>([]);
+  private _eventDaysSignal = signal<DropdownOption[]>([]);
 
-  setEventNames(names: MultiSelectOption[]): void {
+  setEventNames(names: DropdownOption[]): void {
     this._eventNamesSignal.set(names);
   }
 
-  setEventDays(days: MultiSelectOption[]): void {
+  setEventDays(days: DropdownOption[]): void {
     this._eventDaysSignal.set(days);
   }
 
-  setEventTracks(tracks: MultiSelectOption[]): void {
+  setEventTracks(tracks: DropdownOption[]): void {
     this._eventTracksSignal.set(tracks);
   }
 }

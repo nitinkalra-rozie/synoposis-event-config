@@ -21,6 +21,16 @@
   height: 25px;
 }
 
+.btn-primary-white-small {
+  @include button-style(
+    $primary-bg-color,
+    $primary-bg-color-variant-1,
+    $primary-bg-color-variant-6
+  );
+  @include caption-regular;
+  height: 25px;
+}
+
 .btn-secondary-default {
   @include button-style(
     $secondary-color-variant-2,

@@ -1,14 +1,25 @@
-@use '../../styles/helpers/variables' as *;
+@use '../../styles/helpers/helpers-dir' as *;
 
 .main-content {
   background-color: $primary-bg-color-variant-1;
-  height: calc(100% - 70px);
+  height: calc(100% - 110px);
   padding: 20px 20px 20px 90px;
+}
+
+app-session-content {
+  height: 100%;
+  @include d-flex-column;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .session-wrapper {
   margin-top: 20px;
   padding-bottom: 28px;
+  height: calc(100% - 136px);
+  width: 100%;
+  @include d-flex-column;
+  justify-content: space-between;
 }
 
 @media (width <= 767px) {

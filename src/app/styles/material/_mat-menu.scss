@@ -1,0 +1,24 @@
+@use '../helpers/helpers-dir' as *;
+
+.session-selection-menu {
+  width: 52.5vw;
+  max-width: 756px !important;
+  box-shadow: $box-shadow-simple-drop-5;
+  min-width: unset !important;
+  min-height: 100px;
+  max-height: 345px;
+  height: auto;
+
+  .mat-mdc-menu-content {
+    padding: 16px 0 !important; /* Remove padding for the menu panel */
+    width: 100%;
+    height: calc(100% - 32px);
+    background-color: $primary-bg-color;
+    @include d-flex-column;
+    align-items: flex-start;
+
+    .mat-mdc-menu-item:hover {
+      background-color: $selection-variant-1 !important;
+    }
+  }
+}
