@@ -12,8 +12,17 @@
     </div>
   }
 </div>
-<div id="session-content" class="session-content">
-  <div class="padding-combine">
+<div id="session-content" class="session-content-container">
+  <mat-tab-group class="session-content-container-tab-group" dynamicHeight>
+    <mat-tab label="Start Listening to a Session">
+      <app-session-selection></app-session-selection>
+    </mat-tab>
+    <mat-tab label="Project a Specific Image">
+      <app-project-image-selection></app-project-image-selection>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- <div class="padding-combine">
     <app-screen-display
       [cards]="event_cards"
       [eventDays]="eventDays"
@@ -73,4 +82,5 @@
       {{ transcription }}
     </div>
   }
+     -->
 </div>

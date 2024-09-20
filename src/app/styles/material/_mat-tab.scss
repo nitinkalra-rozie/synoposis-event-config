@@ -1,0 +1,27 @@
+@use '../helpers/helpers-dir' as *;
+
+.session-content-container-tab-group {
+  .mat-mdc-tab-label-container {
+    border: none;
+  }
+  .mdc-tab {
+    &.mdc-tab--active,
+    &.mdc-tab--active:focus {
+      .mdc-tab__text-label {
+        color: $primary-color-variant-2;
+      }
+    }
+    .mdc-tab-indicator__content--underline {
+      border-top-width: 3px;
+    }
+    & {
+      padding: 0;
+      margin-right: 10px;
+    }
+  }
+
+  .mat-mdc-tab-body-wrapper {
+    background-color: antiquewhite;
+    padding-top: 20px;
+  }
+}

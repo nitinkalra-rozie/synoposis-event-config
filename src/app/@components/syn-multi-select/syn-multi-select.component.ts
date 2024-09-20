@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ElsaCheckboxComponent } from '@syn/components';
+import { SynCheckboxComponent } from '@syn/components';
 import { OverflowDetectorDirective } from '@syn/directives';
 import { CheckboxOption, MultiSelectOption } from '@syn/models';
 import {
@@ -23,7 +23,7 @@ import { generateUniqueId } from '@syn/utils';
 import { isEqual } from 'lodash';
 
 @Component({
-  selector: 'app-multi-select',
+  selector: 'app-syn-multi-select',
   standalone: true,
   providers: [
     GetCheckboxOptionFromMultiSelectPipe,
@@ -33,7 +33,7 @@ import { isEqual } from 'lodash';
   imports: [
     NgOptimizedImage,
     NgClass,
-    ElsaCheckboxComponent,
+    SynCheckboxComponent,
     GetCheckboxOptionFromMultiSelectPipe,
     GetSelectedOptionsPipe,
     FormsModule,
@@ -41,10 +41,10 @@ import { isEqual } from 'lodash';
     MatTooltipModule,
     OverflowDetectorDirective,
   ],
-  templateUrl: './multi-select.component.html',
-  styleUrl: './multi-select.component.scss',
+  templateUrl: './syn-multi-select.component.html',
+  styleUrl: './syn-multi-select.component.scss',
 })
-export class MultiSelectComponent implements OnInit {
+export class SynMultiSelectComponent implements OnInit {
   constructor() {
     effect(() => {
       if (!isEqual(this.options(), this.optionsRef)) {

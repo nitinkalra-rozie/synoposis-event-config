@@ -7,7 +7,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { MultiSelectComponent } from '@syn/components';
+import { SynMultiSelectComponent } from '@syn/components';
 import { MultiSelectOption } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
 import { DashboardFiltersStateService } from '@syn/services';
@@ -33,7 +33,7 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
   standalone: true,
   imports: [
     MainDropDownComponent,
-    MultiSelectComponent,
+    SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
   ],
 })

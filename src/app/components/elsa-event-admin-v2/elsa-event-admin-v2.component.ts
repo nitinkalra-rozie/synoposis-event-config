@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MultiSelectComponent } from '@syn/components';
+import { SynMultiSelectComponent } from '@syn/components';
 import { MultiSelectOption } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
 import { DashboardFiltersStateService } from '@syn/services';
@@ -30,7 +30,7 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
     TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
-    MultiSelectComponent,
+    SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
   ],
 })

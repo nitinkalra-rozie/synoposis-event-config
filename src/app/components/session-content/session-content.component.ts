@@ -16,6 +16,11 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 // TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
 import { NgClass } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import {
+  ProjectImageSelectionComponent,
+  SessionSelectionComponent,
+} from '@syn/components';
 import { generateSHA256HashHex } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { MicrophoneService } from 'src/app/services/microphone.service';
@@ -38,7 +43,13 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   templateUrl: './session-content.component.html',
   styleUrls: ['./session-content.component.scss'],
   standalone: true,
-  imports: [NgClass, ScreenDisplayComponent],
+  imports: [
+    NgClass,
+    ScreenDisplayComponent,
+    MatTabsModule,
+    ProjectImageSelectionComponent,
+    SessionSelectionComponent,
+  ],
 })
 export class SessionContentComponent implements OnInit, OnChanges {
   ScreenDisplayType = ScreenDisplayType;

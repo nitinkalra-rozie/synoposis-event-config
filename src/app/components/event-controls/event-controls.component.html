@@ -7,15 +7,15 @@
       (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"
       dropdownTitle="Select Event"></app-main-drop-down>
 
-    <app-multi-select
+    <app-syn-multi-select
       [options]="eventDays()"
       (optionSelected)="onEventDaysSelect($event)"
-      label="Select Days"></app-multi-select>
+      label="Select Days"></app-syn-multi-select>
 
-    <app-multi-select
+    <app-syn-multi-select
       [options]="eventTracks()"
       (optionSelected)="onEventTracksSelect($event)"
-      label="Select Track"></app-multi-select>
+      label="Select Track"></app-syn-multi-select>
 
     <!-- <app-main-drop-down
       [disabled]="false"

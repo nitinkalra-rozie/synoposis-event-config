@@ -4,13 +4,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CheckboxOption } from '@syn/models';
 
 @Component({
-  selector: 'app-elsa-checkbox',
+  selector: 'app-syn-elsa-checkbox',
   standalone: true,
   imports: [FormsModule, MatTooltipModule],
-  templateUrl: './elsa-checkbox.component.html',
-  styleUrl: './elsa-checkbox.component.scss',
+  templateUrl: './syn-checkbox.component.html',
+  styleUrl: './syn-checkbox.component.scss',
 })
-export class ElsaCheckboxComponent<T> {
+export class SynCheckboxComponent<T> {
   public option = input.required<CheckboxOption<T>>();
 
   public stateChanged = output<CheckboxOption<T>>();
