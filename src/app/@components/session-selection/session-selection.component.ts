@@ -2,7 +2,7 @@ import { NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DropdownOption } from '@syn/models';
-import { SessionStateService } from '@syn/services';
+import { DashboardFiltersStateService } from '@syn/services';
 import { SynSingleSelectComponent } from '../syn-single-select/syn-single-select.component';
 
 @Component({
@@ -19,17 +19,17 @@ import { SynSingleSelectComponent } from '../syn-single-select/syn-single-select
 })
 export class SessionSelectionComponent {
   protected availableSessions = computed(() =>
-    this._sessionStateService.availableSessions()
+    this._dashboardFiltersStateService.availableSessions()
   );
   protected activeSession = computed(() =>
-    this._sessionStateService.activeSession()
+    this._dashboardFiltersStateService.activeSession()
   );
 
   //#region DI
-  private _sessionStateService = inject(SessionStateService);
+  private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
   //#endregion
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
-    this._sessionStateService.setActiveSession(selectedOption);
+    this._dashboardFiltersStateService.setActiveSession(selectedOption);
   }
 }

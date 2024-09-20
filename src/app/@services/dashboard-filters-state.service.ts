@@ -1,4 +1,4 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { computed, Injectable, Signal, signal } from '@angular/core';
 import { DropdownOption } from '@syn/models';
 
 @Injectable({
@@ -12,8 +12,25 @@ export class DashboardFiltersStateService {
     this.eventNames = this._eventNamesSignal.asReadonly();
     this.eventTracks = this._eventTracksSignal.asReadonly();
     this.eventDays = this._eventDaysSignal.asReadonly();
+    this.activeSession = this._activeSessionSignal.asReadonly();
+    this.allSessions = this._allSessionsSignal.asReadonly();
+
+    this.availableSessions = computed(() =>
+      this.allSessions().filter(
+        (aSession) =>
+          this._selectedTracksSetSignal().has(
+            aSession.metadata['originalContent'].Track
+          ) &&
+          this._selectedDaysSetSignal().has(
+            aSession.metadata['originalContent'].EventDay
+          )
+      )
+    );
   }
 
+  public readonly allSessions: Signal<DropdownOption[]>;
+  public readonly availableSessions: Signal<DropdownOption[]>;
+  public readonly activeSession: Signal<DropdownOption | null>;
   public readonly eventNames: Signal<DropdownOption[]>;
   public readonly eventTracks: Signal<DropdownOption[]>;
   public readonly eventDays: Signal<DropdownOption[]>;
@@ -21,6 +38,25 @@ export class DashboardFiltersStateService {
   private _eventNamesSignal = signal<DropdownOption[]>([]);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
   private _eventDaysSignal = signal<DropdownOption[]>([]);
+  private _allSessionsSignal = signal<DropdownOption[]>([]);
+  private _activeSessionSignal = signal<DropdownOption | null>(null);
+
+  private readonly _selectedTracksSetSignal = computed<Set<string>>(
+    () =>
+      new Set(
+        this.eventTracks()
+          .filter((aTrack) => aTrack.isSelected)
+          .map((aTrack) => aTrack.label)
+      )
+  );
+  private readonly _selectedDaysSetSignal = computed<Set<string>>(
+    () =>
+      new Set(
+        this.eventDays()
+          .filter((aTrack) => aTrack.isSelected)
+          .map((aTrack) => aTrack.label)
+      )
+  );
 
   setEventNames(names: DropdownOption[]): void {
     this._eventNamesSignal.set(names);
@@ -32,5 +68,13 @@ export class DashboardFiltersStateService {
 
   setEventTracks(tracks: DropdownOption[]): void {
     this._eventTracksSignal.set(tracks);
+  }
+
+  setAllSessions(sessions: DropdownOption[]): void {
+    this._allSessionsSignal.set(sessions);
+  }
+
+  setActiveSession(activeSession: DropdownOption): void {
+    this._activeSessionSignal.set(activeSession);
   }
 }

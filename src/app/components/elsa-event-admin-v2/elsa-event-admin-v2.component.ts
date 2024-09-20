@@ -5,10 +5,7 @@ import {
   GetDropdownOptionFromObjectPipe,
   GetMultiSelectOptionFromStringPipe,
 } from '@syn/pipes';
-import {
-  DashboardFiltersStateService,
-  SessionStateService,
-} from '@syn/services';
+import { DashboardFiltersStateService } from '@syn/services';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -47,7 +44,6 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 export class ElsaEventAdminV2Component implements OnInit {
   //#region DI
   filtersStateService = inject(DashboardFiltersStateService);
-  sessionStateService = inject(SessionStateService);
   backendApiService = inject(BackendApiService);
   getMultiSelectOptionFromStringPipe = inject(
     GetMultiSelectOptionFromStringPipe
@@ -110,14 +106,14 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
       this.populateEventNames();
-      this.sessionStateService.setAvailableSessions(
+      this.filtersStateService.setAllSessions(
         this.getDropdownOptionFromObjectPipe.transform<any>(
           this.eventDetails,
           'SessionTitle',
           'SessionId',
           false,
           'Status',
-          'STARTED'
+          'IN_PROGRESS'
         )
       );
     });

@@ -7,6 +7,7 @@
   class="trigger-view"
   [matMenuTriggerFor]="menu"
   [matTooltip]="selectedOption()?.label ?? ''"
+  [matTooltipDisabled]="!isLabelTooltipVisible"
   [ngClass]="{ active: dropdownTrigger.menuOpen }"
   (blur)="tooltip.hide()"
   (mouseleave)="tooltip.hide()"
