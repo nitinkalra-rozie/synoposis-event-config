@@ -164,7 +164,7 @@ export class ElsaEventAdminV2Component implements OnInit {
     );
     // set initial values. all deselected by default
     const eventDaysArray: DropdownOption[] =
-      this.getMultiSelectOptionFromStringPipe.transform(this.eventDays);
+      this.getMultiSelectOptionFromStringPipe.transform(this.eventDays, true);
     this.filtersStateService.setEventDays(eventDaysArray);
 
     this.populateEventTracks(filteredByEvent);
@@ -173,7 +173,8 @@ export class ElsaEventAdminV2Component implements OnInit {
   populateEventTracks(eventDetailsForEvent: EventDetail[]) {
     this.filtersStateService.setEventTracks(
       this.getMultiSelectOptionFromStringPipe.transform(
-        Array.from(new Set(eventDetailsForEvent.map((event) => event.Track)))
+        Array.from(new Set(eventDetailsForEvent.map((event) => event.Track))),
+        true
       )
     );
   }

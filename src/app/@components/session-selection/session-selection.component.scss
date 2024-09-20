@@ -47,7 +47,7 @@ app-syn-single-select {
   align-items: flex-start;
   height: 100%;
   flex: 1;
-  width: 100%;
+  width: calc(100% - 40px);
 }
 
 $skeleton-content-width: 31.5vw;

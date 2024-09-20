@@ -163,6 +163,8 @@ export class SynMultiSelectComponent implements OnInit {
     this.searchText = '';
     if (this.options().some((aOption) => !aOption.isSelected)) {
       this.fixedOption.isChecked = false;
+    } else {
+      this.fixedOption.isChecked = true;
     }
     this.optionsRef = structuredClone(this.options());
   };
