@@ -31,7 +31,8 @@
       "@syn/components": ["src/app/@components/index.ts"],
       "@syn/models": ["src/app/@models/index.ts"],
       "@syn/services": ["src/app/@services/index.ts"],
-      "@syn/directives": ["src/app/@directives/index.ts"]
+      "@syn/directives": ["src/app/@directives/index.ts"],
+      "@syn/data-services": ["src/app/@data-services/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/typings.d.ts"],

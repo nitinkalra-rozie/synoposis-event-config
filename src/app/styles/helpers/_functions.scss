@@ -1,0 +1,5 @@
+@use './variables' as *;
+
+@function color-transparent($alpha, $color: $primary-bg-color) {
+  @return rgba($color, $alpha);
+}

@@ -18,6 +18,7 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 import { NgClass } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import {
+  ControlPanelComponent,
   ProjectImageSelectionComponent,
   SessionSelectionComponent,
 } from '@syn/components';
@@ -49,6 +50,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
     MatTabsModule,
     ProjectImageSelectionComponent,
     SessionSelectionComponent,
+    ControlPanelComponent,
   ],
 })
 export class SessionContentComponent implements OnInit, OnChanges {

@@ -40,3 +40,13 @@
   @include body-regular;
   height: 32px;
 }
+
+.btn-destructive-default {
+  @include button-style(
+    $selected-concept-icon-color,
+    $selection-variant-5,
+    $primary-bg-color
+  );
+  @include body-regular;
+  height: 32px;
+}
