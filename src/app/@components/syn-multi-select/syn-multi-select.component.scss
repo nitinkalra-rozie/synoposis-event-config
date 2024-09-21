@@ -83,6 +83,16 @@ p {
   transition: opacity 0.3s ease;
   pointer-events: none;
   z-index: 2;
+  width: calc($right-sidebar-hidden-content-container-width / 3);
+  max-width: 240px;
+
+  &.sidebar-expanded {
+    width: calc($right-sidebar-expanded-content-container-width / 3);
+  }
+
+  &.sidebar-collapsed {
+    width: calc($right-sidebar-collapsed-content-container-width / 3);
+  }
 
   &.visible {
     opacity: 1;

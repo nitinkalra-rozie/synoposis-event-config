@@ -22,7 +22,17 @@
   <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
 </div>
 
-<mat-menu #menu="matMenu" class="session-selection-menu">
+<mat-menu
+  #menu="matMenu"
+  class="session-selection-menu{{
+    rightSidebarState() === RightSidebarState.Collapsed
+      ? ' right-sidebar-collapsed'
+      : ''
+  }}{{
+    rightSidebarState() === RightSidebarState.Expanded
+      ? ' right-sidebar-expanded'
+      : ''
+  }}">
   <p class="dropdown-label">Select Session</p>
   <div class="list-filter-container" (click)="$event.stopPropagation()">
     <mat-icon class="search-icon">search</mat-icon>

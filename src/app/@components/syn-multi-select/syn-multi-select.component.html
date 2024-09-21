@@ -60,7 +60,10 @@
   <div
     #dropdownContainer
     class="dropdown-container"
-    [style.width.px]="styleConfig().width">
+    [ngClass]="{
+      'sidebar-expanded': rightSidebarState() === RightSidebarState.Expanded,
+      'sidebar-collapsed': rightSidebarState() === RightSidebarState.Collapsed,
+    }">
     <input
       class="search-input"
       [(ngModel)]="searchText"

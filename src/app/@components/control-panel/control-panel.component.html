@@ -3,8 +3,22 @@
     <ng-container *ngTemplateOutlet="skeleton"></ng-container>
   </div>
 } @else {
-  <div class="control-panel-container">
-    <div class="information">
+  <div
+    class="control-panel-container"
+    [ngClass]="{
+      'right-sidebar-expanded':
+        rightSidebarState() === RightSidebarState.Expanded,
+      'right-sidebar-collapsed':
+        rightSidebarState() === RightSidebarState.Collapsed,
+    }">
+    <div
+      class="information"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }">
       <p
         #tooltip="matTooltip"
         matTooltipClass="tooltip-text-only-300"
@@ -28,7 +42,14 @@
         <mat-icon>keyboard_arrow_right</mat-icon>
       </div>
     </div>
-    <div class="controls">
+    <div
+      class="controls"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }">
       <ng-container
         [ngTemplateOutlet]="actionButtons"
         [ngTemplateOutletContext]="{
@@ -59,12 +80,26 @@
 
 <ng-template #skeleton>
   <ng-container>
-    <div class="information">
+    <div
+      class="information"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }">
       <div class="info-1"></div>
       <div class="info-2"></div>
       <div class="info-3"></div>
     </div>
-    <div class="controls">
+    <div
+      class="controls"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }">
       <ng-container *ngTemplateOutlet="playButtonSkeleton"></ng-container>
       <ng-container *ngTemplateOutlet="playButtonSkeleton"></ng-container>
       <div class="voice-container">

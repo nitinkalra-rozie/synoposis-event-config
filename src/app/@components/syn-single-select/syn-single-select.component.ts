@@ -1,13 +1,22 @@
 import { NgClass } from '@angular/common';
-import { Component, input, OnInit, output, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+  ViewChild,
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OverflowDetectorDirective } from '@syn/directives';
-import { DropdownOption } from '@syn/models';
+import { DropdownOption, RightSidebarState } from '@syn/models';
 import { GetFilteredDropdownOptionsPipe } from '@syn/pipes';
+import { GlobalStateService } from '@syn/services';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -39,6 +48,12 @@ export class SynSingleSelectComponent implements OnInit {
   protected isListItemTooltipVisible: boolean = false;
   protected filterForm: FormGroup<{ filterText: FormControl<string> }>;
   protected debouncedFilterText: string;
+  protected rightSidebarState = computed(() =>
+    this._globalState.rightSidebarState()
+  );
+  protected RightSidebarState = RightSidebarState;
+
+  private _globalState = inject(GlobalStateService);
 
   ngOnInit(): void {
     this.filterForm = new FormGroup({

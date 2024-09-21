@@ -1,7 +1,17 @@
 @use '../../styles/helpers/helpers-dir' as *;
 @use '../../styles/material/mat-tooltip' as *;
 
-$control-panel-area-width: calc(100vw - 206px);
+$control-panel-area-width-right-sidebar-expanded: calc(
+  100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width
+);
+
+$control-panel-area-width-right-sidebar-collapsed: calc(
+  100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width
+);
+
+$control-panel-area-width-right-sidebar-hidden: calc(
+  100vw - $left-sidebar-collapsed-width
+);
 
 p {
   margin-block-start: 0;
@@ -14,6 +24,15 @@ p {
   width: calc(100vw - 110px);
   height: 100%;
   border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+
+  &.right-sidebar-expanded {
+    width: calc(100vw - 111px - $right-sidebar-expanded-width);
+  }
+
+  &.right-sidebar-collapsed {
+    width: calc(100vw - 111px - $right-sidebar-collapsed-width);
+  }
 }
 
 .event-title {
@@ -160,8 +179,16 @@ p {
   @include d-flex-column;
   padding: 24px;
   align-items: flex-start;
-  width: calc($control-panel-area-width * 0.4);
+  width: calc($control-panel-area-width-right-sidebar-hidden * 0.4);
   height: calc(100% - 48px);
+
+  &.right-sidebar-expanded {
+    width: calc($control-panel-area-width-right-sidebar-expanded * 0.4);
+  }
+
+  &.right-sidebar-collapsed {
+    width: calc($control-panel-area-width-right-sidebar-collapsed * 0.4);
+  }
 }
 
 .info-1 {
@@ -187,9 +214,17 @@ p {
 .controls {
   @include d-flex-row;
   padding: 24px;
-  width: calc($control-panel-area-width * 0.6);
+  width: calc($control-panel-area-width-right-sidebar-hidden * 0.6);
   height: calc(100% - 48px);
   flex: 1;
+
+  &.right-sidebar-expanded {
+    width: calc($control-panel-area-width-right-sidebar-expanded * 0.4);
+  }
+
+  &.right-sidebar-collapsed {
+    width: calc($control-panel-area-width-right-sidebar-collapsed * 0.4);
+  }
 }
 
 .voice-container {

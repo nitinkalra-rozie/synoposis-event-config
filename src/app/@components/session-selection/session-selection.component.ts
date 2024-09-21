@@ -1,8 +1,11 @@
-import { NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { DropdownOption } from '@syn/models';
-import { DashboardFiltersStateService } from '@syn/services';
+import { DropdownOption, RightSidebarState } from '@syn/models';
+import {
+  DashboardFiltersStateService,
+  GlobalStateService,
+} from '@syn/services';
 import { SynSingleSelectComponent } from '../syn-single-select/syn-single-select.component';
 
 @Component({
@@ -13,6 +16,7 @@ import { SynSingleSelectComponent } from '../syn-single-select/syn-single-select
     MatIconModule,
     NgOptimizedImage,
     NgTemplateOutlet,
+    NgClass,
   ],
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',
@@ -24,9 +28,14 @@ export class SessionSelectionComponent {
   protected activeSession = computed(() =>
     this._dashboardFiltersStateService.activeSession()
   );
+  protected rightSidebarState = computed(() =>
+    this._globalState.rightSidebarState()
+  );
+  protected RightSidebarState = RightSidebarState;
 
   //#region DI
   private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
+  private _globalState = inject(GlobalStateService);
   //#endregion
 
   protected onOptionSelect(selectedOption: DropdownOption): void {

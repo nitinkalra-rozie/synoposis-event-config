@@ -1,4 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { SynMultiSelectComponent } from '@syn/components';
 import { DropdownOption } from '@syn/models';
 import {
@@ -6,6 +13,7 @@ import {
   GetMultiSelectOptionFromStringPipe,
 } from '@syn/pipes';
 import { DashboardFiltersStateService } from '@syn/services';
+import { SidebarControlPanelComponent } from 'src/app/@components/sidebar-control-panel/sidebar-control-panel.component';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -39,9 +47,10 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
     SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
     GetDropdownOptionFromObjectPipe,
+    SidebarControlPanelComponent,
   ],
 })
-export class ElsaEventAdminV2Component implements OnInit {
+export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   //#region DI
   filtersStateService = inject(DashboardFiltersStateService);
   backendApiService = inject(BackendApiService);
@@ -50,6 +59,9 @@ export class ElsaEventAdminV2Component implements OnInit {
   );
   getDropdownOptionFromObjectPipe = inject(GetDropdownOptionFromObjectPipe);
   //#endregion
+
+  @ViewChild('contentContainer')
+  protected contentContainer: ElementRef<HTMLDivElement>;
 
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];
@@ -69,6 +81,13 @@ export class ElsaEventAdminV2Component implements OnInit {
 
   ngOnInit() {
     this.initializeData();
+  }
+
+  ngAfterViewInit(): void {
+    document.documentElement.style.setProperty(
+      '--dashboard-content-container-width',
+      `${this.contentContainer.nativeElement.clientWidth}px`
+    );
   }
 
   getKeyByValue = (value, object) =>

@@ -1,0 +1,110 @@
+@use '../../styles/helpers/helpers-dir' as *;
+@use '../../styles/material/mat-tooltip' as *;
+
+$sidebar-total-vertical-padding: 26px;
+
+.sidebar-container {
+  height: calc(100vh - $top-bar-height - $sidebar-total-vertical-padding);
+  background-color: $primary-bg-color;
+  width: 0;
+  padding: 10px 0 16px 0;
+  border-left: 1px solid $secondary-bg-color;
+  @include d-flex-column;
+  flex: 1;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+
+  &.expanded,
+  &.collapsed {
+    width: calc($right-sidebar-collapsed-width - 1px);
+    background-color: antiquewhite;
+    max-width: 58px;
+  }
+}
+
+.detail-container {
+  transition: all 0.3s ease-in-out;
+  height: calc(100vh - $top-bar-height - $sidebar-total-vertical-padding);
+  border-left: 1px solid $secondary-bg-color;
+  align-items: flex-start !important;
+
+  &.visible {
+    @include d-flex;
+    opacity: 1;
+  }
+
+  &.expanded {
+    @include d-flex-row;
+    width: calc(
+      $right-sidebar-expanded-width - $right-sidebar-collapsed-width - 1px
+    );
+    max-width: 356px;
+    background-color: yellow;
+  }
+
+  &.collapsed {
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+  }
+}
+
+.detail-header {
+  height: 55px;
+  background-color: red;
+  @include d-flex-row;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex: 1;
+
+  .collapse-button {
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    @include flex-center;
+    border: 1px solid $primary-bg-color-variant-5;
+    cursor: pointer;
+    background-color: transparent;
+    padding-block: 0;
+    padding-inline: 0;
+
+    > mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      color: $primary-bg-color-variant-6;
+      @include flex-center;
+    }
+  }
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  @include flex-center;
+  color: $primary-bg-color-variant-5;
+  fill: $primary-bg-color-variant-5;
+
+  &.selected {
+    color: $primary-bg-color-variant-5;
+    fill: $primary-bg-color-variant-5;
+  }
+}
+
+.control-quick-action-button {
+  border: none;
+  width: 36px;
+  height: 32px;
+  @include flex-center;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 4px;
+  padding-block: 0;
+  padding-inline: 0;
+  margin-bottom: 20px;
+
+  &.selected {
+    background-color: $primary-color-variant-2;
+  }
+}

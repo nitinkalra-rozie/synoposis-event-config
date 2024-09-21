@@ -1,6 +1,7 @@
 import { NgClass, NgOptimizedImage } from '@angular/common';
 import {
   Component,
+  computed,
   effect,
   ElementRef,
   HostListener,
@@ -13,12 +14,13 @@ import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SynCheckboxComponent } from '@syn/components';
 import { OverflowDetectorDirective } from '@syn/directives';
-import { CheckboxOption, DropdownOption } from '@syn/models';
+import { CheckboxOption, DropdownOption, RightSidebarState } from '@syn/models';
 import {
   GetCheckboxOptionFromMultiSelectPipe,
   GetFilteredDropdownOptionsPipe,
   GetSelectedOptionsPipe,
 } from '@syn/pipes';
+import { GlobalStateService } from '@syn/services';
 import { generateUniqueId } from '@syn/utils';
 import { isEqual } from 'lodash';
 
@@ -45,7 +47,7 @@ import { isEqual } from 'lodash';
   styleUrl: './syn-multi-select.component.scss',
 })
 export class SynMultiSelectComponent implements OnInit {
-  constructor() {
+  constructor(private _globalStateService: GlobalStateService) {
     effect(() => {
       if (!isEqual(this.options(), this.optionsRef)) {
         this.optionsRef = structuredClone(this.options());
@@ -60,11 +62,11 @@ export class SynMultiSelectComponent implements OnInit {
   public options = input.required<DropdownOption[]>();
   public label = input<string>();
   public selectedLabelKey = input<string>();
-  public styleConfig = input<{
-    width: number;
-  }>({
-    width: 240,
-  });
+  // public styleConfig = input<{
+  //   width: number;
+  // }>({
+  //   width: 240,
+  // });
 
   public optionSelected = output<DropdownOption[]>();
 
@@ -78,6 +80,10 @@ export class SynMultiSelectComponent implements OnInit {
   protected elementId: string;
   protected optionsRef: DropdownOption[] = [];
   protected isLabelTooltipVisible: boolean = false;
+  protected RightSidebarState = RightSidebarState;
+  protected rightSidebarState = computed(() =>
+    this._globalStateService.rightSidebarState()
+  );
 
   @HostListener('document:mousedown', ['$event'])
   mousedown(e: Event): void {
@@ -92,10 +98,10 @@ export class SynMultiSelectComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    document.documentElement.style.setProperty(
-      '--checkbox-label-max-length',
-      `${this.styleConfig().width - 72}px`
-    );
+    // document.documentElement.style.setProperty(
+    //   '--checkbox-label-max-length',
+    //   `${this.styleConfig().width - 72}px`
+    // );
     this.elementId = generateUniqueId();
   }
 

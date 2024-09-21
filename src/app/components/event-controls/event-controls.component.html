@@ -1,5 +1,10 @@
 <div class="event-content">
-  <div class="content-wrapper">
+  <div
+    class="content-wrapper"
+    [ngClass]="{
+      'sidebar-expanded': rightSidebarState() === RightSidebarState.Expanded,
+      'sidebar-collapsed': rightSidebarState() === RightSidebarState.Collapsed,
+    }">
     <app-main-drop-down
       [disabled]="true"
       [dropdownContent]="eventNames"

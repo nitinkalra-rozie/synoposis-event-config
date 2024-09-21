@@ -1,0 +1,45 @@
+<div
+  class="detail-container"
+  [ngClass]="{
+    expanded: rightSidebarState() === RightSidebarState.Expanded,
+    collapsed: rightSidebarState() === RightSidebarState.Collapsed,
+  }">
+  <div class="detail-header">
+    <p>Session Details</p>
+    <button class="collapse-button" (click)="onCollapsePanel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+<div
+  class="sidebar-container"
+  [ngClass]="{
+    collapsed: rightSidebarState() === RightSidebarState.Collapsed,
+    visible: rightSidebarState() === RightSidebarState.Expanded,
+    expanded: rightSidebarState() === RightSidebarState.Expanded,
+  }">
+  <button
+    matTooltip="Session Details"
+    matTooltipClass="tooltip-text-only-300"
+    matTooltipPosition="before"
+    class="control-quick-action-button"
+    (click)="onMenuItemClick('session_details')">
+    <mat-icon class="icon" svgIcon="syn:event_note"></mat-icon>
+  </button>
+  <button
+    matTooltip="Transcript"
+    matTooltipClass="tooltip-text-only-300"
+    matTooltipPosition="before"
+    class="control-quick-action-button"
+    (click)="onMenuItemClick('transcript')">
+    <mat-icon class="icon" svgIcon="syn:record_voice_over"></mat-icon>
+  </button>
+  <button
+    matTooltip="All Live Sessions"
+    matTooltipClass="tooltip-text-only-300"
+    matTooltipPosition="before"
+    class="control-quick-action-button"
+    (click)="onMenuItemClick('live_sessions')">
+    <mat-icon class="icon">play_circle</mat-icon>
+  </button>
+</div>

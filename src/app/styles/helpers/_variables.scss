@@ -119,6 +119,22 @@ $blue-gradient: linear-gradient(
   $primary-color-variant-1 126.5%
 );
 
+$left-sidebar-collapsed-width: 70px;
+$right-sidebar-collapsed-width: 59px;
+$right-sidebar-expanded-width: 414px;
+// $right-sidebar-expanded-width: 28.68vw;
+$top-bar-height: 70px;
+$right-sidebar-hidden-content-container-width: calc(
+  100vw - $left-sidebar-collapsed-width - 48px
+);
+$right-sidebar-expanded-content-container-width: calc(
+  100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width - 143px
+);
+$right-sidebar-collapsed-content-container-width: calc(
+  100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width - 143px
+);
+
 :root {
   --checkbox-label-max-length: 168px;
+  --dashboard-content-container-width: 995px;
 }

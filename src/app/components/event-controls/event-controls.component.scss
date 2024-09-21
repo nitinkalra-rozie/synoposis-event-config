@@ -1,6 +1,12 @@
 @use '../../styles/helpers/mixins' as *;
 @use '../../styles/helpers/variables' as *;
 
+@mixin filter-dropdown {
+  margin-right: 18px;
+  max-width: 240px;
+  width: calc($right-sidebar-hidden-content-container-width / 3);
+}
+
 .event-content {
   display: flex;
   flex-direction: column;
@@ -16,16 +22,25 @@
 .content-wrapper {
   @include d-flex-row;
   padding: 20px 24px;
+
+  &.sidebar-expanded {
+    app-syn-multi-select,
+    app-main-drop-down {
+      width: calc($right-sidebar-expanded-content-container-width / 3);
+    }
+  }
+
+  &.sidebar-collapsed {
+    app-syn-multi-select,
+    app-main-drop-down {
+      width: calc($right-sidebar-collapsed-content-container-width / 3);
+    }
+  }
 }
 
+app-syn-multi-select,
 app-main-drop-down {
-  width: 240px;
-  margin-right: 18px;
-}
-
-app-syn-multi-select {
-  width: 240px;
-  margin-right: 18px;
+  @include filter-dropdown();
 }
 
 @media (width <= 768px) {

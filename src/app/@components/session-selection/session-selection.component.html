@@ -1,5 +1,12 @@
 <div class="session-selection-container">
-  <div class="header-row">
+  <div
+    class="header-row"
+    [ngClass]="{
+      'right-sidebar-expanded':
+        rightSidebarState() === RightSidebarState.Expanded,
+      'right-sidebar-collapsed':
+        rightSidebarState() === RightSidebarState.Collapsed,
+    }">
     <app-syn-single-select
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
@@ -29,10 +36,27 @@
 
 <ng-template #sessionInfo let-data>
   @if (activeSession() === null) {
-    <div class="sample-skeleton"></div>
+    <div
+      class="sample-skeleton"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }"></div>
   } @else {
-    <div class="session-info-item">
-      <img alt="" src="assets/admin-screen/summary_screen.svg" />
+    <div
+      class="session-info-item"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }">
+      <div class="img">
+        <img alt="" src="assets/admin-screen/summary_screen.svg" />
+      </div>
+      <!-- <img alt="" src="assets/admin-screen/summary_screen.svg" /> -->
       <div class="item-footer">
         <p>{{ data.title }}</p>
         <button class="btn-primary-white-small">Project to Screen</button>

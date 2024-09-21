@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
@@ -8,9 +9,12 @@ import {
   Output,
 } from '@angular/core';
 import { SynMultiSelectComponent } from '@syn/components';
-import { DropdownOption } from '@syn/models';
+import { DropdownOption, RightSidebarState } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
-import { DashboardFiltersStateService } from '@syn/services';
+import {
+  DashboardFiltersStateService,
+  GlobalStateService,
+} from '@syn/services';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -35,11 +39,13 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
     MainDropDownComponent,
     SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
+    NgClass,
   ],
 })
 export class EventControlsComponent implements OnInit {
   //#region DI
   filtersStateService = inject(DashboardFiltersStateService);
+  private _globalStateService = inject(GlobalStateService);
   //#endregion
 
   public PostDataEnum = PostDataEnum;
@@ -58,6 +64,11 @@ export class EventControlsComponent implements OnInit {
 
   eventTracks = computed(() => this.filtersStateService.eventTracks());
   eventDays = computed(() => this.filtersStateService.eventDays());
+
+  protected rightSidebarState = computed(() =>
+    this._globalStateService.rightSidebarState()
+  );
+  protected RightSidebarState = RightSidebarState;
 
   @Output() onUpdatePostData: EventEmitter<{
     key: PostDataEnum;

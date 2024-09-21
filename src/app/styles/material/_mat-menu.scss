@@ -1,13 +1,37 @@
 @use '../helpers/helpers-dir' as *;
 
+$session-selection-menu-width-right-sidebar-expanded: calc(
+  calc(
+      100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.77
+);
+$session-selection-menu-width-right-sidebar-collapsed: calc(
+  calc(
+      100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.77
+);
+$session-selection-menu-width-right-sidebar-hidden: calc(
+  calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.77
+);
+
 .session-selection-menu {
-  width: 52.5vw;
+  width: $session-selection-menu-width-right-sidebar-hidden;
   max-width: 756px !important;
   box-shadow: $box-shadow-simple-drop-5;
   min-width: unset !important;
   min-height: 100px;
   max-height: 345px;
   height: auto;
+
+  &.right-sidebar-expanded {
+    width: $session-selection-menu-width-right-sidebar-expanded;
+  }
+
+  &.right-sidebar-collapsed {
+    width: $session-selection-menu-width-right-sidebar-collapsed;
+  }
 
   .mat-mdc-menu-content {
     padding: 16px 0 !important; /* Remove padding for the menu panel */
