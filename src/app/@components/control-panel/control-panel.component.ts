@@ -3,7 +3,7 @@ import { Component, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EllipsisDirective, OverflowDetectorDirective } from '@syn/directives';
-import { RightSidebarState } from '@syn/models';
+import { DashboardTabs, RightSidebarState } from '@syn/models';
 import {
   DashboardFiltersStateService,
   GlobalStateService,
@@ -30,7 +30,11 @@ export class ControlPanelComponent {
   protected rightSidebarState = computed(() =>
     this._globalState.rightSidebarState()
   );
+  protected selectedDashboardTab = computed(() =>
+    this._globalState.selectedDashboardTab()
+  );
   protected RightSidebarState = RightSidebarState;
+  protected DashboardTabs = DashboardTabs;
 
   protected isTitleOverflowing: boolean = false;
 

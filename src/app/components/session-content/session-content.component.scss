@@ -23,6 +23,19 @@
   position: relative;
   @include d-flex;
   align-self: flex-end;
+
+  &.widget-view {
+    background-color: transparent;
+    box-shadow: none;
+    width: 88px !important;
+    height: 88px !important;
+    position: absolute;
+    z-index: 3;
+    border-radius: 100%;
+    bottom: 50px;
+    right: 95px;
+    transition: width 0.3s ease;
+  }
 }
 
 // end: new styles

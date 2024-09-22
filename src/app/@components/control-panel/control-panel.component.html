@@ -1,5 +1,9 @@
 @if (liveEvent() === null) {
-  <div class="main-container">
+  <div
+    class="main-container"
+    [ngClass]="{
+      hide: selectedDashboardTab() === DashboardTabs.ProjectSpecific,
+    }">
     <ng-container *ngTemplateOutlet="skeleton"></ng-container>
   </div>
 } @else {
@@ -10,6 +14,7 @@
         rightSidebarState() === RightSidebarState.Expanded,
       'right-sidebar-collapsed':
         rightSidebarState() === RightSidebarState.Collapsed,
+      'widget-view': selectedDashboardTab() === DashboardTabs.ProjectSpecific,
     }">
     <div
       class="information"
@@ -18,6 +23,7 @@
           rightSidebarState() === RightSidebarState.Expanded,
         'right-sidebar-collapsed':
           rightSidebarState() === RightSidebarState.Collapsed,
+        hide: selectedDashboardTab() === DashboardTabs.ProjectSpecific,
       }">
       <p
         #tooltip="matTooltip"
@@ -49,6 +55,7 @@
           rightSidebarState() === RightSidebarState.Expanded,
         'right-sidebar-collapsed':
           rightSidebarState() === RightSidebarState.Collapsed,
+        hide: selectedDashboardTab() === DashboardTabs.ProjectSpecific,
       }">
       <ng-container
         [ngTemplateOutlet]="actionButtons"

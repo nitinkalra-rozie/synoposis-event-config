@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   Input,
   OnChanges,
   OnInit,
@@ -16,12 +17,14 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 // TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
 import { NgClass } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import {
   ControlPanelComponent,
   ProjectImageSelectionComponent,
   SessionSelectionComponent,
 } from '@syn/components';
+import { DashboardTabs } from '@syn/models';
+import { GlobalStateService } from '@syn/services';
 import { generateSHA256HashHex } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { MicrophoneService } from 'src/app/services/microphone.service';
@@ -163,10 +166,16 @@ export class SessionContentComponent implements OnInit, OnChanges {
     },
   ];
 
+  protected selectedDashboardTab = computed(() =>
+    this.globalStateService.selectedDashboardTab()
+  );
+  protected DashboardTabs = DashboardTabs;
+
   constructor(
     private backendApiService: BackendApiService,
     private modalService: ModalService,
-    private micService: MicrophoneService
+    private micService: MicrophoneService,
+    private globalStateService: GlobalStateService
   ) {}
 
   ngOnInit() {
@@ -1182,4 +1191,16 @@ export class SessionContentComponent implements OnInit, OnChanges {
     };
   };
   //***************************************
+
+  onTabChange(event: MatTabChangeEvent) {
+    if (event.index === 0) {
+      this.globalStateService.setSelectedDashboardTab(
+        DashboardTabs.SessionSpecific
+      );
+    } else {
+      this.globalStateService.setSelectedDashboardTab(
+        DashboardTabs.ProjectSpecific
+      );
+    }
+  }
 }

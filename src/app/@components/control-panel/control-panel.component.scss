@@ -24,7 +24,15 @@ p {
   width: calc(100vw - 110px);
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s ease;
+
+  &.widget-view {
+    position: relative;
+    width: 88px !important;
+    height: 88px !important;
+    box-shadow: $box-shadow-simple-drop-5;
+    @include flex-center;
+    border-radius: 100%;
+  }
 
   &.right-sidebar-expanded {
     width: calc(100vw - 111px - $right-sidebar-expanded-width);
@@ -173,6 +181,11 @@ p {
   @include d-flex-row;
   width: 100%;
   height: 100%;
+
+  &.hide {
+    display: none;
+    overflow: hidden;
+  }
 }
 
 .information {
@@ -188,6 +201,11 @@ p {
 
   &.right-sidebar-collapsed {
     width: calc($control-panel-area-width-right-sidebar-collapsed * 0.4);
+  }
+
+  &.hide {
+    display: none;
+    overflow: hidden;
   }
 }
 
@@ -224,6 +242,11 @@ p {
 
   &.right-sidebar-collapsed {
     width: calc($control-panel-area-width-right-sidebar-collapsed * 0.4);
+  }
+
+  &.hide {
+    display: none;
+    overflow: hidden;
   }
 }
 

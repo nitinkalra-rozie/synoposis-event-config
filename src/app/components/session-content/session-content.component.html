@@ -13,7 +13,10 @@
   }
 </div>
 <div id="session-content" class="session-content-container">
-  <mat-tab-group class="session-content-container-tab-group" dynamicHeight>
+  <mat-tab-group
+    class="session-content-container-tab-group"
+    (selectedTabChange)="onTabChange($event)"
+    dynamicHeight>
     <mat-tab label="Start Listening to a Session">
       <app-session-selection></app-session-selection>
     </mat-tab>
@@ -85,6 +88,10 @@
      -->
 </div>
 
-<div class="control-panel">
+<div
+  class="control-panel"
+  [ngClass]="{
+    'widget-view': selectedDashboardTab() === DashboardTabs.ProjectSpecific,
+  }">
   <app-control-panel></app-control-panel>
 </div>
