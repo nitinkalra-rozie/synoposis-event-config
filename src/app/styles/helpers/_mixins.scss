@@ -325,6 +325,13 @@
   line-height: 16px;
 }
 
+@mixin branding {
+  @include font-regular();
+  font-size: 10px;
+  letter-spacing: 0;
+  line-height: 12.5px;
+}
+
 @mixin caption-link-sm {
   @include font-semi-bold;
   font-size: 10px;
@@ -335,7 +342,7 @@
 @mixin caption-link-sm-regular {
   @include font-regular();
   font-size: 10px;
-  letter-spacing: -0.01em;
+  letter-spacing: -1%;
   line-height: 16px;
 }
 

@@ -4,7 +4,10 @@ export interface EventDetails {
   Track: string;
   SessionTitle: string;
   SessionId: string;
-  SpeakersInfo: string[];
+  SpeakersInfo: Array<{
+    Title: string;
+    Name: string;
+  }>;
   SessionDescription: string;
   Status: EventStatus;
   EndsAt: string;

@@ -35,6 +35,10 @@ export class SidebarControlPanelComponent {
   protected liveEvent = computed<EventDetails>(() =>
     this._dashboardFiltersStateService.liveEvent()
   );
+  protected allLiveSessions = computed<EventDetails[]>(() =>
+    this._dashboardFiltersStateService.allLiveEvents()
+  );
+  protected speakersListToggleState: Record<string, boolean> = {};
 
   protected RightSidebarState = RightSidebarState;
   protected RightSidebarSelectedAction = RightSidebarSelectedAction;
@@ -52,5 +56,10 @@ export class SidebarControlPanelComponent {
     this._globalStateService.setSelectedRightSidebarAction(
       RightSidebarSelectedAction.None
     );
+  }
+
+  protected toggleSpeakersListHeight(sessionId: string): void {
+    this.speakersListToggleState[sessionId] =
+      !this.speakersListToggleState[sessionId];
   }
 }

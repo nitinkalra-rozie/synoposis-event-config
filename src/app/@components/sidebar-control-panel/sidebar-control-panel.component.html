@@ -3,6 +3,9 @@
   [ngClass]="{
     expanded: rightSidebarState() === RightSidebarState.Expanded,
     collapsed: rightSidebarState() === RightSidebarState.Collapsed,
+    hidden:
+      rightSidebarState() === RightSidebarState.Hidden ||
+      rightSidebarState() === RightSidebarState.Collapsed,
   }">
   <div class="detail-header">
     <p class="detail-header-title">
@@ -17,6 +20,11 @@
       selectedRightSidebarAction() === RightSidebarSelectedAction.SessionDetails
     ) {
       <ng-container *ngTemplateOutlet="sessionDetails"></ng-container>
+    } @else if (
+      selectedRightSidebarAction() ===
+      RightSidebarSelectedAction.AllLiveSessions
+    ) {
+      <ng-container *ngTemplateOutlet="liveSessions"></ng-container>
     }
   </div>
 </div>
@@ -24,8 +32,7 @@
   class="sidebar-container"
   [ngClass]="{
     collapsed: rightSidebarState() === RightSidebarState.Collapsed,
-    visible: rightSidebarState() === RightSidebarState.Expanded,
-    expanded: rightSidebarState() === RightSidebarState.Expanded,
+    hidden: rightSidebarState() === RightSidebarState.Hidden,
   }">
   <button
     matTooltip="Session Details"
@@ -98,10 +105,66 @@
         <p class="label">Speakers</p>
         @for (aSpeaker of liveEvent().SpeakersInfo; track $index) {
           <p class="value">
-            {{ aSpeaker }}
+            {{ aSpeaker.Name }}
           </p>
         }
       </div>
     }
+  </div>
+</ng-template>
+
+<ng-template #liveSessions>
+  <div class="session-details-container">
+    @if (allLiveSessions()?.length) {
+      @for (
+        aSession of allLiveSessions();
+        track aSession.SessionId;
+        let i = $index
+      ) {
+        <ng-container
+          [ngTemplateOutlet]="liveSessionCard"
+          [ngTemplateOutletContext]="{ session: aSession }"></ng-container>
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template #liveSessionCard let-session="session">
+  <div class="card-container">
+    <p class="title">{{ session.SessionTitle }}</p>
+    @if (session.SpeakersInfo?.length) {
+      <div
+        class="speakers-list"
+        [ngClass]="{
+          expanded: speakersListToggleState[session.SessionId],
+        }"
+        (click)="toggleSpeakersListHeight(session.SessionId)">
+        <div class="speaker-info">
+          @for (aSpeaker of session.SpeakersInfo; track $index) {
+            <p class="speaker">
+              {{ aSpeaker.Name }}&nbsp;<span>({{ aSpeaker.Title }})</span>
+            </p>
+          }
+        </div>
+        @if (session.SpeakersInfo?.length > 3) {
+          <mat-icon>{{
+            speakersListToggleState[session.SessionId]
+              ? 'keyboard_arrow_up'
+              : 'keyboard_arrow_down'
+          }}</mat-icon>
+        }
+      </div>
+      <div class="separator"></div>
+    }
+    <div class="card-footer">
+      <div class="track">
+        <mat-icon svgIcon="syn:category_outlined"></mat-icon>
+        <p class="track-name">{{ session.Track }}</p>
+      </div>
+      <div class="indicator">
+        <mat-icon class="indicator-icon">play_circle_filled</mat-icon>
+        <p class="indicator-label">LIVE</p>
+      </div>
+    </div>
   </div>
 </ng-template>

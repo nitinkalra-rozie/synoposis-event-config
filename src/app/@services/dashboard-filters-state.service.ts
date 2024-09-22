@@ -1,5 +1,5 @@
 import { computed, Injectable, Signal, signal } from '@angular/core';
-import { EventDetails } from '@syn/data-services';
+import { EventDetails, EventStatus } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
 
 @Injectable({
@@ -31,9 +31,19 @@ export class DashboardFiltersStateService {
 
     // to be removed
     this.liveEvent = computed(() =>
-      this.allSessions()[0]
-        ? this.allSessions()[0].metadata['originalContent']
-        : {}
+      this.allLiveEvents()[0] ? this.allLiveEvents()[0] : ({} as EventDetails)
+    );
+
+    this.allLiveEvents = computed(() =>
+      this.allSessions()?.length
+        ? this.allSessions()
+            .filter(
+              (aSession) =>
+                aSession.metadata['originalContent'].Status ===
+                EventStatus.InProgress
+            )
+            .map((aSession) => aSession.metadata['originalContent'])
+        : []
     );
   }
 
@@ -44,6 +54,7 @@ export class DashboardFiltersStateService {
   public readonly eventTracks: Signal<DropdownOption[]>;
   public readonly eventDays: Signal<DropdownOption[]>;
   public readonly liveEvent: Signal<EventDetails | null>;
+  public readonly allLiveEvents: Signal<EventDetails[]>;
 
   private _eventNamesSignal = signal<DropdownOption[]>([]);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
