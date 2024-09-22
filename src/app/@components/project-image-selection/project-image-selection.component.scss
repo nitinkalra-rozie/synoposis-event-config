@@ -1,0 +1,17 @@
+@use '../../styles/helpers/helpers-dir' as *;
+
+.row {
+  padding: 20px 24px 0;
+  @include d-flex-row;
+  width: calc(100% - 48px);
+  flex-wrap: wrap;
+
+  app-projection-image {
+    width: calc(calc(100% - 96px) / 3);
+    margin-left: 24px;
+
+    &:first-of-type {
+      margin-left: 0;
+    }
+  }
+}

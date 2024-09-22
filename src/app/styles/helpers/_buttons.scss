@@ -50,3 +50,13 @@
   @include body-regular;
   height: 32px;
 }
+
+.btn-text-default {
+  @include button-style(
+    $transparent,
+    $selection-variant-6,
+    $primary-bg-color-variant-8
+  );
+  @include caption-regular;
+  height: 32px;
+}

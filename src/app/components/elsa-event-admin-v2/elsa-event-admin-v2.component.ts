@@ -6,7 +6,6 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { SynMultiSelectComponent } from '@syn/components';
 import { DropdownOption } from '@syn/models';
 import {
   GetDropdownOptionFromObjectPipe,
@@ -44,7 +43,6 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
     TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
-    SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
     GetDropdownOptionFromObjectPipe,
     SidebarControlPanelComponent,

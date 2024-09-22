@@ -1,12 +1,13 @@
-<div class="select-container" [id]="elementId">
-  <div class="trigger-container">
-    @if (label) {
-      <p class="trigger-label">{{ label() }}</p>
-    }
-    <div
-      class="trigger-view"
-      [ngClass]="{ active: isDropdownOpen }"
-      (mousedown)="onDropdownToggle()">
+<div class="trigger-container" [id]="elementId">
+  @if (label) {
+    <p class="trigger-label">{{ label() }}</p>
+  }
+  <div
+    #dropdownTrigger="matMenuTrigger"
+    class="trigger-view"
+    [matMenuTriggerFor]="menu"
+    [ngClass]="{ active: dropdownTrigger.menuOpen }">
+    <div class="selection-info">
       <p
         #tooltip="matTooltip"
         matTooltipClass="tooltip-text-only"
@@ -30,75 +31,72 @@
           }}
         }
       </p>
-      <div class="selection-info">
-        @if (
-          (optionsRef | getSelectedOptions)?.length > 1 &&
-          !fixedOption.isChecked
-        ) {
-          <img
-            alt="add"
-            height="18"
-            ngSrc="assets/v2-icons/add.svg"
-            width="18" />
-          <p
-            class="extra-selection-count"
-            [ngClass]="{
-              'double-digits':
-                (optionsRef | getSelectedOptions).length - 1 >= 10,
-            }">
-            {{ (optionsRef | getSelectedOptions).length - 1 }}
-          </p>
-        }
-        <img
-          alt="arrow_down"
-          height="18"
-          ngSrc="assets/v2-icons/keyboard_arrow_down.svg"
-          width="18" />
-      </div>
-    </div>
-  </div>
-  <div
-    #dropdownContainer
-    class="dropdown-container"
-    [ngClass]="{
-      'sidebar-expanded': rightSidebarState() === RightSidebarState.Expanded,
-      'sidebar-collapsed': rightSidebarState() === RightSidebarState.Collapsed,
-    }">
-    <input
-      class="search-input"
-      [(ngModel)]="searchText"
-      placeholder="Search"
-      type="text" />
-    <ul class="options-list">
       @if (
-        searchText.toLocaleLowerCase().trim() === '' ||
-        'all'.includes(searchText.toLocaleLowerCase().trim())
+        (optionsRef | getSelectedOptions)?.length > 1 && !fixedOption.isChecked
       ) {
-        <li>
-          <app-syn-elsa-checkbox
-            [option]="fixedOption"
-            (stateChanged)="onAllOptionToggle($event)"></app-syn-elsa-checkbox>
-        </li>
+        <span class="plus">&nbsp;+</span>
+        <p
+          class="extra-selection-count"
+          [ngClass]="{
+            'double-digits': (optionsRef | getSelectedOptions).length - 1 >= 10,
+          }">
+          {{ (optionsRef | getSelectedOptions).length - 1 }}
+        </p>
       }
-      @for (
-        aOption of optionsRef
-          | getFilteredDropdownOptions: searchText
-          | getCheckboxOptionFromMultiSelect;
-        track aOption.label
-      ) {
-        <li>
-          <app-syn-elsa-checkbox
-            [option]="aOption"
-            (stateChanged)="
-              onCustomOptionToggle($event)
-            "></app-syn-elsa-checkbox>
-        </li>
-      }
-    </ul>
-    <div class="dropdown-footer">
-      <button class="btn-primary-default" (click)="onApplySelection()">
-        Apply
-      </button>
     </div>
+    <img
+      alt="arrow_down"
+      height="18"
+      ngSrc="assets/v2-icons/keyboard_arrow_down.svg"
+      width="18" />
   </div>
 </div>
+<mat-menu
+  #menu="matMenu"
+  class="multi-select-menu filters{{
+    rightSidebarState() === RightSidebarState.Collapsed
+      ? ' right-sidebar-collapsed'
+      : ''
+  }}{{
+    rightSidebarState() === RightSidebarState.Expanded
+      ? ' right-sidebar-expanded'
+      : ''
+  }}"
+  (closed)="closeDropdown()">
+  <input
+    class="search-input"
+    [(ngModel)]="searchText"
+    (click)="$event.stopPropagation()"
+    placeholder="Search"
+    type="text" />
+  <ul class="options-list" (click)="$event.stopPropagation()">
+    @if (
+      searchText.toLocaleLowerCase().trim() === '' ||
+      'all'.includes(searchText.toLocaleLowerCase().trim())
+    ) {
+      <li>
+        <app-syn-elsa-checkbox
+          [option]="fixedOption"
+          (stateChanged)="onAllOptionToggle($event)"></app-syn-elsa-checkbox>
+      </li>
+    }
+    @for (
+      aOption of optionsRef
+        | getFilteredDropdownOptions: searchText
+        | getCheckboxOptionFromMultiSelect;
+      track aOption.label
+    ) {
+      <li>
+        <app-syn-elsa-checkbox
+          [option]="aOption"
+          (stateChanged)="onCustomOptionToggle($event)"></app-syn-elsa-checkbox>
+      </li>
+    }
+  </ul>
+  <div class="dropdown-footer">
+    <button class="btn-text-default cancel-btn">Cancel</button>
+    <button class="btn-primary-default" (click)="onApplySelection()">
+      Apply Filter
+    </button>
+  </div>
+</mat-menu>

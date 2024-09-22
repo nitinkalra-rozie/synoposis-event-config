@@ -4,13 +4,13 @@ import {
   computed,
   effect,
   ElementRef,
-  HostListener,
   input,
   OnInit,
   output,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SynCheckboxComponent } from '@syn/components';
 import { OverflowDetectorDirective } from '@syn/directives';
@@ -22,7 +22,7 @@ import {
 } from '@syn/pipes';
 import { GlobalStateService } from '@syn/services';
 import { generateUniqueId } from '@syn/utils';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 
 @Component({
   selector: 'app-syn-multi-select',
@@ -42,6 +42,8 @@ import { isEqual } from 'lodash';
     GetFilteredDropdownOptionsPipe,
     MatTooltipModule,
     OverflowDetectorDirective,
+    MatMenuModule,
+    MatMenuTrigger,
   ],
   templateUrl: './syn-multi-select.component.html',
   styleUrl: './syn-multi-select.component.scss',
@@ -76,7 +78,7 @@ export class SynMultiSelectComponent implements OnInit {
     isChecked: false,
   };
   protected searchText: string = '';
-  protected isDropdownOpen: boolean = false;
+  // protected isDropdownOpen: boolean = false;
   protected elementId: string;
   protected optionsRef: DropdownOption[] = [];
   protected isLabelTooltipVisible: boolean = false;
@@ -85,23 +87,7 @@ export class SynMultiSelectComponent implements OnInit {
     this._globalStateService.rightSidebarState()
   );
 
-  @HostListener('document:mousedown', ['$event'])
-  mousedown(e: Event): void {
-    const target = e.target as HTMLElement;
-    const parentClass = target.closest('.select-container');
-    const parentId = target.closest(`#${this.elementId}`);
-
-    if (!(parentClass && parentId) && this.isDropdownOpen) {
-      this.closeDropdown();
-      this.resetFields();
-    }
-  }
-
   ngOnInit(): void {
-    // document.documentElement.style.setProperty(
-    //   '--checkbox-label-max-length',
-    //   `${this.styleConfig().width - 72}px`
-    // );
     this.elementId = generateUniqueId();
   }
 
@@ -146,23 +132,13 @@ export class SynMultiSelectComponent implements OnInit {
     }
   }
 
-  protected onDropdownToggle(): void {
-    this.isDropdownOpen = !this.isDropdownOpen;
-    if (this.isDropdownOpen) {
-      this.dropdownContainer.nativeElement.style.display = 'block';
-      setTimeout(() => {
-        this.dropdownContainer.nativeElement.classList.add('visible');
-      });
-    } else {
-      this.closeDropdown();
-      this.resetFields();
-    }
-  }
-
   protected onApplySelection = (): void => {
     this.optionSelected.emit(this.optionsRef);
-    this.closeDropdown();
     this.searchText = '';
+  };
+
+  protected closeDropdown = (): void => {
+    this.resetFields();
   };
 
   private resetFields = (): void => {
@@ -173,13 +149,5 @@ export class SynMultiSelectComponent implements OnInit {
       this.fixedOption.isChecked = true;
     }
     this.optionsRef = structuredClone(this.options());
-  };
-
-  private closeDropdown = (): void => {
-    this.isDropdownOpen = false;
-    this.dropdownContainer.nativeElement.classList.remove('visible');
-    setTimeout(() => {
-      this.dropdownContainer.nativeElement.style.display = 'none';
-    }, 300);
   };
 }

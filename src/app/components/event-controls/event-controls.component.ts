@@ -133,7 +133,7 @@ export class EventControlsComponent implements OnInit {
         aOption.isSelected = false;
       }
     });
-    // this.filtersStateService.setEventTracks(tracksCopy);
+    this.filtersStateService.setEventTracks(tracksCopy);
   };
 
   onEventDaysSelect = (selectedOptions: DropdownOption[]) => {
@@ -152,6 +152,6 @@ export class EventControlsComponent implements OnInit {
         aOption.isSelected = false;
       }
     });
-    // this.filtersStateService.setEventDays(daysCopy);
+    this.filtersStateService.setEventDays(daysCopy);
   };
 }
