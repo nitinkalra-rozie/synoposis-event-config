@@ -35,6 +35,7 @@
     "browserify": "^16.5.2",
     "buffer": "^6.0.3",
     "core-js": "^2.6.12",
+    "dayjs": "^1.11.13",
     "lodash": "^4.17.21",
     "microphone-stream": "^5.3.1",
     "query-string": "^6.14.1",

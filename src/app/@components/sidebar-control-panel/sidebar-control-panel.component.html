@@ -5,10 +5,19 @@
     collapsed: rightSidebarState() === RightSidebarState.Collapsed,
   }">
   <div class="detail-header">
-    <p>Session Details</p>
+    <p class="detail-header-title">
+      {{ selectedRightSidebarAction() | selectedQuickActionHeaderTitle }}
+    </p>
     <button class="collapse-button" (click)="onCollapsePanel()">
       <mat-icon>close</mat-icon>
     </button>
+  </div>
+  <div class="content">
+    @if (
+      selectedRightSidebarAction() === RightSidebarSelectedAction.SessionDetails
+    ) {
+      <ng-container *ngTemplateOutlet="sessionDetails"></ng-container>
+    }
   </div>
 </div>
 <div
@@ -23,7 +32,12 @@
     matTooltipClass="tooltip-text-only-300"
     matTooltipPosition="before"
     class="control-quick-action-button"
-    (click)="onMenuItemClick('session_details')">
+    [ngClass]="{
+      selected:
+        selectedRightSidebarAction() ===
+        RightSidebarSelectedAction.SessionDetails,
+    }"
+    (click)="onMenuItemClick(RightSidebarSelectedAction.SessionDetails)">
     <mat-icon class="icon" svgIcon="syn:event_note"></mat-icon>
   </button>
   <button
@@ -31,7 +45,11 @@
     matTooltipClass="tooltip-text-only-300"
     matTooltipPosition="before"
     class="control-quick-action-button"
-    (click)="onMenuItemClick('transcript')">
+    [ngClass]="{
+      selected:
+        selectedRightSidebarAction() === RightSidebarSelectedAction.Transcript,
+    }"
+    (click)="onMenuItemClick(RightSidebarSelectedAction.Transcript)">
     <mat-icon class="icon" svgIcon="syn:record_voice_over"></mat-icon>
   </button>
   <button
@@ -39,7 +57,51 @@
     matTooltipClass="tooltip-text-only-300"
     matTooltipPosition="before"
     class="control-quick-action-button"
-    (click)="onMenuItemClick('live_sessions')">
+    [ngClass]="{
+      selected:
+        selectedRightSidebarAction() ===
+        RightSidebarSelectedAction.AllLiveSessions,
+    }"
+    (click)="onMenuItemClick(RightSidebarSelectedAction.AllLiveSessions)">
     <mat-icon class="icon">play_circle</mat-icon>
   </button>
 </div>
+
+<!-- Following templates can be migrated to new components if necessary -->
+
+<ng-template #sessionDetails>
+  <div class="session-details-container">
+    <div class="form-row">
+      <p class="label">Session Title</p>
+      <p class="value">{{ liveEvent().SessionTitle ?? 'N/A' }}</p>
+    </div>
+    <div class="form-row">
+      <p class="label">Date</p>
+      <p class="value">
+        {{ liveEvent().StartsAt | formatDate: 'DD MMMM YYYY' ?? 'N/A' }}
+      </p>
+    </div>
+    <div class="form-row">
+      <p class="label">Event</p>
+      <p class="value">
+        {{ liveEvent().Event ?? 'N/A' }}
+      </p>
+    </div>
+    <div class="form-row">
+      <p class="label">Track</p>
+      <p class="value">
+        {{ liveEvent().Track ?? 'N/A' }}
+      </p>
+    </div>
+    @if (liveEvent()?.SpeakersInfo?.length) {
+      <div class="form-row">
+        <p class="label">Speakers</p>
+        @for (aSpeaker of liveEvent().SpeakersInfo; track $index) {
+          <p class="value">
+            {{ aSpeaker }}
+          </p>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

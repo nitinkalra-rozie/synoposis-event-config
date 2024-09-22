@@ -3,7 +3,6 @@
 // new styles
 .content-container {
   @include d-flex-column;
-  background-color: aqua;
   height: calc(100% - 40px);
   flex: 1;
   align-items: flex-start;
@@ -16,7 +15,6 @@
   height: calc(100% - $top-bar-height);
   padding-left: $left-sidebar-collapsed-width;
   @include d-flex-row;
-  // background-color: red;
   align-items: flex-start;
   flex: 1;
   justify-content: space-between;
@@ -43,7 +41,6 @@ app-sidebar-control-panel {
   width: 100%;
   @include d-flex-column;
   justify-content: space-between;
-  background-color: red;
 }
 
 @media (width <= 767px) {

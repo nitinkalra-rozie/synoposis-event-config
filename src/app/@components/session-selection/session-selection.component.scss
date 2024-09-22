@@ -136,6 +136,7 @@ app-syn-single-select {
       position: relative;
       width: calc(100% - 1px);
       height: 100%;
+      max-width: 420px;
     }
   }
 
@@ -146,6 +147,7 @@ app-syn-single-select {
             168px
         ) * 0.5
     );
+    max-width: 420px;
 
     .img {
       width: calc(
@@ -154,6 +156,7 @@ app-syn-single-select {
               $left-sidebar-collapsed-width - 168px
           ) * 0.5
       );
+      max-width: 420px;
     }
   }
 
