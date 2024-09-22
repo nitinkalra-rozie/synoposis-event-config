@@ -6,7 +6,10 @@ import {
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
-import { SynSingleSelectComponent } from '../syn-single-select/syn-single-select.component';
+import {
+  SynSingleSelectComponent,
+  ProjectionImageComponent,
+} from '@syn/components';
 
 @Component({
   selector: 'app-session-selection',
@@ -17,6 +20,7 @@ import { SynSingleSelectComponent } from '../syn-single-select/syn-single-select
     NgOptimizedImage,
     NgTemplateOutlet,
     NgClass,
+    ProjectionImageComponent,
   ],
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',

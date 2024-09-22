@@ -1,4 +1,7 @@
-<div class="trigger-container" [id]="elementId">
+<div
+  class="trigger-container"
+  [id]="elementId"
+  [ngClass]="{ small: size() === 'small' }">
   @if (label) {
     <p class="trigger-label">{{ label() }}</p>
   }
@@ -6,7 +9,7 @@
     #dropdownTrigger="matMenuTrigger"
     class="trigger-view"
     [matMenuTriggerFor]="menu"
-    [ngClass]="{ active: dropdownTrigger.menuOpen }">
+    [ngClass]="{ active: dropdownTrigger.menuOpen, small: size() === 'small' }">
     <div class="selection-info">
       <p
         #tooltip="matTooltip"
@@ -32,7 +35,9 @@
         }
       </p>
       @if (
-        (optionsRef | getSelectedOptions)?.length > 1 && !fixedOption.isChecked
+        (optionsRef | getSelectedOptions)?.length > 1 &&
+        !fixedOption.isChecked &&
+        size() === 'default'
       ) {
         <span class="plus">&nbsp;+</span>
         <p
@@ -65,9 +70,9 @@
   (closed)="closeDropdown()">
   <input
     class="search-input"
+    [placeholder]="dropdownSearchInputPlaceholder()"
     [(ngModel)]="searchText"
     (click)="$event.stopPropagation()"
-    placeholder="Search"
     type="text" />
   <ul class="options-list" (click)="$event.stopPropagation()">
     @if (

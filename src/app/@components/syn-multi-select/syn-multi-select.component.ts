@@ -63,12 +63,9 @@ export class SynMultiSelectComponent implements OnInit {
 
   public options = input.required<DropdownOption[]>();
   public label = input<string>();
+  public dropdownSearchInputPlaceholder = input<string>('Search');
+  public size = input<'small' | 'default'>('default');
   public selectedLabelKey = input<string>();
-  // public styleConfig = input<{
-  //   width: number;
-  // }>({
-  //   width: 240,
-  // });
 
   public optionSelected = output<DropdownOption[]>();
 
@@ -78,7 +75,6 @@ export class SynMultiSelectComponent implements OnInit {
     isChecked: false,
   };
   protected searchText: string = '';
-  // protected isDropdownOpen: boolean = false;
   protected elementId: string;
   protected optionsRef: DropdownOption[] = [];
   protected isLabelTooltipVisible: boolean = false;

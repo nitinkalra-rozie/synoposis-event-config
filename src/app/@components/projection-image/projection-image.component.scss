@@ -3,8 +3,6 @@
 .card-container {
   @include d-flex-column;
   border-radius: 4px;
-  background-color: red;
-  // max-width: 393.33px;
   align-items: flex-start;
   flex: 1;
   max-height: calc(calc(100% - 96px) / 3 * 0.68);
@@ -12,7 +10,6 @@
 
 .img-container {
   @include d-flex;
-  // width: 393.33px;
   flex: 1;
   height: 100%;
   > img {
@@ -41,4 +38,8 @@
 
 .toolbar {
   @include d-flex-row;
+}
+
+app-syn-multi-select {
+  margin-right: 8px;
 }

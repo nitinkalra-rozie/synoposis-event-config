@@ -15,7 +15,7 @@ export class DashboardFiltersStateService {
     this.eventDays = this._eventDaysSignal.asReadonly();
     this.activeSession = this._activeSessionSignal.asReadonly();
     this.allSessions = this._allSessionsSignal.asReadonly();
-    // this.liveEvent = this._liveEventSignal.asReadonly();
+    this.liveEvent = this._liveEventSignal.asReadonly();
 
     this.availableSessions = computed(() =>
       this.allSessions().filter(
@@ -30,9 +30,9 @@ export class DashboardFiltersStateService {
     );
 
     // to be removed
-    this.liveEvent = computed(() =>
-      this.allLiveEvents()[0] ? this.allLiveEvents()[0] : ({} as EventDetails)
-    );
+    // this.liveEvent = computed(() =>
+    //   this.allLiveEvents()[0] ? this.allLiveEvents()[0] : ({} as EventDetails)
+    // );
 
     this.allLiveEvents = computed(() =>
       this.allSessions()?.length

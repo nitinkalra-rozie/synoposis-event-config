@@ -1,14 +1,27 @@
 <div class="card-container">
   <div class="img-container">
-    <img alt="" src="assets/admin-screen/summary_screen.svg" />
+    @if (imgUrl) {
+      <!-- todo: see how to use ngSrc with dynamic width / height -->
+      <img [src]="imgUrl()" alt="" />
+    }
   </div>
   <div class="card-footer">
-    <p class="label">Daily Debriefs</p>
+    <p class="label">{{ label() }}</p>
     <div class="toolbar">
-      <app-syn-multi-select
-        [options]="eventDays()"
-        (optionSelected)="onEventDaysSelect($event)"
-        label="Select Days"></app-syn-multi-select>
+      @if (filterType() === 'days') {
+        <app-syn-multi-select
+          [options]="eventTracks()"
+          (optionSelected)="onEventTracksSelect($event)"
+          dropdownSearchInputPlaceholder="Search Day"
+          size="small"></app-syn-multi-select>
+      } @else if (filterType() === 'tracks') {
+        <app-syn-multi-select
+          [options]="eventDays()"
+          (optionSelected)="onEventDaysSelect($event)"
+          dropdownSearchInputPlaceholder="Search Track"
+          size="small"></app-syn-multi-select>
+      }
+
       <button class="btn-primary-white-small">Project to Screen</button>
     </div>
   </div>

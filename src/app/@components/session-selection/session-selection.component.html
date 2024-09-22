@@ -45,22 +45,10 @@
           rightSidebarState() === RightSidebarState.Collapsed,
       }"></div>
   } @else {
-    <div
-      class="session-info-item"
-      [ngClass]="{
-        'right-sidebar-expanded':
-          rightSidebarState() === RightSidebarState.Expanded,
-        'right-sidebar-collapsed':
-          rightSidebarState() === RightSidebarState.Collapsed,
-      }">
-      <div class="img">
-        <img alt="" src="assets/admin-screen/summary_screen.svg" />
-      </div>
-      <!-- <img alt="" src="assets/admin-screen/summary_screen.svg" /> -->
-      <div class="item-footer">
-        <p>{{ data.title }}</p>
-        <button class="btn-primary-white-small">Project to Screen</button>
-      </div>
-    </div>
+    <app-projection-image
+      [label]="data.title"
+      filterType="none"
+      imgUrl="assets/projections/welcome_msg.svg"
+      imgUrl="assets/projections/{{ data.key }}.svg"></app-projection-image>
   }
 </ng-template>

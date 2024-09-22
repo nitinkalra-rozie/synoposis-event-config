@@ -16,6 +16,11 @@ p {
   align-items: flex-start;
   width: 100%;
 
+  &.small {
+    flex-direction: unset;
+    width: 66px;
+  }
+
   .trigger-label {
     @include footnote-medium;
     color: $primary-bg-color-variant-6;
@@ -32,6 +37,16 @@ p {
     .selection-info {
       @include d-flex-row;
       width: calc(100% - 30px);
+    }
+
+    &.small {
+      height: 25px;
+      padding: 0 5px;
+      width: calc(100% - 10px);
+
+      .selection-info {
+        width: calc(100% - 18px);
+      }
     }
 
     &.active {
@@ -77,7 +92,7 @@ p {
 .search-input {
   @include base-input;
   margin: 0 20px;
-  // background-color: $primary-bg-color-variant-1;
+  background-color: $primary-bg-color-variant-1;
   width: calc(100% - 60px);
 }
 
