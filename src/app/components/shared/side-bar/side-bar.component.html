@@ -7,13 +7,13 @@
     </div>
   </div>
   <div class="icons">
-    <div class="icon">
-      <img alt="Icon 1" src="../../../../assets/side-bar/Skill.svg" />
-    </div>
-  </div>
-  <div class="back-button">
-    <div class="left-icon">
-      <img alt="Icon 2" src="../../../../assets/side-bar/arrow_back_ios.svg" />
-    </div>
+    <a
+      matTooltipClass="tooltip-text-only-300"
+      matTooltipPosition="after"
+      class="menu-item selected"
+      [matTooltip]="'Admin Dashboard'"
+      [routerLink]="">
+      <mat-icon svgIcon="syn:space_dashboard_outlined"></mat-icon>
+    </a>
   </div>
 </div>
