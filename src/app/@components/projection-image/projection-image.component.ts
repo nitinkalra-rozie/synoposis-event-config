@@ -13,10 +13,12 @@ import { DashboardFiltersStateService } from '@syn/services';
 })
 export class ProjectionImageComponent {
   public label = input.required<string>();
+  public type = input<'session' | 'project'>();
   public filterType = input.required<'days' | 'tracks' | 'none'>();
   public imgUrl = input<string>();
 
   protected eventDays = computed(() => this._filtersStateService.eventDays());
+  protected liveEvent = computed(() => this._filtersStateService.liveEvent());
   protected eventTracks = computed(() =>
     this._filtersStateService.eventTracks()
   );
@@ -60,5 +62,9 @@ export class ProjectionImageComponent {
         aOption.isSelected = false;
       }
     });
+  };
+
+  protected onProjectToScreenClick = (): void => {
+    // todo
   };
 }

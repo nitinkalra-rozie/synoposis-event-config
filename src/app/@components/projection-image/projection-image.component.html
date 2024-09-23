@@ -22,7 +22,12 @@
           size="small"></app-syn-multi-select>
       }
 
-      <button class="btn-primary-white-small">Project to Screen</button>
+      <button
+        class="btn-primary-white-small"
+        [disabled]="type() === 'session' && liveEvent() === null"
+        (click)="onProjectToScreenClick()">
+        Project to Screen
+      </button>
     </div>
   </div>
 </div>
