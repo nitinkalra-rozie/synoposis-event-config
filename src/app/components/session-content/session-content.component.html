@@ -18,7 +18,8 @@
     (selectedTabChange)="onTabChange($event)"
     dynamicHeight>
     <mat-tab label="Start Listening to a Session">
-      <app-session-selection></app-session-selection>
+      <app-session-selection
+        (streamStarted)="onSteamStart()"></app-session-selection>
     </mat-tab>
     <mat-tab label="Project a Specific Image">
       <app-project-image-selection></app-project-image-selection>
@@ -93,5 +94,8 @@
   [ngClass]="{
     'widget-view': selectedDashboardTab() === DashboardTabs.ProjectSpecific,
   }">
-  <app-control-panel></app-control-panel>
+  <app-control-panel
+    (streamPaused)="onStreamPause()"
+    (streamStarted)="onSteamStart()"
+    (streamStopped)="onStreamStop()"></app-control-panel>
 </div>

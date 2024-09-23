@@ -10,10 +10,12 @@
     <app-syn-single-select
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
+      (dropdownOpened)="onDropdownOpen()"
       (optionSelected)="onOptionSelect($event)"></app-syn-single-select>
     <button
       class="btn-primary-default btn-start-listening"
-      [disabled]="activeSession() === null">
+      [disabled]="activeSession() === null"
+      (click)="onStartListening()">
       <mat-icon>settings_voice</mat-icon>
       <p>Start Listening</p>
     </button>

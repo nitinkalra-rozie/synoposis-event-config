@@ -1,5 +1,5 @@
 import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { DropdownOption, RightSidebarState } from '@syn/models';
 import {
@@ -10,6 +10,7 @@ import {
   SynSingleSelectComponent,
   ProjectionImageComponent,
 } from '@syn/components';
+import { ModalService } from 'src/app/services/modal.service';
 
 @Component({
   selector: 'app-session-selection',
@@ -26,6 +27,8 @@ import {
   styleUrl: './session-selection.component.scss',
 })
 export class SessionSelectionComponent {
+  public streamStarted = output();
+
   protected availableSessions = computed(() =>
     this._dashboardFiltersStateService.availableSessions()
   );
@@ -40,9 +43,42 @@ export class SessionSelectionComponent {
   //#region DI
   private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
   private _globalState = inject(GlobalStateService);
+  private _modalService = inject(ModalService);
   //#endregion
+
+  private _liveEvent = computed(() =>
+    this._dashboardFiltersStateService.liveEvent()
+  );
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
+  }
+
+  protected onStartListening(): void {
+    if (this._liveEvent()) {
+      // show confirmation popup
+      this._modalService.open(
+        'End Session?',
+        'You are currently listening to a session. Are you sure you want to end it and project a different screen?',
+        'yes_no',
+        () => {
+          this._modalService.close();
+          this._startStream();
+        },
+        () => {
+          this._modalService.close();
+        }
+      );
+    } else {
+      this._startStream();
+    }
+  }
+
+  protected onDropdownOpen(): void {
+    // fetch latest event details
+  }
+
+  private _startStream(): void {
+    this.streamStarted.emit();
   }
 }

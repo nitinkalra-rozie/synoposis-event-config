@@ -32,3 +32,9 @@ export enum EventType {
   PrimarySession = 'PrimarySession',
   BreakoutSession = 'BreakoutSession',
 }
+
+export enum LiveSessionState {
+  Playing = 'Playing',
+  Paused = 'Paused',
+  Stopped = 'Stopped',
+}

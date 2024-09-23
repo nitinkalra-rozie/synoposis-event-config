@@ -47,7 +47,6 @@ export class SidebarControlPanelComponent {
   private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
 
   protected onMenuItemClick(item: RightSidebarSelectedAction): void {
-    this._globalStateService.setRightSidebarState(RightSidebarState.Expanded);
     this._globalStateService.setSelectedRightSidebarAction(item);
   }
 

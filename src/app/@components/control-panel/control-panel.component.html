@@ -41,9 +41,11 @@
           <mat-icon svgIcon="syn:category_outlined"></mat-icon>
           <p class="track-text">{{ liveEvent().Track }}</p>
         </div>
-        <p class="see-details-link">See Details</p>
+        <p class="see-details-link" (click)="onSeeDetailsClick()">
+          See Details
+        </p>
       </div>
-      <div class="view-all-sessions-container">
+      <div class="view-all-sessions-container" (click)="onViewAllClick()">
         <p class="text">View All Live Sessions</p>
         <mat-icon>keyboard_arrow_right</mat-icon>
       </div>
@@ -60,9 +62,16 @@
       <ng-container
         [ngTemplateOutlet]="actionButtons"
         [ngTemplateOutletContext]="{
-          icon: 'syn:pause_outlined',
-          label: 'Pause Listening',
-          type: 'pause',
+          icon:
+            liveEventState() === LiveSessionState.Paused
+              ? 'syn:play_arrow_outlined'
+              : 'syn:pause_outlined',
+          label:
+            liveEventState() === LiveSessionState.Paused
+              ? 'Resume Listening'
+              : 'Pause Listening',
+          type:
+            liveEventState() === LiveSessionState.Paused ? 'resume' : 'pause',
         }"></ng-container>
       <ng-container
         [ngTemplateOutlet]="actionButtons"
@@ -100,7 +109,7 @@
       <div class="info-3"></div>
     </div>
     <div
-      class="controls"
+      class="controls static"
       [ngClass]="{
         'right-sidebar-expanded':
           rightSidebarState() === RightSidebarState.Expanded,
@@ -128,8 +137,11 @@
 
 <ng-template #actionButtons let-icon="icon" let-label="label" let-type="type">
   <div class="action-button-container">
-    <button class="btn-destructive-default" [ngClass]="type">
-      @if (type === 'pause') {
+    <button
+      class="btn-destructive-default"
+      [ngClass]="type"
+      (click)="onActionButtionClick(type)">
+      @if (type === 'pause' || type === 'resume') {
         <mat-icon [svgIcon]="icon"></mat-icon>
       } @else {
         <mat-icon>{{ icon }}</mat-icon>

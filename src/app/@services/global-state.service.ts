@@ -21,7 +21,7 @@ export class GlobalStateService {
   public readonly selectedDashboardTab: Signal<DashboardTabs>;
 
   private _rightSidebarStateSignal = signal<RightSidebarState>(
-    RightSidebarState.Collapsed //todo: change to hidden
+    RightSidebarState.Hidden //todo: change to hidden
   );
   private _selectedRightSidebarActionSignal =
     signal<RightSidebarSelectedAction>(RightSidebarSelectedAction.None);
@@ -34,6 +34,12 @@ export class GlobalStateService {
   }
 
   setSelectedRightSidebarAction(state: RightSidebarSelectedAction): void {
+    if (
+      this.rightSidebarState() === RightSidebarState.Collapsed &&
+      state !== RightSidebarSelectedAction.None
+    ) {
+      this.setRightSidebarState(RightSidebarState.Expanded);
+    }
     this._selectedRightSidebarActionSignal.set(state);
   }
 

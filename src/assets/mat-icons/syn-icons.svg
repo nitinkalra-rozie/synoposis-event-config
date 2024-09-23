@@ -86,20 +86,6 @@
 				stroke-linejoin="round" />
 		</svg>
 	</symbol>
-	<symbol id="pause_outlined" viewBox="0 0 17 16" fill="none">
-		<svg viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M11.1667 5.33333V10.6667H5.83333V5.33333H11.1667ZM12.5 4H4.5V12H12.5V4Z"
-				fill="url(#paint0_linear_12509_10708)" />
-			<defs>
-				<linearGradient id="paint0_linear_12509_10708" x1="2.52" y1="13.78" x2="12.96" y2="3.28"
-					gradientUnits="userSpaceOnUse">
-					<stop stop-color="#2C22C0" />
-					<stop offset="1" stop-color="#8F30BC" />
-				</linearGradient>
-			</defs>
-		</svg>
-
-	</symbol>
 	<symbol id="category_outlined" viewBox="0 0 16 16">
 		<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
 			<path
@@ -125,6 +111,35 @@
 				/>
 			</g>
 		</svg>
+	</symbol>
+	<symbol id="pause_outlined" viewBox="0 0 17 16" fill="none">
+		<svg viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M11.1667 5.33333V10.6667H5.83333V5.33333H11.1667ZM12.5 4H4.5V12H12.5V4Z"
+				fill="url(#paint0_linear_12509_10708)" />
+			<defs>
+				<linearGradient id="paint0_linear_12509_10708" x1="2.52" y1="13.78" x2="12.96" y2="3.28"
+					gradientUnits="userSpaceOnUse">
+					<stop stop-color="#2C22C0" />
+					<stop offset="1" stop-color="#8F30BC" />
+				</linearGradient>
+			</defs>
+		</svg>
 
+	</symbol>
+	<symbol id="play_arrow_outlined" viewBox="0 0 17 16" fill="none">
+		<svg viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<g id="play_arrow">
+				<path id="Vector"
+					d="M6.16683 5.76016L9.68016 8.00016L6.16683 10.2402V5.76016ZM4.8335 3.3335V12.6668L12.1668 8.00016L4.8335 3.3335Z"
+					fill="url(#paint0_linear_12668_14485)" />
+			</g>
+			<defs>
+				<linearGradient id="paint0_linear_12668_14485" x1="3.0185" y1="14.7435" x2="14.8688"
+					y2="5.37907" gradientUnits="userSpaceOnUse">
+					<stop stop-color="#2C22C0" />
+					<stop offset="1" stop-color="#8F30BC" />
+				</linearGradient>
+			</defs>
+		</svg>
 	</symbol>
 </svg>

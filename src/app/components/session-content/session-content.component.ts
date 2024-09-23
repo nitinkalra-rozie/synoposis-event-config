@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   Input,
   OnChanges,
   OnInit,
@@ -23,8 +24,11 @@ import {
   ProjectImageSelectionComponent,
   SessionSelectionComponent,
 } from '@syn/components';
-import { DashboardTabs } from '@syn/models';
-import { GlobalStateService } from '@syn/services';
+import { DashboardTabs, RightSidebarState } from '@syn/models';
+import {
+  DashboardFiltersStateService,
+  GlobalStateService,
+} from '@syn/services';
 import { generateSHA256HashHex } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { MicrophoneService } from 'src/app/services/microphone.service';
@@ -37,6 +41,7 @@ import {
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
+import { EventDetails, LiveSessionState } from '@syn/data-services';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -167,16 +172,68 @@ export class SessionContentComponent implements OnInit, OnChanges {
   ];
 
   protected selectedDashboardTab = computed(() =>
-    this.globalStateService.selectedDashboardTab()
+    this._globalStateService.selectedDashboardTab()
   );
+  protected activeSession = computed(() =>
+    this._dashboardFiltersStateService.activeSession()
+  );
+  protected availableSessions = computed(() =>
+    this._dashboardFiltersStateService.availableSessions()
+  );
+  protected liveEventState = computed(() =>
+    this._dashboardFiltersStateService.liveEventState()
+  );
+  protected rightSidebarState = computed(() =>
+    this._globalState.rightSidebarState()
+  );
+
+  protected RightSidebarState = RightSidebarState;
   protected DashboardTabs = DashboardTabs;
 
   constructor(
     private backendApiService: BackendApiService,
     private modalService: ModalService,
     private micService: MicrophoneService,
-    private globalStateService: GlobalStateService
-  ) {}
+    private _globalStateService: GlobalStateService,
+    private _dashboardFiltersStateService: DashboardFiltersStateService,
+    private _globalState: GlobalStateService
+  ) {
+    effect(
+      () => {
+        if (
+          this.isSessionInProgress &&
+          this.activeSession() === null &&
+          this.availableSessions()?.length
+        ) {
+          const currentSession = this.availableSessions().find(
+            (aSession) =>
+              aSession.metadata['originalContent'].SessionId ===
+              this.currentSessionId
+          );
+          if (currentSession) {
+            this._dashboardFiltersStateService.setActiveSession(currentSession);
+          }
+        }
+
+        if (
+          this.isSessionInProgress &&
+          this.activeSession() &&
+          this.liveEventState() === LiveSessionState.Stopped
+        ) {
+          if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
+            this.startRecording();
+            this.transctiptToInsides = localStorage.getItem(
+              'transctiptToInsides'
+            );
+            this.rotateSessionTitles(this.selectedSessionTitle);
+          }
+        }
+      },
+      {
+        allowSignalWrites: true,
+      }
+    );
+  }
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -197,11 +254,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.lastFiveWords = localStorage.getItem('lastFiveWords');
     this.isSessionInProgress =
       parseInt(localStorage.getItem('isSessionInProgress')) == 1 || false;
-    if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
-      this.startRecording();
-      this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
-      this.rotateSessionTitles(this.selectedSessionTitle);
-    }
+
+    console.log('isSessionInProgress', this.isSessionInProgress);
+    console.log('availableSessions oninit', this.availableSessions());
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -584,6 +639,30 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
   }
 
+  onSteamStart(): void {
+    // Here I have not refactored the behaviour due to time constraints.
+    // But later we can remove almost all the variables / states used here
+    const currentSession = this.activeSession().metadata[
+      'originalContent'
+    ] as EventDetails;
+    console.log('currentSession', currentSession);
+
+    this.selectedDay = currentSession.EventDay;
+    this.selectedSessionTitle = currentSession.SessionTitle;
+    this.selectedDomain = currentSession.Track;
+    this.selectedEvent = currentSession.Event;
+
+    this.startListening();
+  }
+
+  onStreamPause(): void {
+    this.stopListening();
+  }
+
+  onStreamStop(): void {
+    this.endSessionPopUpPostInsights();
+  }
+
   async startListening(): Promise<void> {
     this.modalService.close();
     const hasPermission =
@@ -828,6 +907,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
     this.closeSocket();
     this.clearSessionData();
+
+    // clear global state;
+    this._dashboardFiltersStateService.setLiveEvent(null);
+    this._globalState.setRightSidebarState(RightSidebarState.Hidden);
   };
 
   showSummary(): void {
@@ -980,6 +1063,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
   streamAudioToWebSocket = (userMediaStream) => {
     //let's get the mic input from the browser, via the microphone-stream module
     this.startListeningClicked = true;
+
+    // update global state
+    this._dashboardFiltersStateService.setLiveEvent(
+      this.activeSession().metadata['originalContent']
+    );
+    if (this.rightSidebarState() === RightSidebarState.Hidden) {
+      this._globalState.setRightSidebarState(RightSidebarState.Collapsed);
+    }
+
     console.log('start streamAudioToWebSocket');
     this.micStream = new MicrophoneStream();
     this.micStream.setStream(userMediaStream);
@@ -1002,8 +1094,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
         const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
 
-        if (this.isSessionInProgress && this.socket.OPEN)
+        if (this.isSessionInProgress && this.socket.OPEN) {
           this.socket.send(binary);
+        }
       });
     };
     console.log('start streamAudioToWebSocket5555');
@@ -1090,6 +1183,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     clearInterval(this.timeoutId);
     this.startListeningClicked = false;
     this.isStreaming = !this.isStreaming;
+
+    this._dashboardFiltersStateService.setLiveSessionState(
+      LiveSessionState.Paused
+    );
   };
 
   clearSessionData = () => {
@@ -1194,11 +1291,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   onTabChange(event: MatTabChangeEvent) {
     if (event.index === 0) {
-      this.globalStateService.setSelectedDashboardTab(
+      this._globalStateService.setSelectedDashboardTab(
         DashboardTabs.SessionSpecific
       );
     } else {
-      this.globalStateService.setSelectedDashboardTab(
+      this._globalStateService.setSelectedDashboardTab(
         DashboardTabs.ProjectSpecific
       );
     }

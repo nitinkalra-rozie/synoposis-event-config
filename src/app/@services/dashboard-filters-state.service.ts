@@ -1,5 +1,9 @@
 import { computed, Injectable, Signal, signal } from '@angular/core';
-import { EventDetails, EventStatus } from '@syn/data-services';
+import {
+  EventDetails,
+  EventStatus,
+  LiveSessionState,
+} from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
 
 @Injectable({
@@ -16,6 +20,7 @@ export class DashboardFiltersStateService {
     this.activeSession = this._activeSessionSignal.asReadonly();
     this.allSessions = this._allSessionsSignal.asReadonly();
     this.liveEvent = this._liveEventSignal.asReadonly();
+    this.liveEventState = this._liveEventStateSignal.asReadonly();
 
     this.availableSessions = computed(() =>
       this.allSessions().filter(
@@ -55,6 +60,7 @@ export class DashboardFiltersStateService {
   public readonly eventDays: Signal<DropdownOption[]>;
   public readonly liveEvent: Signal<EventDetails | null>;
   public readonly allLiveEvents: Signal<EventDetails[]>;
+  public readonly liveEventState: Signal<LiveSessionState>;
 
   private _eventNamesSignal = signal<DropdownOption[]>([]);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
@@ -62,6 +68,9 @@ export class DashboardFiltersStateService {
   private _allSessionsSignal = signal<DropdownOption[]>([]);
   private _activeSessionSignal = signal<DropdownOption | null>(null);
   private _liveEventSignal = signal<EventDetails | null>(null);
+  private _liveEventStateSignal = signal<LiveSessionState>(
+    LiveSessionState.Stopped
+  );
 
   private readonly _selectedTracksSetSignal = computed<Set<string>>(
     () =>
@@ -102,5 +111,10 @@ export class DashboardFiltersStateService {
 
   setLiveEvent(event: EventDetails | null): void {
     this._liveEventSignal.set(event);
+    this.setLiveSessionState(LiveSessionState.Playing);
+  }
+
+  setLiveSessionState(state: LiveSessionState): void {
+    this._liveEventStateSignal.set(state);
   }
 }

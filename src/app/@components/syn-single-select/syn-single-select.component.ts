@@ -1,5 +1,6 @@
 import { NgClass } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   computed,
   inject,
@@ -36,13 +37,14 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: './syn-single-select.component.html',
   styleUrl: './syn-single-select.component.scss',
 })
-export class SynSingleSelectComponent implements OnInit {
+export class SynSingleSelectComponent implements OnInit, AfterViewInit {
   @ViewChild(MatMenuTrigger) protected dropdownTrigger: MatMenuTrigger;
 
   public options = input.required<DropdownOption[]>();
   public selectedOption = input.required<DropdownOption | null>();
 
   public optionSelected = output<DropdownOption>();
+  public dropdownOpened = output<void>();
 
   protected isLabelTooltipVisible: boolean = false;
   protected isListItemTooltipVisible: boolean = false;
@@ -62,6 +64,12 @@ export class SynSingleSelectComponent implements OnInit {
 
     this.filterForm.valueChanges.pipe(debounceTime(100)).subscribe((value) => {
       this.debouncedFilterText = value.filterText;
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.dropdownTrigger.menuOpened.subscribe(() => {
+      this.dropdownOpened.emit();
     });
   }
 
