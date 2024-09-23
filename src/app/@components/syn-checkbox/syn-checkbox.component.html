@@ -1,0 +1,20 @@
+<div
+  #tooltip="matTooltip"
+  matTooltipClass="tooltip-text-only"
+  matTooltipPosition="after"
+  class="checkbox-container"
+  [matTooltip]="option().label"
+  [matTooltipDisabled]="toolTip.scrollWidth <= toolTip.clientWidth"
+  (blur)="tooltip.hide()"
+  (mouseleave)="tooltip.hide()"
+  (mouseover)="tooltip.show()">
+  <label #toolTip class="checkbox-label">
+    <input
+      class="checkbox-input"
+      [checked]="option().isChecked"
+      (change)="stateChanged.emit(option())"
+      type="checkbox" />
+    <span class="checkbox-custom"></span>
+    {{ option().label }}
+  </label>
+</div>

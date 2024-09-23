@@ -1,0 +1,57 @@
+<div class="session-selection-container">
+  <div
+    class="header-row"
+    [ngClass]="{
+      'right-sidebar-expanded':
+        rightSidebarState() === RightSidebarState.Expanded,
+      'right-sidebar-collapsed':
+        rightSidebarState() === RightSidebarState.Collapsed,
+    }">
+    <app-syn-single-select
+      [options]="availableSessions()"
+      [selectedOption]="activeSession()"
+      (dropdownOpened)="onDropdownOpen()"
+      (optionSelected)="onOptionSelect($event)"></app-syn-single-select>
+    <button
+      class="btn-primary-default btn-start-listening"
+      [disabled]="activeSession() === null"
+      (click)="onStartListening()">
+      <mat-icon>settings_voice</mat-icon>
+      <p>Start Listening</p>
+    </button>
+  </div>
+  <div class="content">
+    <ng-container
+      *ngTemplateOutlet="
+        sessionInfo;
+        context: { $implicit: { title: 'Session Title', key: 'session_title' } }
+      "></ng-container>
+    <ng-container
+      *ngTemplateOutlet="
+        sessionInfo;
+        context: {
+          $implicit: { title: 'Session Insights', key: 'session_insights' },
+        }
+      "></ng-container>
+  </div>
+</div>
+
+<ng-template #sessionInfo let-data>
+  @if (activeSession() === null) {
+    <div
+      class="sample-skeleton"
+      [ngClass]="{
+        'right-sidebar-expanded':
+          rightSidebarState() === RightSidebarState.Expanded,
+        'right-sidebar-collapsed':
+          rightSidebarState() === RightSidebarState.Collapsed,
+      }"></div>
+  } @else {
+    <app-projection-image
+      [label]="data.title"
+      (projectedToScreen)="onProjectToScreen($event)"
+      filterType="none"
+      imgUrl="assets/projections/{{ data.key }}.svg"
+      type="session"></app-projection-image>
+  }
+</ng-template>

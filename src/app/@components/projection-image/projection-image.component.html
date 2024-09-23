@@ -1,0 +1,33 @@
+<div class="card-container">
+  <div class="img-container">
+    @if (imgUrl) {
+      <!-- todo: see how to use ngSrc with dynamic width / height -->
+      <img [src]="imgUrl()" alt="" />
+    }
+  </div>
+  <div class="card-footer">
+    <p class="label">{{ label() }}</p>
+    <div class="toolbar">
+      @if (filterType() === 'days') {
+        <app-syn-multi-select
+          [options]="eventTracks()"
+          (optionSelected)="onEventTracksSelect($event)"
+          dropdownSearchInputPlaceholder="Search Day"
+          size="small"></app-syn-multi-select>
+      } @else if (filterType() === 'tracks') {
+        <app-syn-multi-select
+          [options]="eventDays()"
+          (optionSelected)="onEventDaysSelect($event)"
+          dropdownSearchInputPlaceholder="Search Track"
+          size="small"></app-syn-multi-select>
+      }
+
+      <button
+        class="btn-primary-white-small"
+        [disabled]="type() === 'session' && liveEvent() === null"
+        (click)="onProjectToScreenClick()">
+        Project to Screen
+      </button>
+    </div>
+  </div>
+</div>

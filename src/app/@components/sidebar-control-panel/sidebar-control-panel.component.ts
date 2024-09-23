@@ -1,0 +1,81 @@
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { Component, computed, effect, inject } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RightSidebarSelectedAction, RightSidebarState } from '@syn/models';
+import { FormatDatePipe, SelectedQuickActionHeaderTitlePipe } from '@syn/pipes';
+import {
+  DashboardFiltersStateService,
+  GlobalStateService,
+} from '@syn/services';
+import { SanitizeHtmlPipe } from 'src/app/@pipes/sanitize-html.pipe';
+
+@Component({
+  selector: 'app-sidebar-control-panel',
+  standalone: true,
+  providers: [
+    SelectedQuickActionHeaderTitlePipe,
+    FormatDatePipe,
+    SanitizeHtmlPipe,
+  ],
+  imports: [
+    NgClass,
+    MatIconModule,
+    MatTooltipModule,
+    SelectedQuickActionHeaderTitlePipe,
+    NgTemplateOutlet,
+    FormatDatePipe,
+    SanitizeHtmlPipe,
+  ],
+  templateUrl: './sidebar-control-panel.component.html',
+  styleUrl: './sidebar-control-panel.component.scss',
+})
+export class SidebarControlPanelComponent {
+  constructor() {
+    effect(() => {
+      // console.log('naveen', this.liveSessionTranscript());
+    });
+  }
+
+  protected rightSidebarState = computed<RightSidebarState>(() =>
+    this._globalStateService.rightSidebarState()
+  );
+  protected selectedRightSidebarAction = computed<RightSidebarSelectedAction>(
+    () => this._globalStateService.selectedRightSidebarAction()
+  );
+  protected liveEvent = computed(() =>
+    this._dashboardFiltersStateService.liveEvent()
+  );
+  protected liveSessionTranscript = computed(() =>
+    this._dashboardFiltersStateService
+      .liveSessionTranscript()
+      .map((paragraph) => paragraph.value)
+      .join('<p></p>')
+  );
+  protected allLiveSessions = computed(() =>
+    this._dashboardFiltersStateService.allLiveEvents()
+  );
+  protected speakersListToggleState: Record<string, boolean> = {};
+
+  protected RightSidebarState = RightSidebarState;
+  protected RightSidebarSelectedAction = RightSidebarSelectedAction;
+
+  private _globalStateService = inject(GlobalStateService);
+  private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
+
+  protected onMenuItemClick(item: RightSidebarSelectedAction): void {
+    this._globalStateService.setSelectedRightSidebarAction(item);
+  }
+
+  protected onCollapsePanel(): void {
+    this._globalStateService.setRightSidebarState(RightSidebarState.Collapsed);
+    this._globalStateService.setSelectedRightSidebarAction(
+      RightSidebarSelectedAction.None
+    );
+  }
+
+  protected toggleSpeakersListHeight(sessionId: string): void {
+    this.speakersListToggleState[sessionId] =
+      !this.speakersListToggleState[sessionId];
+  }
+}

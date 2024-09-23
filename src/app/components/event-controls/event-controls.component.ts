@@ -1,4 +1,20 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NgClass } from '@angular/common';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { SynMultiSelectComponent } from '@syn/components';
+import { DropdownOption, RightSidebarState } from '@syn/models';
+import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
+import {
+  DashboardFiltersStateService,
+  GlobalStateService,
+} from '@syn/services';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -17,10 +33,21 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
   selector: 'app-event-controls',
   templateUrl: './event-controls.component.html',
   styleUrls: ['./event-controls.component.scss'],
+  providers: [GetMultiSelectOptionFromStringPipe],
   standalone: true,
-  imports: [MainDropDownComponent],
+  imports: [
+    MainDropDownComponent,
+    SynMultiSelectComponent,
+    GetMultiSelectOptionFromStringPipe,
+    NgClass,
+  ],
 })
 export class EventControlsComponent implements OnInit {
+  //#region DI
+  filtersStateService = inject(DashboardFiltersStateService);
+  private _globalStateService = inject(GlobalStateService);
+  //#endregion
+
   public PostDataEnum = PostDataEnum;
   timeWindows;
   transitionTimes;
@@ -34,6 +61,15 @@ export class EventControlsComponent implements OnInit {
   };
   @Input() postData: PostData = INITIAL_POST_DATA;
   @Input() themeOptions: ThemeOptions[];
+
+  eventTracks = computed(() => this.filtersStateService.eventTracks());
+  eventDays = computed(() => this.filtersStateService.eventDays());
+
+  protected rightSidebarState = computed(() =>
+    this._globalStateService.rightSidebarState()
+  );
+  protected RightSidebarState = RightSidebarState;
+
   @Output() onUpdatePostData: EventEmitter<{
     key: PostDataEnum;
     value: string;
@@ -79,5 +115,43 @@ export class EventControlsComponent implements OnInit {
     this.postInsideInterval = TransitionTimes['15 Seconds'];
     this.postInsideValue = TransitionTimesEnum.Seconds15;
     this.onReset.emit();
+  };
+
+  onEventTracksSelect = (selectedOptions: DropdownOption[]) => {
+    const tracksCopy = [...this.eventTracks()];
+    const selectedLabels: string[] = [];
+    for (const aOption of selectedOptions) {
+      if (aOption.isSelected) {
+        selectedLabels.push(aOption.label);
+      }
+    }
+    const selectedTracksSet = new Set(selectedLabels);
+    tracksCopy.forEach((aOption) => {
+      if (selectedTracksSet.has(aOption.label)) {
+        aOption.isSelected = true;
+      } else {
+        aOption.isSelected = false;
+      }
+    });
+    this.filtersStateService.setEventTracks(tracksCopy);
+  };
+
+  onEventDaysSelect = (selectedOptions: DropdownOption[]) => {
+    const daysCopy = [...this.eventDays()];
+    const selectedLabels: string[] = [];
+    for (const aOption of selectedOptions) {
+      if (aOption.isSelected) {
+        selectedLabels.push(aOption.label);
+      }
+    }
+    const selectedDaysSet = new Set(selectedLabels);
+    daysCopy.forEach((aOption) => {
+      if (selectedDaysSet.has(aOption.label)) {
+        aOption.isSelected = true;
+      } else {
+        aOption.isSelected = false;
+      }
+    });
+    this.filtersStateService.setEventDays(daysCopy);
   };
 }

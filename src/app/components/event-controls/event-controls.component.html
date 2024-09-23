@@ -1,42 +1,37 @@
 <div class="event-content">
-  <div class="content-header">
-    <div class="header-text">Event Controls</div>
-    <div class="reset-button" (click)="handleResetClick()">
-      <img class="arrow-down" alt="" src="assets/v2-icons/refresh.svg" />
-      <div class="button-text">Reset to Default</div>
-    </div>
+  <div
+    class="content-wrapper"
+    [ngClass]="{
+      'sidebar-expanded': rightSidebarState() === RightSidebarState.Expanded,
+      'sidebar-collapsed': rightSidebarState() === RightSidebarState.Collapsed,
+    }">
+    <app-main-drop-down
+      [disabled]="true"
+      [dropdownContent]="eventNames"
+      [selectedValue]="[postData?.eventName]"
+      (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"
+      dropdownTitle="Select Event"></app-main-drop-down>
+
+    <app-syn-multi-select
+      [options]="eventDays()"
+      (optionSelected)="onEventDaysSelect($event)"
+      label="Select Days"></app-syn-multi-select>
+
+    <app-syn-multi-select
+      [options]="eventTracks()"
+      (optionSelected)="onEventTracksSelect($event)"
+      label="Select Track"></app-syn-multi-select>
+
+    <!-- <app-main-drop-down
+      [disabled]="false"
+      [dropdownContent]="eventDays()"
+      [selectedValue]="[postData?.eventName]"
+      (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"
+      dropdownTitle="Select Day"></app-main-drop-down> -->
+    <!-- <app-main-drop-down
+      [dropdownContent]="themeOptions"
+      [selectedValue]="[postData?.theme]"
+      (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
+      dropdownTitle="Select Theme"></app-main-drop-down> -->
   </div>
-  <div class="content-wrapper">
-    <div class="select-event-wrapper">
-      <app-main-drop-down
-        [disabled]="true"
-        [dropdownContent]="eventNames"
-        [selectedValue]="[postData?.eventName]"
-        (onDropdownSelect)="
-          handleDropdownSelect($event, PostDataEnum.EventName)
-        "
-        dropdownTitle="Select Event"></app-main-drop-down>
-    </div>
-    <div class="select-theme-wrapper">
-      <app-main-drop-down
-        [dropdownContent]="themeOptions"
-        [selectedValue]="[postData?.theme]"
-        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
-        dropdownTitle="Select Theme"></app-main-drop-down>
-    </div>
-    <!-- <div class="session-insights-wrapper">
-      <app-main-drop-down type="t2" [selectedValue]="[transcriptTimeOut.label]"
-        (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.ScreenTimeout)"
-        dropdownTitle="Time Window for Real-time Session Insights" [dropdownContent]="timeWindows"></app-main-drop-down>
-    </div>
-    <div class="session-insights-wrapper">
-      <app-main-drop-down type="t2" [selectedValue]="[postInsideValue]"
-        (onDropdownSelect)="handleDropdownSelect($event, 'TransitionTimes')"
-        dropdownTitle="Transition Time for Post Session Insights"
-        [dropdownContent]="transitionTimes"></app-main-drop-down>
-    </div> -->
-  </div>
-  <!-- <app-main-drop-down></app-main-drop-down>
-  <app-time-selector></app-time-selector>
-  <app-time-selector></app-time-selector> -->
 </div>

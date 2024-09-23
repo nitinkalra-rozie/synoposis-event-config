@@ -1,5 +1,7 @@
 import {
   Component,
+  computed,
+  effect,
   Input,
   OnChanges,
   OnInit,
@@ -16,7 +18,18 @@ import * as marshaller from '@aws-sdk/eventstream-marshaller'; // for converting
 import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for encoding and decoding UTF8
 // TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
 import { NgClass } from '@angular/common';
-import { generateSHA256HashHex } from '@syn/utils';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
+import {
+  ControlPanelComponent,
+  ProjectImageSelectionComponent,
+  SessionSelectionComponent,
+} from '@syn/components';
+import { DashboardTabs, RightSidebarState } from '@syn/models';
+import {
+  DashboardFiltersStateService,
+  GlobalStateService,
+} from '@syn/services';
+import { generateSHA256HashHex, generateUniqueId } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { MicrophoneService } from 'src/app/services/microphone.service';
 import { ModalService } from 'src/app/services/modal.service';
@@ -28,6 +41,12 @@ import {
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
+import {
+  EventDetails,
+  LiveSessionState,
+  ProjectionData,
+} from '@syn/data-services';
+import { escape, isEmpty } from 'lodash-es';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -38,7 +57,14 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   templateUrl: './session-content.component.html',
   styleUrls: ['./session-content.component.scss'],
   standalone: true,
-  imports: [NgClass, ScreenDisplayComponent],
+  imports: [
+    NgClass,
+    ScreenDisplayComponent,
+    MatTabsModule,
+    ProjectImageSelectionComponent,
+    SessionSelectionComponent,
+    ControlPanelComponent,
+  ],
 })
 export class SessionContentComponent implements OnInit, OnChanges {
   ScreenDisplayType = ScreenDisplayType;
@@ -101,21 +127,21 @@ export class SessionContentComponent implements OnInit, OnChanges {
     {
       cardType: EventCardType.Welcome,
       title: 'Welcome Screen',
-      imageUrl: '../../../assets/admin screen/welcome_screen.svg',
+      imageUrl: '../../../assets/admin-screen/welcome_screen.svg',
       daySelector: true,
       displayFunction: () => this.showWelcomeMessageBanner(),
     },
     {
       cardType: EventCardType.ThankYou,
       title: 'Thank You Screen',
-      imageUrl: '../../../assets/admin screen/thank_you_page.svg',
+      imageUrl: '../../../assets/admin-screen/thank_you_page.svg',
       daySelector: true,
       displayFunction: () => this.showThankYouScreen(),
     },
     {
       cardType: EventCardType.Info,
       title: 'Info Screen',
-      imageUrl: '../../../assets/admin screen/qr_screen.svg',
+      imageUrl: '../../../assets/admin-screen/qr_screen.svg',
       daySelector: false,
       displayFunction: () => this.showInfoScreen(),
     },
@@ -123,20 +149,20 @@ export class SessionContentComponent implements OnInit, OnChanges {
   session_cards = [
     {
       title: 'Title & Speaker Name Screen',
-      imageUrl: '../../../assets/admin screen/moderator_screen.svg',
+      imageUrl: '../../../assets/admin-screen/moderator_screen.svg',
       daySelector: true,
       displayFunction: () => this.showKeyNote(),
     },
     {
       title: 'Real-time Insights Screen',
-      imageUrl: '../../../assets/admin screen/realtime_screen.svg',
+      imageUrl: '../../../assets/admin-screen/realtime_screen.svg',
       daySelector: true,
       displayFunction: () => this.showLoadingInsights(),
     },
     {
       title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin screen/summary_screen.svg',
-      icon: '../../../assets/admin screen/note.svg',
+      imageUrl: '../../../assets/admin-screen/summary_screen.svg',
+      icon: '../../../assets/admin-screen/note.svg',
       daySelector: true,
       displayFunction: () => this.endSessionPopUpPostInsights(),
     },
@@ -144,17 +170,80 @@ export class SessionContentComponent implements OnInit, OnChanges {
   multi_session_card = [
     {
       title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin screen/summary_screen.svg',
-      icon: '../../../assets/admin screen/note.svg',
+      imageUrl: '../../../assets/admin-screen/summary_screen.svg',
+      icon: '../../../assets/admin-screen/note.svg',
       displayFunction: () => this.showSummary(),
     },
   ];
 
+  protected selectedDashboardTab = computed(() =>
+    this._globalStateService.selectedDashboardTab()
+  );
+  protected activeSession = computed(() =>
+    this._dashboardFiltersStateService.activeSession()
+  );
+  protected availableSessions = computed(() =>
+    this._dashboardFiltersStateService.availableSessions()
+  );
+  protected liveEventState = computed(() =>
+    this._dashboardFiltersStateService.liveEventState()
+  );
+  protected liveSessionTranscript = computed(() =>
+    this._dashboardFiltersStateService.liveSessionTranscript()
+  );
+  protected rightSidebarState = computed(() =>
+    this._globalState.rightSidebarState()
+  );
+
+  protected RightSidebarState = RightSidebarState;
+  protected DashboardTabs = DashboardTabs;
+
+  private _isTranscriptParaBreak: boolean = false;
+
   constructor(
     private backendApiService: BackendApiService,
     private modalService: ModalService,
-    private micService: MicrophoneService
-  ) {}
+    private micService: MicrophoneService,
+    private _globalStateService: GlobalStateService,
+    private _dashboardFiltersStateService: DashboardFiltersStateService,
+    private _globalState: GlobalStateService
+  ) {
+    effect(
+      () => {
+        if (
+          this.isSessionInProgress &&
+          this.activeSession() === null &&
+          this.availableSessions()?.length
+        ) {
+          const currentSession = this.availableSessions().find(
+            (aSession) =>
+              aSession.metadata['originalContent'].SessionId ===
+              this.currentSessionId
+          );
+          if (currentSession) {
+            this._dashboardFiltersStateService.setActiveSession(currentSession);
+          }
+        }
+
+        if (
+          this.isSessionInProgress &&
+          this.activeSession() &&
+          this.liveEventState() === LiveSessionState.Stopped
+        ) {
+          if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
+            this.startRecording();
+            this.transctiptToInsides = localStorage.getItem(
+              'transctiptToInsides'
+            );
+            this.rotateSessionTitles(this.selectedSessionTitle);
+          }
+        }
+      },
+      {
+        allowSignalWrites: true,
+      }
+    );
+  }
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -175,11 +264,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.lastFiveWords = localStorage.getItem('lastFiveWords');
     this.isSessionInProgress =
       parseInt(localStorage.getItem('isSessionInProgress')) == 1 || false;
-    if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
-      this.startRecording();
-      this.transctiptToInsides = localStorage.getItem('transctiptToInsides');
-      this.rotateSessionTitles(this.selectedSessionTitle);
-    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -562,6 +646,28 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
   }
 
+  onSteamStart(): void {
+    // Here I have not refactored the behaviour due to time constraints.
+    // But later we can remove almost all the variables / states used here
+    const currentSession = this.activeSession().metadata[
+      'originalContent'
+    ] as EventDetails;
+
+    this.selectedDay = currentSession.EventDay;
+    this.selectedSessionTitle = currentSession.SessionTitle;
+    this.selectedEvent = currentSession.Event;
+
+    this.startListening();
+  }
+
+  onStreamPause(): void {
+    this.stopListening();
+  }
+
+  onStreamStop(): void {
+    this.endSessionPopUpPostInsights();
+  }
+
   async startListening(): Promise<void> {
     this.modalService.close();
     const hasPermission =
@@ -744,8 +850,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     let endText =
       'Are you sure that you want to end current session? This will display post session insights on screen.';
 
-    console.log('this.selectedSessionType', this.selectedSessionType);
-
     if (this.selectedSessionType === EventDetailType.BreakoutSession) {
       endText = 'Are you sure that you want to end current breakout session?';
     } else if (this.selectedSessionType === EventDetailType.IntroSession) {
@@ -806,6 +910,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
     this.closeSocket();
     this.clearSessionData();
+
+    // clear global state;
+    this._dashboardFiltersStateService.setLiveEvent(null);
+    this._globalState.setRightSidebarState(RightSidebarState.Hidden);
   };
 
   showSummary(): void {
@@ -958,6 +1066,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
   streamAudioToWebSocket = (userMediaStream) => {
     //let's get the mic input from the browser, via the microphone-stream module
     this.startListeningClicked = true;
+
+    // update global state
+    this._dashboardFiltersStateService.setLiveEvent(
+      this.activeSession().metadata['originalContent']
+    );
+    if (this.rightSidebarState() === RightSidebarState.Hidden) {
+      this._globalState.setRightSidebarState(RightSidebarState.Collapsed);
+    }
+
     console.log('start streamAudioToWebSocket');
     this.micStream = new MicrophoneStream();
     this.micStream.setStream(userMediaStream);
@@ -980,8 +1097,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
         // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
         const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
 
-        if (this.isSessionInProgress && this.socket.OPEN)
+        if (this.isSessionInProgress && this.socket.OPEN) {
           this.socket.send(binary);
+        }
       });
     };
     console.log('start streamAudioToWebSocket5555');
@@ -1068,6 +1186,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     clearInterval(this.timeoutId);
     this.startListeningClicked = false;
     this.isStreaming = !this.isStreaming;
+
+    this._dashboardFiltersStateService.setLiveSessionState(
+      LiveSessionState.Paused
+    );
   };
 
   clearSessionData = () => {
@@ -1101,16 +1223,29 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
         // fix encoding for accented characters
         transcript = decodeURIComponent(escape(transcript));
-
-        // update the textarea with the latest result
-        console.log('transcript-->', transcript);
-
+        // let currentTranscript = this.love
+        const existingTranscript = structuredClone(
+          this.liveSessionTranscript()
+        );
+        if (existingTranscript?.length === 0) {
+          existingTranscript.push({
+            key: generateUniqueId(),
+            value: '',
+          });
+        }
         // if this transcript segment is final, add it to the overall transcription
         if (!results[0].IsPartial) {
+          console.log('naveen break------------', results);
+          existingTranscript.push({
+            key: generateUniqueId(),
+            value: '',
+          });
+          this._isTranscriptParaBreak = true;
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
           console.log('current session id:', this.currentSessionId);
+
           if (sessionDetails) {
             this.backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
@@ -1125,6 +1260,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
             this.realtimeInsides(this.transcription);
           }
         }
+
+        if (this._isTranscriptParaBreak) {
+          this._isTranscriptParaBreak = false;
+          existingTranscript[existingTranscript?.length - 2].value = transcript;
+        } else {
+          existingTranscript[existingTranscript?.length - 1].value = transcript;
+        }
+
+        this._dashboardFiltersStateService.setLiveSessionTranscript(
+          existingTranscript
+        );
       }
     }
   };
@@ -1169,4 +1315,30 @@ export class SessionContentComponent implements OnInit, OnChanges {
     };
   };
   //***************************************
+
+  onTabChange(event: MatTabChangeEvent) {
+    if (event.index === 0) {
+      this._globalStateService.setSelectedDashboardTab(
+        DashboardTabs.SessionSpecific
+      );
+    } else {
+      this._globalStateService.setSelectedDashboardTab(
+        DashboardTabs.ProjectSpecific
+      );
+    }
+  }
+
+  onProjectToScreenClick({ identifier }: ProjectionData) {
+    const session = this.activeSession().metadata[
+      'originalContent'
+    ] as EventDetails;
+    this.selectedDay = session.EventDay;
+    this.selectedSessionTitle = session.SessionTitle;
+
+    if (identifier === 'session_title') {
+      this.showKeyNote();
+    } else if (identifier === 'session_insights') {
+      this.showLoadingInsights();
+    }
+  }
 }

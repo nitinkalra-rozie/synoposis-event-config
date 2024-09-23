@@ -1,3 +1,5 @@
+@use '../../../styles/helpers/helpers-dir' as *;
+
 body,
 html {
   margin: 0;
@@ -83,12 +85,12 @@ app-side-bar {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   cursor: pointer;
 }
 
 .top-bar .menu-icon .profile-icon-wrapper {
   padding-right: 28.42px;
+  @include d-flex;
 }
 
 .top-bar .menu-icon .profile-icon-wrapper .profile-icon {
@@ -154,4 +156,26 @@ app-side-bar {
 
 .top-bar .dropdown li:hover {
   background-color: #f7f6ff;
+}
+
+.bar-right-content {
+  @include d-flex-row;
+
+  .info-icon {
+    margin-right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    background-color: color-transparent(30%, $primary-color-variant-2);
+    @include flex-center;
+    cursor: pointer;
+
+    > mat-icon {
+      width: 17.6px;
+      height: 17.6px;
+      fill: $primary-color-variant-2;
+      color: $primary-color-variant-2;
+      @include flex-center;
+    }
+  }
 }

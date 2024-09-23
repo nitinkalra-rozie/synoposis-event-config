@@ -1,4 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { DropdownOption } from '@syn/models';
+import {
+  GetDropdownOptionFromObjectPipe,
+  GetMultiSelectOptionFromStringPipe,
+} from '@syn/pipes';
+import { DashboardFiltersStateService } from '@syn/services';
+import { SidebarControlPanelComponent } from 'src/app/@components/sidebar-control-panel/sidebar-control-panel.component';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
@@ -12,8 +26,8 @@ import {
   TimeWindowsEnum,
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
-import { SessionContentComponent } from '../session-content/session-content.component';
 import { EventControlsComponent } from '../event-controls/event-controls.component';
+import { SessionContentComponent } from '../session-content/session-content.component';
 import { TopBarComponent } from '../shared/top-bar/top-bar.component';
 
 @Component({
@@ -21,9 +35,32 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
   templateUrl: './elsa-event-admin-v2.component.html',
   styleUrls: ['./elsa-event-admin-v2.component.scss'],
   standalone: true,
-  imports: [TopBarComponent, EventControlsComponent, SessionContentComponent],
+  providers: [
+    GetMultiSelectOptionFromStringPipe,
+    GetDropdownOptionFromObjectPipe,
+  ],
+  imports: [
+    TopBarComponent,
+    EventControlsComponent,
+    SessionContentComponent,
+    GetMultiSelectOptionFromStringPipe,
+    GetDropdownOptionFromObjectPipe,
+    SidebarControlPanelComponent,
+  ],
 })
-export class ElsaEventAdminV2Component implements OnInit {
+export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
+  //#region DI
+  filtersStateService = inject(DashboardFiltersStateService);
+  backendApiService = inject(BackendApiService);
+  getMultiSelectOptionFromStringPipe = inject(
+    GetMultiSelectOptionFromStringPipe
+  );
+  getDropdownOptionFromObjectPipe = inject(GetDropdownOptionFromObjectPipe);
+  //#endregion
+
+  @ViewChild('contentContainer')
+  protected contentContainer: ElementRef<HTMLDivElement>;
+
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];
   themeOptions: ThemeOptions[] = [ThemeOptions.Dark, ThemeOptions.Light];
@@ -40,10 +77,15 @@ export class ElsaEventAdminV2Component implements OnInit {
     value: TimeWindows['60 Seconds'],
   };
 
-  constructor(private backendApiService: BackendApiService) {}
-
   ngOnInit() {
     this.initializeData();
+  }
+
+  ngAfterViewInit(): void {
+    document.documentElement.style.setProperty(
+      '--dashboard-content-container-width',
+      `${this.contentContainer.nativeElement.clientWidth}px`
+    );
   }
 
   getKeyByValue = (value, object) =>
@@ -81,13 +123,30 @@ export class ElsaEventAdminV2Component implements OnInit {
     this.backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
       this.populateEventNames();
+      this.filtersStateService.setAllSessions(
+        this.getDropdownOptionFromObjectPipe.transform<any>(
+          this.eventDetails,
+          'SessionTitle',
+          'SessionId',
+          false,
+          'Status',
+          'IN_PROGRESS'
+        )
+      );
     });
   };
 
   populateEventNames = () => {
+    // to be removed later after assessing the usage and impact
     this.eventNames = Array.from(
       new Set(this.eventDetails.map((event) => event.Event))
     );
+
+    // set initial values. all deselected by default
+    const eventNamesArray: DropdownOption[] =
+      this.getMultiSelectOptionFromStringPipe.transform(this.eventNames);
+    this.filtersStateService.setEventNames(eventNamesArray);
+
     this.updatePostData({
       key: PostDataEnum.EventName,
       value: this.eventNames[0],
@@ -111,8 +170,25 @@ export class ElsaEventAdminV2Component implements OnInit {
     const filteredByEvent = this.eventDetails.filter(
       (event) => event.Event === this.postData.eventName
     );
+
+    // to be removed later after assessing the usage and impact
     this.eventDays = Array.from(
       new Set(filteredByEvent.map((event) => event.EventDay))
+    );
+    // set initial values. all deselected by default
+    const eventDaysArray: DropdownOption[] =
+      this.getMultiSelectOptionFromStringPipe.transform(this.eventDays, true);
+    this.filtersStateService.setEventDays(eventDaysArray);
+
+    this.populateEventTracks(filteredByEvent);
+  }
+
+  populateEventTracks(eventDetailsForEvent: EventDetail[]) {
+    this.filtersStateService.setEventTracks(
+      this.getMultiSelectOptionFromStringPipe.transform(
+        Array.from(new Set(eventDetailsForEvent.map((event) => event.Track))),
+        true
+      )
     );
   }
 

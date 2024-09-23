@@ -1,0 +1,124 @@
+@use '../../styles/helpers/helpers-dir' as *;
+
+$session-dropdown-width-right-sidebar-expanded: calc(
+  calc(
+      100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.77
+);
+$session-dropdown-width-right-sidebar-collapsed: calc(
+  calc(
+      100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.77
+);
+$session-dropdown-width-right-sidebar-hidden: calc(
+  calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.77
+);
+
+$skeleton-content-width-right-sidebar-expanded: calc(
+  calc(
+      100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.318
+);
+
+$skeleton-content-width-right-sidebar-collapsed: calc(
+  calc(
+      100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.318
+);
+
+$skeleton-content-width-right-sidebar-hidden: calc(
+  calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.318
+);
+
+app-syn-single-select {
+  width: $session-dropdown-width-right-sidebar-hidden;
+  max-width: 756px;
+}
+
+.session-selection-container {
+  @include d-flex-column;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.header-row {
+  @include d-flex-row;
+  width: 100%;
+  margin: 20px 0;
+
+  &.right-sidebar-expanded {
+    app-syn-single-select {
+      width: $session-dropdown-width-right-sidebar-expanded;
+    }
+  }
+
+  &.right-sidebar-collapsed {
+    app-syn-single-select {
+      width: $session-dropdown-width-right-sidebar-collapsed;
+    }
+  }
+}
+
+.btn-start-listening {
+  border-radius: 100px;
+  margin-left: 24px;
+
+  &:disabled {
+    opacity: 50%;
+    background: $primary-color-variant-2;
+  }
+
+  > mat-icon {
+    @include flex-center;
+    width: 16px;
+    height: 16px;
+    color: $primary-bg-color;
+    margin-right: 5px;
+    font-size: 16px;
+  }
+
+  > p {
+    @include caption-regular;
+  }
+}
+
+.content {
+  @include d-flex-row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  height: 100%;
+  flex: 1;
+  width: 100%;
+}
+
+.sample-skeleton {
+  width: $skeleton-content-width-right-sidebar-hidden;
+  max-width: 424px;
+  height: 100%;
+  max-height: 310px;
+  background-color: $primary-bg-color-variant-1;
+  border-radius: 4px;
+  margin-right: 40px;
+
+  &.right-sidebar-expanded {
+    width: $skeleton-content-width-right-sidebar-expanded;
+  }
+
+  &.right-sidebar-collapsed {
+    width: $skeleton-content-width-right-sidebar-collapsed;
+  }
+}
+
+app-projection-image {
+  width: calc(calc(100% - 56px) / 3);
+  max-width: 371px;
+  margin-left: 24px;
+
+  &:first-of-type {
+    margin-left: 0;
+  }
+}

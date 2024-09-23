@@ -1,19 +1,21 @@
-import { importProvidersFrom } from '@angular/core';
-import { environment } from './environments/environment';
-import NoSleep from '@uriopass/nosleep.js';
-import { AppComponent } from './app/app.component';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { CommonModule, IMAGE_CONFIG } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AppRoutingModule } from './app/app-routing.module';
-import { AuthService } from './app/services/auth.service';
-import { AuthApiService } from './app/services/auth-api.service';
-import { AuthInterceptorService } from './app/services/auth-interceptor.service';
 import {
   HTTP_INTERCEPTORS,
-  withInterceptorsFromDi,
   provideHttpClient,
+  withInterceptorsFromDi,
 } from '@angular/common/http';
+import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { IconsService } from '@syn/services';
+import NoSleep from '@uriopass/nosleep.js';
+import { AppRoutingModule } from './app/app-routing.module';
+import { AppComponent } from './app/app.component';
+import { AuthApiService } from './app/services/auth-api.service';
+import { AuthInterceptorService } from './app/services/auth-interceptor.service';
+import { AuthService } from './app/services/auth.service';
+import { environment } from './environments/environment';
 const noSleep = new NoSleep();
 if (environment.production) {
   // enableProdMode();
@@ -48,6 +50,13 @@ bootstrapApplication(AppComponent, {
         disableImageLazyLoadWarning: true,
       },
     },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => () => {},
+      multi: true,
+      deps: [IconsService],
+    },
+    provideAnimationsAsync(),
   ],
 }).catch((err) => console.log(err));
 

@@ -1,0 +1,39 @@
+@use './helpers/helpers-dir' as *;
+@use './material//material-dir' as *;
+
+@font-face {
+  font-family: Lexend;
+  src:
+    url('../../assets/Lexend/Lexend-VariableFont_wght.ttf') format('woff2'),
+    /* Update with the correct font file path */
+      url('../../assets/Lexend/Lexend-VariableFont_wght.ttf') format('woff'); /* Update with the correct font file path */
+
+  font-weight: normal;
+  font-style: normal;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 100px;
+  // background: transparent;
+  width: 4px;
+  height: 4px;
+  background: rgba(96, 125, 139, 0.3);
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: $base-font;
+}
+
+.sample-skeleton-square {
+  max-width: 424px;
+}

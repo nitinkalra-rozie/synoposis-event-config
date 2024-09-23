@@ -11,6 +11,7 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import { generateSHA256HashHex } from '@syn/utils';
+import { escape } from 'lodash-es';
 
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(

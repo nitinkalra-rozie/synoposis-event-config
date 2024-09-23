@@ -1,6 +1,6 @@
 {
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "always"
+    // "source.organizeImports": "always"
   },
   "editor.formatOnSave": true,
   "editor.trimAutoWhitespace": true,
@@ -13,6 +13,6 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[xml]": {
-    "editor.defaultFormatter": "fabianlauer.vs-code-xml-format"
+    "editor.defaultFormatter": "redhat.vscode-xml"
   }
 }
