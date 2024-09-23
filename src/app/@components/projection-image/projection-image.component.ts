@@ -1,8 +1,10 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { SynMultiSelectComponent } from '@syn/components';
+import { ProjectionData } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
 import { DashboardFiltersStateService } from '@syn/services';
+import { replaceDashAndSpacesWithUnderscore } from '@syn/utils';
 
 @Component({
   selector: 'app-projection-image',
@@ -16,6 +18,8 @@ export class ProjectionImageComponent {
   public type = input<'session' | 'project'>();
   public filterType = input.required<'days' | 'tracks' | 'none'>();
   public imgUrl = input<string>();
+
+  public projectedToScreen = output<ProjectionData>();
 
   protected eventDays = computed(() => this._filtersStateService.eventDays());
   protected liveEvent = computed(() => this._filtersStateService.liveEvent());
@@ -65,6 +69,10 @@ export class ProjectionImageComponent {
   };
 
   protected onProjectToScreenClick = (): void => {
-    // todo
+    this.projectedToScreen.emit({
+      identifier: replaceDashAndSpacesWithUnderscore(this.label()),
+      selectedDays: this._selectedDays.map((day) => day.label),
+      selectedTracks: this._selectedTracks.map((track) => track.label),
+    });
   };
 }

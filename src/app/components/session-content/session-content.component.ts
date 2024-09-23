@@ -29,7 +29,7 @@ import {
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
-import { generateSHA256HashHex } from '@syn/utils';
+import { generateSHA256HashHex, generateUniqueId } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { MicrophoneService } from 'src/app/services/microphone.service';
 import { ModalService } from 'src/app/services/modal.service';
@@ -41,7 +41,12 @@ import {
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
-import { EventDetails, LiveSessionState } from '@syn/data-services';
+import {
+  EventDetails,
+  LiveSessionState,
+  ProjectionData,
+} from '@syn/data-services';
+import { escape, isEmpty } from 'lodash-es';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -183,12 +188,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected liveEventState = computed(() =>
     this._dashboardFiltersStateService.liveEventState()
   );
+  protected liveSessionTranscript = computed(() =>
+    this._dashboardFiltersStateService.liveSessionTranscript()
+  );
   protected rightSidebarState = computed(() =>
     this._globalState.rightSidebarState()
   );
 
   protected RightSidebarState = RightSidebarState;
   protected DashboardTabs = DashboardTabs;
+
+  private _isTranscriptParaBreak: boolean = false;
 
   constructor(
     private backendApiService: BackendApiService,
@@ -254,9 +264,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.lastFiveWords = localStorage.getItem('lastFiveWords');
     this.isSessionInProgress =
       parseInt(localStorage.getItem('isSessionInProgress')) == 1 || false;
-
-    console.log('isSessionInProgress', this.isSessionInProgress);
-    console.log('availableSessions oninit', this.availableSessions());
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -645,11 +652,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     const currentSession = this.activeSession().metadata[
       'originalContent'
     ] as EventDetails;
-    console.log('currentSession', currentSession);
 
     this.selectedDay = currentSession.EventDay;
     this.selectedSessionTitle = currentSession.SessionTitle;
-    this.selectedDomain = currentSession.Track;
     this.selectedEvent = currentSession.Event;
 
     this.startListening();
@@ -844,8 +849,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
   endSessionPopUpPostInsights = () => {
     let endText =
       'Are you sure that you want to end current session? This will display post session insights on screen.';
-
-    console.log('this.selectedSessionType', this.selectedSessionType);
 
     if (this.selectedSessionType === EventDetailType.BreakoutSession) {
       endText = 'Are you sure that you want to end current breakout session?';
@@ -1220,16 +1223,29 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
         // fix encoding for accented characters
         transcript = decodeURIComponent(escape(transcript));
-
-        // update the textarea with the latest result
-        console.log('transcript-->', transcript);
-
+        // let currentTranscript = this.love
+        const existingTranscript = structuredClone(
+          this.liveSessionTranscript()
+        );
+        if (existingTranscript?.length === 0) {
+          existingTranscript.push({
+            key: generateUniqueId(),
+            value: '',
+          });
+        }
         // if this transcript segment is final, add it to the overall transcription
         if (!results[0].IsPartial) {
+          console.log('naveen break------------', results);
+          existingTranscript.push({
+            key: generateUniqueId(),
+            value: '',
+          });
+          this._isTranscriptParaBreak = true;
           //scroll the textarea down
           this.transcription = transcript;
           // this.transcription += transcript + '\n';
           console.log('current session id:', this.currentSessionId);
+
           if (sessionDetails) {
             this.backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
@@ -1244,6 +1260,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
             this.realtimeInsides(this.transcription);
           }
         }
+
+        if (this._isTranscriptParaBreak) {
+          this._isTranscriptParaBreak = false;
+          existingTranscript[existingTranscript?.length - 2].value = transcript;
+        } else {
+          existingTranscript[existingTranscript?.length - 1].value = transcript;
+        }
+
+        this._dashboardFiltersStateService.setLiveSessionTranscript(
+          existingTranscript
+        );
       }
     }
   };
@@ -1298,6 +1325,20 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this._globalStateService.setSelectedDashboardTab(
         DashboardTabs.ProjectSpecific
       );
+    }
+  }
+
+  onProjectToScreenClick({ identifier }: ProjectionData) {
+    const session = this.activeSession().metadata[
+      'originalContent'
+    ] as EventDetails;
+    this.selectedDay = session.EventDay;
+    this.selectedSessionTitle = session.SessionTitle;
+
+    if (identifier === 'session_title') {
+      this.showKeyNote();
+    } else if (identifier === 'session_insights') {
+      this.showLoadingInsights();
     }
   }
 }

@@ -19,6 +19,7 @@
     dynamicHeight>
     <mat-tab label="Start Listening to a Session">
       <app-session-selection
+        (screenProjected)="onProjectToScreenClick($event)"
         (streamStarted)="onSteamStart()"></app-session-selection>
     </mat-tab>
     <mat-tab label="Project a Specific Image">

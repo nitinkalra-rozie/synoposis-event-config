@@ -49,8 +49,8 @@
   } @else {
     <app-projection-image
       [label]="data.title"
+      (projectedToScreen)="onProjectToScreen($event)"
       filterType="none"
-      imgUrl="assets/projections/welcome_msg.svg"
       imgUrl="assets/projections/{{ data.key }}.svg"
       type="session"></app-projection-image>
   }

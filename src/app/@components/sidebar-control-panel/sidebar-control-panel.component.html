@@ -27,6 +27,10 @@
         RightSidebarSelectedAction.AllLiveSessions
       ) {
         <ng-container *ngTemplateOutlet="liveSessions"></ng-container>
+      } @else if (
+        selectedRightSidebarAction() === RightSidebarSelectedAction.Transcript
+      ) {
+        <ng-container *ngTemplateOutlet="transcript"></ng-container>
       }
     </div>
   }
@@ -113,6 +117,14 @@
         }
       </div>
     }
+  </div>
+</ng-template>
+
+<ng-template #transcript>
+  <div class="session-details-container">
+    <p
+      class="transcript"
+      [innerHTML]="liveSessionTranscript() | sanitizeHtml"></p>
   </div>
 </ng-template>
 

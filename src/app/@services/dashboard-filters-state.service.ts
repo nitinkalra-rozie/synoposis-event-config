@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { computed, effect, Injectable, Signal, signal } from '@angular/core';
 import {
   EventDetails,
@@ -22,6 +23,7 @@ export class DashboardFiltersStateService {
     this.allSessions = this._allSessionsSignal.asReadonly();
     this.liveEvent = this._liveEventSignal.asReadonly();
     this.liveEventState = this._liveEventStateSignal.asReadonly();
+    this.liveSessionTranscript = this._liveSessionTranscriptSignal.asReadonly();
 
     this.availableSessions = computed(() => {
       const sessions = this.allSessions().filter(
@@ -80,6 +82,9 @@ export class DashboardFiltersStateService {
   public readonly liveEvent: Signal<EventDetails | null>;
   public readonly allLiveEvents: Signal<EventDetails[]>;
   public readonly liveEventState: Signal<LiveSessionState>;
+  public readonly liveSessionTranscript: Signal<
+    Array<KeyValue<string, string>>
+  >;
 
   private _eventNamesSignal = signal<DropdownOption[]>([]);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
@@ -90,6 +95,9 @@ export class DashboardFiltersStateService {
   private _liveEventStateSignal = signal<LiveSessionState>(
     LiveSessionState.Stopped
   );
+  private _liveSessionTranscriptSignal = signal<
+    Array<KeyValue<string, string>>
+  >([]);
 
   private readonly _selectedTracksSetSignal = computed<Set<string>>(
     () =>
@@ -135,5 +143,9 @@ export class DashboardFiltersStateService {
 
   setLiveSessionState(state: LiveSessionState): void {
     this._liveEventStateSignal.set(state);
+  }
+
+  setLiveSessionTranscript(transcript: Array<KeyValue<string, string>>): void {
+    this._liveSessionTranscriptSignal.set(transcript);
   }
 }

@@ -1,19 +1,23 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EventDetails } from '@syn/data-services';
 import { RightSidebarSelectedAction, RightSidebarState } from '@syn/models';
 import { FormatDatePipe, SelectedQuickActionHeaderTitlePipe } from '@syn/pipes';
 import {
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
+import { SanitizeHtmlPipe } from 'src/app/@pipes/sanitize-html.pipe';
 
 @Component({
   selector: 'app-sidebar-control-panel',
   standalone: true,
-  providers: [SelectedQuickActionHeaderTitlePipe, FormatDatePipe],
+  providers: [
+    SelectedQuickActionHeaderTitlePipe,
+    FormatDatePipe,
+    SanitizeHtmlPipe,
+  ],
   imports: [
     NgClass,
     MatIconModule,
@@ -21,21 +25,34 @@ import {
     SelectedQuickActionHeaderTitlePipe,
     NgTemplateOutlet,
     FormatDatePipe,
+    SanitizeHtmlPipe,
   ],
   templateUrl: './sidebar-control-panel.component.html',
   styleUrl: './sidebar-control-panel.component.scss',
 })
 export class SidebarControlPanelComponent {
+  constructor() {
+    effect(() => {
+      // console.log('naveen', this.liveSessionTranscript());
+    });
+  }
+
   protected rightSidebarState = computed<RightSidebarState>(() =>
     this._globalStateService.rightSidebarState()
   );
   protected selectedRightSidebarAction = computed<RightSidebarSelectedAction>(
     () => this._globalStateService.selectedRightSidebarAction()
   );
-  protected liveEvent = computed<EventDetails>(() =>
+  protected liveEvent = computed(() =>
     this._dashboardFiltersStateService.liveEvent()
   );
-  protected allLiveSessions = computed<EventDetails[]>(() =>
+  protected liveSessionTranscript = computed(() =>
+    this._dashboardFiltersStateService
+      .liveSessionTranscript()
+      .map((paragraph) => paragraph.value)
+      .join('<p></p>')
+  );
+  protected allLiveSessions = computed(() =>
     this._dashboardFiltersStateService.allLiveEvents()
   );
   protected speakersListToggleState: Record<string, boolean> = {};

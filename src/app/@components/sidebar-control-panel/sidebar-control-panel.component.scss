@@ -129,6 +129,11 @@ p {
   overflow-y: scroll;
   scrollbar-gutter: stable;
 
+  .transcript {
+    @include caption-regular;
+    color: $primary-bg-color-variant-6;
+  }
+
   .form-row {
     @include d-flex-column;
     align-items: flex-start;

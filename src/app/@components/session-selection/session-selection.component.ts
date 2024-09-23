@@ -11,6 +11,7 @@ import {
   ProjectionImageComponent,
 } from '@syn/components';
 import { ModalService } from 'src/app/services/modal.service';
+import { ProjectionData } from '@syn/data-services';
 
 @Component({
   selector: 'app-session-selection',
@@ -29,6 +30,7 @@ import { ModalService } from 'src/app/services/modal.service';
 export class SessionSelectionComponent {
   public streamStarted = output();
   public streamStopped = output();
+  public screenProjected = output<ProjectionData>();
 
   protected availableSessions = computed(() =>
     this._dashboardFiltersStateService.availableSessions()
@@ -79,6 +81,10 @@ export class SessionSelectionComponent {
 
   protected onDropdownOpen(): void {
     // fetch latest event details
+  }
+
+  protected onProjectToScreen(data: ProjectionData): void {
+    this.screenProjected.emit(data);
   }
 
   private _startStream(): void {

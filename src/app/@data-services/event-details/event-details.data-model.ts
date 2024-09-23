@@ -21,6 +21,12 @@ export interface EventDetails {
   StartsAt: string;
 }
 
+export interface ProjectionData {
+  identifier: string;
+  selectedDays: string[];
+  selectedTracks: string[];
+}
+
 export enum EventStatus {
   InProgress = 'IN_PROGRESS',
   NotStarted = 'NOT_STARTED',
