@@ -171,13 +171,8 @@ p {
 }
 
 .voice-animation-container {
-  // width: 25.4vw;
   @include flex-center;
   flex: 1;
-
-  > img {
-    // height: 32px;
-  }
 }
 
 // Sekeletong styles

@@ -28,6 +28,7 @@ import { ModalService } from 'src/app/services/modal.service';
 })
 export class SessionSelectionComponent {
   public streamStarted = output();
+  public streamStopped = output();
 
   protected availableSessions = computed(() =>
     this._dashboardFiltersStateService.availableSessions()
@@ -56,14 +57,16 @@ export class SessionSelectionComponent {
 
   protected onStartListening(): void {
     if (this._liveEvent()) {
-      // show confirmation popup
       this._modalService.open(
         'End Session?',
         'You are currently listening to a session. Are you sure you want to end it and project a different screen?',
         'yes_no',
         () => {
           this._modalService.close();
-          this._startStream();
+          this._stopStream();
+          setTimeout(() => {
+            this._startStream();
+          }, 300);
         },
         () => {
           this._modalService.close();
@@ -80,5 +83,9 @@ export class SessionSelectionComponent {
 
   private _startStream(): void {
     this.streamStarted.emit();
+  }
+
+  private _stopStream(): void {
+    this.streamStopped.emit();
   }
 }

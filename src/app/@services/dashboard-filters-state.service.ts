@@ -1,10 +1,11 @@
-import { computed, Injectable, Signal, signal } from '@angular/core';
+import { computed, effect, Injectable, Signal, signal } from '@angular/core';
 import {
   EventDetails,
   EventStatus,
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
+import { sortBy } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -22,8 +23,8 @@ export class DashboardFiltersStateService {
     this.liveEvent = this._liveEventSignal.asReadonly();
     this.liveEventState = this._liveEventStateSignal.asReadonly();
 
-    this.availableSessions = computed(() =>
-      this.allSessions().filter(
+    this.availableSessions = computed(() => {
+      const sessions = this.allSessions().filter(
         (aSession) =>
           this._selectedTracksSetSignal().has(
             aSession.metadata['originalContent'].Track
@@ -31,13 +32,13 @@ export class DashboardFiltersStateService {
           this._selectedDaysSetSignal().has(
             aSession.metadata['originalContent'].EventDay
           )
-      )
-    );
+      );
 
-    // to be removed
-    // this.liveEvent = computed(() =>
-    //   this.allLiveEvents()[0] ? this.allLiveEvents()[0] : ({} as EventDetails)
-    // );
+      return sortBy(
+        sessions,
+        (event) => new Date(event.metadata['originalContent'].StartsAt)
+      );
+    });
 
     this.allLiveEvents = computed(() =>
       this.allSessions()?.length
@@ -49,6 +50,24 @@ export class DashboardFiltersStateService {
             )
             .map((aSession) => aSession.metadata['originalContent'])
         : []
+    );
+
+    effect(
+      () => {
+        if (this.activeSession() && this.availableSessions()?.length) {
+          const activeIndex = this.availableSessions().findIndex(
+            (aSession) =>
+              aSession.metadata['originalContent'].SessionId ===
+              this.activeSession()?.metadata['originalContent'].SessionId
+          );
+          if (activeIndex === -1) {
+            this.setActiveSession(null);
+          }
+        }
+      },
+      {
+        allowSignalWrites: true,
+      }
     );
   }
 

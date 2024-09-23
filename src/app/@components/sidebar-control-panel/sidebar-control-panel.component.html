@@ -15,18 +15,21 @@
       <mat-icon>close</mat-icon>
     </button>
   </div>
-  <div class="content">
-    @if (
-      selectedRightSidebarAction() === RightSidebarSelectedAction.SessionDetails
-    ) {
-      <ng-container *ngTemplateOutlet="sessionDetails"></ng-container>
-    } @else if (
-      selectedRightSidebarAction() ===
-      RightSidebarSelectedAction.AllLiveSessions
-    ) {
-      <ng-container *ngTemplateOutlet="liveSessions"></ng-container>
-    }
-  </div>
+  @if (liveEvent()) {
+    <div class="content">
+      @if (
+        selectedRightSidebarAction() ===
+        RightSidebarSelectedAction.SessionDetails
+      ) {
+        <ng-container *ngTemplateOutlet="sessionDetails"></ng-container>
+      } @else if (
+        selectedRightSidebarAction() ===
+        RightSidebarSelectedAction.AllLiveSessions
+      ) {
+        <ng-container *ngTemplateOutlet="liveSessions"></ng-container>
+      }
+    </div>
+  }
 </div>
 <div
   class="sidebar-container"
