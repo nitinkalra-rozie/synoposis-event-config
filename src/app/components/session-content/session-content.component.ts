@@ -47,6 +47,7 @@ import {
   ProjectionData,
 } from '@syn/data-services';
 import { escape, isEmpty } from 'lodash-es';
+import { environment } from 'src/environments/environment';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -115,7 +116,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  selectedDomain = 'Healthcare';
+  selectedDomain = environment.eventDomain ?? 'general';
 
   eventDay: Record<string, string> = {
     [EventCardType.Welcome]: '',
@@ -191,6 +192,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected liveSessionTranscript = computed(() =>
     this._dashboardFiltersStateService.liveSessionTranscript()
   );
+  protected selectedEventName = computed(() =>
+    this._dashboardFiltersStateService.selectedEvent()
+  );
   protected rightSidebarState = computed(() =>
     this._globalState.rightSidebarState()
   );
@@ -253,7 +257,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.selectedSessionType =
       localStorage.getItem('selectedSessionType') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
-    this.selectedDomain = localStorage.getItem('domain') || 'Healthcare';
+    this.selectedDomain =
+      localStorage.getItem('domain') || environment.eventDomain;
     this.currentPrimarySessionId =
       localStorage.getItem('currentPrimarySessionId') || '';
     this.getEventDetails();
@@ -457,6 +462,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   showWelcomeMessageBanner(): void {
     const postData: PostData = {};
     postData.action = 'welcome';
+    postData.eventName = this.selectedEvent;
     postData.day = this.eventDay[EventCardType.Welcome];
     this.backendApiService.postData(postData).subscribe(
       (data: any) => {
@@ -939,7 +945,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionId = this.sessionIds;
-
       this.backendApiService.postData(postData).subscribe(
         (data: any) => {
           console.log(data);
@@ -1328,17 +1333,68 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
   }
 
-  onProjectToScreenClick({ identifier }: ProjectionData) {
-    const session = this.activeSession().metadata[
-      'originalContent'
-    ] as EventDetails;
-    this.selectedDay = session.EventDay;
-    this.selectedSessionTitle = session.SessionTitle;
+  onProjectToScreenClick(data: ProjectionData) {
+    if (
+      data.identifier === 'session_title' ||
+      data.identifier === 'session_insights'
+    ) {
+      const session = this.activeSession().metadata[
+        'originalContent'
+      ] as EventDetails;
+      this.selectedDay = session.EventDay;
+      this.selectedSessionTitle = session.SessionTitle;
+    }
 
-    if (identifier === 'session_title') {
-      this.showKeyNote();
-    } else if (identifier === 'session_insights') {
-      this.showLoadingInsights();
+    this._projectScreen(data);
+  }
+
+  private _projectScreen(data: ProjectionData) {
+    switch (data.identifier) {
+      case 'session_title': {
+        this.showKeyNote();
+        return;
+      }
+      case 'session_insights': {
+        this.showLoadingInsights();
+        return;
+      }
+      case 'event_info': {
+        this.selectedEvent = this.selectedEventName().label;
+        this.eventDay[EventCardType.Info] = data.selectedDays[0] ?? '';
+        this.showInfoScreen();
+        return;
+      }
+      case 'welcome_message': {
+        this.selectedEvent = this.selectedEventName().label;
+        this.eventDay[EventCardType.Welcome] = data.selectedDays[0];
+        this.showWelcomeMessageBanner();
+        return;
+      }
+      case 'thank_you_message': {
+        this.selectedEvent = this.selectedEventName().label;
+        this.eventDay[EventCardType.ThankYou] = data.selectedDays[0];
+        this.showThankYouScreen();
+        return;
+      }
+      case 'session_debriefs': {
+        this.selectedEvent = this.selectedEventName().label;
+        this.selectedOptions = Array.from(
+          new Set(
+            this.availableSessions()
+              .filter((aSession) =>
+                data.selectedTracks.includes(
+                  aSession.metadata['originalContent'].Track
+                )
+              )
+              .map(
+                (aSession) => aSession.metadata['originalContent'].SessionTitle
+              )
+          )
+        );
+        this.selectedMultiSessionDay = undefined; // hardcoded since it's no longer in use but required from BE
+        this.showSummary();
+        return;
+      }
     }
   }
 }

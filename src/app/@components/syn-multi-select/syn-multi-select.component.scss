@@ -6,11 +6,6 @@ p {
   margin-block-end: 0;
 }
 
-.select-container {
-  @include d-flex-column;
-  width: 100%;
-}
-
 .trigger-container {
   @include d-flex-column;
   align-items: flex-start;

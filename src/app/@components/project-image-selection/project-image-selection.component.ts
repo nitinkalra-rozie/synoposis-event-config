@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { ProjectionImageComponent } from '@syn/components';
+import { ProjectionData } from '@syn/data-services';
 
 @Component({
   selector: 'app-project-image-selection',
@@ -8,4 +9,6 @@ import { ProjectionImageComponent } from '@syn/components';
   templateUrl: './project-image-selection.component.html',
   styleUrl: './project-image-selection.component.scss',
 })
-export class ProjectImageSelectionComponent {}
+export class ProjectImageSelectionComponent {
+  public screenProjected = output<ProjectionData>();
+}

@@ -1,9 +1,11 @@
 <div class="row">
   <app-projection-image
+    (projectedToScreen)="screenProjected.emit($event)"
     filterType="none"
     imgUrl="assets/projections/event_info.svg"
     label="Event Info"></app-projection-image>
   <app-projection-image
+    (projectedToScreen)="screenProjected.emit($event)"
     filterType="tracks"
     imgUrl="assets/projections/session_debriefs.svg"
     label="Session Debriefs"></app-projection-image>
@@ -14,11 +16,13 @@
 </div>
 <div class="row">
   <app-projection-image
-    filterType="days"
+    (projectedToScreen)="screenProjected.emit($event)"
+    filterType="one-day"
     imgUrl="assets/projections/welcome_msg.svg"
     label="Welcome Message"></app-projection-image>
   <app-projection-image
-    filterType="days"
+    (projectedToScreen)="screenProjected.emit($event)"
+    filterType="one-day"
     imgUrl="assets/projections/thank_you_msg.svg"
     label="Thank You Message"></app-projection-image>
 </div>

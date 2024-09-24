@@ -1,30 +1,39 @@
 <!-- TODO: Refactor this component to make it reusable with any single select scenario  -->
-<div
-  #dropdownTrigger="matMenuTrigger"
-  #tooltip="matTooltip"
-  matTooltipClass="tooltip-text-only-300"
-  matTooltipPosition="after"
-  class="trigger-view"
-  [matMenuTriggerFor]="menu"
-  [matTooltip]="selectedOption()?.label ?? ''"
-  [matTooltipDisabled]="!isLabelTooltipVisible"
-  [ngClass]="{ active: dropdownTrigger.menuOpen }"
-  (blur)="tooltip.hide()"
-  (mouseleave)="tooltip.hide()"
-  (mouseover)="tooltip.show()"
-  aria-label="session selector">
-  <p
-    class="selected-label"
-    (overflowChanged)="isLabelTooltipVisible = $event"
-    appOverflowDetector>
-    {{ selectedOption()?.label ?? 'Select Session' }}
-  </p>
-  <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
+
+<div class="trigger-container" [id]="elementId">
+  @if (uiConfig().label) {
+    <p class="trigger-label">{{ uiConfig().label }}</p>
+  }
+  <div
+    #dropdownTrigger="matMenuTrigger"
+    #tooltip="matTooltip"
+    matTooltipClass="tooltip-text-only-300"
+    matTooltipPosition="after"
+    class="trigger-view"
+    [matMenuTriggerFor]="menu"
+    [matTooltip]="selectedOption()?.label ?? ''"
+    [matTooltipDisabled]="!isLabelTooltipVisible"
+    [ngClass]="{ active: dropdownTrigger.menuOpen, small: size() === 'small' }"
+    (blur)="tooltip.hide()"
+    (mouseleave)="tooltip.hide()"
+    (mouseover)="tooltip.show()"
+    aria-label="session selector">
+    <p
+      class="selected-label"
+      [ngClass]="{ small: size() === 'small' }"
+      (overflowChanged)="isLabelTooltipVisible = $event"
+      appOverflowDetector>
+      {{ selectedOption()?.label ?? uiConfig()?.placeholder ?? '' }}
+    </p>
+    @if (uiConfig()?.isTriggerIconEnabled) {
+      <mat-icon class="arrow-icon">keyboard_arrow_down</mat-icon>
+    }
+  </div>
 </div>
 
 <mat-menu
   #menu="matMenu"
-  class="session-selection-menu{{
+  class="{{ uiConfig()?.matMenuClass ?? 'dropdown-menu-single-select' }}{{
     rightSidebarState() === RightSidebarState.Collapsed
       ? ' right-sidebar-collapsed'
       : ''
@@ -33,13 +42,21 @@
       ? ' right-sidebar-expanded'
       : ''
   }}">
-  <p class="dropdown-label">Select Session</p>
-  <div class="list-filter-container" (click)="$event.stopPropagation()">
-    <mat-icon class="search-icon">search</mat-icon>
+  @if (uiConfig()?.placeholder) {
+    <p class="dropdown-placeholder">{{ uiConfig().label }}</p>
+  }
+  <div
+    class="list-filter-container"
+    [ngClass]="{
+      minimal: uiConfig()?.searchFilerType === 'minimal',
+    }"
+    (click)="$event.stopPropagation()">
+    @if (uiConfig()?.searchFilerType === 'default') {
+      <mat-icon class="search-icon">search</mat-icon>
+    }
     <form [formGroup]="filterForm">
       <input
         class="search-input"
-        form
         formControlName="filterText"
         placeholder="Search"
         type="text" />
@@ -60,15 +77,10 @@
         (click)="onOptionSelect(aOption)"
         (mouseleave)="tooltip2.hide()"
         (mouseover)="tooltip2.show()">
-        <p
-          #toolTip
-          class="text"
-          [ngClass]="{
-            'indicator-visible': aOption.metadata['isIndicatorActive'],
-          }">
+        <p #toolTip class="text">
           {{ aOption.label }}
         </p>
-        @if (aOption.metadata['isIndicatorActive']) {
+        @if (aOption.metadata?.['isIndicatorActive']) {
           <div class="indicator">
             <mat-icon class="indicator-icon">play_circle_filled</mat-icon>
             <p class="indicator-label">LIVE</p>

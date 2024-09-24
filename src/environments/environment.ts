@@ -15,4 +15,5 @@ export const environment = {
   //  cognitoUserPoolId:'ca-central-1_V9KhUwxNc',
   // cognitoAppClientId:'3ppt7i0sou74e5bks8mc5ph350',
   eventName: '',
+  eventDomain: 'general',
 };

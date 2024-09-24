@@ -1,6 +1,16 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
-import { SynMultiSelectComponent } from '@syn/components';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
+import {
+  SynMultiSelectComponent,
+  SynSingleSelectComponent,
+} from '@syn/components';
 import { ProjectionData } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
 import { DashboardFiltersStateService } from '@syn/services';
@@ -9,14 +19,30 @@ import { replaceDashAndSpacesWithUnderscore } from '@syn/utils';
 @Component({
   selector: 'app-projection-image',
   standalone: true,
-  imports: [SynMultiSelectComponent, NgOptimizedImage],
+  imports: [
+    SynMultiSelectComponent,
+    NgOptimizedImage,
+    SynSingleSelectComponent,
+  ],
   templateUrl: './projection-image.component.html',
   styleUrl: './projection-image.component.scss',
 })
 export class ProjectionImageComponent {
+  constructor() {
+    effect(() => {
+      if (
+        this.eventDays()?.length &&
+        this.filterType() === 'one-day' &&
+        this.selectedDays?.length === 0
+      ) {
+        this.selectedDays.push(this.eventDays()[0]);
+      }
+    });
+  }
+
   public label = input.required<string>();
-  public type = input<'session' | 'project'>();
-  public filterType = input.required<'days' | 'tracks' | 'none'>();
+  public key = input<string>();
+  public filterType = input.required<'days' | 'tracks' | 'one-day' | 'none'>();
   public imgUrl = input<string>();
 
   public projectedToScreen = output<ProjectionData>();
@@ -24,16 +50,16 @@ export class ProjectionImageComponent {
   protected eventDays = computed(() => this._filtersStateService.eventDays());
   protected liveEvent = computed(() => this._filtersStateService.liveEvent());
   protected eventTracks = computed(() =>
-    this._filtersStateService.eventTracks()
+    this._filtersStateService.completedTracks()
   );
+
+  protected selectedDays: DropdownOption[] = [];
+  protected selectedTracks: DropdownOption[] = [];
 
   private _filtersStateService = inject(DashboardFiltersStateService);
 
-  private _selectedDays: DropdownOption[] = [];
-  private _selectedTracks: DropdownOption[] = [];
-
   protected onEventDaysSelect = (selectedOptions: DropdownOption[]): void => {
-    this._selectedDays = [...this.eventDays()];
+    this.selectedDays = [...this.eventDays()];
     const selectedLabels: string[] = [];
     for (const aOption of selectedOptions) {
       if (aOption.isSelected) {
@@ -41,7 +67,7 @@ export class ProjectionImageComponent {
       }
     }
     const selectedDaysSet = new Set(selectedLabels);
-    this._selectedDays.forEach((aOption) => {
+    this.selectedDays.forEach((aOption) => {
       if (selectedDaysSet.has(aOption.label)) {
         aOption.isSelected = true;
       } else {
@@ -50,8 +76,19 @@ export class ProjectionImageComponent {
     });
   };
 
+  protected onSingleEventDaySelect = (
+    selectedOptions: DropdownOption
+  ): void => {
+    this.selectedDays = [
+      {
+        ...selectedOptions,
+        isSelected: true,
+      },
+    ];
+  };
+
   protected onEventTracksSelect = (selectedOptions: DropdownOption[]): void => {
-    this._selectedTracks = [...this.eventTracks()];
+    this.selectedTracks = [...this.eventTracks()];
     const selectedLabels: string[] = [];
     for (const aOption of selectedOptions) {
       if (aOption.isSelected) {
@@ -59,7 +96,7 @@ export class ProjectionImageComponent {
       }
     }
     const selectedTracksSet = new Set(selectedLabels);
-    this._selectedTracks.forEach((aOption) => {
+    this.selectedTracks.forEach((aOption) => {
       if (selectedTracksSet.has(aOption.label)) {
         aOption.isSelected = true;
       } else {
@@ -71,8 +108,12 @@ export class ProjectionImageComponent {
   protected onProjectToScreenClick = (): void => {
     this.projectedToScreen.emit({
       identifier: replaceDashAndSpacesWithUnderscore(this.label()),
-      selectedDays: this._selectedDays.map((day) => day.label),
-      selectedTracks: this._selectedTracks.map((track) => track.label),
+      selectedDays: this.selectedDays
+        .filter((aDay) => aDay.isSelected)
+        .map((day) => day.label),
+      selectedTracks: this.selectedTracks
+        .filter((aDay) => aDay.isSelected)
+        .map((track) => track.label),
     });
   };
 }

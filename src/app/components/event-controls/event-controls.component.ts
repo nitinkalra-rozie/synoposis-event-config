@@ -8,7 +8,10 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { SynMultiSelectComponent } from '@syn/components';
+import {
+  SynMultiSelectComponent,
+  SynSingleSelectComponent,
+} from '@syn/components';
 import { DropdownOption, RightSidebarState } from '@syn/models';
 import { GetMultiSelectOptionFromStringPipe } from '@syn/pipes';
 import {
@@ -40,11 +43,12 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
     SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
     NgClass,
+    SynSingleSelectComponent,
   ],
 })
 export class EventControlsComponent implements OnInit {
   //#region DI
-  filtersStateService = inject(DashboardFiltersStateService);
+  private _filtersStateService = inject(DashboardFiltersStateService);
   private _globalStateService = inject(GlobalStateService);
   //#endregion
 
@@ -54,7 +58,7 @@ export class EventControlsComponent implements OnInit {
   postInsideInterval: number = TransitionTimes['15 Seconds'];
   postInsideValue: string = TransitionTimesEnum.Seconds15;
 
-  @Input() eventNames: string[] = [];
+  // @Input() eventNames: string[] = [];
   @Input() transcriptTimeOut: { label: string; value: number } = {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
@@ -62,8 +66,10 @@ export class EventControlsComponent implements OnInit {
   @Input() postData: PostData = INITIAL_POST_DATA;
   @Input() themeOptions: ThemeOptions[];
 
-  eventTracks = computed(() => this.filtersStateService.eventTracks());
-  eventDays = computed(() => this.filtersStateService.eventDays());
+  eventTracks = computed(() => this._filtersStateService.eventTracks());
+  eventDays = computed(() => this._filtersStateService.eventDays());
+  eventNames = computed(() => this._filtersStateService.eventNames());
+  selectedEvent = computed(() => this._filtersStateService.selectedEvent());
 
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
@@ -133,7 +139,7 @@ export class EventControlsComponent implements OnInit {
         aOption.isSelected = false;
       }
     });
-    this.filtersStateService.setEventTracks(tracksCopy);
+    this._filtersStateService.setEventTracks(tracksCopy);
   };
 
   onEventDaysSelect = (selectedOptions: DropdownOption[]) => {
@@ -152,6 +158,10 @@ export class EventControlsComponent implements OnInit {
         aOption.isSelected = false;
       }
     });
-    this.filtersStateService.setEventDays(daysCopy);
+    this._filtersStateService.setEventDays(daysCopy);
   };
+
+  onEventSelect(event: DropdownOption) {
+    this._filtersStateService.setSelectedEvent(event);
+  }
 }

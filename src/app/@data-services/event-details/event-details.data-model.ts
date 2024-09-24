@@ -30,8 +30,7 @@ export interface ProjectionData {
 export enum EventStatus {
   InProgress = 'IN_PROGRESS',
   NotStarted = 'NOT_STARTED',
-  UnderReview = 'UNDER_REVIEW',
-  ReviewComplete = 'REVIEW_COMPLETE',
+  Paused = 'PAUSED',
 }
 
 export enum EventType {

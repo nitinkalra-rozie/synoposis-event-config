@@ -15,9 +15,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { OverflowDetectorDirective } from '@syn/directives';
-import { DropdownOption, RightSidebarState } from '@syn/models';
+import {
+  DropdownOption,
+  RightSidebarState,
+  SingleSelectUiConfig,
+} from '@syn/models';
 import { GetFilteredDropdownOptionsPipe } from '@syn/pipes';
 import { GlobalStateService } from '@syn/services';
+import { generateUniqueId } from '@syn/utils';
 import { debounceTime } from 'rxjs/operators';
 
 @Component({
@@ -42,6 +47,8 @@ export class SynSingleSelectComponent implements OnInit, AfterViewInit {
 
   public options = input.required<DropdownOption[]>();
   public selectedOption = input.required<DropdownOption | null>();
+  public uiConfig = input<SingleSelectUiConfig>();
+  public size = input<'small' | 'default'>('default');
 
   public optionSelected = output<DropdownOption>();
   public dropdownOpened = output<void>();
@@ -54,10 +61,12 @@ export class SynSingleSelectComponent implements OnInit, AfterViewInit {
     this._globalState.rightSidebarState()
   );
   protected RightSidebarState = RightSidebarState;
-
+  protected elementId: string;
   private _globalState = inject(GlobalStateService);
 
   ngOnInit(): void {
+    this.elementId = generateUniqueId();
+
     this.filterForm = new FormGroup({
       filterText: new FormControl<string>(''),
     });
