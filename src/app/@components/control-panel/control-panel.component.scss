@@ -126,7 +126,7 @@ p {
   }
 
   &.pause {
-    background-color: color-transparent(50%);
+    background-color: $primary-bg-color;
 
     > mat-icon {
       background: $purple-gradient;

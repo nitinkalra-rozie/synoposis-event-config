@@ -25,21 +25,21 @@
 
   &.sidebar-expanded {
     app-syn-multi-select,
-    app-main-drop-down {
+    app-syn-single-select {
       width: calc($right-sidebar-expanded-content-container-width / 3);
     }
   }
 
   &.sidebar-collapsed {
     app-syn-multi-select,
-    app-main-drop-down {
+    app-syn-single-select {
       width: calc($right-sidebar-collapsed-content-container-width / 3);
     }
   }
 }
 
 app-syn-multi-select,
-app-main-drop-down {
+app-syn-single-select {
   @include filter-dropdown();
 }
 

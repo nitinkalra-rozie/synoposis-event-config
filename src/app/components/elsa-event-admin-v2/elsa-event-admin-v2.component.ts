@@ -147,6 +147,8 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
       this.getMultiSelectOptionFromStringPipe.transform(this.eventNames);
     this.filtersStateService.setEventNames(eventNamesArray);
 
+    this.filtersStateService.setSelectedEvent(eventNamesArray[0]);
+
     this.updatePostData({
       key: PostDataEnum.EventName,
       value: this.eventNames[0],

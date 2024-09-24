@@ -6,6 +6,7 @@ import {
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
+import { getDropdownOptionsFromString } from '@syn/utils';
 import { sortBy } from 'lodash-es';
 
 @Injectable({
@@ -17,6 +18,7 @@ export class DashboardFiltersStateService {
 
   constructor() {
     this.eventNames = this._eventNamesSignal.asReadonly();
+    this.selectedEvent = this._selectedEventSignal.asReadonly();
     this.eventTracks = this._eventTracksSignal.asReadonly();
     this.eventDays = this._eventDaysSignal.asReadonly();
     this.activeSession = this._activeSessionSignal.asReadonly();
@@ -40,6 +42,30 @@ export class DashboardFiltersStateService {
         sessions,
         (event) => new Date(event.metadata['originalContent'].StartsAt)
       );
+    });
+
+    this.completedTracks = computed(() => {
+      const sessions = getDropdownOptionsFromString(
+        Array.from(
+          new Set(
+            this.allSessions()
+              .filter(
+                (aSession) =>
+                  aSession.metadata['originalContent'].Status !==
+                    EventStatus.InProgress &&
+                  aSession.metadata['originalContent'].Status !==
+                    EventStatus.NotStarted &&
+                  aSession.metadata['originalContent'].Status !==
+                    EventStatus.Paused
+              )
+              .map((aSession) => aSession.metadata['originalContent'].Track)
+          )
+        )
+      );
+
+      console.log('sessions', sessions);
+
+      return sortBy(sessions, 'label');
     });
 
     this.allLiveEvents = computed(() =>
@@ -77,8 +103,10 @@ export class DashboardFiltersStateService {
   public readonly availableSessions: Signal<DropdownOption[]>;
   public readonly activeSession: Signal<DropdownOption | null>;
   public readonly eventNames: Signal<DropdownOption[]>;
+  public readonly selectedEvent: Signal<DropdownOption | null>;
   public readonly eventTracks: Signal<DropdownOption[]>;
   public readonly eventDays: Signal<DropdownOption[]>;
+  public readonly completedTracks: Signal<DropdownOption[]>;
   public readonly liveEvent: Signal<EventDetails | null>;
   public readonly allLiveEvents: Signal<EventDetails[]>;
   public readonly liveEventState: Signal<LiveSessionState>;
@@ -87,6 +115,7 @@ export class DashboardFiltersStateService {
   >;
 
   private _eventNamesSignal = signal<DropdownOption[]>([]);
+  private _selectedEventSignal = signal<DropdownOption | null>(null);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
   private _eventDaysSignal = signal<DropdownOption[]>([]);
   private _allSessionsSignal = signal<DropdownOption[]>([]);
@@ -121,11 +150,13 @@ export class DashboardFiltersStateService {
   }
 
   setEventDays(days: DropdownOption[]): void {
-    this._eventDaysSignal.set(days);
+    const sorted = sortBy(days, 'label');
+    this._eventDaysSignal.set(sorted);
   }
 
   setEventTracks(tracks: DropdownOption[]): void {
-    this._eventTracksSignal.set(tracks);
+    const sorted = sortBy(tracks, 'label');
+    this._eventTracksSignal.set(sorted);
   }
 
   setAllSessions(sessions: DropdownOption[]): void {
@@ -147,5 +178,9 @@ export class DashboardFiltersStateService {
 
   setLiveSessionTranscript(transcript: Array<KeyValue<string, string>>): void {
     this._liveSessionTranscriptSignal.set(transcript);
+  }
+
+  setSelectedEvent(event: DropdownOption | null): void {
+    this._selectedEventSignal.set(event);
   }
 }

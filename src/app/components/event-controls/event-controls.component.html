@@ -5,12 +5,20 @@
       'sidebar-expanded': rightSidebarState() === RightSidebarState.Expanded,
       'sidebar-collapsed': rightSidebarState() === RightSidebarState.Collapsed,
     }">
-    <app-main-drop-down
-      [disabled]="true"
+    <!-- <app-main-drop-down
       [dropdownContent]="eventNames"
       [selectedValue]="[postData?.eventName]"
       (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"
-      dropdownTitle="Select Event"></app-main-drop-down>
+      dropdownTitle="Select Event"></app-main-drop-down> -->
+    <app-syn-single-select
+      [options]="eventNames()"
+      [selectedOption]="selectedEvent()"
+      [uiConfig]="{
+        label: 'Select Event',
+        isTriggerIconEnabled: true,
+        searchFilerType: 'minimal',
+      }"
+      (optionSelected)="onEventSelect($event)"></app-syn-single-select>
 
     <app-syn-multi-select
       [options]="eventDays()"

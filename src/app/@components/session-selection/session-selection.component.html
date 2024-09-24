@@ -10,6 +10,12 @@
     <app-syn-single-select
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
+      [uiConfig]="{
+        placeholder: 'Select Session',
+        isTriggerIconEnabled: true,
+        searchFilerType: 'default',
+        matMenuClass: 'session-selection-menu',
+      }"
       (dropdownOpened)="onDropdownOpen()"
       (optionSelected)="onOptionSelect($event)"></app-syn-single-select>
     <button
@@ -48,10 +54,10 @@
       }"></div>
   } @else {
     <app-projection-image
+      [key]="data.key"
       [label]="data.title"
       (projectedToScreen)="onProjectToScreen($event)"
       filterType="none"
-      imgUrl="assets/projections/{{ data.key }}.svg"
-      type="session"></app-projection-image>
+      imgUrl="assets/projections/{{ data.key }}.svg"></app-projection-image>
   }
 </ng-template>

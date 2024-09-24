@@ -10,21 +10,31 @@
     <div class="toolbar">
       @if (filterType() === 'days') {
         <app-syn-multi-select
-          [options]="eventTracks()"
-          (optionSelected)="onEventTracksSelect($event)"
+          [options]="eventDays()"
+          (optionSelected)="onEventDaysSelect($event)"
           dropdownSearchInputPlaceholder="Search Day"
           size="small"></app-syn-multi-select>
       } @else if (filterType() === 'tracks') {
         <app-syn-multi-select
-          [options]="eventDays()"
-          (optionSelected)="onEventDaysSelect($event)"
+          [options]="eventTracks()"
+          (optionSelected)="onEventTracksSelect($event)"
           dropdownSearchInputPlaceholder="Search Track"
           size="small"></app-syn-multi-select>
+      } @else if (filterType() === 'one-day') {
+        <app-syn-single-select
+          [options]="eventDays()"
+          [selectedOption]="selectedDays[0]"
+          [uiConfig]="{
+            isTriggerIconEnabled: true,
+            searchFilerType: 'minimal',
+          }"
+          (optionSelected)="onSingleEventDaySelect($event)"
+          size="small"></app-syn-single-select>
       }
 
       <button
         class="btn-primary-white-small"
-        [disabled]="type() === 'session' && liveEvent() === null"
+        [disabled]="key() === 'session_insights' && liveEvent() === null"
         (click)="onProjectToScreenClick()">
         Project to Screen
       </button>
