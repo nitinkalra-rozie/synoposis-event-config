@@ -30,13 +30,27 @@
     <ng-container
       *ngTemplateOutlet="
         sessionInfo;
-        context: { $implicit: { title: 'Session Title', key: 'session_title' } }
+        context: {
+          $implicit: {
+            title: 'Session Title',
+            key:
+              rightSidebarState() === RightSidebarState.Expanded
+                ? 'session_title_expanded'
+                : 'session_title',
+          },
+        }
       "></ng-container>
     <ng-container
       *ngTemplateOutlet="
         sessionInfo;
         context: {
-          $implicit: { title: 'Session Insights', key: 'session_insights' },
+          $implicit: {
+            title: 'Session Insights',
+            key:
+              rightSidebarState() === RightSidebarState.Expanded
+                ? 'session_insights_expanded'
+                : 'session_insights',
+          },
         }
       "></ng-container>
   </div>
