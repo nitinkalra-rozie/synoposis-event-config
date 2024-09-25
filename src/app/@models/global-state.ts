@@ -16,4 +16,15 @@ enum RightSidebarSelectedAction {
   AllLiveSessions = 40,
 }
 
-export { DashboardTabs, RightSidebarSelectedAction, RightSidebarState };
+enum ControlPanelState {
+  Default = 'Default',
+  WidgetCollapsed = 'WidgetCollapsed',
+  WidgetExpanded = 'WidgetExpanded',
+}
+
+export {
+  DashboardTabs,
+  RightSidebarSelectedAction,
+  RightSidebarState,
+  ControlPanelState,
+};

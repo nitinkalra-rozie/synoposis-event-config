@@ -1,6 +1,10 @@
 @use '../../styles/helpers/helpers-dir' as *;
 @use '../../styles/material/mat-tab' as *;
 
+$control-panel-area-width-right-sidebar-expanded: calc(
+  100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width - 40px
+);
+
 // new styles
 
 .session-content-container {
@@ -27,14 +31,30 @@
   &.widget-view {
     background-color: transparent;
     box-shadow: none;
-    width: 88px !important;
-    height: 88px !important;
+    width: 88px;
+    height: 88px;
     position: absolute;
     z-index: 3;
     border-radius: 100%;
     bottom: 50px;
     right: 95px;
     transition: width 0.3s ease;
+
+    &.widget-expanded {
+      width: $control-panel-area-width-right-sidebar-expanded;
+      height: 138px;
+      right: unset;
+      left: calc(
+        50vw - calc($control-panel-area-width-right-sidebar-expanded / 2)
+      );
+      bottom: 20px;
+      border-radius: 4px;
+      box-sizing: border-box;
+
+      &.right-sidebar-expanded {
+        left: 90px;
+      }
+    }
   }
 }
 

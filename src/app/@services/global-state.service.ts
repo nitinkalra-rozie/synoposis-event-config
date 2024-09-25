@@ -1,5 +1,6 @@
-import { Injectable, signal, Signal } from '@angular/core';
+import { effect, Injectable, signal, Signal } from '@angular/core';
 import {
+  ControlPanelState,
   DashboardTabs,
   RightSidebarSelectedAction,
   RightSidebarState,
@@ -14,19 +15,39 @@ export class GlobalStateService {
     this.selectedRightSidebarAction =
       this._selectedRightSidebarActionSignal.asReadonly();
     this.selectedDashboardTab = this._selectedDashboardTabSignal.asReadonly();
+    this.selectedDashboardTab = this._selectedDashboardTabSignal.asReadonly();
+    this.controlPanelState = this._controlPanelStateSignal.asReadonly();
+
+    effect(
+      () => {
+        if (
+          this.selectedDashboardTab() === DashboardTabs.SessionSpecific &&
+          this.controlPanelState() !== ControlPanelState.Default
+        ) {
+          this.setControlPanelState(ControlPanelState.Default);
+        }
+      },
+      {
+        allowSignalWrites: true,
+      }
+    );
   }
 
   public readonly rightSidebarState: Signal<RightSidebarState>;
   public readonly selectedRightSidebarAction: Signal<RightSidebarSelectedAction>;
   public readonly selectedDashboardTab: Signal<DashboardTabs>;
+  public readonly controlPanelState: Signal<ControlPanelState>;
 
   private _rightSidebarStateSignal = signal<RightSidebarState>(
-    RightSidebarState.Hidden //todo: change to hidden
+    RightSidebarState.Hidden
   );
   private _selectedRightSidebarActionSignal =
     signal<RightSidebarSelectedAction>(RightSidebarSelectedAction.None);
   private _selectedDashboardTabSignal = signal<DashboardTabs>(
     DashboardTabs.SessionSpecific
+  );
+  private _controlPanelStateSignal = signal<ControlPanelState>(
+    ControlPanelState.Default
   );
 
   setRightSidebarState(state: RightSidebarState): void {
@@ -45,5 +66,9 @@ export class GlobalStateService {
 
   setSelectedDashboardTab(state: DashboardTabs): void {
     this._selectedDashboardTabSignal.set(state);
+  }
+
+  setControlPanelState(state: ControlPanelState): void {
+    this._controlPanelStateSignal.set(state);
   }
 }

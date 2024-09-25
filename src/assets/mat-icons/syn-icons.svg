@@ -158,4 +158,24 @@
 			</g>
 		</svg>
 	</symbol>
+	<symbol id="close_with_border" viewBox="0 0 22 22">
+		<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<g id="random-icons">
+				<circle id="Ellipse 6" cx="11" cy="11" r="10.5" fill="url(#paint0_linear_12500_45263)"
+					stroke="#E1E5EA" />
+				<path id="Vector" d="M14 8L8 14" stroke="white" stroke-linecap="round"
+					stroke-linejoin="round" />
+				<path id="Vector_2" d="M8 8L14 14" stroke="white" stroke-linecap="round"
+					stroke-linejoin="round" />
+			</g>
+			<defs>
+				<linearGradient id="paint0_linear_12500_45263" x1="0.087452" y1="22" x2="21.7498"
+					y2="-1.35928" gradientUnits="userSpaceOnUse">
+					<stop stop-color="#22292E" />
+					<stop offset="1" stop-color="#45545C" />
+				</linearGradient>
+			</defs>
+		</svg>
+
+	</symbol>
 </svg>

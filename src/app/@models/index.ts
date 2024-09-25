@@ -6,4 +6,5 @@ export {
   DashboardTabs,
   RightSidebarSelectedAction,
   RightSidebarState,
+  ControlPanelState,
 } from './global-state';

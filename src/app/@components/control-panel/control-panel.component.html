@@ -2,7 +2,7 @@
   <div
     class="main-container"
     [ngClass]="{
-      hide: selectedDashboardTab() === DashboardTabs.ProjectSpecific,
+      'widget-view': selectedDashboardTab() === DashboardTabs.ProjectSpecific,
     }">
     <ng-container *ngTemplateOutlet="skeleton"></ng-container>
   </div>
@@ -15,7 +15,11 @@
       'right-sidebar-collapsed':
         rightSidebarState() === RightSidebarState.Collapsed,
       'widget-view': selectedDashboardTab() === DashboardTabs.ProjectSpecific,
-    }">
+      expanded:
+        selectedDashboardTab() === DashboardTabs.ProjectSpecific &&
+        isWidgetViewExpanded(),
+    }"
+    (click)="onControlPanelClick()">
     <div
       class="information"
       [ngClass]="{
@@ -23,7 +27,9 @@
           rightSidebarState() === RightSidebarState.Expanded,
         'right-sidebar-collapsed':
           rightSidebarState() === RightSidebarState.Collapsed,
-        hide: selectedDashboardTab() === DashboardTabs.ProjectSpecific,
+        'widget-view':
+          selectedDashboardTab() === DashboardTabs.ProjectSpecific &&
+          !this.isWidgetViewExpanded(),
       }">
       <p
         #tooltip="matTooltip"
@@ -57,7 +63,9 @@
           rightSidebarState() === RightSidebarState.Expanded,
         'right-sidebar-collapsed':
           rightSidebarState() === RightSidebarState.Collapsed,
-        hide: selectedDashboardTab() === DashboardTabs.ProjectSpecific,
+        'widget-view':
+          selectedDashboardTab() === DashboardTabs.ProjectSpecific &&
+          !this.isWidgetViewExpanded(),
       }">
       <ng-container
         [ngTemplateOutlet]="actionButtons"
@@ -80,7 +88,9 @@
           label: 'End Session',
           type: 'stop',
         }"></ng-container>
-      <div class="voice-animation-container"></div>
+      <div class="voice-animation-container">
+        <app-sound-animation></app-sound-animation>
+      </div>
       <ng-container
         [ngTemplateOutlet]="actionButtons"
         [ngTemplateOutletContext]="{
@@ -89,6 +99,25 @@
           type: 'view-transcript',
         }"></ng-container>
     </div>
+    <div
+      class="contain-animation"
+      [ngClass]="{
+        show:
+          selectedDashboardTab() === DashboardTabs.ProjectSpecific &&
+          !isWidgetViewExpanded(),
+      }">
+      <app-sound-animation></app-sound-animation>
+    </div>
+    @if (
+      selectedDashboardTab() === DashboardTabs.ProjectSpecific &&
+      this.isWidgetViewExpanded()
+    ) {
+      <button
+        class="widget-collapse-button"
+        (click)="onCollapseButtonClick($event)">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
   </div>
 }
 

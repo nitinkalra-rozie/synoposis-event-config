@@ -1,3 +1,4 @@
+export * from './sound-animation/sound-animation.component';
 export * from './syn-checkbox/syn-checkbox.component';
 export * from './syn-multi-select/syn-multi-select.component';
 export * from './syn-single-select/syn-single-select.component';
