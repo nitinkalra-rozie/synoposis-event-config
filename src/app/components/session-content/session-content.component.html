@@ -29,74 +29,17 @@
         "></app-project-image-selection>
     </mat-tab>
   </mat-tab-group>
-
-  <!-- <div class="padding-combine">
-    <app-screen-display
-      [cards]="event_cards"
-      [eventDays]="eventDays"
-      [shoEventDropDown]="true"
-      [ShowCombineDropdown]="false"
-      [showStartListeningButton]="false"
-      [showStopScreenButton]="false"
-      [showStopScreenButton]="false"
-      [title]="'Event-Specific Screens'"
-      [type]="ScreenDisplayType.EventSpecific"
-      (onEventSpecificDayChange)="
-        handleEventSpecificDayChange($event)
-      "></app-screen-display>
-
-    <app-screen-display
-      [cards]="session_cards"
-      [eventDays]="eventDays"
-      [isSessionInProgress]="isSessionInProgress"
-      [selectedSessionType]="selectedSessionType"
-      [sessionDay]="selectedDay"
-      [sessionTitles]="sessionTitles"
-      [sessionValueDropdown]="true"
-      [ShowCombineDropdown]="true"
-      [showStartListeningButton]="true"
-      [showStartListeningButton]="true"
-      [showStopScreenButton]="true"
-      [showStopScreenButton]="true"
-      [showStopScreenButton]="true"
-      [subSessionValueDropdown]="false"
-      [title]="'Session-Specific Screens'"
-      [type]="ScreenDisplayType.SessionSpecific"
-      (endSession)="endSessionPopUpPostInsights()"
-      (onMainSessionChange)="handleMainSessionChange($event)"
-      (onMainSessionDayChange)="handleMainSessionDayChange($event)"
-      (startListening)="startListeningPopUp()"
-      (stopListening)="stopListening()"></app-screen-display>
-
-    <app-screen-display
-      [cards]="multi_session_card"
-      [eventDays]="eventDays"
-      [sessionDay]="selectedMultiSessionDay"
-      [sessionTitles]="primarySessionTitles"
-      [sessionValueDropdown]="false"
-      [ShowCombineDropdown]="true"
-      [showStartListeningButton]="false"
-      [showStopScreenButton]="false"
-      [showStopScreenButton]="false"
-      [subSessionValueDropdown]="true"
-      [title]="'Daily Screens'"
-      [type]="ScreenDisplayType.MultiSession"
-      (onMultiSessionDayChange)="handleMultiSessionDayChange($event)"
-      (onSessionsChange)="handleSessionsChange($event)"></app-screen-display>
-  </div>
-
-  @if (isSessionInProgress) {
-    <div class="transcript">
-      {{ transcription }}
-    </div>
-  }
-     -->
 </div>
 
 <div
   class="control-panel"
   [ngClass]="{
     'widget-view': selectedDashboardTab() === DashboardTabs.ProjectSpecific,
+    'widget-expanded':
+      selectedDashboardTab() === DashboardTabs.ProjectSpecific &&
+      isControlPanelExpanded(),
+    'right-sidebar-expanded':
+      rightSidebarState() === RightSidebarState.Expanded,
   }">
   <app-control-panel
     (streamPaused)="onStreamPause()"

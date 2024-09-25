@@ -1,6 +1,6 @@
 {
   "editor.codeActionsOnSave": {
-    // "source.organizeImports": "always"
+    "source.removeUnusedImports": "always"
   },
   "editor.formatOnSave": true,
   "editor.trimAutoWhitespace": true,

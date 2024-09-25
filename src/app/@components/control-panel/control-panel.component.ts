@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LiveSessionState } from '@syn/data-services';
 import { EllipsisDirective, OverflowDetectorDirective } from '@syn/directives';
 import {
+  ControlPanelState,
   DashboardTabs,
   RightSidebarSelectedAction,
   RightSidebarState,
@@ -13,6 +14,7 @@ import {
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
+import { SoundAnimationComponent } from '../sound-animation/sound-animation.component';
 
 @Component({
   selector: 'app-control-panel',
@@ -24,6 +26,7 @@ import {
     OverflowDetectorDirective,
     EllipsisDirective,
     NgClass,
+    SoundAnimationComponent,
   ],
   templateUrl: './control-panel.component.html',
   styleUrl: './control-panel.component.scss',
@@ -44,6 +47,10 @@ export class ControlPanelComponent {
   );
   protected selectedDashboardTab = computed(() =>
     this._globalState.selectedDashboardTab()
+  );
+  protected isWidgetViewExpanded = computed(
+    () =>
+      this._globalState.controlPanelState() === ControlPanelState.WidgetExpanded
   );
   protected RightSidebarState = RightSidebarState;
   protected DashboardTabs = DashboardTabs;
@@ -80,5 +87,21 @@ export class ControlPanelComponent {
     this._globalState.setSelectedRightSidebarAction(
       RightSidebarSelectedAction.SessionDetails
     );
+  }
+
+  protected onControlPanelClick(): void {
+    if (
+      this.selectedDashboardTab() !== DashboardTabs.ProjectSpecific ||
+      this.isWidgetViewExpanded()
+    ) {
+      return;
+    }
+
+    this._globalState.setControlPanelState(ControlPanelState.WidgetExpanded);
+  }
+
+  protected onCollapseButtonClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this._globalState.setControlPanelState(ControlPanelState.WidgetCollapsed);
   }
 }

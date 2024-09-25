@@ -24,7 +24,11 @@ import {
   ProjectImageSelectionComponent,
   SessionSelectionComponent,
 } from '@syn/components';
-import { DashboardTabs, RightSidebarState } from '@syn/models';
+import {
+  ControlPanelState,
+  DashboardTabs,
+  RightSidebarState,
+} from '@syn/models';
 import {
   DashboardFiltersStateService,
   GlobalStateService,
@@ -46,8 +50,9 @@ import {
   LiveSessionState,
   ProjectionData,
 } from '@syn/data-services';
-import { escape, isEmpty } from 'lodash-es';
+import { escape } from 'lodash-es';
 import { environment } from 'src/environments/environment';
+import { MatIconModule } from '@angular/material/icon';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -65,6 +70,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
     ProjectImageSelectionComponent,
     SessionSelectionComponent,
     ControlPanelComponent,
+    MatIconModule,
   ],
 })
 export class SessionContentComponent implements OnInit, OnChanges {
@@ -198,7 +204,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected rightSidebarState = computed(() =>
     this._globalState.rightSidebarState()
   );
-
+  protected isControlPanelExpanded = computed(
+    () =>
+      this._globalState.controlPanelState() === ControlPanelState.WidgetExpanded
+  );
   protected RightSidebarState = RightSidebarState;
   protected DashboardTabs = DashboardTabs;
 
