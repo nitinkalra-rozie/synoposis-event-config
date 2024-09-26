@@ -47,6 +47,7 @@ import { EventDetail, PostData } from 'src/app/shared/types';
 import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
 import {
   EventDetails,
+  EventStatus,
   LiveSessionState,
   ProjectionData,
 } from '@syn/data-services';
@@ -1393,10 +1394,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.selectedOptions = Array.from(
           new Set(
             this.availableSessions()
-              .filter((aSession) =>
-                data.selectedTracks.includes(
-                  aSession.metadata['originalContent'].Track
-                )
+              .filter(
+                (aSession) =>
+                  data.selectedTracks.includes(
+                    aSession.metadata['originalContent'].Track
+                  ) &&
+                  ![EventStatus.InProgress, EventStatus.NotStarted].includes(
+                    aSession.metadata['originalContent'].Status
+                  )
               )
               .map(
                 (aSession) => aSession.metadata['originalContent'].SessionTitle

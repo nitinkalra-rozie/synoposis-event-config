@@ -84,14 +84,14 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   private _shouldFetchEventDetails = computed(() =>
     this._filtersStateService.shouldFetchEventDetails()
   );
+  private _eventDays = computed(() => this._filtersStateService.eventDays());
+  private _eventTracks = computed(() =>
+    this._filtersStateService.eventTracks()
+  );
 
   constructor() {
     effect(
       () => {
-        console.log(
-          '_shouldFetchEventDetails',
-          this._shouldFetchEventDetails()
-        );
         if (this._shouldFetchEventDetails()) {
           this.getEventDetails();
           this._filtersStateService.setShouldFetchEventDetails(false);
@@ -205,7 +205,11 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     );
     // set initial values. all deselected by default
     const eventDaysArray: DropdownOption[] =
-      this._getMultiSelectOptionFromStringPipe.transform(this.eventDays, true);
+      this._getMultiSelectOptionFromStringPipe.transform(
+        this.eventDays,
+        true,
+        this._eventDays()
+      );
     this._filtersStateService.setEventDays(eventDaysArray);
 
     this.populateEventTracks(filteredByEvent);
@@ -215,7 +219,8 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     this._filtersStateService.setEventTracks(
       this._getMultiSelectOptionFromStringPipe.transform(
         Array.from(new Set(eventDetailsForEvent.map((event) => event.Track))),
-        true
+        true,
+        this._eventTracks()
       )
     );
   }

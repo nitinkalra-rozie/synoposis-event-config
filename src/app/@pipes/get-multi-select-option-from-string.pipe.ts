@@ -7,7 +7,11 @@ import { getDropdownOptionsFromString } from '@syn/utils';
   standalone: true,
 })
 export class GetMultiSelectOptionFromStringPipe implements PipeTransform {
-  transform(options: string[], defaultSelection = false): DropdownOption[] {
-    return getDropdownOptionsFromString(options, defaultSelection);
+  transform(
+    options: string[],
+    defaultSelection = false,
+    prevOptions?: DropdownOption[]
+  ): DropdownOption[] {
+    return getDropdownOptionsFromString(options, defaultSelection, prevOptions);
   }
 }
