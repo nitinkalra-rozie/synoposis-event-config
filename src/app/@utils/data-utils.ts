@@ -2,7 +2,8 @@ import { DropdownOption } from '@syn/models';
 
 export const getDropdownOptionsFromString = (
   options: string[],
-  defaultSelection = false
+  defaultSelection = false,
+  prevOptions?: DropdownOption[]
 ): DropdownOption[] => {
   if (!options) {
     return [];
@@ -10,6 +11,8 @@ export const getDropdownOptionsFromString = (
   return options.map((aOption) => ({
     key: aOption,
     label: aOption,
-    isSelected: defaultSelection,
+    isSelected: prevOptions?.length
+      ? prevOptions.find((prevOpt) => prevOpt.label === aOption).isSelected
+      : defaultSelection,
   }));
 };

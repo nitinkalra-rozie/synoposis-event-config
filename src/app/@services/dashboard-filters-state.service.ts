@@ -53,12 +53,9 @@ export class DashboardFiltersStateService {
             this.allSessions()
               .filter(
                 (aSession) =>
-                  aSession.metadata['originalContent'].Status !==
-                    EventStatus.InProgress &&
-                  aSession.metadata['originalContent'].Status !==
-                    EventStatus.NotStarted &&
-                  aSession.metadata['originalContent'].Status !==
-                    EventStatus.Paused
+                  ![EventStatus.InProgress, EventStatus.NotStarted].includes(
+                    aSession.metadata['originalContent'].Status
+                  )
               )
               .map((aSession) => aSession.metadata['originalContent'].Track)
           )
