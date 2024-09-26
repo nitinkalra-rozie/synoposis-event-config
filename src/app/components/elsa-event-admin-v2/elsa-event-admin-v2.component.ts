@@ -1,6 +1,8 @@
 import {
   AfterViewInit,
   Component,
+  computed,
+  effect,
   ElementRef,
   inject,
   OnInit,
@@ -49,15 +51,6 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
   ],
 })
 export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
-  //#region DI
-  filtersStateService = inject(DashboardFiltersStateService);
-  backendApiService = inject(BackendApiService);
-  getMultiSelectOptionFromStringPipe = inject(
-    GetMultiSelectOptionFromStringPipe
-  );
-  getDropdownOptionFromObjectPipe = inject(GetDropdownOptionFromObjectPipe);
-  //#endregion
-
   @ViewChild('contentContainer')
   protected contentContainer: ElementRef<HTMLDivElement>;
 
@@ -76,6 +69,39 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
+
+  //#region DI
+  private _filtersStateService = inject(DashboardFiltersStateService);
+  private _getMultiSelectOptionFromStringPipe = inject(
+    GetMultiSelectOptionFromStringPipe
+  );
+  private _getDropdownOptionFromObjectPipe = inject(
+    GetDropdownOptionFromObjectPipe
+  );
+  private _backendApiService = inject(BackendApiService);
+  //#endregion
+
+  private _shouldFetchEventDetails = computed(() =>
+    this._filtersStateService.shouldFetchEventDetails()
+  );
+
+  constructor() {
+    effect(
+      () => {
+        console.log(
+          '_shouldFetchEventDetails',
+          this._shouldFetchEventDetails()
+        );
+        if (this._shouldFetchEventDetails()) {
+          this.getEventDetails();
+          this._filtersStateService.setShouldFetchEventDetails(false);
+        }
+      },
+      {
+        allowSignalWrites: true,
+      }
+    );
+  }
 
   ngOnInit() {
     this.initializeData();
@@ -120,11 +146,11 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   };
 
   getEventDetails = () => {
-    this.backendApiService.getEventDetails().subscribe((data: any) => {
+    this._backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
       this.populateEventNames();
-      this.filtersStateService.setAllSessions(
-        this.getDropdownOptionFromObjectPipe.transform<any>(
+      this._filtersStateService.setAllSessions(
+        this._getDropdownOptionFromObjectPipe.transform<any>(
           this.eventDetails,
           'SessionTitle',
           'SessionId',
@@ -144,10 +170,10 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
 
     // set initial values. all deselected by default
     const eventNamesArray: DropdownOption[] =
-      this.getMultiSelectOptionFromStringPipe.transform(this.eventNames);
-    this.filtersStateService.setEventNames(eventNamesArray);
+      this._getMultiSelectOptionFromStringPipe.transform(this.eventNames);
+    this._filtersStateService.setEventNames(eventNamesArray);
 
-    this.filtersStateService.setSelectedEvent(eventNamesArray[0]);
+    this._filtersStateService.setSelectedEvent(eventNamesArray[0]);
 
     this.updatePostData({
       key: PostDataEnum.EventName,
@@ -179,15 +205,15 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     );
     // set initial values. all deselected by default
     const eventDaysArray: DropdownOption[] =
-      this.getMultiSelectOptionFromStringPipe.transform(this.eventDays, true);
-    this.filtersStateService.setEventDays(eventDaysArray);
+      this._getMultiSelectOptionFromStringPipe.transform(this.eventDays, true);
+    this._filtersStateService.setEventDays(eventDaysArray);
 
     this.populateEventTracks(filteredByEvent);
   }
 
   populateEventTracks(eventDetailsForEvent: EventDetail[]) {
-    this.filtersStateService.setEventTracks(
-      this.getMultiSelectOptionFromStringPipe.transform(
+    this._filtersStateService.setEventTracks(
+      this._getMultiSelectOptionFromStringPipe.transform(
         Array.from(new Set(eventDetailsForEvent.map((event) => event.Track))),
         true
       )
@@ -228,7 +254,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   };
 
   callBackEndAPI = () => {
-    this.backendApiService.postData(this.postData).subscribe(
+    this._backendApiService.postData(this.postData).subscribe(
       (data: any) => {
         console.log(data);
       },

@@ -202,11 +202,12 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._dashboardFiltersStateService.selectedEvent()
   );
   protected rightSidebarState = computed(() =>
-    this._globalState.rightSidebarState()
+    this._globalStateService.rightSidebarState()
   );
   protected isControlPanelExpanded = computed(
     () =>
-      this._globalState.controlPanelState() === ControlPanelState.WidgetExpanded
+      this._globalStateService.controlPanelState() ===
+      ControlPanelState.WidgetExpanded
   );
   protected RightSidebarState = RightSidebarState;
   protected DashboardTabs = DashboardTabs;
@@ -218,8 +219,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     private modalService: ModalService,
     private micService: MicrophoneService,
     private _globalStateService: GlobalStateService,
-    private _dashboardFiltersStateService: DashboardFiltersStateService,
-    private _globalState: GlobalStateService
+    private _dashboardFiltersStateService: DashboardFiltersStateService
   ) {
     effect(
       () => {
@@ -718,21 +718,21 @@ export class SessionContentComponent implements OnInit, OnChanges {
             this.selectedDomain,
             session.PrimarySessionId
           )
-          .subscribe(
-            (data: any) => {
+          .subscribe({
+            next: (data: any) => {
               console.log(data);
               this.startListeningClicked = true;
               this.showSuccessMessage(
                 'Start session message sent successfully!'
               );
             },
-            (error: any) => {
+            error: (error: any) => {
               this.showFailureMessage(
                 'Failed to send start session message.',
                 error
               );
-            }
-          );
+            },
+          });
         if (session.Type == 'BreakoutSession') {
           this.showBreakdownInProgress();
         } else {
@@ -928,7 +928,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
     // clear global state;
     this._dashboardFiltersStateService.setLiveEvent(null);
-    this._globalState.setRightSidebarState(RightSidebarState.Hidden);
+    this._globalStateService.setRightSidebarState(RightSidebarState.Hidden);
   };
 
   showSummary(): void {
@@ -1086,7 +1086,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this.activeSession().metadata['originalContent']
     );
     if (this.rightSidebarState() === RightSidebarState.Hidden) {
-      this._globalState.setRightSidebarState(RightSidebarState.Collapsed);
+      this._globalStateService.setRightSidebarState(
+        RightSidebarState.Collapsed
+      );
     }
 
     console.log('start streamAudioToWebSocket');
@@ -1339,6 +1341,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this._globalStateService.setSelectedDashboardTab(
         DashboardTabs.ProjectSpecific
       );
+      this._dashboardFiltersStateService.setShouldFetchEventDetails(true);
     }
   }
 
