@@ -26,6 +26,8 @@ export class DashboardFiltersStateService {
     this.liveEvent = this._liveEventSignal.asReadonly();
     this.liveEventState = this._liveEventStateSignal.asReadonly();
     this.liveSessionTranscript = this._liveSessionTranscriptSignal.asReadonly();
+    this.shouldFetchEventDetails =
+      this._shouldFetchEventDetailsSignal.asReadonly();
 
     this.availableSessions = computed(() => {
       const sessions = this.allSessions().filter(
@@ -60,10 +62,9 @@ export class DashboardFiltersStateService {
               )
               .map((aSession) => aSession.metadata['originalContent'].Track)
           )
-        )
+        ),
+        true
       );
-
-      console.log('sessions', sessions);
 
       return sortBy(sessions, 'label');
     });
@@ -113,6 +114,7 @@ export class DashboardFiltersStateService {
   public readonly liveSessionTranscript: Signal<
     Array<KeyValue<string, string>>
   >;
+  public readonly shouldFetchEventDetails: Signal<boolean>;
 
   private _eventNamesSignal = signal<DropdownOption[]>([]);
   private _selectedEventSignal = signal<DropdownOption | null>(null);
@@ -127,6 +129,7 @@ export class DashboardFiltersStateService {
   private _liveSessionTranscriptSignal = signal<
     Array<KeyValue<string, string>>
   >([]);
+  private _shouldFetchEventDetailsSignal = signal<boolean>(false);
 
   private readonly _selectedTracksSetSignal = computed<Set<string>>(
     () =>
@@ -182,5 +185,9 @@ export class DashboardFiltersStateService {
 
   setSelectedEvent(event: DropdownOption | null): void {
     this._selectedEventSignal.set(event);
+  }
+
+  setShouldFetchEventDetails(value: boolean): void {
+    this._shouldFetchEventDetailsSignal.set(value);
   }
 }

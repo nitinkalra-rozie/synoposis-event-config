@@ -1,5 +1,5 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RightSidebarSelectedAction, RightSidebarState } from '@syn/models';
@@ -31,12 +31,6 @@ import { SanitizeHtmlPipe } from 'src/app/@pipes/sanitize-html.pipe';
   styleUrl: './sidebar-control-panel.component.scss',
 })
 export class SidebarControlPanelComponent {
-  constructor() {
-    effect(() => {
-      // console.log('naveen', this.liveSessionTranscript());
-    });
-  }
-
   protected rightSidebarState = computed<RightSidebarState>(() =>
     this._globalStateService.rightSidebarState()
   );
@@ -65,6 +59,10 @@ export class SidebarControlPanelComponent {
 
   protected onMenuItemClick(item: RightSidebarSelectedAction): void {
     this._globalStateService.setSelectedRightSidebarAction(item);
+
+    if (item === RightSidebarSelectedAction.AllLiveSessions) {
+      this._dashboardFiltersStateService.setShouldFetchEventDetails(true);
+    }
   }
 
   protected onCollapsePanel(): void {

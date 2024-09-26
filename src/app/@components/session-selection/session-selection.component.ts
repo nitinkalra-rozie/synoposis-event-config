@@ -81,6 +81,7 @@ export class SessionSelectionComponent {
 
   protected onDropdownOpen(): void {
     // fetch latest event details
+    this._dashboardFiltersStateService.setShouldFetchEventDetails(true);
   }
 
   protected onProjectToScreen(data: ProjectionData): void {
