@@ -5,8 +5,6 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './syn-spinner.component.html',
-  styleUrl: './syn-spinner.component.scss'
+  styleUrl: './syn-spinner.component.scss',
 })
-export class SynSpinnerComponent {
-
-}
+export class SynSpinnerComponent {}
