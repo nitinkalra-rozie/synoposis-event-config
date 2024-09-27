@@ -40,7 +40,23 @@
   @include d-flex-row;
 }
 
+.projecting {
+  background-color: $primary-bg-color;
+
+  > p {
+    color: $primary-bg-color-variant-6;
+    @include caption-regular;
+  }
+}
+
 app-syn-single-select,
 app-syn-multi-select {
   margin-right: 8px;
+}
+
+app-syn-spinner {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  @include flex-center;
 }

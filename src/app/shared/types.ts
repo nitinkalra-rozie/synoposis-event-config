@@ -42,6 +42,8 @@ export interface PostData {
   theme?: string;
   primarySessionId?: any;
   sessionDescription?: string;
+  debriefFilter?: string[];
+  debriefType?: string;
 }
 export interface AuthResponse {
   data: any;

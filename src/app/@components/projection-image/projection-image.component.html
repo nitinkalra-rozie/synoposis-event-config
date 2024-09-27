@@ -35,8 +35,14 @@
       <button
         class="btn-primary-white-small"
         [disabled]="key() === 'session_insights' && liveEvent() === null"
+        [ngClass]="{ projecting: isProjecting() }"
         (click)="onProjectToScreenClick()">
-        Project to Screen
+        @if (isProjecting()) {
+          <app-syn-spinner></app-syn-spinner>
+          <p>Projecting</p>
+        } @else {
+          Project to Screen
+        }
       </button>
     </div>
   </div>

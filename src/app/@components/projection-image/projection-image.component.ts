@@ -1,4 +1,4 @@
-import { NgOptimizedImage } from '@angular/common';
+import { NgClass, NgOptimizedImage } from '@angular/common';
 import {
   Component,
   computed,
@@ -13,8 +13,12 @@ import {
 } from '@syn/components';
 import { ProjectionData } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
-import { DashboardFiltersStateService } from '@syn/services';
+import {
+  DashboardFiltersStateService,
+  ProjectionStateService,
+} from '@syn/services';
 import { replaceDashAndSpacesWithUnderscore } from '@syn/utils';
+import { SynSpinnerComponent } from '../syn-spinner/syn-spinner.component';
 
 @Component({
   selector: 'app-projection-image',
@@ -23,6 +27,8 @@ import { replaceDashAndSpacesWithUnderscore } from '@syn/utils';
     SynMultiSelectComponent,
     NgOptimizedImage,
     SynSingleSelectComponent,
+    SynSpinnerComponent,
+    NgClass,
   ],
   templateUrl: './projection-image.component.html',
   styleUrl: './projection-image.component.scss',
@@ -48,6 +54,9 @@ export class ProjectionImageComponent {
   public projectedToScreen = output<ProjectionData>();
 
   protected eventDays = computed(() => this._filtersStateService.eventDays());
+  protected isProjecting = computed(
+    () => this._projectionStateService.isProjecting()[this._identifier()]
+  );
   protected liveEvent = computed(() => this._filtersStateService.liveEvent());
   protected eventTracks = computed(() =>
     this._filtersStateService.completedTracks()
@@ -56,7 +65,11 @@ export class ProjectionImageComponent {
   protected selectedDays: DropdownOption[] = [];
   protected selectedTracks: DropdownOption[] = [];
 
+  private _identifier = computed(() =>
+    replaceDashAndSpacesWithUnderscore(this.label())
+  );
   private _filtersStateService = inject(DashboardFiltersStateService);
+  private _projectionStateService = inject(ProjectionStateService);
 
   protected onEventDaysSelect = (selectedOptions: DropdownOption[]): void => {
     this.selectedDays = [...this.eventDays()];
@@ -106,14 +119,18 @@ export class ProjectionImageComponent {
   };
 
   protected onProjectToScreenClick = (): void => {
-    this.projectedToScreen.emit({
-      identifier: replaceDashAndSpacesWithUnderscore(this.label()),
+    const payload = {
+      identifier: this._identifier(),
       selectedDays: this.selectedDays
         .filter((aDay) => aDay.isSelected)
         .map((day) => day.label),
       selectedTracks: this.selectedTracks
         .filter((aDay) => aDay.isSelected)
         .map((track) => track.label),
+    };
+    this.projectedToScreen.emit(payload);
+    setTimeout(() => {
+      this._projectionStateService.toggleProjectingState(payload.identifier);
     });
   };
 }
