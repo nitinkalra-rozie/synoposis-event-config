@@ -55,8 +55,8 @@ app-syn-multi-select {
 }
 
 app-syn-spinner {
-  width: 16px;
-  height: 16px;
-  margin-right: 5px;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.3125rem;
   @include flex-center;
 }
