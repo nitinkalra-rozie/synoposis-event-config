@@ -8,7 +8,6 @@ import {
 import { DropdownOption } from '@syn/models';
 import { getDropdownOptionsFromString } from '@syn/utils';
 import { sortBy } from 'lodash-es';
-import { EventDetailType } from '../shared/enums';
 
 @Injectable({
   providedIn: 'root',
@@ -91,15 +90,6 @@ export class DashboardFiltersStateService {
             this.setActiveSession(null);
           }
         }
-
-        console.log(
-          'xxxxxxx',
-          this.availableSessions().filter(
-            (a) =>
-              (a.metadata['originalContent'] as EventDetails).Type ===
-              EventDetailType.Session
-          )
-        );
       },
       {
         allowSignalWrites: true,
