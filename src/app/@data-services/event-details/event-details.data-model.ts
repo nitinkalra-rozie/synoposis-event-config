@@ -1,3 +1,5 @@
+import { EventDetailType } from 'src/app/shared/enums';
+
 export interface EventDetails {
   GenerateInsights: boolean;
   Event: string;
@@ -11,7 +13,7 @@ export interface EventDetails {
   SessionDescription: string;
   Status: EventStatus;
   EndsAt: string;
-  Type: EventType;
+  Type: EventDetailType;
   sid: number;
   PrimarySessionId: string;
   EventDay: string;

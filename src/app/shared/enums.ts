@@ -7,6 +7,7 @@ export enum EventDetailType {
   BreakoutSession = 'BreakoutSession',
   PrimarySession = 'PrimarySession',
   IntroSession = 'IntroSession',
+  Session = 'Session',
 }
 
 export enum ScreenDisplayType {

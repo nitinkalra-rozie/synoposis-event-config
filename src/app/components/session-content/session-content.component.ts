@@ -887,7 +887,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this.selectedEvent,
       this.selectedSessionTitle
     );
-    console.log('sessionId for end session', session);
     const postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -897,7 +896,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.sessionTitle = session.SessionSubject;
     postData.sessionDescription = session.SessionDescription;
     this.isSessionInProgress = false;
-    if (session.Type == 'BreakoutSession') {
+    if (session.Type == EventDetailType.BreakoutSession) {
       postData.action = 'endBreakoutSession';
       this.backendApiService.postData(postData).subscribe(
         (data: any) => {
@@ -912,8 +911,19 @@ export class SessionContentComponent implements OnInit, OnChanges {
           );
         }
       );
-    } else if (session.Type == 'PrimarySession') {
+    } else if (session.Type == EventDetailType.PrimarySession) {
       postData.action = 'endPrimarySession';
+      this.backendApiService.postData(postData).subscribe(
+        (data: any) => {
+          this.showSuccessMessage('End session message sent successfully!');
+          this.showPostInsightsLoading();
+        },
+        (error: any) => {
+          this.showFailureMessage('Failed to send end session message.', error);
+        }
+      );
+    } else {
+      postData.action = 'endSession';
       this.backendApiService.postData(postData).subscribe(
         (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
