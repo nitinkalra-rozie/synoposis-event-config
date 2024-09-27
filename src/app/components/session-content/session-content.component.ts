@@ -923,7 +923,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       return;
     } else {
       const postData: PostData = {};
-      postData.action = 'summary_of_Single_Keynote';
+      postData.action = 'generateEventDebrief';
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
