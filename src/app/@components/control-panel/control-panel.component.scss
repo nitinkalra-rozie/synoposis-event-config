@@ -153,7 +153,7 @@ p {
 .btn-destructive-default {
   width: 7.2vw;
   max-width: 105px;
-  border-radius: 100px;
+  border-radius: 4px;
 
   > mat-icon {
     width: 16px;
@@ -329,7 +329,7 @@ p {
 .rounded-button {
   width: 7.2vw;
   max-width: 105px;
-  border-radius: 100px;
+  border-radius: 4px;
   height: 32px;
   padding: 5px 8px 5px 8px;
   background-color: $primary-bg-color-variant-1;

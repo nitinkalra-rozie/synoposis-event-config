@@ -10,6 +10,7 @@
     imgUrl="assets/projections/session_debriefs.svg"
     label="Session Debriefs"></app-projection-image>
   <app-projection-image
+    (projectedToScreen)="screenProjected.emit($event)"
     filterType="days"
     imgUrl="assets/projections/daily_debriefs.svg"
     label="Daily Debriefs"></app-projection-image>

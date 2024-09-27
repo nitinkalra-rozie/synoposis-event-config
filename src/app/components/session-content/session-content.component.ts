@@ -32,6 +32,7 @@ import {
 import {
   DashboardFiltersStateService,
   GlobalStateService,
+  ProjectionStateService,
 } from '@syn/services';
 import { generateSHA256HashHex, generateUniqueId } from '@syn/utils';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
@@ -131,59 +132,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     [EventCardType.Info]: '',
   };
 
-  event_cards = [
-    {
-      cardType: EventCardType.Welcome,
-      title: 'Welcome Screen',
-      imageUrl: '../../../assets/admin-screen/welcome_screen.svg',
-      daySelector: true,
-      displayFunction: () => this.showWelcomeMessageBanner(),
-    },
-    {
-      cardType: EventCardType.ThankYou,
-      title: 'Thank You Screen',
-      imageUrl: '../../../assets/admin-screen/thank_you_page.svg',
-      daySelector: true,
-      displayFunction: () => this.showThankYouScreen(),
-    },
-    {
-      cardType: EventCardType.Info,
-      title: 'Info Screen',
-      imageUrl: '../../../assets/admin-screen/qr_screen.svg',
-      daySelector: false,
-      displayFunction: () => this.showInfoScreen(),
-    },
-  ];
-  session_cards = [
-    {
-      title: 'Title & Speaker Name Screen',
-      imageUrl: '../../../assets/admin-screen/moderator_screen.svg',
-      daySelector: true,
-      displayFunction: () => this.showKeyNote(),
-    },
-    {
-      title: 'Real-time Insights Screen',
-      imageUrl: '../../../assets/admin-screen/realtime_screen.svg',
-      daySelector: true,
-      displayFunction: () => this.showLoadingInsights(),
-    },
-    {
-      title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin-screen/summary_screen.svg',
-      icon: '../../../assets/admin-screen/note.svg',
-      daySelector: true,
-      displayFunction: () => this.endSessionPopUpPostInsights(),
-    },
-  ];
-  multi_session_card = [
-    {
-      title: 'Post Session Insights Screens',
-      imageUrl: '../../../assets/admin-screen/summary_screen.svg',
-      icon: '../../../assets/admin-screen/note.svg',
-      displayFunction: () => this.showSummary(),
-    },
-  ];
-
   protected selectedDashboardTab = computed(() =>
     this._globalStateService.selectedDashboardTab()
   );
@@ -220,7 +168,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     private modalService: ModalService,
     private micService: MicrophoneService,
     private _globalStateService: GlobalStateService,
-    private _dashboardFiltersStateService: DashboardFiltersStateService
+    private _dashboardFiltersStateService: DashboardFiltersStateService,
+    private _projectionStateService: ProjectionStateService
   ) {
     effect(
       () => {
@@ -469,18 +418,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this.failureMessage = '';
     }, 5000);
   }
-  showWelcomeMessageBanner(): void {
+  showWelcomeMessageBanner(screenIdentifier: string): void {
     const postData: PostData = {};
     postData.action = 'welcome';
     postData.eventName = this.selectedEvent;
     postData.day = this.eventDay[EventCardType.Welcome];
-    this.backendApiService.postData(postData).subscribe(
-      (data: any) => {
-        this.showSuccessMessage('Welcome message screen sent successfully!');
-      },
-      (error: any) => {
-        this.showFailureMessage('Failed to send welcome message.', error);
-      }
+
+    this.postData(
+      postData,
+      screenIdentifier,
+      'Welcome message screen sent successfully!',
+      'Failed to send welcome message.'
     );
   }
   showSnapshot(): void {
@@ -506,38 +454,32 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  showThankYouScreen(): void {
+  showThankYouScreen(screenIdentifier: string): void {
     const postData: PostData = {};
     postData.action = 'thank_you';
     postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    this.backendApiService.postData(postData).subscribe(
-      (data: any) => {
-        this.showSuccessMessage('Thank you message sent successfully!');
-        console.log(data);
-      },
-      (error: any) => {
-        this.showFailureMessage('Failed to send thank you message.', error);
-      }
+    this.postData(
+      postData,
+      screenIdentifier,
+      'Thank you message sent successfully!',
+      'Failed to send thank you message.'
     );
   }
 
   //it is qr screen
-  showInfoScreen(): void {
+  showInfoScreen(screenIdentifier: string): void {
     const postData: PostData = {};
     postData.action = 'qr_screen';
     postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    this.backendApiService.postData(postData).subscribe(
-      (data: any) => {
-        console.log(data);
-        this.showSuccessMessage('Qr message sent successfully!');
-      },
-      (error: any) => {
-        this.showFailureMessage('Failed to send qr message.', error);
-      }
+    this.postData(
+      postData,
+      screenIdentifier,
+      'Qr message sent successfully!',
+      'Failed to send qr message.'
     );
   }
   findSession = (event: string, SessionTitle: string) => {
@@ -573,7 +515,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  showKeyNote() {
+  showKeyNote(screenIdentifier: string) {
     if (this.selectedDay != '' && this.selectedSessionTitle != '') {
       const sessionDetails = this.findSession(
         this.selectedEvent,
@@ -597,16 +539,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.sessionTitle = sessionDetails.SessionSubject;
         postData.keyNoteData = sessionDetails;
         postData.primarySessionId = sessionDetails.PrimarySessionId;
-        this.backendApiService.postData(postData).subscribe(
-          () => {
-            this.showSuccessMessage('Show speakers details sent successfully!');
-          },
-          (error: any) => {
-            this.showFailureMessage(
-              'Failed to send show speakers details.',
-              error
-            );
-          }
+        this.postData(
+          postData,
+          screenIdentifier,
+          'Show speakers details sent successfully!',
+          'Failed to send show speakers details.'
         );
       }
     } else {
@@ -764,7 +701,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.modalService.close();
   };
 
-  showLoadingInsights() {
+  showLoadingInsights(screenIdentifier?: string) {
     const postData: PostData = {};
     if (this.selectedDay != '' && this.selectedSessionTitle != '') {
       const sessionDetails = this.findSession(
@@ -785,7 +722,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.domain = this.selectedDomain;
         postData.action = 'insightsLoading';
         postData.sessionTitle = sessionDetails.SessionSubject;
-        this.backendApiService.postData(postData).subscribe(() => {});
+        this.postData(postData, screenIdentifier, null, null);
       }
     } else {
       this.modalService.open(
@@ -942,7 +879,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._globalStateService.setRightSidebarState(RightSidebarState.Hidden);
   };
 
-  showSummary(): void {
+  showSummary(screenIdentifier: string): void {
     // Check if a keynote type is selected
     this.sessionIds = [];
     if (this.selectedOptions.length <= 0) {
@@ -965,17 +902,40 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionId = this.sessionIds;
-      this.backendApiService.postData(postData).subscribe(
-        (data: any) => {
-          console.log(data);
-          this.showSuccessMessage('Single keynote message sent successfully!');
-        },
-        (error: any) => {
-          this.showFailureMessage(
-            'Failed to send single keynote message.',
-            error
-          );
-        }
+      this.postData(
+        postData,
+        screenIdentifier,
+        'Single keynote message sent successfully!',
+        'Failed to send single keynote message.'
+      );
+    }
+  }
+
+  showDailySummary(screenIdentifier: string, selectedDays: string[]): void {
+    if (selectedDays.length <= 0) {
+      this.modalService.open(
+        'Confirm Action',
+        'select the sessions to show the daily summary!',
+        'ok',
+        () => {},
+        this.handleNoSelect
+      );
+      return;
+    } else {
+      const postData: PostData = {};
+      postData.action = 'generateEventDebrief';
+      postData.eventName = this.selectedEvent;
+      postData.domain = this.selectedDomain;
+      postData.debriefFilter = selectedDays;
+      postData.sessionId = 'event_debrief';
+      postData.screenTimeout = 60;
+      postData.debriefType = 'DAILY';
+
+      this.postData(
+        postData,
+        screenIdentifier,
+        'Daily debrief message sent successfully!',
+        'Failed to send daily debrief message.'
       );
     }
   }
@@ -1371,32 +1331,58 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._projectScreen(data);
   }
 
+  private postData(
+    postData: PostData,
+    identifier?: string,
+    successMessage?: string,
+    errorMessage?: string
+  ) {
+    this.backendApiService.postData(postData).subscribe({
+      next: () => {
+        if (successMessage) {
+          this.showSuccessMessage(successMessage);
+        }
+        if (identifier) {
+          this._projectionStateService.toggleProjectingState(identifier);
+        }
+      },
+      error: (error: any) => {
+        if (errorMessage) {
+          this.showFailureMessage(errorMessage, error);
+        }
+        if (identifier) {
+          this._projectionStateService.toggleProjectingState(identifier);
+        }
+      },
+    });
+  }
+
   private _projectScreen(data: ProjectionData) {
     switch (data.identifier) {
       case 'session_title': {
-        this.showKeyNote();
+        this.showKeyNote(data.identifier);
         return;
       }
       case 'session_insights': {
-        this.showLoadingInsights();
+        this.showLoadingInsights(data.identifier);
         return;
       }
       case 'event_info': {
         this.selectedEvent = this.selectedEventName().label;
         this.eventDay[EventCardType.Info] = data.selectedDays[0] ?? '';
-        this.showInfoScreen();
+        this.showInfoScreen(data.identifier);
         return;
       }
       case 'welcome_message': {
         this.selectedEvent = this.selectedEventName().label;
         this.eventDay[EventCardType.Welcome] = data.selectedDays[0];
-        this.showWelcomeMessageBanner();
+        this.showWelcomeMessageBanner(data.identifier);
         return;
       }
       case 'thank_you_message': {
         this.selectedEvent = this.selectedEventName().label;
         this.eventDay[EventCardType.ThankYou] = data.selectedDays[0];
-        this.showThankYouScreen();
+        this.showThankYouScreen(data.identifier);
         return;
       }
       case 'session_debriefs': {
@@ -1419,7 +1405,12 @@ export class SessionContentComponent implements OnInit, OnChanges {
           )
         );
         this.selectedMultiSessionDay = undefined; // hardcoded since it's no longer in use but required from BE
-        this.showSummary();
+        this.showSummary(data.identifier);
+        return;
+      }
+      case 'daily_debriefs': {
+        this.selectedEvent = this.selectedEventName().label;
+        this.showDailySummary(data.identifier, data.selectedDays);
         return;
       }
     }

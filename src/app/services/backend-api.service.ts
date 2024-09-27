@@ -55,6 +55,8 @@ export class BackendApiService {
       theme: data.theme,
       transcript: data.transcript,
       sessionDescription: data.sessionDescription,
+      debriefType: data.debriefType ?? null,
+      debriefFilter: data.debriefFilter ?? null,
     };
     if (data.action === 'realTimeInsights') {
       body.keyNoteData = {};
