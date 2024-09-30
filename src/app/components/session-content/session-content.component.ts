@@ -1385,7 +1385,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.showThankYouScreen(data.identifier);
         return;
       }
-      case 'session_debriefs': {
+      case 'past_session_debriefs': {
         this.selectedEvent = this.selectedEventName().label;
         this.selectedOptions = Array.from(
           new Set(
