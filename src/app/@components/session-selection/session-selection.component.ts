@@ -84,15 +84,12 @@ export class SessionSelectionComponent {
       '_blank',
       'toolbar=1,resizable=1,width=' + screen.width + ',height=' + screen.height
     );
-    console.log('newWindow', newWindow);
-
     if (newWindow) {
       newWindow.moveTo(0, 0);
       newWindow.resizeTo(screen.width, screen.height);
     } else {
       console.error('Failed to open new window');
     }
-
     return false;
   }
 
