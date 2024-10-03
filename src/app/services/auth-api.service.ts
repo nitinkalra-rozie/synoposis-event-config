@@ -9,7 +9,7 @@ export class AuthApiService {
   constructor(private http: HttpClient) {
     this._headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      Authorization: localStorage.getItem('idToken') || '',
+      Authorization: localStorage.getItem('accessToken') || '',
     });
   }
 

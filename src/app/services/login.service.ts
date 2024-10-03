@@ -159,7 +159,7 @@ export class LoginService {
       map((response) => {
         if (
           response.AuthenticationResult &&
-          response.AuthenticationResult.IdToken
+          response.AuthenticationResult.AccessToken
         ) {
           this.authService.saveAuthInLocal(response);
           return response;
