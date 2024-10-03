@@ -6,7 +6,7 @@ import {
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
-import { getDropdownOptionsFromString } from '@syn/utils';
+import { getAbsoluteDate, getDropdownOptionsFromString } from '@syn/utils';
 import { map, sortBy } from 'lodash-es';
 
 @Injectable({
@@ -51,7 +51,10 @@ export class DashboardFiltersStateService {
         ),
         (session) => ({
           ...session,
-          label: `${session.metadata['originalContent'].EventDay}  - ${session.label}`,
+          label: `${session.metadata['originalContent'].EventDay} - ${getAbsoluteDate(
+            session.metadata['originalContent'].StartsAt,
+            'LT'
+          )} - ${session.label} - ${session.metadata['originalContent'].Track} - ${session.metadata['originalContent'].Location}`,
         })
       );
     });

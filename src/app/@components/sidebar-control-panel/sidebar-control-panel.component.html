@@ -92,7 +92,7 @@
     <div class="form-row">
       <p class="label">Date</p>
       <p class="value">
-        {{ liveEvent().StartsAt | formatDate: 'DD MMMM YYYY' ?? 'N/A' }}
+        {{ liveEvent().StartsAt | absoluteDate: 'DD MMMM YYYY' ?? 'N/A' }}
       </p>
     </div>
     <div class="form-row">
