@@ -78,14 +78,22 @@ export class SessionSelectionComponent {
     this.isProjectOnPhysicalScreen.set(false);
   }
 
-  protected openSessionInNewWindow(): void {
+  protected openSessionInNewWindow(): boolean {
     const newWindow = window.open(
       this.getSessionUrl,
       '_blank',
-      'toolbar=1,resizable=1'
+      'toolbar=1,resizable=1,width=' + screen.width + ',height=' + screen.height
     );
-    newWindow.moveTo(0, 0);
-    newWindow.resizeTo(screen.width, screen.height);
+    console.log('newWindow', newWindow);
+
+    if (newWindow) {
+      newWindow.moveTo(0, 0);
+      newWindow.resizeTo(screen.width, screen.height);
+    } else {
+      console.error('Failed to open new window');
+    }
+
+    return false;
   }
 
   protected copyToClipboard(): void {
