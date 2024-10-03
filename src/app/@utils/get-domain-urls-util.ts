@@ -1,5 +1,5 @@
-export const getDomainUrl = (): string => {
-  const hostname = window.location.hostname;
+export const getInsightsDomainUrl = (): string => {
+  const hostname = window.location.hostname.replace('admin.', '');
   const protocol = window.location.protocol;
   let port = window.location.port;
   let domainName = `${protocol}//${hostname}`;

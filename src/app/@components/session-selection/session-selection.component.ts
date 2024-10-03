@@ -16,7 +16,7 @@ import { ProjectionData } from '@syn/data-services';
 import { orderBy } from 'lodash-es';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { getDomainUrl } from '@syn/utils';
+import { getInsightsDomainUrl } from '@syn/utils';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -43,7 +43,7 @@ export class SessionSelectionComponent {
   public screenProjected = output<ProjectionData>();
 
   protected get getSessionUrl(): string {
-    return `${getDomainUrl()}/session/${this.activeSession().metadata['originalContent'].PrimarySessionId}`;
+    return `${getInsightsDomainUrl()}/session/${this.activeSession().metadata['originalContent'].PrimarySessionId}`;
   }
 
   protected isProjectOnPhysicalScreen = signal(false);
@@ -78,7 +78,7 @@ export class SessionSelectionComponent {
     this.isProjectOnPhysicalScreen.set(false);
   }
 
-  protected openSessionInNewWindow(): boolean {
+  protected openSessionInNewWindow(): void {
     const newWindow = window.open(
       this.getSessionUrl,
       '_blank',
@@ -86,7 +86,6 @@ export class SessionSelectionComponent {
     );
     newWindow.moveTo(0, 0);
     newWindow.resizeTo(screen.width, screen.height);
-    return false;
   }
 
   protected copyToClipboard(): void {
