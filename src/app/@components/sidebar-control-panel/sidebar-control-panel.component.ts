@@ -3,7 +3,10 @@ import { Component, computed, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RightSidebarSelectedAction, RightSidebarState } from '@syn/models';
-import { FormatDatePipe, SelectedQuickActionHeaderTitlePipe } from '@syn/pipes';
+import {
+  AbsoluteDatePipe,
+  SelectedQuickActionHeaderTitlePipe,
+} from '@syn/pipes';
 import {
   DashboardFiltersStateService,
   GlobalStateService,
@@ -13,18 +16,14 @@ import { SanitizeHtmlPipe } from 'src/app/@pipes/sanitize-html.pipe';
 @Component({
   selector: 'app-sidebar-control-panel',
   standalone: true,
-  providers: [
-    SelectedQuickActionHeaderTitlePipe,
-    FormatDatePipe,
-    SanitizeHtmlPipe,
-  ],
+  providers: [SelectedQuickActionHeaderTitlePipe, SanitizeHtmlPipe],
   imports: [
     NgClass,
     MatIconModule,
     MatTooltipModule,
     SelectedQuickActionHeaderTitlePipe,
     NgTemplateOutlet,
-    FormatDatePipe,
+    AbsoluteDatePipe,
     SanitizeHtmlPipe,
   ],
   templateUrl: './sidebar-control-panel.component.html',

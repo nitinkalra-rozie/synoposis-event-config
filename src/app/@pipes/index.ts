@@ -1,4 +1,4 @@
-export * from './format-date.pipe';
+export * from './absolute-date.pipe';
 export * from './get-checkbox-option-from-multi-select.pipe';
 export * from './get-dropdown-option-from-object.pipe';
 export * from './get-filtered-dropdown-options.pipe';
