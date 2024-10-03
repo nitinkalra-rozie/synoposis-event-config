@@ -25,10 +25,34 @@
       (optionSelected)="onEventDaysSelect($event)"
       label="Select Days"></app-syn-multi-select>
 
-    <app-syn-multi-select
-      [options]="eventTracks()"
-      (optionSelected)="onEventTracksSelect($event)"
-      label="Select Track"></app-syn-multi-select>
+    <section class="filter-by-toggle">
+      <div class="filter-by-label">Filter by</div>
+
+      <mat-button-toggle-group
+        name="Filter by"
+        class="filter-by-toggle-group"
+        [(ngModel)]="selectedFilter"
+        aria-label="Filter by toggle">
+        <mat-button-toggle class="toggle" value="location"
+          >Location</mat-button-toggle
+        >
+        <mat-button-toggle class="toggle" value="track"
+          >Track</mat-button-toggle
+        >
+      </mat-button-toggle-group>
+    </section>
+
+    @if (selectedFilter() === 'location') {
+      <app-syn-multi-select
+        [options]="eventLocations()"
+        (optionSelected)="onEventLocationsSelect($event)"
+        label="Select Location" />
+    } @else if (selectedFilter() === 'track') {
+      <app-syn-multi-select
+        [options]="eventTracks()"
+        (optionSelected)="onEventTracksSelect($event)"
+        label="Select Track" />
+    }
 
     <!-- <app-main-drop-down
       [disabled]="false"
