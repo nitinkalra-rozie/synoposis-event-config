@@ -1,6 +1,7 @@
 import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, output } from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DropdownOption, RightSidebarState } from '@syn/models';
 import {
   DashboardFiltersStateService,
@@ -12,16 +13,25 @@ import {
 } from '@syn/components';
 import { ModalService } from 'src/app/services/modal.service';
 import { ProjectionData } from '@syn/data-services';
+import { orderBy } from 'lodash-es';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { getDomainUrl } from '@syn/utils';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-session-selection',
   standalone: true,
   imports: [
-    SynSingleSelectComponent,
-    MatIconModule,
-    NgOptimizedImage,
-    NgTemplateOutlet,
     NgClass,
+    NgTemplateOutlet,
+    NgOptimizedImage,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatButtonModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
+    SynSingleSelectComponent,
     ProjectionImageComponent,
   ],
   templateUrl: './session-selection.component.html',
@@ -32,8 +42,18 @@ export class SessionSelectionComponent {
   public streamStopped = output();
   public screenProjected = output<ProjectionData>();
 
+  protected get getSessionUrl(): string {
+    return `${getDomainUrl()}/session/${this.activeSession().metadata['originalContent'].PrimarySessionId}`;
+  }
+
+  protected isProjectOnPhysicalScreen = signal(false);
+
   protected availableSessions = computed(() =>
-    this._dashboardFiltersStateService.availableSessions()
+    orderBy(
+      this._dashboardFiltersStateService.availableSessions(),
+      (session) => session.metadata['isIndicatorActive'],
+      'desc'
+    )
   );
   protected activeSession = computed(() =>
     this._dashboardFiltersStateService.activeSession()
@@ -55,6 +75,22 @@ export class SessionSelectionComponent {
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
+    this.isProjectOnPhysicalScreen.set(false);
+  }
+
+  protected openSessionInNewWindow(): boolean {
+    const newWindow = window.open(
+      this.getSessionUrl,
+      '_blank',
+      'toolbar=1,resizable=1'
+    );
+    newWindow.moveTo(0, 0);
+    newWindow.resizeTo(screen.width, screen.height);
+    return false;
+  }
+
+  protected copyToClipboard(): void {
+    navigator.clipboard.writeText(this.getSessionUrl);
   }
 
   protected onStartListening(): void {

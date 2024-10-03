@@ -9,13 +9,13 @@
       [themeOptions]="themeOptions"
       [transcriptTimeOut]="transcriptTimeOut"
       (onReset)="handleReset()"
-      (onUpdatePostData)="updatePostData($event)"></app-event-controls>
+      (onUpdatePostData)="updatePostData($event)" />
     <div class="session-wrapper">
       <app-session-content
         [eventControls]="postData"
         [selectedEventProp]="postData.eventName"
         [selectedThemeProp]="postData.theme"
-        [transcriptTimeOutProp]="postData.screenTimeout"></app-session-content>
+        [transcriptTimeOutProp]="postData.screenTimeout" />
     </div>
   </div>
   <div></div>

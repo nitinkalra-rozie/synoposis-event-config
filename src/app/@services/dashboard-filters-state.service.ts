@@ -7,7 +7,7 @@ import {
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
 import { getDropdownOptionsFromString } from '@syn/utils';
-import { sortBy } from 'lodash-es';
+import { map, sortBy } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +19,7 @@ export class DashboardFiltersStateService {
   constructor() {
     this.eventNames = this._eventNamesSignal.asReadonly();
     this.selectedEvent = this._selectedEventSignal.asReadonly();
+    this.eventLocations = this._eventLocationsSignal.asReadonly();
     this.eventTracks = this._eventTracksSignal.asReadonly();
     this.eventDays = this._eventDaysSignal.asReadonly();
     this.activeSession = this._activeSessionSignal.asReadonly();
@@ -37,12 +38,21 @@ export class DashboardFiltersStateService {
           ) &&
           this._selectedDaysSetSignal().has(
             aSession.metadata['originalContent'].EventDay
+          ) &&
+          this._selectedLocationsSetSignal().has(
+            aSession.metadata['originalContent'].Location
           )
       );
 
-      return sortBy(
-        sessions,
-        (event) => new Date(event.metadata['originalContent'].StartsAt)
+      return map(
+        sortBy(
+          sessions,
+          (event) => new Date(event.metadata['originalContent'].StartsAt)
+        ),
+        (session) => ({
+          ...session,
+          label: `${session.metadata['originalContent'].EventDay}  - ${session.label}`,
+        })
       );
     });
 
@@ -102,6 +112,7 @@ export class DashboardFiltersStateService {
   public readonly activeSession: Signal<DropdownOption | null>;
   public readonly eventNames: Signal<DropdownOption[]>;
   public readonly selectedEvent: Signal<DropdownOption | null>;
+  public readonly eventLocations: Signal<DropdownOption[]>;
   public readonly eventTracks: Signal<DropdownOption[]>;
   public readonly eventDays: Signal<DropdownOption[]>;
   public readonly completedTracks: Signal<DropdownOption[]>;
@@ -117,6 +128,7 @@ export class DashboardFiltersStateService {
   private _selectedEventSignal = signal<DropdownOption | null>(null);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
   private _eventDaysSignal = signal<DropdownOption[]>([]);
+  private _eventLocationsSignal = signal<DropdownOption[]>([]);
   private _allSessionsSignal = signal<DropdownOption[]>([]);
   private _activeSessionSignal = signal<DropdownOption | null>(null);
   private _liveEventSignal = signal<EventDetails | null>(null);
@@ -127,6 +139,15 @@ export class DashboardFiltersStateService {
     Array<KeyValue<string, string>>
   >([]);
   private _shouldFetchEventDetailsSignal = signal<boolean>(false);
+
+  private readonly _selectedLocationsSetSignal = computed<Set<string>>(
+    () =>
+      new Set(
+        this.eventLocations()
+          .filter((aTrack) => aTrack.isSelected)
+          .map((aTrack) => aTrack.label)
+      )
+  );
 
   private readonly _selectedTracksSetSignal = computed<Set<string>>(
     () =>
@@ -152,6 +173,11 @@ export class DashboardFiltersStateService {
   setEventDays(days: DropdownOption[]): void {
     const sorted = sortBy(days, 'label');
     this._eventDaysSignal.set(sorted);
+  }
+
+  setEventLocations(locations: DropdownOption[]): void {
+    const sorted = sortBy(locations, 'label');
+    this._eventLocationsSignal.set(sorted);
   }
 
   setEventTracks(tracks: DropdownOption[]): void {

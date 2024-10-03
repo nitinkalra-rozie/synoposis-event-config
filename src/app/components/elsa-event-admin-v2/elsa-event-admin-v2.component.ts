@@ -88,6 +88,9 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   private _eventTracks = computed(() =>
     this._filtersStateService.eventTracks()
   );
+  private _eventLocations = computed(() =>
+    this._filtersStateService.eventLocations()
+  );
 
   constructor() {
     effect(
@@ -212,7 +215,20 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
       );
     this._filtersStateService.setEventDays(eventDaysArray);
 
+    this.populateEventLocations(filteredByEvent);
     this.populateEventTracks(filteredByEvent);
+  }
+
+  populateEventLocations(eventDetailsForEvent: EventDetail[]) {
+    this._filtersStateService.setEventLocations(
+      this._getMultiSelectOptionFromStringPipe.transform(
+        Array.from(
+          new Set(eventDetailsForEvent.map((event) => event.Location))
+        ),
+        true,
+        this._eventLocations()
+      )
+    );
   }
 
   populateEventTracks(eventDetailsForEvent: EventDetail[]) {

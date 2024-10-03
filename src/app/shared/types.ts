@@ -27,6 +27,7 @@ export interface EventDetail {
   // BreakoutSessions?: BreakoutSession[];
 
   Track: string;
+  Location: string;
 }
 
 export interface PostData {

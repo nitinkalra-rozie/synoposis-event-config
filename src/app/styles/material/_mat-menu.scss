@@ -1,36 +1,48 @@
 @use '../helpers/helpers-dir' as *;
 
+// previously multiplied value * 0.77
 $session-selection-menu-width-right-sidebar-expanded: calc(
   calc(
-      100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
-        88px
-    ) * 0.77
+    100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+      $stepper-content-number-size - $stepper-content-gap - 88px
+  )
 );
 $session-selection-menu-width-right-sidebar-collapsed: calc(
   calc(
-      100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
-        88px
-    ) * 0.77
+    100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+      $stepper-content-number-size - $stepper-content-gap - 88px
+  )
 );
 $session-selection-menu-width-right-sidebar-hidden: calc(
-  calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.77
+  calc(
+    100vw - $left-sidebar-collapsed-width - $stepper-content-number-size -
+      $stepper-content-gap - 88px
+  )
 );
 
 .session-selection-menu {
-  width: $session-selection-menu-width-right-sidebar-hidden;
-  max-width: 756px !important;
+  // #region commented due to the use of the new design
+  // width: calc(100% - 88px);
+  // max-width: 756px !important;
+  // min-width: 100% !important;
+  // #endregion
+
+  width: $session-selection-menu-width-right-sidebar-hidden !important;
   box-shadow: $box-shadow-simple-drop-5;
-  min-width: unset !important;
   min-height: 100px;
   max-height: 345px;
   height: auto;
 
+  &.mat-mdc-menu-panel {
+    max-width: 100%;
+  }
+
   &.right-sidebar-expanded {
-    width: $session-selection-menu-width-right-sidebar-expanded;
+    width: $session-selection-menu-width-right-sidebar-expanded !important;
   }
 
   &.right-sidebar-collapsed {
-    width: $session-selection-menu-width-right-sidebar-collapsed;
+    width: $session-selection-menu-width-right-sidebar-collapsed !important;
   }
 
   .mat-mdc-menu-content {

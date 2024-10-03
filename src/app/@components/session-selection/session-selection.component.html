@@ -7,6 +7,10 @@
       'right-sidebar-collapsed':
         rightSidebarState() === RightSidebarState.Collapsed,
     }">
+    <div class="step-number-wrapper">
+      <div class="step-number">1</div>
+    </div>
+
     <app-syn-single-select
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
@@ -17,17 +21,11 @@
         matMenuClass: 'session-selection-menu',
       }"
       (dropdownOpened)="onDropdownOpen()"
-      (optionSelected)="onOptionSelect($event)"></app-syn-single-select>
-    <button
-      class="btn-primary-default btn-start-listening"
-      [disabled]="activeSession() === null"
-      (click)="onStartListening()">
-      <mat-icon>settings_voice</mat-icon>
-      <p>Start Listening</p>
-    </button>
+      (optionSelected)="onOptionSelect($event)" />
   </div>
   <div class="content">
-    <ng-container
+    <!-- #region commented due to the experience change -->
+    <!-- <ng-container
       *ngTemplateOutlet="
         sessionInfo;
         context: {
@@ -39,7 +37,7 @@
                 : 'session_title',
           },
         }
-      "></ng-container>
+      " />
     <ng-container
       *ngTemplateOutlet="
         sessionInfo;
@@ -52,7 +50,63 @@
                 : 'session_insights',
           },
         }
-      "></ng-container>
+      " /> -->
+    <!-- #endregion -->
+
+    <div class="content-steps-container">
+      <div class="content-step">
+        <div class="step-number-wrapper">
+          <div class="step-number">2</div>
+        </div>
+        <div class="step-details">
+          <div class="step-label">
+            Do you want to project the session on a physical screen?
+          </div>
+          <mat-slide-toggle
+            [checked]="isProjectOnPhysicalScreen()"
+            [disabled]="activeSession() === null"
+            (change)="
+              isProjectOnPhysicalScreen.set(!isProjectOnPhysicalScreen())
+            " />
+
+          @if (isProjectOnPhysicalScreen()) {
+            <a
+              class="open-link"
+              [attr.data-id]="getSessionUrl"
+              [href]="getSessionUrl"
+              (click)="openSessionInNewWindow()"
+              data-type="URL"
+              rel="noopener noreferrer"
+              target="_blank">
+              Open Screen to Project
+            </a>
+
+            <button
+              mat-icon-button
+              matTooltip="Click to copy URL"
+              class="copy-icon-button"
+              (click)="copyToClipboard()">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="content-step">
+        <div class="step-number-wrapper">
+          <div class="step-number">3</div>
+        </div>
+        <div class="step-details">
+          <button
+            class="btn-primary-default btn-start-listening"
+            [disabled]="activeSession() === null"
+            (click)="onStartListening()">
+            <mat-icon>settings_voice</mat-icon>
+            <p>Start Listening</p>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

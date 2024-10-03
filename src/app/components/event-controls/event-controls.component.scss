@@ -36,6 +36,29 @@
       width: calc($right-sidebar-collapsed-content-container-width / 3);
     }
   }
+
+  .filter-by-toggle {
+    margin-right: 1.125rem;
+    @include font-13();
+    color: $primary-bg-color-variant-6;
+
+    .filter-by-label {
+      margin-bottom: 0.5rem;
+    }
+
+    .filter-by-toggle-group {
+      border-radius: 0.25rem;
+      border: 1px solid $primary-bg-color-variant-3;
+
+      .toggle {
+        color: $primary-bg-color-variant-6;
+      }
+
+      :nth-child(2) {
+        border-left: 1px solid $primary-bg-color-variant-3;
+      }
+    }
+  }
 }
 
 app-syn-multi-select,

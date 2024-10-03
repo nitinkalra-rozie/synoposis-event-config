@@ -7,7 +7,9 @@ import {
   Input,
   OnInit,
   Output,
+  signal,
 } from '@angular/core';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
   SynMultiSelectComponent,
   SynSingleSelectComponent,
@@ -31,6 +33,7 @@ import {
 } from 'src/app/shared/enums';
 import { PostData } from 'src/app/shared/types';
 import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-event-controls',
@@ -39,10 +42,12 @@ import { MainDropDownComponent } from '../main-drop-down/main-drop-down.componen
   providers: [GetMultiSelectOptionFromStringPipe],
   standalone: true,
   imports: [
+    NgClass,
+    FormsModule,
+    MatButtonToggleModule,
     MainDropDownComponent,
     SynMultiSelectComponent,
     GetMultiSelectOptionFromStringPipe,
-    NgClass,
     SynSingleSelectComponent,
   ],
 })
@@ -58,6 +63,8 @@ export class EventControlsComponent implements OnInit {
   postInsideInterval: number = TransitionTimes['15 Seconds'];
   postInsideValue: string = TransitionTimesEnum.Seconds15;
 
+  protected selectedFilter = signal<'track' | 'location'>('track');
+
   // @Input() eventNames: string[] = [];
   @Input() transcriptTimeOut: { label: string; value: number } = {
     label: TimeWindowsEnum.Seconds60,
@@ -66,6 +73,7 @@ export class EventControlsComponent implements OnInit {
   @Input() postData: PostData = INITIAL_POST_DATA;
   @Input() themeOptions: ThemeOptions[];
 
+  eventLocations = computed(() => this._filtersStateService.eventLocations());
   eventTracks = computed(() => this._filtersStateService.eventTracks());
   eventDays = computed(() => this._filtersStateService.eventDays());
   eventNames = computed(() => this._filtersStateService.eventNames());
@@ -121,6 +129,25 @@ export class EventControlsComponent implements OnInit {
     this.postInsideInterval = TransitionTimes['15 Seconds'];
     this.postInsideValue = TransitionTimesEnum.Seconds15;
     this.onReset.emit();
+  };
+
+  onEventLocationsSelect = (selectedOptions: DropdownOption[]) => {
+    const locationsCopy = [...this.eventLocations()];
+    const selectedLabels: string[] = [];
+    for (const aOption of selectedOptions) {
+      if (aOption.isSelected) {
+        selectedLabels.push(aOption.label);
+      }
+    }
+    const selectedLocationsSet = new Set(selectedLabels);
+    locationsCopy.forEach((aOption) => {
+      if (selectedLocationsSet.has(aOption.label)) {
+        aOption.isSelected = true;
+      } else {
+        aOption.isSelected = false;
+      }
+    });
+    this._filtersStateService.setEventLocations(locationsCopy);
   };
 
   onEventTracksSelect = (selectedOptions: DropdownOption[]) => {
