@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DropdownOption, RightSidebarState } from '@syn/models';
 import {
+  BrowserWindowService,
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
@@ -65,6 +66,7 @@ export class SessionSelectionComponent {
 
   //#region DI
   private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
+  private _windowService = inject(BrowserWindowService);
   private _globalState = inject(GlobalStateService);
   private _modalService = inject(ModalService);
   //#endregion
@@ -79,17 +81,9 @@ export class SessionSelectionComponent {
   }
 
   protected openSessionInNewWindow(): boolean {
-    const newWindow = window.open(
-      this.getSessionUrl,
-      '_blank',
-      'toolbar=1,resizable=1,width=' + screen.width + ',height=' + screen.height
+    this._windowService.openInsightsSessionWindow(
+      this.activeSession().metadata['originalContent'].PrimarySessionId
     );
-    if (newWindow) {
-      newWindow.moveTo(0, 0);
-      newWindow.resizeTo(screen.width, screen.height);
-    } else {
-      console.error('Failed to open new window');
-    }
     return false;
   }
 
