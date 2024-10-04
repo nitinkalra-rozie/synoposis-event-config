@@ -43,6 +43,18 @@ export class ProjectionImageComponent {
         this.selectedDays?.length === 0
       ) {
         this.selectedDays.push(this.eventDays()[0]);
+      } else if (
+        this.eventTracks()?.length &&
+        this.filterType() === 'tracks' &&
+        this.selectedTracks?.length === 0
+      ) {
+        this.selectedTracks = this.eventTracks();
+      } else if (
+        this.eventDays()?.length &&
+        this.filterType() === 'days' &&
+        this.selectedDays?.length === 0
+      ) {
+        this.selectedDays = this.eventDays();
       }
     });
   }
@@ -122,7 +134,6 @@ export class ProjectionImageComponent {
   };
 
   protected onProjectToScreenClick = (): void => {
-    this._windowService.showInsightsWelcomeWindow();
     const payload = {
       identifier: this._identifier(),
       selectedDays: this.selectedDays
@@ -136,5 +147,6 @@ export class ProjectionImageComponent {
     setTimeout(() => {
       this._projectionStateService.toggleProjectingState(payload.identifier);
     });
+    this._windowService.showInsightsWelcomeWindow();
   };
 }
