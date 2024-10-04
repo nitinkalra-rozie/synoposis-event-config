@@ -49,7 +49,7 @@ export class AuthService {
   };
 
   public isAuthenticated = (): boolean => {
-    const cognitoUser = localStorage.getItem('idToken');
+    const cognitoUser = localStorage.getItem('accessToken');
     return cognitoUser !== null;
   };
 

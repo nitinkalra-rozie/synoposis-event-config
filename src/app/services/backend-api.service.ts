@@ -12,7 +12,7 @@ export class BackendApiService {
   constructor(private http: HttpClient) {}
 
   getTranscriberPreSignedUrl(body: any): Observable<Object> {
-    const refreshToken = localStorage.getItem('idToken');
+    const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
@@ -22,7 +22,7 @@ export class BackendApiService {
   }
 
   putTranscript(transcript: any): Observable<Object> {
-    const refreshToken = localStorage.getItem('idToken');
+    const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
@@ -39,7 +39,7 @@ export class BackendApiService {
   }
   // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any
   postData(data: PostData): Observable<Object> {
-    const refreshToken = localStorage.getItem('idToken');
+    const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
@@ -65,7 +65,7 @@ export class BackendApiService {
     return this.http.post(environment.postData, body, { headers: headers });
   }
   getEventDetails(): Observable<Object> {
-    const refreshToken = localStorage.getItem('idToken');
+    const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
@@ -81,7 +81,7 @@ export class BackendApiService {
     domain: any,
     primarySessionId: any
   ): Observable<Object> {
-    const refreshToken = localStorage.getItem('idToken');
+    const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });

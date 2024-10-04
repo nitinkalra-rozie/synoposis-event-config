@@ -109,12 +109,8 @@ export class OtpComponent implements OnInit {
         if (
           responseData &&
           responseData.AuthenticationResult &&
-          responseData.AuthenticationResult.IdToken
+          responseData.AuthenticationResult.AccessToken
         ) {
-          console.log(
-            'auth id token:',
-            responseData.AuthenticationResult.IdToken
-          );
           this.router.navigate(['/admin']);
         } else {
           this.errorMessage = 'Wrong otp!';
