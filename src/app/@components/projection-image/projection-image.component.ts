@@ -14,6 +14,7 @@ import {
 import { ProjectionData } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
 import {
+  BrowserWindowService,
   DashboardFiltersStateService,
   ProjectionStateService,
 } from '@syn/services';
@@ -68,6 +69,8 @@ export class ProjectionImageComponent {
   private _identifier = computed(() =>
     replaceDashAndSpacesWithUnderscore(this.label())
   );
+
+  private _windowService = inject(BrowserWindowService);
   private _filtersStateService = inject(DashboardFiltersStateService);
   private _projectionStateService = inject(ProjectionStateService);
 
@@ -119,6 +122,7 @@ export class ProjectionImageComponent {
   };
 
   protected onProjectToScreenClick = (): void => {
+    this._windowService.showInsightsWelcomeWindow();
     const payload = {
       identifier: this._identifier(),
       selectedDays: this.selectedDays
