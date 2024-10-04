@@ -28,6 +28,6 @@ export class BrowserWindowService {
   }
 
   showInsightsWelcomeWindow(): void {
-    this.newWindow.location.replace(getInsightsDomainUrl());
+    this.newWindow?.location.replace(getInsightsDomainUrl());
   }
 }
