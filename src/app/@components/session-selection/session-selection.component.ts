@@ -19,6 +19,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { getInsightsDomainUrl } from '@syn/utils';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-session-selection',
@@ -44,7 +45,7 @@ export class SessionSelectionComponent {
   public screenProjected = output<ProjectionData>();
 
   protected get getSessionUrl(): string {
-    return `${getInsightsDomainUrl()}/session/${this.activeSession().metadata['originalContent'].PrimarySessionId}`;
+    return `${getInsightsDomainUrl()}/session/${this.activeSession()?.metadata['originalContent'].PrimarySessionId}`;
   }
 
   protected isProjectOnPhysicalScreen = signal(false);
@@ -77,7 +78,7 @@ export class SessionSelectionComponent {
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(false);
+    this.isProjectOnPhysicalScreen.set(environment.eventName === 'WAF');
   }
 
   protected openSessionInNewWindow(): boolean {
