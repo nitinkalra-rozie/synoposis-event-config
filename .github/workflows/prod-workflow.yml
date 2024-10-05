@@ -61,7 +61,7 @@ jobs:
       - name: Check ACM Certificate
         id: check-acm
         run: |
-          certificate_arn=$(aws acm list-certificates --region us-east-1 --query "CertificateSummaryList[?contains(DomainName, '*.$HOSTED_ZONE_NAME')].CertificateArn" --output text)
+          certificate_arn=$(aws acm list-certificates --region us-east-1 --query "CertificateSummaryList[?contains(DomainName, '*.$DOMAIN_NAME')].CertificateArn" --output text)
           echo "certificate_arn is $certificate_arn"
           if [ -z "$certificate_arn" ]; then
               echo "ACM Certificate not found. Creating ..."
