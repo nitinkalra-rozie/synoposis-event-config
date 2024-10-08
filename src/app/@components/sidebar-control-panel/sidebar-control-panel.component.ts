@@ -1,5 +1,12 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RightSidebarSelectedAction, RightSidebarState } from '@syn/models';
@@ -11,6 +18,7 @@ import {
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
+import { tap } from 'rxjs/operators';
 import { SanitizeHtmlPipe } from 'src/app/@pipes/sanitize-html.pipe';
 
 @Component({
@@ -30,6 +38,19 @@ import { SanitizeHtmlPipe } from 'src/app/@pipes/sanitize-html.pipe';
   styleUrl: './sidebar-control-panel.component.scss',
 })
 export class SidebarControlPanelComponent {
+  constructor() {
+    toObservable(this.liveSessionTranscript)
+      .pipe(
+        tap(() => this._scrollToBottom()),
+        takeUntilDestroyed()
+      )
+      .subscribe();
+  }
+
+  public sessionTranscriptContainer = viewChild<ElementRef>(
+    'sessionTranscriptContainer'
+  );
+
   protected rightSidebarState = computed<RightSidebarState>(() =>
     this._globalStateService.rightSidebarState()
   );
@@ -74,5 +95,14 @@ export class SidebarControlPanelComponent {
   protected toggleSpeakersListHeight(sessionId: string): void {
     this.speakersListToggleState[sessionId] =
       !this.speakersListToggleState[sessionId];
+  }
+
+  private _scrollToBottom(): void {
+    try {
+      this.sessionTranscriptContainer().nativeElement.scrollTop =
+        this.sessionTranscriptContainer().nativeElement.scrollHeight;
+    } catch (error) {
+      console.error('error', error);
+    }
   }
 }

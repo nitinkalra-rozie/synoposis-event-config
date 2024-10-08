@@ -121,7 +121,7 @@
 </ng-template>
 
 <ng-template #transcript>
-  <div class="session-details-container">
+  <div #sessionTranscriptContainer class="session-details-container">
     <p
       class="transcript"
       [innerHTML]="liveSessionTranscript() | sanitizeHtml"></p>
