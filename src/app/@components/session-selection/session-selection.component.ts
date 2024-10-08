@@ -14,7 +14,7 @@ import {
 } from '@syn/components';
 import { ModalService } from 'src/app/services/modal.service';
 import { ProjectionData } from '@syn/data-services';
-import { orderBy } from 'lodash-es';
+import { filter, orderBy } from 'lodash-es';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { getInsightsDomainUrl } from '@syn/utils';
@@ -51,10 +51,15 @@ export class SessionSelectionComponent {
   protected isProjectOnPhysicalScreen = signal(false);
 
   protected availableSessions = computed(() =>
-    orderBy(
-      this._dashboardFiltersStateService.availableSessions(),
-      (session) => session.metadata['isIndicatorActive'],
-      'desc'
+    filter(
+      orderBy(
+        this._dashboardFiltersStateService.availableSessions(),
+        (session) => session.metadata['isIndicatorActive'],
+        'desc'
+      ),
+      ({ metadata }) =>
+        metadata['originalContent'].Status !== 'REVIEW_COMPLETE' &&
+        metadata['originalContent'].Status !== 'UNDER_REVIEW'
     )
   );
   protected activeSession = computed(() =>
