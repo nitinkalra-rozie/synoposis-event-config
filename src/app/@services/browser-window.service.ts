@@ -33,7 +33,7 @@ export class BrowserWindowService {
   }
 
   showInsightsWelcomeWindow(): void {
-    this.newWindow?.location.replace(`${getInsightsDomainUrl()}/event-content`);
+    this.newWindow?.location.replace(getInsightsDomainUrl());
   }
 
   private _updateSessionUrl(url: string): void {
