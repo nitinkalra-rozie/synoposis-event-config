@@ -19,7 +19,7 @@ jobs:
     environment: prod
     strategy:
       matrix:
-        events: ['waf2024']
+        events: ['itc2024']
     steps:
       - name: Set event environment variable
         run: echo "EVENT=${{ matrix.events }}" >> $GITHUB_ENV
