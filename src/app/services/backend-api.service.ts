@@ -45,7 +45,7 @@ export class BackendApiService {
     });
     const body = {
       action: data.action,
-      sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
+      sessionId: localStorage.getItem('currentSessionId'),
       eventName: data.eventName || localStorage.getItem('selectedEvent'),
       domain: data.domain || localStorage.getItem('domain'),
       day: data.day || localStorage.getItem('currentDay'),
