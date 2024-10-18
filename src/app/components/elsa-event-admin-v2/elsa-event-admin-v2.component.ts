@@ -274,17 +274,6 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     }
   };
 
-  callBackEndAPI = () => {
-    this._backendApiService.postData(this.postData).subscribe(
-      (data: any) => {
-        console.log(data);
-      },
-      (error: any) => {
-        console.log(error);
-      }
-    );
-  };
-
   onTranscriptTimeOutChange = () => {
     // This function will be triggered whenever the value of transcriptTimeOut changes
     console.log('transcriptTimeOut changed to:', this.transcriptTimeOut);

@@ -99,8 +99,10 @@ export class SidebarControlPanelComponent {
 
   private _scrollToBottom(): void {
     try {
-      this.sessionTranscriptContainer().nativeElement.scrollTop =
-        this.sessionTranscriptContainer().nativeElement.scrollHeight;
+      if (this.sessionTranscriptContainer()) {
+        this.sessionTranscriptContainer().nativeElement.scrollTop =
+          this.sessionTranscriptContainer().nativeElement.scrollHeight;
+      }
     } catch (error) {
       console.error('error', error);
     }
