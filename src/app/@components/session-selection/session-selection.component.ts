@@ -83,7 +83,7 @@ export class SessionSelectionComponent {
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(environment.eventName === 'HLTH');
+    this.isProjectOnPhysicalScreen.set(environment.eventName === 'ITC');
   }
 
   protected openSessionInNewWindow(): boolean {
