@@ -54,7 +54,8 @@ export class DashboardFiltersStateService {
           label: `${session.metadata['originalContent'].EventDay} - ${getAbsoluteDate(
             session.metadata['originalContent'].StartsAt,
             'LT'
-          )} - ${session.label} - ${session.metadata['originalContent'].Track} - ${session.metadata['originalContent'].Location}`,
+          )} - ${session.label} - ${session.metadata['originalContent'].Track}
+          ${session.metadata['originalContent'].Location ? '- ' + session.metadata['originalContent'].Location : ''}`,
         })
       );
     });
