@@ -17,8 +17,8 @@ export const environment = {
   REQUEST_ACCESS_API:
     'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
-  eventName: 'HLTH',
-  eventDomain: 'Human resource and leadership',
+  eventName: 'CLARION',
+  eventDomain: 'corporate strategy and performance',
 };
 
 /*
