@@ -20,7 +20,8 @@
       }"
       (optionSelected)="onEventSelect($event)"></app-syn-single-select>
 
-    <app-syn-multi-select
+    <!-- TODO: @after:clarion uncomment this -->
+    <!-- <app-syn-multi-select
       [options]="eventDays()"
       (optionSelected)="onEventDaysSelect($event)"
       label="Select Days"></app-syn-multi-select>
@@ -52,7 +53,7 @@
         [options]="eventTracks()"
         (optionSelected)="onEventTracksSelect($event)"
         label="Select Track" />
-    }
+    } -->
 
     <!-- <app-main-drop-down
       [disabled]="false"
