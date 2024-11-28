@@ -4,6 +4,7 @@ import { AudioStreamerComponent } from './components/audio-streamer/audio-stream
 import { ElsaEventAdminV2Component } from './components/elsa-event-admin-v2/elsa-event-admin-v2.component';
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { OtpComponent } from './components/otp/otp.component';
+import { AuthGuard } from './auth.guard';
 const routes: Routes = [
   {
     path: '',
@@ -24,6 +25,7 @@ const routes: Routes = [
   {
     path: 'admin',
     component: ElsaEventAdminV2Component,
+    canActivate: [AuthGuard],
   },
   {
     path: '**',
