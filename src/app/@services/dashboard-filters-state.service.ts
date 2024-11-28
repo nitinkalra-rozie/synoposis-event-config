@@ -6,8 +6,8 @@ import {
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
-import { getAbsoluteDate, getDropdownOptionsFromString } from '@syn/utils';
-import { map, sortBy } from 'lodash-es';
+import { getDropdownOptionsFromString } from '@syn/utils';
+import { sortBy } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -44,20 +44,29 @@ export class DashboardFiltersStateService {
           )
       );
 
-      return map(
-        sortBy(
-          sessions,
-          (event) => new Date(event.metadata['originalContent'].StartsAt)
-        ),
-        (session) => ({
-          ...session,
-          label: `${session.metadata['originalContent'].EventDay} - ${getAbsoluteDate(
-            session.metadata['originalContent'].StartsAt,
-            'LT'
-          )} - ${session.label} - ${session.metadata['originalContent'].Track}
-          ${session.metadata['originalContent'].Location ? '- ' + session.metadata['originalContent'].Location : ''}`,
-        })
+      // #region TODO: @after:clarion remove this
+      return sortBy(
+        sessions,
+        (event) => new Date(event.metadata['originalContent'].StartsAt)
       );
+      // #endregion
+
+      // #region TODO: @after:clarion uncomment this
+      // return map(
+      //   sortBy(
+      //     sessions,
+      //     (event) => new Date(event.metadata['originalContent'].StartsAt)
+      //   ),
+      //   (session) => ({
+      //     ...session,
+      //     label: `${session.metadata['originalContent'].EventDay} - ${getAbsoluteDate(
+      //       session.metadata['originalContent'].StartsAt,
+      //       'LT'
+      //     )} - ${session.label} - ${session.metadata['originalContent'].Track}
+      //     ${session.metadata['originalContent'].Location ? '- ' + session.metadata['originalContent'].Location : ''}`,
+      //   })
+      // );
+      // #endregion
     });
 
     this.completedTracks = computed(() => {
