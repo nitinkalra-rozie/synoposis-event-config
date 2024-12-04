@@ -45,7 +45,6 @@ import {
   ThemeOptions,
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
-import { ScreenDisplayComponent } from '../screen-display/screen-display.component';
 import {
   EventDetails,
   EventStatus,
@@ -67,7 +66,6 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   standalone: true,
   imports: [
     NgClass,
-    ScreenDisplayComponent,
     MatTabsModule,
     ProjectImageSelectionComponent,
     SessionSelectionComponent,

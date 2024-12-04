@@ -6,8 +6,8 @@ import {
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
-import { getDropdownOptionsFromString } from '@syn/utils';
-import { sortBy } from 'lodash-es';
+import { getAbsoluteDate, getDropdownOptionsFromString } from '@syn/utils';
+import { map, sortBy } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -44,14 +44,23 @@ export class DashboardFiltersStateService {
           )
       );
 
-      // #region TODO: @after:clarion remove this
-      return sortBy(
-        sessions,
-        (event) => new Date(event.metadata['originalContent'].StartsAt)
+      // #region TODO: @after:clarion, itchartford remove this
+      return map(
+        sortBy(
+          sessions,
+          (event) => new Date(event.metadata['originalContent'].StartsAt)
+        ),
+        (session) => ({
+          ...session,
+          label: `${getAbsoluteDate(
+            session.metadata['originalContent'].StartsAt,
+            'LT'
+          )} - ${session.label}`,
+        })
       );
       // #endregion
 
-      // #region TODO: @after:clarion uncomment this
+      // #region TODO: @after:clarion, itchartford uncomment this
       // return map(
       //   sortBy(
       //     sessions,
