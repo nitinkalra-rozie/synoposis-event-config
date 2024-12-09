@@ -12,6 +12,6 @@ export const environment = {
   REQUEST_ACCESS_API:
     'https://ifmrpnrth0.execute-api.ca-central-1.amazonaws.com/prod/request-access',
   REQUEST_ACCESS_API_KEY: '9MitsUZQJ566GezJRZXrz6Tqt64MVWyCh4gZ2M07',
-  eventName: 'ITCHARTFORD',
-  eventDomain: 'ai, insurance and industry review',
+  eventName: 'CLARIONEXEC',
+  eventDomain: 'technology strategy, digital programs, marketing',
 };
