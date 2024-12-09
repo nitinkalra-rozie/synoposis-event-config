@@ -5,7 +5,7 @@
     imgUrl="assets/projections/event_info.svg"
     label="Event Info"></app-projection-image>
 
-  <!-- #region TODO: @after:clarion, itchartford remove this -->
+  <!-- #region TODO: @after:clarion, itchartford, clarionexec remove this -->
   <app-projection-image
     (projectedToScreen)="screenProjected.emit($event)"
     filterType="one-day"
@@ -23,8 +23,8 @@
     (projectedToScreen)="screenProjected.emit($event)"
     filterType="tracks"
     imgUrl="assets/projections/session_debriefs.svg"
-    label="Past Session Debriefs"></app-projection-image> -->
-  <!-- <app-projection-image
+    label="Past Session Debriefs"></app-projection-image>
+  <app-projection-image
     (projectedToScreen)="screenProjected.emit($event)"
     filterType="days"
     imgUrl="assets/projections/daily_debriefs.svg"
@@ -32,15 +32,7 @@
   <!-- #endregion -->
 </div>
 <div class="row">
-  <!-- #region TODO: @after:clarion, itchartford remove this -->
-  <app-projection-image
-    (projectedToScreen)="screenProjected.emit($event)"
-    filterType="tracks"
-    imgUrl="assets/projections/session_debriefs.svg"
-    label="Past Session Debriefs"></app-projection-image>
-  <!-- #endregion -->
-
-  <!-- #region TODO: @after:clarion, itchartford uncomment this -->
+  <!-- #region TODO: @after:clarion, itchartford, clarionexec uncomment this -->
   <!-- <app-projection-image
     (projectedToScreen)="screenProjected.emit($event)"
     filterType="one-day"
