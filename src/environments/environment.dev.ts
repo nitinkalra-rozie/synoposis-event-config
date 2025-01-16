@@ -18,7 +18,7 @@ export const environment = {
     'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
   eventName: 'ROZIE_TH',
-  eventDomain: 'technology strategy, digital programs, marketing',
+  eventDomain: 'Diversity, Equity, and Inclusion (DEI) in the Cruise Industry',
 };
 
 /*
