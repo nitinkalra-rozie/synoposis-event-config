@@ -4,6 +4,7 @@ export const environment = {
   putTranscript: '',
   postData: '',
   getEventDetails: '',
+  getEventConfig: '',
   postCurrentSessionId: '',
   USER_POOL_WEB_CLIENT_ID: '',
   // USER_POOL_WEB_CLIENT_ID:'3ppt7i0sou74e5bks8mc5ph350',
@@ -14,6 +15,4 @@ export const environment = {
   // USER_POOL_ID:'ca-central-1_V9KhUwxNc',
   //  cognitoUserPoolId:'ca-central-1_V9KhUwxNc',
   // cognitoAppClientId:'3ppt7i0sou74e5bks8mc5ph350',
-  eventName: '',
-  eventDomain: '',
 };

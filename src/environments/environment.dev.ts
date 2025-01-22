@@ -9,6 +9,7 @@ export const environment = {
   putTranscript: 'https://dev.api.synopsis.rozie.ai/postTranscript',
   postData: 'https://dev.api.synopsis.rozie.ai/adminapplambdaconfig',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/getEventDetails',
+  getEventConfig: 'https://dev.api.synopsis.rozie.ai/getEventConfig',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/getCurrentSessionDetails',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
@@ -17,8 +18,6 @@ export const environment = {
   REQUEST_ACCESS_API:
     'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
-  eventName: 'ROZIE_TH',
-  eventDomain: 'Advertising, Marketing & Growth Strategies',
 };
 
 /*

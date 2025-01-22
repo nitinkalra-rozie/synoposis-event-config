@@ -21,6 +21,7 @@ export interface EventDetails {
   Location: string;
   SessionSubject: string;
   StartsAt: string;
+  EventDomain: string;
 }
 
 export interface ProjectionData {
