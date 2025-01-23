@@ -162,6 +162,16 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
           'IN_PROGRESS'
         )
       );
+
+      // Update postData with eventName and eventDomain from API
+      this.updatePostData({
+        key: PostDataEnum.EventName,
+        value: this._backendApiService.getCurrentEventName(),
+      });
+      this.updatePostData({
+        key: PostDataEnum.Domain,
+        value: this._backendApiService.getCurrentEventDomain(),
+      });
     });
   };
 

@@ -2,8 +2,7 @@ name: mic-app-dev-deploy
 on:
   push:
     branches:
-      - development
-      - feature/sls
+      - develop
 
 env:
   deployment: dev
