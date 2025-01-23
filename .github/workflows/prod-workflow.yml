@@ -18,7 +18,7 @@ jobs:
     environment: prod
     strategy:
       matrix:
-        events: ['itc2024', 'hlth2024', 'clarion', 'itchartford', 'clarionexec']
+        events: ['itc2024', 'hlth2024', 'clarion', 'itchartford', 'clarionexec', 'demo-sbx']
     steps:
       - name: Set event environment variable
         run: echo "EVENT=${{ matrix.events }}" >> $GITHUB_ENV
