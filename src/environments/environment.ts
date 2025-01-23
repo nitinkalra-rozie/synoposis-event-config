@@ -1,6 +1,13 @@
 export const environment = {
   production: false,
   getTranscriberPreSignedUrl: '',
+  getContentVersionsUrl: '',
+  genarateContentUrl: '',
+  getVersionContentUrl: '',
+  saveEditedVersionContentUrl: '',
+  generateContentPDFUrl: '',
+  getPreSignedPDFUrl: '',
+  prompt_mangement_base_url: '',
   putTranscript: '',
   postData: '',
   getEventDetails: '',

@@ -1,0 +1,101 @@
+<mat-dialog-content class="custom-dialog-container">
+  <div class="dialog-header">
+    <h2 *ngIf="data.type === 'generate_debrief'" class="dialog-title">
+      Generate Post insights
+    </h2>
+    <h2 *ngIf="data.type === 'generate_realtime'" class="dialog-title">
+      Generate Realtime Insights
+    </h2>
+    <button mat-icon-button (click)="onClose()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-body">
+    <!-- Transcript Section -->
+    <ng-container *ngIf="data.type === 'generate_realtime'">
+      <div
+        [innerHTML]="sanitizedText"
+        style="color: black; white-space: pre-wrap"></div>
+      <div>
+        <button
+          mat-raised-button
+          (click)="splitTranscriptToChunks()"
+          color="primary">
+          Split Transcript
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Debrief Section -->
+    <ng-container *ngIf="data.type === 'generate_debrief'">
+      <!-- Summary -->
+      <mat-form-field class="full-width" appearance="fill">
+        <mat-label>Summary</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="data.summary"
+          disabled
+          rows="3"></textarea>
+      </mat-form-field>
+
+      <!-- Key Takeaways -->
+      <div class="section">
+        <h3>Key Takeaways</h3>
+        <mat-form-field
+          *ngFor="
+            let item of data.keytakeaways;
+            let i = index;
+            trackBy: trackByFn
+          "
+          class="full-width"
+          appearance="fill">
+          <textarea
+            matInput
+            [(ngModel)]="data.keytakeaways[i]"
+            disabled
+            rows="2"></textarea>
+        </mat-form-field>
+        <p *ngIf="data.keytakeaways.length === 0">
+          No Key Takeaways Available!
+        </p>
+      </div>
+
+      <!-- Insights -->
+      <div class="section">
+        <h3>Insights</h3>
+        <mat-form-field
+          *ngFor="let item of data.insights; let i = index; trackBy: trackByFn"
+          class="full-width"
+          appearance="fill">
+          <textarea
+            matInput
+            [(ngModel)]="data.insights[i]"
+            disabled
+            rows="2"></textarea>
+        </mat-form-field>
+        <p *ngIf="data.insights.length === 0">No Insights Available!</p>
+      </div>
+
+      <!-- Topics -->
+      <div class="section">
+        <h3>Topics</h3>
+        <mat-form-field
+          *ngFor="let item of data.topics; let i = index; trackBy: trackByFn"
+          class="full-width"
+          appearance="fill">
+          <input
+            matInput
+            id="topic-input-{{ i }}"
+            [(ngModel)]="data.topics[i]"
+            disabled />
+        </mat-form-field>
+        <p *ngIf="data.topics.length === 0">No Topics Available!</p>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="dialog-footer">
+    <button mat-button (click)="onClose()">Close</button>
+  </div>
+</mat-dialog-content>

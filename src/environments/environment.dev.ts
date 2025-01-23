@@ -11,13 +11,22 @@ export const environment = {
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/getEventDetails',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/getCurrentSessionDetails',
+
+  getContentVersionsUrl: 'http://localhost:4000/dev/get-content-versions',
+  getVersionContentUrl: 'http://localhost:4000/dev/get-version-content',
+  generateContentPDFUrl: 'http://localhost:5000/dev/generate-content-pdf',
+  prompt_mangement_base_url: ' http://localhost:3000/dev',
+  getPreSignedPDFUrl: 'http://localhost:5000/dev/get-content-pdf',
+  saveEditedVersionContentUrl:
+    'http://localhost:4000/dev/manual-edit-generated-content',
+  genarateContentUrl: 'http://localhost:4000/dev/generate-content',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',
   REQUEST_ACCESS_API:
     'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
-  eventName: 'CLARIONEXEC',
+  eventName: 'WAF',
   eventDomain: 'technology strategy, digital programs, marketing',
 };
 
