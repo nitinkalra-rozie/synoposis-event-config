@@ -46,7 +46,7 @@ export class SessionSelectionComponent {
     );
   }
 
-  private readonly _backendApiService: BackendApiService;
+  private readonly _backendApiService = inject(BackendApiService);
   private readonly _dashboardFiltersStateService = inject(
     DashboardFiltersStateService
   );
