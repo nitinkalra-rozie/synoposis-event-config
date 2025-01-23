@@ -1,5 +1,5 @@
 import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { DropdownOption, RightSidebarState } from '@syn/models';
@@ -40,17 +40,19 @@ import { BackendApiService } from 'src/app/services/backend-api.service';
   styleUrl: './session-selection.component.scss',
 })
 export class SessionSelectionComponent {
-  constructor(
-    private _backendApiService: BackendApiService,
-    private _dashboardFiltersStateService: DashboardFiltersStateService,
-    private _windowService: BrowserWindowService,
-    private _globalState: GlobalStateService,
-    private _modalService: ModalService
-  ) {
+  constructor() {
     this.isProjectOnPhysicalScreen.set(
       this._backendApiService.getCurrentEventName() === 'ITC'
     );
   }
+
+  private readonly _backendApiService: BackendApiService;
+  private readonly _dashboardFiltersStateService = inject(
+    DashboardFiltersStateService
+  );
+  private readonly _windowService = inject(BrowserWindowService);
+  private readonly _globalState = inject(GlobalStateService);
+  private readonly _modalService = inject(ModalService);
 
   public streamStarted = output();
   public streamStopped = output();

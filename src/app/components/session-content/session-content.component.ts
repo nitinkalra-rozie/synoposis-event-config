@@ -80,6 +80,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
 
+  private readonly _backendApiService = inject(BackendApiService);
+
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;
   selectedEvent = '';
@@ -160,8 +162,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected DashboardTabs = DashboardTabs;
 
   private _isTranscriptParaBreak: boolean = false;
-
-  private _backendApiService = inject(BackendApiService);
 
   constructor(
     private modalService: ModalService,
