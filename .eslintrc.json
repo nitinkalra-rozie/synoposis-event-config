@@ -81,6 +81,9 @@
             "classes": {
               "memberTypes": [
                 "constructor",
+                "public-instance-readonly-field",
+                "protected-instance-readonly-field",
+                "private-instance-readonly-field",
                 "public-static-field",
                 "protected-static-field",
                 "private-static-field",
