@@ -73,6 +73,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
     MatIconModule,
   ],
 })
+// TODO: @later refactor this fully
 export class SessionContentComponent implements OnInit, OnChanges {
   ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
@@ -674,7 +675,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         if (session.Type == 'BreakoutSession') {
           this.showBreakdownInProgress();
         } else {
-          this.showLoadingInsights();
+          this.showListeningInsights();
         }
       } else {
         this.modalService.open(
@@ -701,9 +702,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.modalService.close();
   };
 
-  showLoadingInsights(screenIdentifier?: string) {
+  showListeningInsights(screenIdentifier?: string) {
     const postData: PostData = {};
-    if (this.selectedDay != '' && this.selectedSessionTitle != '') {
+    if (this.selectedSessionTitle != '') {
       const sessionDetails = this.findSession(
         this.selectedEvent,
         this.selectedSessionTitle
@@ -720,7 +721,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.day = this.selectedDay;
         postData.eventName = this.selectedEvent;
         postData.domain = this.selectedDomain;
-        postData.action = 'insightsLoading';
+        postData.action = 'liveInsightsListening';
         postData.sessionTitle = sessionDetails.SessionSubject;
         this.postData(postData, screenIdentifier, null, null);
       }
@@ -733,6 +734,40 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.handleNoSelect
       );
     }
+  }
+
+  showLoadingInsights(screenIdentifier?: string) {
+    const postData: PostData = {};
+
+    const sessionDetails = this.findSession(
+      this.selectedEvent,
+      this.selectedSessionTitle
+    );
+
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.action = 'liveInsightsLoading';
+    postData.sessionTitle = sessionDetails.SessionSubject;
+
+    this.postData(postData, screenIdentifier, null, null);
+  }
+
+  showPausedInsights() {
+    const postData: PostData = {};
+
+    const sessionDetails = this.findSession(
+      this.selectedEvent,
+      this.selectedSessionTitle
+    );
+
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.action = 'listeningPaused';
+    postData.sessionTitle = sessionDetails.SessionSubject;
+
+    this.postData(postData);
   }
 
   showBreakdownInProgress() {
@@ -748,7 +783,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    postData.action = 'breakOutSession';
+    postData.action = 'breakOutSessionListening';
     postData.sessionTitle = primarySession.SessionSubject;
     this._backendApiService.postData(postData).subscribe(() => {});
   }
@@ -777,7 +812,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'Pause Session?',
       'Are you sure to pause the session?',
       'yes_no',
-      this.closeSocket,
+      () => {
+        this.closeSocket();
+        this.showPausedInsights();
+      },
       this.handleNoSelect
     );
   }
