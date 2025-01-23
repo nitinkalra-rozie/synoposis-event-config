@@ -137,22 +137,6 @@ export class DashboardFiltersStateService {
   >;
   public readonly shouldFetchEventDetails: Signal<boolean>;
 
-  private _eventNamesSignal = signal<DropdownOption[]>([]);
-  private _selectedEventSignal = signal<DropdownOption | null>(null);
-  private _eventTracksSignal = signal<DropdownOption[]>([]);
-  private _eventDaysSignal = signal<DropdownOption[]>([]);
-  private _eventLocationsSignal = signal<DropdownOption[]>([]);
-  private _allSessionsSignal = signal<DropdownOption[]>([]);
-  private _activeSessionSignal = signal<DropdownOption | null>(null);
-  private _liveEventSignal = signal<EventDetails | null>(null);
-  private _liveEventStateSignal = signal<LiveSessionState>(
-    LiveSessionState.Stopped
-  );
-  private _liveSessionTranscriptSignal = signal<
-    Array<KeyValue<string, string>>
-  >([]);
-  private _shouldFetchEventDetailsSignal = signal<boolean>(false);
-
   private readonly _selectedLocationsSetSignal = computed<Set<string>>(
     () =>
       new Set(
@@ -178,6 +162,22 @@ export class DashboardFiltersStateService {
           .map((aTrack) => aTrack.label)
       )
   );
+
+  private _eventNamesSignal = signal<DropdownOption[]>([]);
+  private _selectedEventSignal = signal<DropdownOption | null>(null);
+  private _eventTracksSignal = signal<DropdownOption[]>([]);
+  private _eventDaysSignal = signal<DropdownOption[]>([]);
+  private _eventLocationsSignal = signal<DropdownOption[]>([]);
+  private _allSessionsSignal = signal<DropdownOption[]>([]);
+  private _activeSessionSignal = signal<DropdownOption | null>(null);
+  private _liveEventSignal = signal<EventDetails | null>(null);
+  private _liveEventStateSignal = signal<LiveSessionState>(
+    LiveSessionState.Stopped
+  );
+  private _liveSessionTranscriptSignal = signal<
+    Array<KeyValue<string, string>>
+  >([]);
+  private _shouldFetchEventDetailsSignal = signal<boolean>(false);
 
   setEventNames(names: DropdownOption[]): void {
     this._eventNamesSignal.set(names);

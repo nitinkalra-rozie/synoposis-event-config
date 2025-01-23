@@ -19,7 +19,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { getInsightsDomainUrl } from '@syn/utils';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { environment } from 'src/environments/environment';
+import { BackendApiService } from 'src/app/services/backend-api.service';
 
 @Component({
   selector: 'app-session-selection',
@@ -40,6 +40,20 @@ import { environment } from 'src/environments/environment';
   styleUrl: './session-selection.component.scss',
 })
 export class SessionSelectionComponent {
+  constructor() {
+    this.isProjectOnPhysicalScreen.set(
+      this._backendApiService.getCurrentEventName() === 'ITC'
+    );
+  }
+
+  private readonly _backendApiService: BackendApiService;
+  private readonly _dashboardFiltersStateService = inject(
+    DashboardFiltersStateService
+  );
+  private readonly _windowService = inject(BrowserWindowService);
+  private readonly _globalState = inject(GlobalStateService);
+  private readonly _modalService = inject(ModalService);
+
   public streamStarted = output();
   public streamStopped = output();
   public screenProjected = output<ProjectionData>();
@@ -70,20 +84,15 @@ export class SessionSelectionComponent {
   );
   protected RightSidebarState = RightSidebarState;
 
-  //#region DI
-  private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
-  private _windowService = inject(BrowserWindowService);
-  private _globalState = inject(GlobalStateService);
-  private _modalService = inject(ModalService);
-  //#endregion
-
   private _liveEvent = computed(() =>
     this._dashboardFiltersStateService.liveEvent()
   );
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(environment.eventName === 'ITC');
+    this.isProjectOnPhysicalScreen.set(
+      this._backendApiService.getCurrentEventName() === 'ITC'
+    );
   }
 
   protected openSessionInNewWindow(): boolean {
