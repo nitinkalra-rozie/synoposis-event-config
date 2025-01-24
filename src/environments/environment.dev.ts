@@ -5,13 +5,13 @@
 export const environment = {
   production: false,
   getTranscriberPreSignedUrl:
-    ' https://dev.api.synopsis.rozie.ai/admin/getPreSignedUrl',
-  putTranscript: 'https://dev.api.synopsis.rozie.ai/admin/postTranscript',
-  postData: 'https://dev.api.synopsis.rozie.ai/admin/config',
-  getEventDetails: 'https://dev.api.synopsis.rozie.ai/public/getEventDetails',
-  getEventConfig: 'https://dev.api.synopsis.rozie.ai/public/getEventConfig',
+    ' https://dev.api.synopsis.rozie.ai/r2/getPreSignedUrl',
+  putTranscript: 'https://dev.api.synopsis.rozie.ai/r2/postTranscript',
+  postData: 'https://dev.api.synopsis.rozie.ai/r2/config',
+  getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
+  getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
   postCurrentSessionId:
-    'https://dev.api.synopsis.rozie.ai/admin/getCurrentSessionDetails',
+    'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',
