@@ -12,7 +12,7 @@ export const environment = {
   REQUEST_ACCESS_API: '',
   REQUEST_ACCESS_API_KEY: '',
   USER_POOL_ID: '',
-  getEventDetailsApiKey: '',
+  X_API_KEY: '',
   // USER_POOL_ID:'ca-central-1_V9KhUwxNc',
   //  cognitoUserPoolId:'ca-central-1_V9KhUwxNc',
   // cognitoAppClientId:'3ppt7i0sou74e5bks8mc5ph350',
