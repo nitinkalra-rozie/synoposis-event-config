@@ -19,6 +19,7 @@ export const environment = {
     'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
   X_API_KEY: 'jYxynvOG8J8IGswZ4pZJV3EiGInjqY1UJZWrovyc',
+  CONFIG_X_API_KEY: 'B7YTICPnCP93axNfbqrEH7Bn8V3E3t4i4rtOJmk7',
 };
 
 /*
