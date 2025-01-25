@@ -134,7 +134,7 @@ export class BackendApiService {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
-      'X-Api-Key': environment.X_API_KEY,
+      'X-Api-Key': environment.CONFIG_X_API_KEY,
     });
     const hostname = window.location.hostname;
     const domain =
