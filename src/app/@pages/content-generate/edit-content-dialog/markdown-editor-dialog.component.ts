@@ -75,7 +75,6 @@ export interface MarkdownEditorData {
   ],
 })
 export class MarkdownEditorDialogComponent implements OnInit {
-  
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: MarkdownEditorData,
     private dialogRef: MatDialogRef<MarkdownEditorDialogComponent>,
@@ -88,7 +87,6 @@ export class MarkdownEditorDialogComponent implements OnInit {
   public isLoading: Boolean = false;
   /** Parsed and sanitized HTML preview of the current markdown content. */
   public renderedHtml: SafeHtml = '';
-
 
   ngOnInit(): void {
     if (this.data?.initialText) {

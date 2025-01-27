@@ -137,7 +137,6 @@ export class LoadingDialogComponent {}
   providers: [],
 })
 export class ContentGenerateComponent implements OnInit, AfterViewInit {
-
   constructor(
     private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
@@ -229,9 +228,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   ];
   public selectedTranscriptSource: string = '';
   public lastGeneratedVersion: string = '';
-  public availablePromptVersions: string[] = [
-    '1'
-  ];
+  public availablePromptVersions: string[] = ['1'];
   public selectedPromptVersion: string = '';
 
   public filtered_sessions: Session[] = [];
@@ -264,8 +261,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
   private _authService = inject(AuthService);
-
-
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -323,7 +318,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  highlightRow(row: VersionData, index: number): void{
+  highlightRow(row: VersionData, index: number): void {
     if (this.selectedRowIndex === index) {
       this.selectedRowIndex = null;
     } else {
@@ -396,7 +391,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     return index; // or a unique identifier if you have one
   }
 
-  updateEventReport():void{
+  updateEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
@@ -416,7 +411,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getEventReport():void{
+  getEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
     this.applyInitialPromptFilter();
@@ -462,7 +457,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  generateNewVersion():void{
+  generateNewVersion(): void {
     let transcript = '';
     this.statusSignal.set('generating');
     if (this.selectedTranscriptSource == 'Text Input') {
@@ -494,7 +489,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  generateContentPDF(version):void{
+  generateContentPDF(version): void {
     this.statusSignal.set('creating');
     const transcript = this.transcript.join('\n');
     const data = {
@@ -520,7 +515,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getSignedPdfUrl(version):void {
+  getSignedPdfUrl(version): void {
     const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
       LoadingDialogComponent,
       {
@@ -695,7 +690,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
         session.Editing === this._authService.getUserEmail()
     );
     return isUndefined(exist);
-  };
+  }
 
   getEventDetails(): void {
     this._backendApiService.getEventDetails().subscribe((response: any) => {
@@ -716,7 +711,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       }
       this.isLoading = false;
     });
-  };
+  }
 
   selectSession(session: any): void {
     if (

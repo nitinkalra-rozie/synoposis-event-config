@@ -45,7 +45,7 @@ export class LargeModalDialogComponent implements OnInit {
 
   public sanitizedText: SafeHtml;
 
-  ngOnInit():void {
+  ngOnInit(): void {
     const rawText = this.data.transcript.join('\n\n');
     this.sanitizedText = this.sanitizeText(rawText);
   }

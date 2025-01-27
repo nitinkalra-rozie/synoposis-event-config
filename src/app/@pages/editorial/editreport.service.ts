@@ -6,14 +6,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class EditReportService {
-
   constructor(private http: HttpClient) {}
-  
+
   private _baseUrl = '/events-api'; // https://rozishrddevdus1webeus1.azurewebsites.net
   private _eventsDetailsApi = '/event-details-api';
   private _apiUrl = this._baseUrl + ''; // Replace with your API URL
   private _token;
-
 
   sendEmailReport(page_size: string = '10'): Observable<any> {
     const httpHeaders = new HttpHeaders({

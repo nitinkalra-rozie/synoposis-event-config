@@ -121,7 +121,7 @@ export class EditorialComponent implements OnInit {
       this.speakers[index] = text;
     });
   }
-  
+
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
   public selectedConfig!: SelectedConfig;
@@ -179,8 +179,6 @@ export class EditorialComponent implements OnInit {
   private _backendApiService = inject(BackendApiService);
   private _authService = inject(AuthService);
 
-  
-
   ngOnInit(): void {
     // BreadCrumb Set
     this.breadCrumbItems = [
@@ -205,7 +203,7 @@ export class EditorialComponent implements OnInit {
     return new Intl.DateTimeFormat('en-US', options).format(parsedDate);
   }
 
-  showError():void {
+  showError(): void {
     this.snackBar.open(
       'This session debriefs are not available yet!',
       'Close',
@@ -220,7 +218,7 @@ export class EditorialComponent implements OnInit {
     return index; // or a unique identifier if you have one
   }
 
-  sendEmail():void {
+  sendEmail(): void {
     this.editReportService.sendEmailReport().subscribe({
       next: (response) => {
         if (response.success == true) {
@@ -233,7 +231,7 @@ export class EditorialComponent implements OnInit {
     });
   }
 
-  updateEventReport():void {
+  updateEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
@@ -253,7 +251,7 @@ export class EditorialComponent implements OnInit {
     });
   }
 
-  getEventReport():void {
+  getEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
@@ -391,7 +389,7 @@ export class EditorialComponent implements OnInit {
     });
   }
 
-  postEditedDebrief():void {
+  postEditedDebrief(): void {
     this.isLoading = true;
     const debrief = {
       realtimeinsights: this.realtimeinsights,
@@ -425,16 +423,16 @@ export class EditorialComponent implements OnInit {
     });
   }
 
-  checkSessionLocked(data, session_id): boolean{
+  checkSessionLocked(data, session_id): boolean {
     const exist = data.find(
       (session) =>
         session.SessionId === session_id &&
         session.Editing === this._authService.getUserEmail()
     );
     return isUndefined(exist);
-  };
+  }
 
-  getEventDetails():void {
+  getEventDetails(): void {
     this._backendApiService.getEventDetails().subscribe((response: any) => {
       this.session_details = response.data;
       if (response.data.length > 0) {
@@ -453,9 +451,9 @@ export class EditorialComponent implements OnInit {
       }
       this.isLoading = false;
     });
-  };
+  }
 
-  selectSession(session: any):void {
+  selectSession(session: any): void {
     if (
       session['Status'] == 'NOT_STARTED' ||
       session['Status'] == 'IN_PROGRESS'

@@ -4,6 +4,7 @@ on:
     branches:
       - development
       - feature/sls
+      - feature/dinuka/SYN-520/Add-Editorial-View-to-Admin-Dashboard
 
 env:
   deployment: dev

@@ -82,12 +82,11 @@ interface RealtimeInsight {
     MatToolbarModule,
     TopBarComponent,
     SidebarControlPanelComponent,
-    LargeModalDialogComponent
+    LargeModalDialogComponent,
   ],
   providers: [],
 })
 export class AgendaComponent implements OnInit {
-
   constructor(
     private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
@@ -117,7 +116,6 @@ export class AgendaComponent implements OnInit {
       this.speakers[index] = text;
     });
   }
-
 
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
@@ -178,9 +176,6 @@ export class AgendaComponent implements OnInit {
 
   private _backendApiService = inject(BackendApiService);
   private _authService = inject(AuthService);
-
-  
-
 
   // -- Lifecycle and Methods with explicit return types:
   ngOnInit(): void {

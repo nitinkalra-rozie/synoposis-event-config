@@ -69,7 +69,6 @@ export class PromptManagementComponent implements OnInit {
     this.fetchSessionReportTypes();
   }
 
-
   fetchSessionReportTypes(): void {
     this.service.getSessionReportTypes().subscribe({
       next: (data) => {
