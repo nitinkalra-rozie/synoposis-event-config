@@ -12,14 +12,19 @@ export const environment = {
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/getCurrentSessionDetails',
 
-  getContentVersionsUrl: 'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
-  getVersionContentUrl: 'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
-  generateContentPDFUrl: 'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
-  prompt_mangement_base_url: 'https://gfcc9pbk3d.execute-api.ca-central-1.amazonaws.com/dev',
+  getContentVersionsUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
+  getVersionContentUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
+  generateContentPDFUrl:
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
+  prompt_mangement_base_url:
+    'https://gfcc9pbk3d.execute-api.ca-central-1.amazonaws.com/dev',
   getPreSignedPDFUrl: 'http://localhost:5000/dev/get-content-pdf',
   saveEditedVersionContentUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
-  genarateContentUrl: 'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/generate-content',
+  genarateContentUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/generate-content',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',
@@ -28,7 +33,6 @@ export const environment = {
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
   eventName: 'WAF',
   eventDomain: 'technology strategy, digital programs, marketing',
-  
 };
 
 /*
