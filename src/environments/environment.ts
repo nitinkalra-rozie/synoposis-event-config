@@ -8,7 +8,7 @@ export const environment = {
   generateContentPDFUrl: '',
   getPreSignedPDFUrl: '',
   prompt_mangement_base_url: '',
-  eventDomain: "",
+  eventDomain: '',
   putTranscript: '',
   postData: '',
   getEventDetails: '',

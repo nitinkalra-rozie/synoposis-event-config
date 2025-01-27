@@ -10,7 +10,7 @@ export const environment = {
   saveEditedVersionContentUrl: '',
   generateContentPDFUrl: '',
   getPreSignedPDFUrl: '',
-  eventDomain: "",
+  eventDomain: '',
   prompt_mangement_base_url: '',
   getEventConfig: 'https://api.synopsis.rozie.ai/getEventConfig',
   postCurrentSessionId:
