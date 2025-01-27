@@ -3,21 +3,36 @@ name: elsa-at-event-admin-prod-deploy
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   deployment: prod
   ACCESS_KEY: ${{secrets.ACCESS_KEY}}
   SECRET_ACCESS_KEY: ${{secrets.SECRET_ACCESS_KEY}}
   HOSTED_ZONE_NAME: ${{vars.HOSTED_ZONE_NAME}}
-  DOMAIN_NAME: ${{vars.DOMAIN_NAME}}
-  HOSTED_ZONE_ID: ${{secrets.HOSTED_ZONE_ID}}
+
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
     environment: prod
+    strategy:
+      matrix:
+        events:
+          [
+            'itc2024',
+            'hlth2024',
+            'clarion',
+            'itchartford',
+            'clarionexec',
+            'demo-sbx',
+          ]
     steps:
+      - name: Set event environment variable
+        run: echo "EVENT=${{ matrix.events }}" >> $GITHUB_ENV
+      - name: Deploy
+        run: |
+          echo "Deploying for event: $EVENT"
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -36,17 +51,40 @@ jobs:
           $SECRET_ACCESS_KEY
       - name: export command for openssl
         run: export NODE_OPTIONS=--openssl-legacy-provider
-      - name: check hosted zone name
-        run: echo "HOSTED_ZONE_NAME=$HOSTED_ZONE_NAME"
+
+      - name: check domain name
+        run: |
+          DOMAIN_NAME=$EVENT.$HOSTED_ZONE_NAME     
+          echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
+      - name: check and set custom domain name
+        run: |
+          CUSTOM_DOMAIN_NAME=admin.$DOMAIN_NAME
+          echo "CUSTOM_DOMAIN_NAME=$CUSTOM_DOMAIN_NAME" >> $GITHUB_ENV
+      - name: Retrieve Hosted Zone ID
+        run: |
+          HOSTED_ZONE_ID=$(aws route53 --region us-east-1 list-hosted-zones-by-name --dns-name $DOMAIN_NAME --query 'HostedZones[0].Id' --output text | sed 's|/hostedzone/||')
+          echo "HOSTED_ZONE_ID=$HOSTED_ZONE_ID"
+          echo "HOSTED_ZONE_ID=$HOSTED_ZONE_ID" >> $GITHUB_ENV
       - name: Check ACM Certificate
         id: check-acm
         run: |
-          certificate_arn=$(aws acm list-certificates --region us-east-1 --query "CertificateSummaryList[?contains(DomainName, '*.$HOSTED_ZONE_NAME')].CertificateArn" --output text)
+          certificate_arn=$(aws acm list-certificates --region us-east-1 --query "CertificateSummaryList[?contains(DomainName, '*.$DOMAIN_NAME')].CertificateArn" --output text)
           echo "certificate_arn is $certificate_arn"
-          echo "ACM certificate is already present!"
-          echo "ACM_CERTIFICATE_ARN=$certificate_arn" >> $GITHUB_ENV
+          if [ -z "$certificate_arn" ]; then
+              echo "ACM Certificate not found. Creating ..."
+              certificate_arn=$(aws acm request-certificate --domain-name "*.$DOMAIN_NAME" --validation-method DNS --region us-east-1 --subject-alternative-names "$DOMAIN_NAME" --query 'CertificateArn' --output text)             
+              echo "Waiting for ACM Certificate to be validated..."
+              sleep 120
+          else
+              echo "ACM certificate is already present!"
+              echo "ACM_CERTIFICATE_ARN=$certificate_arn" >> $GITHUB_ENV
+          fi
       - name: Deploy Static Website
         run:
-          sls deploy --config serverless-prd.yml --region ca-central-1 --stage
-          prod -E ACM_CERTIFICATE_ARN=$ACM_CERTIFICATE_ARN -E
-          DOMAIN_NAME=$DOMAIN_NAME -E HOSTED_ZONE_ID=$HOSTED_ZONE_ID
+          sls deploy --config serverless.yml --region ca-central-1 --stage
+          $deployment -E ACM_CERTIFICATE_ARN=$ACM_CERTIFICATE_ARN -E
+          CUSTOM_DOMAIN_NAME=$CUSTOM_DOMAIN_NAME -E
+          HOSTED_ZONE_ID=$HOSTED_ZONE_ID -E EVENT=$EVENT
+      - name: Deployment completed
+        run: |
+          echo "Deployment completed for event: $EVENT"
