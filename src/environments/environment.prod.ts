@@ -13,5 +13,5 @@ export const environment = {
   REQUEST_ACCESS_API:
     'https://ifmrpnrth0.execute-api.ca-central-1.amazonaws.com/prod/request-access',
   REQUEST_ACCESS_API_KEY: '9MitsUZQJ566GezJRZXrz6Tqt64MVWyCh4gZ2M07',
-  CONFIG_X_API_KEY: 'zpVl7dR3Cf3l56RsfpfDp4aEvfMFMHFL6ualSok5',
+  X_API_KEY: 'zpVl7dR3Cf3l56RsfpfDp4aEvfMFMHFL6ualSok5',
 };
