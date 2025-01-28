@@ -11,6 +11,8 @@ import { CommonModule } from '@angular/common';
 import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
 import { GenerateRealtimeInsightsDialogComponent } from './generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
+import { BackendApiService as LegacyBackendApiService } from 'src/app/services/backend-api.service';
+
 import { AuthService } from 'src/app/services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -177,6 +179,7 @@ export class EditorialComponent implements OnInit {
   private _topicUpdate = new Subject<{ text: string; index: number }>();
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
+  private _legacyBackendApiService =  inject(LegacyBackendApiService);
   private _authService = inject(AuthService);
 
   ngOnInit(): void {
@@ -185,7 +188,9 @@ export class EditorialComponent implements OnInit {
       { label: 'Elsa Events' },
       { label: 'Edit Report', active: true },
     ];
-    this.getEventDetails();
+    this._legacyBackendApiService.getEventDetails().subscribe((data: any) => {
+      this.getEventDetails();
+    });
   }
 
   // Methods

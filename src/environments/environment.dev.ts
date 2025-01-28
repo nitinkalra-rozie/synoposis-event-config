@@ -5,15 +5,14 @@
 export const environment = {
   production: false,
   getTranscriberPreSignedUrl:
-    ' https://dev.api.synopsis.rozie.ai/getPreSignedUrl',
-  putTranscript: 'https://dev.api.synopsis.rozie.ai/postTranscript',
-  postData: 'https://dev.api.synopsis.rozie.ai/adminapplambdaconfig',
+  ' https://dev.api.synopsis.rozie.ai/r2/getPreSignedUrl',   
+  putTranscript: 'https://dev.api.synopsis.rozie.ai/r2/postTranscript',
+  postData: 'https://dev.api.synopsis.rozie.ai/r2/config',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
-  getEventConfig: 'https://dev.api.synopsis.rozie.ai/getEventConfig',
+  getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
   postCurrentSessionId:
-    'https://dev.api.synopsis.rozie.ai/getCurrentSessionDetails',
-
-  getContentVersionsUrl:
+    'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
+    getContentVersionsUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
   getVersionContentUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
@@ -33,8 +32,8 @@ export const environment = {
   REQUEST_ACCESS_API:
     'https://6r1ufmxw01.execute-api.ca-central-1.amazonaws.com/dev/request-access',
   REQUEST_ACCESS_API_KEY: 'wRc0COL6sp6jOC6j2ry2m639O1NUsklH4EFp4xbm',
-  eventName: 'WAF',
-  eventDomain: 'Health',
+  X_API_KEY: 'jYxynvOG8J8IGswZ4pZJV3EiGInjqY1UJZWrovyc',
+  CONFIG_X_API_KEY: 'B7YTICPnCP93axNfbqrEH7Bn8V3E3t4i4rtOJmk7',
 };
 
 /*

@@ -20,6 +20,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
+import { BackendApiService as LegacyBackendApiService } from 'src/app/services/backend-api.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -260,6 +261,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   private _topicUpdate = new Subject<{ text: string; index: number }>();
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
+  private _legacyBackendApiService = inject(LegacyBackendApiService);
+  
   private _authService = inject(AuthService);
 
   ngOnInit(): void {
@@ -268,7 +271,10 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       { label: 'Elsa Events' },
       { label: 'Edit Report', active: true },
     ];
-    this.getEventDetails();
+    this._legacyBackendApiService.getEventDetails().subscribe((data: any) => {
+      this.getEventDetails();
+    });
+  
   }
 
   ngAfterViewInit(): void {

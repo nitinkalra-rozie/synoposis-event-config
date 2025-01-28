@@ -1,8 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 import { Observable } from 'rxjs';
+import { BackendApiService as LegacyBackendApiService } from 'src/app/services/backend-api.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,8 @@ import { Observable } from 'rxjs';
 // TODO: @refactor this service to use defined types instead of objects
 export class BackendApiService {
   constructor(private http: HttpClient) {}
+
+  private _backendApiService = inject(LegacyBackendApiService);
 
   getTranscriberPreSignedUrl(body: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
@@ -74,7 +77,7 @@ export class BackendApiService {
       action: 'realTimeInsights',
       sessionId: data.sessionId,
       eventName: data.eventName,
-      domain: environment.eventDomain,
+      domain: this._backendApiService.getCurrentEventDomain(),
       day: data.day,
       keyNoteData: {},
       screenTimeout: 15,
@@ -91,7 +94,7 @@ export class BackendApiService {
       Authorization: `Bearer ${refreshToken}`,
     });
     const params = new HttpParams()
-      .set('eventId', environment.eventName)
+      .set('eventId', this._backendApiService.getCurrentEventName())
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
@@ -105,7 +108,7 @@ export class BackendApiService {
       Authorization: `Bearer ${refreshToken}`,
     });
     const body = {
-      eventId: environment.eventName,
+      eventId: this._backendApiService.getCurrentEventName(),
       sessionId: data.sessionId,
       sessionType: data.sessionType,
       reportType: data.reportType,
@@ -123,7 +126,7 @@ export class BackendApiService {
       Authorization: `Bearer ${refreshToken}`,
     });
     const params = new HttpParams()
-      .set('eventId', environment.eventName)
+      .set('eventId', this._backendApiService.getCurrentEventName())
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
@@ -140,7 +143,7 @@ export class BackendApiService {
       Authorization: `Bearer ${refreshToken}`,
     });
     const body = {
-      eventId: environment.eventName,
+      eventId: this._backendApiService.getCurrentEventName(),
       sessionId: data.sessionId,
       sessionType: data.sessionType,
       reportType: data.reportType,
@@ -157,7 +160,7 @@ export class BackendApiService {
       Authorization: `Bearer ${refreshToken}`,
     });
     const params = new HttpParams()
-      .set('eventId', environment.eventName)
+      .set('eventId', this._backendApiService.getCurrentEventName())
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
@@ -172,7 +175,7 @@ export class BackendApiService {
     });
     const body = {
       sessionTranscript: data.sessionTranscript,
-      eventId: environment.eventName,
+      eventId: this._backendApiService.getCurrentEventName(),
       sessionTitle: data.sessionTitle,
       sessionId: data.sessionId,
       sessionType: data.sessionType,
@@ -193,7 +196,7 @@ export class BackendApiService {
     const body = {
       action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
-      eventName: environment.eventName,
+      eventName: this._backendApiService.getCurrentEventName(),
       domain: data.domain || localStorage.getItem('domain'),
       status: data.status,
       changeEditMode: data.changeEditMode,
@@ -210,7 +213,7 @@ export class BackendApiService {
     const body = {
       action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
-      eventName: environment.eventName,
+      eventName: this._backendApiService.getCurrentEventName(),
       domain: data.domain || localStorage.getItem('domain'),
       updatedData: data.updatedData,
     };
@@ -244,10 +247,11 @@ export class BackendApiService {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
+      'X-Api-Key': environment.X_API_KEY,
     });
     return this.http.post(
       environment.getEventDetails,
-      { event: environment.eventName },
+      { event: this._backendApiService.getCurrentEventName() },
       { headers: headers }
     );
   }
