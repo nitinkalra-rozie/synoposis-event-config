@@ -12,5 +12,4 @@ export const environment = {
   REQUEST_ACCESS_API_KEY: '',
   USER_POOL_ID: '',
   X_API_KEY: '',
-  CONFIG_X_API_KEY: '',
 };
