@@ -21,7 +21,8 @@ export const environment = {
     'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
   prompt_mangement_base_url:
     'https://gfcc9pbk3d.execute-api.ca-central-1.amazonaws.com/dev',
-  getPreSignedPDFUrl: 'http://localhost:5000/dev/get-content-pdf',
+  getPreSignedPDFUrl:
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/get-content-pdf',
   saveEditedVersionContentUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
   genarateContentUrl:

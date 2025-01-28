@@ -3,9 +3,7 @@
   <div class="content-container">
     <!-- Side Panel -->
 
-    <h1>Prompt Management</h1>
-
-    <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+    <mat-tab-group class="tab-group" [(selectedIndex)]="selectedTabIndex">
       <!-- TAB 1: View and Edit Prompts -->
       <mat-tab label="View and edit prompts">
         <div class="tab-content">
@@ -16,11 +14,13 @@
             <mat-form-field appearance="fill">
               <mat-label>Session Type</mat-label>
               <mat-select
-                [(value)]="selectedSessionType"
-                (selectionChange)="onSessionTypeChange()">
-                <mat-option *ngFor="let s of sessionTypes()" [value]="s">{{
-                  s
-                }}</mat-option>
+                [(ngModel)]="selectedSession"
+                (ngModelChange)="selectedReportType.set('')">
+                <mat-option
+                  *ngFor="let s of sessionTypes()"
+                  [value]="s.sessionType"
+                  >{{ formatDisplayName(s.sessionType) }}</mat-option
+                >
               </mat-select>
             </mat-form-field>
 
@@ -30,9 +30,9 @@
                 [(value)]="selectedReportType"
                 (selectionChange)="fetchVersions()">
                 <mat-option
-                  *ngFor="let r of filteredReportTypes()"
-                  [value]="r"
-                  >{{ r }}</mat-option
+                  *ngFor="let r of availableReportTypes()"
+                  [value]="r">
+                  {{ formatDisplayName(r) }}</mat-option
                 >
               </mat-select>
             </mat-form-field>

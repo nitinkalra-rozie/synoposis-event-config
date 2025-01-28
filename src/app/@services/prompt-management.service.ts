@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -15,7 +15,8 @@ export interface PromptVersion {
   version: string;
   promptTitle: string;
   promptDescription: string;
-  // Add other fields as needed
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PromptContent {
@@ -48,11 +49,20 @@ export class PromptManagementService {
   getPromptVersions(
     sessionType: string,
     reportType: string
-  ): Observable<PromptVersion[]> {
-    const payload = { sessionType, reportType };
-    return this.http.post<PromptVersion[]>(
+  ): Observable<{ versions: PromptVersion[] }> {
+    const refreshToken = localStorage.getItem('accessToken') || '';
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${refreshToken}`,
+    });
+    const params = new HttpParams()
+      .set('sessionType', sessionType)
+      .set('reportType', reportType);
+    return this.http.get<{ versions: PromptVersion[] }>(
       `${this._baseurl}/get-prompt-versions`,
-      payload
+      {
+        headers,
+        params,
+      }
     );
   }
 

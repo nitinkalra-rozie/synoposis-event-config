@@ -19,6 +19,11 @@ import {
   PromptContent,
 } from 'src/app/@services/prompt-management.service';
 
+interface SessionType {
+  sessionType: string;
+  reportTypes: string[];
+}
+
 @Component({
   standalone: true,
   selector: 'app-prompt-management',
@@ -47,14 +52,41 @@ export class PromptManagementComponent implements OnInit {
 
   public selectedTabIndex = 0;
   public sessionReportPairs = signal<SessionReportType[]>([]);
-  public sessionTypes = computed<string[]>(() =>
-    Array.from(
-      new Set(this.sessionReportPairs().map((p) => p.sessionType))
-    ).sort()
-  );
 
-  public selectedSessionType: string | null = null;
-  public selectedReportType: string | null = null;
+  public rawData = signal<string[][]>([]);
+
+  // Transformed data using computed signal
+  public sessionTypes = computed<SessionType[]>(() => {
+    const sessionMap = new Map<string, Set<string>>();
+
+    this.rawData().forEach(([sessionType, reportType]) => {
+      if (!sessionMap.has(sessionType)) {
+        sessionMap.set(sessionType, new Set());
+      }
+      sessionMap.get(sessionType)?.add(reportType);
+    });
+
+    return Array.from(sessionMap.entries()).map(
+      ([sessionType, reportTypes]) => ({
+        sessionType,
+        reportTypes: Array.from(reportTypes),
+      })
+    );
+  });
+
+  // Selected values signals
+  public selectedSession = signal<string>('');
+  public selectedReportType = signal<string>('');
+
+  // Available report types computed from selection
+  public availableReportTypes = computed(() => {
+    if (!this.selectedSession()) return [];
+    const session = this.sessionTypes().find(
+      (s) => s.sessionType === this.selectedSession()
+    );
+    return session ? session.reportTypes : [];
+  });
+
   public promptVersions = signal<PromptVersion[]>([]);
   public versions = computed(() => this.promptVersions());
   public displayedColumns = ['version', 'promptTitle', 'promptDescription'];
@@ -69,6 +101,14 @@ export class PromptManagementComponent implements OnInit {
     this.fetchSessionReportTypes();
   }
 
+  // Format display names for UI
+  formatDisplayName(value: string): string {
+    return value
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
   fetchSessionReportTypes(): void {
     this.service.getSessionReportTypes().subscribe({
       next: (data) => {
@@ -76,12 +116,7 @@ export class PromptManagementComponent implements OnInit {
           this.showError('API did not return a valid "types" array');
           return;
         }
-        const pairs = data.types.map((pair: SessionReportType[]) => ({
-          sessionType: pair[0],
-          reportType: pair[1],
-        }));
-        this.sessionReportPairs.set(pairs);
-        this.sessionReportPairs.set(pairs.types);
+        this.rawData.set(data.types);
       },
       error: (err) => {
         this.showError(`Failed to fetch session types: ${err.message}`);
@@ -89,27 +124,13 @@ export class PromptManagementComponent implements OnInit {
     });
   }
 
-  filteredReportTypes(): string[] {
-    if (!this.selectedSessionType) return [];
-    const pairs = this.sessionReportPairs().filter(
-      (p) => p.sessionType === this.selectedSessionType
-    );
-    return Array.from(new Set(pairs.map((p) => p.reportType))).sort();
-  }
-
-  onSessionTypeChange(): void {
-    this.selectedReportType = null;
-    this.promptVersions.set([]);
-  }
-
   fetchVersions(): void {
-    if (!this.selectedSessionType || !this.selectedReportType) return;
+    if (!this.selectedSession() || !this.selectedReportType()) return;
     this.service
-      .getPromptVersions(this.selectedSessionType, this.selectedReportType)
+      .getPromptVersions(this.selectedSession(), this.selectedReportType())
       .subscribe({
-        next: (versions) => {
-          this.promptVersions.set(versions);
-
+        next: (data) => {
+          this.promptVersions.set(data.versions);
           this.selectedVersion = null;
         },
         error: (err) => {
@@ -137,8 +158,8 @@ export class PromptManagementComponent implements OnInit {
    */
   fetchPromptContent(): void {
     if (
-      !this.selectedSessionType ||
-      !this.selectedReportType ||
+      !this.selectedSession() ||
+      !this.selectedReportType() ||
       !this.selectedVersion
     )
       return;
@@ -148,8 +169,8 @@ export class PromptManagementComponent implements OnInit {
 
     this.service
       .getPromptContent(
-        this.selectedSessionType,
-        this.selectedReportType,
+        this.selectedSession(),
+        this.selectedReportType(),
         this.selectedVersion
       )
       .subscribe({
