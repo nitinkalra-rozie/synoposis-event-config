@@ -262,7 +262,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
-  
+
   private _authService = inject(AuthService);
 
   ngOnInit(): void {
@@ -274,7 +274,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     this._legacyBackendApiService.getEventDetails().subscribe((data: any) => {
       this.getEventDetails();
     });
-  
   }
 
   ngAfterViewInit(): void {
@@ -478,6 +477,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       reportType: this.selectedReportType,
       transcriptSource: this.selectedTranscriptSource,
       promptVersion: this.selectedPromptVersion,
+      childSectionSessionIds: [],
+      speakers: []
     };
     this._backendApiService.generateContent(data).subscribe({
       next: (response) => {

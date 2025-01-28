@@ -5,14 +5,14 @@
 export const environment = {
   production: false,
   getTranscriberPreSignedUrl:
-  ' https://dev.api.synopsis.rozie.ai/r2/getPreSignedUrl',   
+    ' https://dev.api.synopsis.rozie.ai/r2/getPreSignedUrl',
   putTranscript: 'https://dev.api.synopsis.rozie.ai/r2/postTranscript',
   postData: 'https://dev.api.synopsis.rozie.ai/r2/config',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
   getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
-    getContentVersionsUrl:
+  getContentVersionsUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
   getVersionContentUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',

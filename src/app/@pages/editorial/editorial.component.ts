@@ -179,7 +179,7 @@ export class EditorialComponent implements OnInit {
   private _topicUpdate = new Subject<{ text: string; index: number }>();
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
-  private _legacyBackendApiService =  inject(LegacyBackendApiService);
+  private _legacyBackendApiService = inject(LegacyBackendApiService);
   private _authService = inject(AuthService);
 
   ngOnInit(): void {
