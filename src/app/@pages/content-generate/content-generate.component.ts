@@ -85,7 +85,13 @@ interface RealtimeInsight {
 
 const promptSchema = {
   keynote: ['session_debrief'],
-  panel_discussion: ['session_debrief', 'blog_post'],
+  panel_discussion: ['session_debrief'],
+  talk: ['session_debrief'],
+  fireside_chat: ['session_debrief'],
+  closing: ['session_debrief'],
+  presentation: ['session_debrief'],
+  welcome: ['session_debrief'],
+  breakout: ['session_debrief']
 };
 
 @Component({
@@ -478,7 +484,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       transcriptSource: this.selectedTranscriptSource,
       promptVersion: this.selectedPromptVersion,
       childSectionSessionIds: [],
-      speakers: []
+      speakers: [],
     };
     this._backendApiService.generateContent(data).subscribe({
       next: (response) => {

@@ -22,6 +22,74 @@
   padding-right: 20px;
 }
 
+
+$spinkit-size: 4em !default;
+$spinkit-spinner-color: #8141ff !default;
+// 9
+.sk-cube-grid {
+  $delayRange: 0.4s;
+
+  width: $spinkit-size;
+  height: $spinkit-size;
+  margin: auto;
+
+  .sk-cube {
+    width: 33%;
+    height: 33%;
+    background-color: $spinkit-spinner-color;
+    float: left;
+    animation: sk-cube-grid-scale-delay 1.3s infinite ease-in-out;
+  }
+
+  /*
+   * Spinner positions
+   * 1 2 3
+   * 4 5 6
+   * 7 8 9
+   */
+
+  .sk-cube-1 {
+    animation-delay: ($delayRange * 0.50);
+  }
+  .sk-cube-2 {
+    animation-delay: ($delayRange * 0.75);
+  }
+  .sk-cube-3 {
+    animation-delay: $delayRange;
+  }
+  .sk-cube-4 {
+    animation-delay: ($delayRange * 0.25);
+  }
+  .sk-cube-5 {
+    animation-delay: ($delayRange * 0.50);
+  }
+  .sk-cube-6 {
+    animation-delay: ($delayRange * 0.75);
+  }
+  .sk-cube-7 {
+    animation-delay: 0s;
+  }
+  .sk-cube-8 {
+    animation-delay: ($delayRange * 0.25);
+  }
+  .sk-cube-9 {
+    animation-delay: ($delayRange * 0.50);
+  }
+}
+
+@keyframes sk-cube-grid-scale-delay {
+  0%, 70%, 100% {
+    transform: scale3D(1,1,1);
+  }
+  35%           {
+    transform: scale3D(0,0,1);
+  }
+}
+
+
+
+
+
 .edit-mode {
   background-color: #54df85;
   text-align: center;
@@ -187,47 +255,6 @@ mat-form-field {
       color: green;
       font-size: 1.5rem;
       margin-right: 0.5rem;
-    }
-    .gear {
-      /* A simple gear shape using CSS box + pseudo-elements.
-       You could also do a circle + notches, or any custom shape. */
-      width: 50px;
-      height: 50px;
-      background: #673ab7;
-      position: relative;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      animation: spin 1s linear infinite;
-    }
-    .gear::before,
-    .gear::after {
-      content: '';
-      position: absolute;
-      background: #673ab7;
-    }
-    /* Add little "notches" to the gear for a more gear-like look */
-    .gear::before {
-      width: 12px;
-      height: 12px;
-      top: -6px;
-      left: 19px;
-      border-radius: 2px;
-    }
-    .gear::after {
-      width: 12px;
-      height: 12px;
-      bottom: -6px;
-      left: 19px;
-      border-radius: 2px;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
     }
   }
 

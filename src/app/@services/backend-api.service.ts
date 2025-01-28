@@ -183,7 +183,7 @@ export class BackendApiService {
       transcriptSource: data.transcriptSource,
       promptVersion: data.promptVersion,
       childSectionSessionIds: data.childSectionSessionIds,
-      speakers: data.speakers
+      speakers: data.speakers,
     };
     console.log(body);
     return this.http.post(environment.genarateContentUrl, body, {
