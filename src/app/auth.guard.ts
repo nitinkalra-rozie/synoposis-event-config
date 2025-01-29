@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { RoleRank } from './shared/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -11,9 +12,25 @@ export class AuthGuard {
     private router: Router
   ) {}
 
-  canActivate(): boolean {
+  canActivate(state: RouterStateSnapshot): boolean {
     // This is a temporary implementation of checking if the user is authenticated. Check TODO below
     if (this.authService.getAccessToken()) {
+      if (!this.authService.getAccessToken()) {
+        this.router.navigate(['/']);
+        return false;
+      }
+
+      // Get the user's role rank
+      const userRoleRank = this.authService.getUserRoleRank();
+      const isAdminRoute = state.root.children.some((child) =>
+        child.routeConfig?.path?.includes('admin')
+      );
+
+      if (isAdminRoute && userRoleRank < RoleRank.ADMIN) {
+        this.router.navigate(['/editorial']);
+        return false;
+      }
+
       return true;
     } else {
       this.router.navigate(['/']);

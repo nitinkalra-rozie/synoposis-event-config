@@ -1,56 +1,31 @@
 <div class="sidebar">
   <div class="logopart">
     <div class="logo">
-      <img
-        alt="Logo"
-        src="../../../../assets/side-bar/Rozie_Icon_White 1.svg" />
+      <img alt="Logo" src="../../../../assets/side-bar/Rozie_Icon_White 1.svg" />
     </div>
   </div>
   <div class="icons">
-    <a
-      matTooltipClass="tooltip-text-only-300"
-      matTooltipPosition="after"
-      class="menu-item"
-      [matTooltip]="'Admin Dashboard'"
-      [routerLinkActiveOptions]="{ exact: true }"
-      routerLink="/admin"
+    <a *ngIf="userRoleRank > 1" matTooltipClass="tooltip-text-only-300" matTooltipPosition="after" class="menu-item"
+      [matTooltip]="'Admin Dashboard'" [routerLinkActiveOptions]="{ exact: true }" routerLink="/admin"
       routerLinkActive="selected">
       <mat-icon svgIcon="syn:space_dashboard_outlined"></mat-icon>
     </a>
 
     <!-- Use isAdminUser() if it's a signal -->
-    <a
-      *ngIf="isAdminUser()"
-      matTooltipClass="tooltip-text-only-300"
-      matTooltipPosition="after"
-      class="menu-item"
-      [matTooltip]="'Editorial Dashboard'"
-      [routerLinkActiveOptions]="{ exact: true }"
-      routerLink="/editorial"
+    <a *ngIf="userRoleRank > 0" matTooltipClass="tooltip-text-only-300" matTooltipPosition="after" class="menu-item"
+      [matTooltip]="'Editorial Dashboard'" [routerLinkActiveOptions]="{ exact: true }" routerLink="/editorial"
       routerLinkActive="selected">
       <mat-icon style="color: rgb(255, 255, 255)">dashboard</mat-icon>
     </a>
 
-    <a
-      *ngIf="isAdminUser()"
-      matTooltipClass="tooltip-text-only-300"
-      matTooltipPosition="after"
-      class="menu-item"
-      [matTooltip]="'Generate PDF'"
-      [routerLinkActiveOptions]="{ exact: true }"
-      routerLink="/generate-report"
+    <a *ngIf="userRoleRank > 0" matTooltipClass="tooltip-text-only-300" matTooltipPosition="after" class="menu-item"
+      [matTooltip]="'Generate PDF'" [routerLinkActiveOptions]="{ exact: true }" routerLink="/generate-report"
       routerLinkActive="selected">
       <mat-icon style="color: rgb(255, 255, 255)">picture_as_pdf</mat-icon>
     </a>
 
-    <a
-      *ngIf="isAdminUser()"
-      matTooltipClass="tooltip-text-only-300"
-      matTooltipPosition="after"
-      class="menu-item"
-      [matTooltip]="'Prompt Management'"
-      [routerLinkActiveOptions]="{ exact: true }"
-      routerLink="/prompt-management"
+    <a *ngIf="userRoleRank > 0" matTooltipClass="tooltip-text-only-300" matTooltipPosition="after" class="menu-item"
+      [matTooltip]="'Prompt Management'" [routerLinkActiveOptions]="{ exact: true }" routerLink="/prompt-management"
       routerLinkActive="selected">
       <mat-icon style="color: rgb(255, 255, 255)">manage_search</mat-icon>
     </a>
