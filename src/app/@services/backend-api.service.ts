@@ -189,6 +189,8 @@ export class BackendApiService {
     return this.http.post(environment.genarateContentUrl, body, {
       headers: headers,
     });
+
+    
   }
 
   changeEventStatus(data: any): Observable<any> {

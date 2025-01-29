@@ -270,16 +270,16 @@
                   <div *ngIf="status() === 'generating'" class="step-panel">
                     <!-- / grid loader -->
                     <section>
-                      <div class='sk-cube-grid'>
-                        <div class='sk-cube sk-cube-1'></div>
-                        <div class='sk-cube sk-cube-2'></div>
-                        <div class='sk-cube sk-cube-3'></div>
-                        <div class='sk-cube sk-cube-4'></div>
-                        <div class='sk-cube sk-cube-5'></div>
-                        <div class='sk-cube sk-cube-6'></div>
-                        <div class='sk-cube sk-cube-7'></div>
-                        <div class='sk-cube sk-cube-8'></div>
-                        <div class='sk-cube sk-cube-9'></div>
+                      <div class="sk-cube-grid">
+                        <div class="sk-cube sk-cube-1"></div>
+                        <div class="sk-cube sk-cube-2"></div>
+                        <div class="sk-cube sk-cube-3"></div>
+                        <div class="sk-cube sk-cube-4"></div>
+                        <div class="sk-cube sk-cube-5"></div>
+                        <div class="sk-cube sk-cube-6"></div>
+                        <div class="sk-cube sk-cube-7"></div>
+                        <div class="sk-cube sk-cube-8"></div>
+                        <div class="sk-cube sk-cube-9"></div>
                       </div>
                     </section>
                     <h2>Generating Content...</h2>
@@ -288,16 +288,16 @@
                   <div *ngIf="status() === 'creating'" class="step-panel">
                     <!-- / grid loader -->
                     <section>
-                      <div class='sk-cube-grid'>
-                        <div class='sk-cube sk-cube-1'></div>
-                        <div class='sk-cube sk-cube-2'></div>
-                        <div class='sk-cube sk-cube-3'></div>
-                        <div class='sk-cube sk-cube-4'></div>
-                        <div class='sk-cube sk-cube-5'></div>
-                        <div class='sk-cube sk-cube-6'></div>
-                        <div class='sk-cube sk-cube-7'></div>
-                        <div class='sk-cube sk-cube-8'></div>
-                        <div class='sk-cube sk-cube-9'></div>
+                      <div class="sk-cube-grid">
+                        <div class="sk-cube sk-cube-1"></div>
+                        <div class="sk-cube sk-cube-2"></div>
+                        <div class="sk-cube sk-cube-3"></div>
+                        <div class="sk-cube sk-cube-4"></div>
+                        <div class="sk-cube sk-cube-5"></div>
+                        <div class="sk-cube sk-cube-6"></div>
+                        <div class="sk-cube sk-cube-7"></div>
+                        <div class="sk-cube sk-cube-8"></div>
+                        <div class="sk-cube sk-cube-9"></div>
                       </div>
                     </section>
                     <h2>Creating PDF...</h2>
@@ -450,29 +450,7 @@
                 </mat-paginator>
               </div>
 
-              <!-- Footer Actions -->
-              <div *ngIf="isEditorMode" class="footer-action-bar">
-                <div
-                  class="editorial-status"
-                  style="display: flex; flex-direction: row-reverse">
-                  <mat-form-field appearance="fill" style="max-width: 400px">
-                    <mat-label>Editorial Status</mat-label>
-                    <mat-select [(value)]="selected_session_details.Status">
-                      <mat-option value="UNDER_REVIEW">In Review</mat-option>
-                      <mat-option value="REVIEW_COMPLETE"
-                        >Review Complete</mat-option
-                      >
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-                <button
-                  mat-raised-button
-                  (click)="saveEdits()"
-                  color="accent"
-                  style="margin-bottom: 30px">
-                  Save Debrief
-                </button>
-              </div>
+          
             </div>
           </mat-card-content>
         </mat-card>

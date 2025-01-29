@@ -69,7 +69,7 @@ interface Session {
   Duration: string;
   Type: string;
   Event: string;
-  Speakers: any;
+  SpeakersInfo: any;
 }
 
 export interface VersionData {
@@ -91,7 +91,7 @@ const promptSchema = {
   closing: ['session_debrief'],
   presentation: ['session_debrief'],
   welcome: ['session_debrief'],
-  breakout: ['session_debrief']
+  breakout: ['session_debrief'],
 };
 
 @Component({
@@ -474,6 +474,11 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     if (this.selectedTranscriptSource == 'Text Input') {
       transcript = this.manualTranscript;
     }
+    const speakers = this.selected_session_details.SpeakersInfo.map(ele => ele.isModerator
+        ? `Moderator - ${ele.Name}`
+        : `Speaker - ${ele.Name}`
+      )
+    .join('\n');
     const data = {
       sessionTranscript: '',
       eventId: this.eventName,
@@ -483,8 +488,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       reportType: this.selectedReportType,
       transcriptSource: this.selectedTranscriptSource,
       promptVersion: this.selectedPromptVersion,
-      childSectionSessionIds: [],
-      speakers: [],
+      childSectionSessionIds: {},
+      speakers: speakers,
     };
     this._backendApiService.generateContent(data).subscribe({
       next: (response) => {
@@ -743,6 +748,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       } else {
         this.isEditorMode = false;
       }
+      console.log("speaker",sessionObj);
       this.selected_session_details = sessionObj;
       console.log('Selected session:', session);
       this.getEventReport();
