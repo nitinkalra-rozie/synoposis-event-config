@@ -14,7 +14,7 @@ export class BackendApiService {
 
   // TODO: @later move these to a config state service
   private _currentEventName: string = '';
-  private _currentEventDomain: string = '';
+  private _currentEventDomain: string = 'Healthcare, AI, Digital Innovation';
 
   getEventDetails(): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
@@ -26,6 +26,8 @@ export class BackendApiService {
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
         const eventNameIdentifier = configResponse?.data?.eventNameIdentifier;
+        this._currentEventDomain = configResponse?.data?.EventDomain;
+
         return this.http
           .post(
             environment.getEventDetails,
@@ -36,7 +38,6 @@ export class BackendApiService {
             tap((response: any) => {
               if (response?.data?.length > 0) {
                 this._currentEventName = response.data[0].Event;
-                this._currentEventDomain = response.data[0].EventDomain;
               }
             })
           );
