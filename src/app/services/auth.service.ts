@@ -110,7 +110,7 @@ export class AuthService {
     }
 
     if (groups.some((group) => group.includes('SUPER_ADMIN'))) {
-      return UserRole.SUPER_ADMIN;
+      return UserRole.SUPERADMIN;
     } else if (groups.some((group) => group.includes('ADMIN'))) {
       return UserRole.ADMIN;
     } else {
@@ -121,7 +121,7 @@ export class AuthService {
   public getUserRoleRank = (): number => {
     const role = this.getUserRole();
     switch (role) {
-      case UserRole.SUPER_ADMIN:
+      case UserRole.SUPERADMIN:
         return RoleRank.SUPER_ADMIN;
       case UserRole.ADMIN:
         return RoleRank.ADMIN;
