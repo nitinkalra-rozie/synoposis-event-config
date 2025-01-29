@@ -8,6 +8,7 @@
   </div>
   <div class="icons">
     <a
+      *ngIf="userRoleRank > 1"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -20,7 +21,7 @@
 
     <!-- Use isAdminUser() if it's a signal -->
     <a
-      *ngIf="isAdminUser()"
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -32,7 +33,7 @@
     </a>
 
     <a
-      *ngIf="isAdminUser()"
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -44,7 +45,7 @@
     </a>
 
     <a
-      *ngIf="isAdminUser()"
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
