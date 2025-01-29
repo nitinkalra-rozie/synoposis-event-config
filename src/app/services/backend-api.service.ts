@@ -14,6 +14,7 @@ export class BackendApiService {
 
   // TODO: @later move these to a config state service
   private _currentEventName: string = '';
+  //TODO:  if it's needed for this event
   private _currentEventDomain: string = 'Healthcare, AI, Digital Innovation';
 
   getEventDetails(): Observable<Object> {
