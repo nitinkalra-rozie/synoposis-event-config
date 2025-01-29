@@ -474,11 +474,9 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     if (this.selectedTranscriptSource == 'Text Input') {
       transcript = this.manualTranscript;
     }
-    const speakers = this.selected_session_details.SpeakersInfo.map(ele => ele.isModerator
-        ? `Moderator - ${ele.Name}`
-        : `Speaker - ${ele.Name}`
-      )
-    .join('\n');
+    const speakers = this.selected_session_details.SpeakersInfo.map((ele) =>
+      ele.isModerator ? `Moderator - ${ele.Name}` : `Speaker - ${ele.Name}`
+    ).join('\n');
     const data = {
       sessionTranscript: '',
       eventId: this.eventName,
@@ -748,7 +746,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       } else {
         this.isEditorMode = false;
       }
-      console.log("speaker",sessionObj);
+      console.log('speaker', sessionObj);
       this.selected_session_details = sessionObj;
       console.log('Selected session:', session);
       this.getEventReport();
