@@ -53,6 +53,8 @@ export class AuthService {
     return cognitoUser !== null;
   };
 
+  public getUserEmail = (): string | null => localStorage.getItem('userEmail');
+
   public getAccessToken = (): string | null =>
     localStorage.getItem('accessToken');
 

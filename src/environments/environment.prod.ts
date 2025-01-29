@@ -4,6 +4,13 @@ export const environment = {
   putTranscript: 'https://api.synopsis.rozie.ai/postTranscript',
   postData: 'https://api.synopsis.rozie.ai/adminapplambdaconfig',
   getEventDetails: 'https://api.synopsis.rozie.ai/getEventDetails',
+  getContentVersionsUrl: '',
+  genarateContentUrl: '',
+  getVersionContentUrl: '',
+  saveEditedVersionContentUrl: '',
+  generateContentPDFUrl: '',
+  getPreSignedPDFUrl: '',
+  prompt_mangement_base_url: '',
   getEventConfig: 'https://api.synopsis.rozie.ai/getEventConfig',
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/getCurrentSessionDetails',

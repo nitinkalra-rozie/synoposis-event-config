@@ -1,0 +1,160 @@
+<app-top-bar></app-top-bar>
+<div class="main-content">
+  <div class="content-container">
+    <!-- Side Panel -->
+
+    <mat-tab-group class="tab-group" [(selectedIndex)]="selectedTabIndex">
+      <!-- TAB 1: View and Edit Prompts -->
+      <mat-tab label="View and edit prompts">
+        <div class="tab-content">
+          <h2>Choose prompt configuration</h2>
+
+          <!-- Session Type & Report Type dropdowns -->
+          <div class="row">
+            <mat-form-field appearance="fill">
+              <mat-label>Session Type</mat-label>
+              <mat-select
+                [(ngModel)]="selectedSession"
+                (ngModelChange)="selectedReportType.set('')">
+                <mat-option
+                  *ngFor="let s of sessionTypes()"
+                  [value]="s.sessionType"
+                  >{{ formatDisplayName(s.sessionType) }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+              <mat-label>Report Type</mat-label>
+              <mat-select
+                [(value)]="selectedReportType"
+                (selectionChange)="fetchVersions()">
+                <mat-option
+                  *ngFor="let r of availableReportTypes()"
+                  [value]="r">
+                  {{ formatDisplayName(r) }}</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Versions Table -->
+          <div *ngIf="versions().length > 0; else noVersions">
+            <p>Found {{ versions().length }} version(s)</p>
+            <table mat-table class="mat-elevation-z1" [dataSource]="versions()">
+              <ng-container matColumnDef="version">
+                <th *matHeaderCellDef mat-header-cell>Version</th>
+                <td *matCellDef="let row" mat-cell>{{ row.version }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="promptTitle">
+                <th *matHeaderCellDef mat-header-cell>Prompt Title</th>
+                <td *matCellDef="let row" mat-cell>{{ row.promptTitle }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="promptDescription">
+                <th *matHeaderCellDef mat-header-cell>Prompt Description</th>
+                <td *matCellDef="let row" mat-cell>
+                  {{ row.promptDescription }}
+                </td>
+              </ng-container>
+
+              <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+              <tr
+                *matRowDef="let row; columns: displayedColumns"
+                mat-row
+                [class.selected]="row.version === selectedVersion"
+                (click)="onSelectVersion(row)"></tr>
+            </table>
+
+            <!-- Visualize Button -->
+            <button
+              mat-raised-button
+              (click)="goToVisualizeTab()"
+              color="primary">
+              Visualize
+            </button>
+          </div>
+          <ng-template #noVersions>
+            <p>No versions found for this prompt.</p>
+          </ng-template>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 2: Visualize prompt -->
+      <mat-tab label="Visualize prompt">
+        <div class="tab-content">
+          <ng-container *ngIf="selectedVersion; else noVersionSelected">
+            <h2>Selected version: {{ selectedVersion }}</h2>
+            <div *ngIf="promptContent(); else loadingPrompt">
+              <p>
+                <strong>Prompt title:</strong>
+                {{ promptContent()?.prompt_title }}
+              </p>
+              <p>
+                <strong>Prompt description:</strong>
+                {{ promptContent()?.prompt_description }}
+              </p>
+
+              <h3>Inputs</h3>
+              <div *ngFor="let input of promptContent()?.inputs">
+                <mat-form-field appearance="fill" style="width: 100%">
+                  <mat-label>
+                    {{ input.title }}
+                    <span *ngIf="input.required" style="color: red">*</span>
+                  </mat-label>
+                  <input
+                    *ngIf="(input.type || 'text') === 'text'"
+                    matInput
+                    [(ngModel)]="userInputs[input.prompt_key]"
+                    placeholder="{{ input.help }}" />
+                  <input
+                    *ngIf="input.type === 'number'"
+                    matInput
+                    [(ngModel)]="userInputs[input.prompt_key]"
+                    placeholder="{{ input.help }}"
+                    type="number" />
+                </mat-form-field>
+              </div>
+
+              <!-- Visualize the final prompt -->
+              <button
+                mat-raised-button
+                (click)="visualizePrompt()"
+                color="primary">
+                Visualize Prompt
+              </button>
+              <div *ngIf="finalPrompt" class="final-prompt">
+                <h4>Prompt Preview</h4>
+                <pre>{{ finalPrompt }}</pre>
+              </div>
+            </div>
+            <ng-template #loadingPrompt>
+              <p>Loading prompt content...</p>
+            </ng-template>
+          </ng-container>
+          <ng-template #noVersionSelected>
+            <p>
+              No version selected. Please go to "View and edit prompts" and
+              select a version.
+            </p>
+          </ng-template>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 3: Upload/Refresh prompts -->
+      <mat-tab label="Upload/Refresh prompts">
+        <div class="tab-content">
+          <button
+            mat-raised-button
+            (click)="uploadOrRefreshPrompts()"
+            color="primary">
+            Upload/Refresh Prompts
+          </button>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  <div></div>
+  <app-sidebar-control-panel></app-sidebar-control-panel>
+</div>

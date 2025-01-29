@@ -12,6 +12,20 @@ export const environment = {
   getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
+  getContentVersionsUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
+  getVersionContentUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
+  generateContentPDFUrl:
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
+  prompt_mangement_base_url:
+    'https://gfcc9pbk3d.execute-api.ca-central-1.amazonaws.com/dev',
+  getPreSignedPDFUrl:
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/get-content-pdf',
+  saveEditedVersionContentUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
+  genarateContentUrl:
+    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/generate-content',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',
