@@ -4,13 +4,6 @@ export const environment = {
   putTranscript: 'https://api.synopsis.rozie.ai/postTranscript',
   postData: 'https://api.synopsis.rozie.ai/adminapplambdaconfig',
   getEventDetails: 'https://api.synopsis.rozie.ai/getEventDetails',
-  getContentVersionsUrl: '',
-  genarateContentUrl: '',
-  getVersionContentUrl: '',
-  saveEditedVersionContentUrl: '',
-  generateContentPDFUrl: '',
-  getPreSignedPDFUrl: '',
-  prompt_mangement_base_url: '',
   getEventConfig: 'https://api.synopsis.rozie.ai/getEventConfig',
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/getCurrentSessionDetails',
@@ -21,6 +14,4 @@ export const environment = {
     'https://ifmrpnrth0.execute-api.ca-central-1.amazonaws.com/prod/request-access',
   REQUEST_ACCESS_API_KEY: '9MitsUZQJ566GezJRZXrz6Tqt64MVWyCh4gZ2M07',
   X_API_KEY: 'zpVl7dR3Cf3l56RsfpfDp4aEvfMFMHFL6ualSok5',
-  eventName: 'HEIF2025',
-  eventDomain: 'Healtcare, AI, Digital Innovation',
 };
