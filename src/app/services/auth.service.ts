@@ -8,6 +8,9 @@ import {
 import { AuthResponse } from '../shared/types';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
+import { UserRole } from '../shared/enums';
+import { RoleRank } from '../shared/constants';
 @Injectable({
   providedIn: 'root',
 })
@@ -53,6 +56,8 @@ export class AuthService {
     return cognitoUser !== null;
   };
 
+  public getUserEmail = (): string | null => localStorage.getItem('userEmail');
+
   public getAccessToken = (): string | null =>
     localStorage.getItem('accessToken');
 
@@ -79,31 +84,55 @@ export class AuthService {
       }
     });
 
-  // public refreshAccessToken = async (): Promise<string> => {
-  //   return new Promise((resolve, reject) => {
-  //     const cognitoUser = this.userPool.getCurrentUser();
-  //     if (cognitoUser) {
-  //       const refreshTokenString = this.getRefreshToken();
-  //       if (refreshTokenString) {
-  //         const refreshToken = new CognitoRefreshToken({ RefreshToken: refreshTokenString });
-  //         cognitoUser.refreshSession(refreshToken, (err, session: CognitoUserSession) => {
-  //           if (err) {
-  //             this.logout();
-  //             reject(err);
-  //           } else {
-  //             const newAccessToken = session.getAccessToken().getJwtToken();
-  //             localStorage.setItem('accessToken', newAccessToken);
-  //             resolve(newAccessToken);
-  //           }
-  //         });
-  //       } else {
-  //         this.logout();
-  //         reject(new Error('No refresh token available'));
-  //       }
-  //     } else {
-  //       this.logout();
-  //       reject(new Error('No user session available'));
-  //     }
-  //   });
-  // };
+  public getUserGroups = (): string[] | null => {
+    const accessToken = this.getAccessToken();
+    if (!accessToken) {
+      console.error('Access token not found');
+      return null;
+    }
+
+    try {
+      const decodedToken: any = jwtDecode(accessToken);
+      const userGroups = decodedToken['cognito:groups']; // Get groups from the token
+      console.log('User groups:', userGroups);
+      return userGroups || null;
+    } catch (error) {
+      console.error('Error decoding access token:', error);
+      return null;
+    }
+  };
+
+  public getUserRole = (): UserRole => {
+    try {
+      const accessToken = this.getAccessToken();
+      const decodedToken: any = jwtDecode(accessToken);
+      const email = decodedToken.email || decodedToken.username;
+      if (email && email.endsWith('@rozie.ai')) {
+        return UserRole.SUPERADMIN;
+      }
+      const groups = this.getUserGroups();
+      if (groups.some((group) => group.includes('SUPER_ADMIN'))) {
+        return UserRole.SUPERADMIN;
+      } else if (groups.some((group) => group.includes('ADMIN'))) {
+        return UserRole.ADMIN;
+      } else {
+        return UserRole.EDITOR;
+      }
+    } catch (error) {
+      console.error('Error decoding access token:', error);
+      return UserRole.EDITOR;
+    }
+  };
+
+  public getUserRoleRank = (): number => {
+    const role = this.getUserRole();
+    switch (role) {
+      case UserRole.SUPERADMIN:
+        return RoleRank.SUPER_ADMIN;
+      case UserRole.ADMIN:
+        return RoleRank.ADMIN;
+      default:
+        return RoleRank.EDITOR;
+    }
+  };
 }

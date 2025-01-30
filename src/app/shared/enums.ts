@@ -46,3 +46,9 @@ export enum TransitionTimesEnum {
   Seconds30 = '30 Seconds',
   Seconds45 = '45 Seconds',
 }
+
+export enum UserRole {
+  SUPERADMIN = 'SUPERADMIN',
+  ADMIN = 'ADMIN',
+  EDITOR = 'EDITOR',
+}

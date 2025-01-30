@@ -24,3 +24,9 @@ export const TransitionTimes = {
   [TransitionTimesEnum.Seconds30]: 30,
   [TransitionTimesEnum.Seconds45]: 45,
 };
+
+export const RoleRank = {
+  EDITOR: 1,
+  ADMIN: 2,
+  SUPER_ADMIN: 3,
+};

@@ -6,6 +6,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  inject,
 } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
@@ -52,7 +53,6 @@ import {
   ProjectionData,
 } from '@syn/data-services';
 import { escape } from 'lodash-es';
-import { environment } from 'src/environments/environment';
 import { MatIconModule } from '@angular/material/icon';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
@@ -73,12 +73,15 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
     MatIconModule,
   ],
 })
+// TODO: @later refactor this fully
 export class SessionContentComponent implements OnInit, OnChanges {
   ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
+
+  private readonly _backendApiService = inject(BackendApiService);
 
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;
@@ -122,7 +125,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  selectedDomain = environment.eventDomain ?? 'general';
+  selectedDomain = '';
 
   eventDay: Record<string, string> = {
     [EventCardType.Welcome]: '',
@@ -162,7 +165,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
   private _isTranscriptParaBreak: boolean = false;
 
   constructor(
-    private backendApiService: BackendApiService,
     private modalService: ModalService,
     private micService: MicrophoneService,
     private _globalStateService: GlobalStateService,
@@ -215,7 +217,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
       localStorage.getItem('selectedSessionType') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
     this.selectedDomain =
-      localStorage.getItem('domain') || environment.eventDomain;
+      localStorage.getItem('domain') ||
+      this._backendApiService.getCurrentEventDomain();
     this.currentPrimarySessionId =
       localStorage.getItem('currentPrimarySessionId') || '';
     this.getEventDetails();
@@ -270,7 +273,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.theme = this.selectedTheme;
     postData.action = 'updateTheme';
     postData.sessionTitle = this.selectedSessionTitle;
-    this.backendApiService.postData(postData).subscribe(
+    this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         console.log(data);
         this.showSuccessMessage(`Theme color is ${this.selectedTheme}`);
@@ -282,7 +285,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   getEventDetails() {
-    this.backendApiService.getEventDetails().subscribe((data: any) => {
+    this._backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
       this.populateEventNames();
       this.selectDefaultOptions();
@@ -441,7 +444,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.primarySessionId = this.currentPrimarySessionId;
-    this.backendApiService.postData(postData).subscribe(
+    this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Snapshot message sent successfully!');
         console.log(data);
@@ -502,7 +505,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    this.backendApiService.postData(postData).subscribe(
+    this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Backup message sent successfully!');
         console.log(data);
@@ -561,7 +564,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    this.backendApiService.postData(postData).subscribe(
+    this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('End event message sent successfully!');
         console.log(data);
@@ -647,7 +650,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         localStorage.setItem('isSessionInProgress', '1');
         this.isSessionInProgress = true;
         this.startRecording();
-        this.backendApiService
+        this._backendApiService
           .postCurrentSessionId(
             session.SessionId,
             this.selectedEvent,
@@ -672,7 +675,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         if (session.Type == 'BreakoutSession') {
           this.showBreakdownInProgress();
         } else {
-          this.showLoadingInsights();
+          this.showListeningInsights();
         }
       } else {
         this.modalService.open(
@@ -699,9 +702,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.modalService.close();
   };
 
-  showLoadingInsights(screenIdentifier?: string) {
+  showListeningInsights(screenIdentifier?: string) {
     const postData: PostData = {};
-    if (this.selectedDay != '' && this.selectedSessionTitle != '') {
+    if (this.selectedSessionTitle != '') {
       const sessionDetails = this.findSession(
         this.selectedEvent,
         this.selectedSessionTitle
@@ -718,7 +721,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.day = this.selectedDay;
         postData.eventName = this.selectedEvent;
         postData.domain = this.selectedDomain;
-        postData.action = 'insightsLoading';
+        postData.action = 'liveInsightsListening';
         postData.sessionTitle = sessionDetails.SessionSubject;
         this.postData(postData, screenIdentifier, null, null);
       }
@@ -731,6 +734,40 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.handleNoSelect
       );
     }
+  }
+
+  showLoadingInsights(screenIdentifier?: string) {
+    const postData: PostData = {};
+
+    const sessionDetails = this.findSession(
+      this.selectedEvent,
+      this.selectedSessionTitle
+    );
+
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.action = 'liveInsightsLoading';
+    postData.sessionTitle = sessionDetails.SessionSubject;
+
+    this.postData(postData, screenIdentifier, null, null);
+  }
+
+  showPausedInsights() {
+    const postData: PostData = {};
+
+    const sessionDetails = this.findSession(
+      this.selectedEvent,
+      this.selectedSessionTitle
+    );
+
+    postData.day = this.selectedDay;
+    postData.eventName = this.selectedEvent;
+    postData.domain = this.selectedDomain;
+    postData.action = 'listeningPaused';
+    postData.sessionTitle = sessionDetails.SessionSubject;
+
+    this.postData(postData);
   }
 
   showBreakdownInProgress() {
@@ -746,9 +783,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    postData.action = 'breakOutSession';
+    postData.action = 'breakOutSessionListening';
     postData.sessionTitle = primarySession.SessionSubject;
-    this.backendApiService.postData(postData).subscribe(() => {});
+    this._backendApiService.postData(postData).subscribe(() => {});
   }
 
   showPostInsightsLoading() {
@@ -762,7 +799,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.domain = this.selectedDomain;
     postData.action = 'postInsightsLoading';
     postData.sessionTitle = sessionDetails.SessionSubject;
-    this.backendApiService.postData(postData).subscribe(() => {});
+    this._backendApiService.postData(postData).subscribe(() => {});
   }
 
   stopListening(): void {
@@ -775,7 +812,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'Pause Session?',
       'Are you sure to pause the session?',
       'yes_no',
-      this.closeSocket,
+      () => {
+        this.closeSocket();
+        this.showPausedInsights();
+      },
       this.handleNoSelect
     );
   }
@@ -786,7 +826,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    this.backendApiService.postData(postData).subscribe(
+    this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('End event message sent successfully!');
         console.log(data);
@@ -833,7 +873,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.isSessionInProgress = false;
     if (session.Type == EventDetailType.BreakoutSession) {
       postData.action = 'endBreakoutSession';
-      this.backendApiService.postData(postData).subscribe(
+      this._backendApiService.postData(postData).subscribe(
         (data: any) => {
           this.showSuccessMessage(
             'End breakout session message sent successfully!'
@@ -848,7 +888,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       );
     } else if (session.Type == EventDetailType.PrimarySession) {
       postData.action = 'endPrimarySession';
-      this.backendApiService.postData(postData).subscribe(
+      this._backendApiService.postData(postData).subscribe(
         (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
           this.showPostInsightsLoading();
@@ -859,7 +899,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       );
     } else {
       postData.action = 'endSession';
-      this.backendApiService.postData(postData).subscribe(
+      this._backendApiService.postData(postData).subscribe(
         (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
           this.showPostInsightsLoading();
@@ -1002,7 +1042,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.sessionTitle = sessionDetails.SessionSubject;
     postData.transcript = transcript;
     postData.sessionDescription = sessionDetails.SessionDescription;
-    this.backendApiService.postData(postData).subscribe(() => {
+    this._backendApiService.postData(postData).subscribe(() => {
       // Handle success or error if needed
     });
   }
@@ -1109,7 +1149,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           this.sampleRate,
       },
     };
-    await this.backendApiService
+    await this._backendApiService
       .getTranscriberPreSignedUrl(body)
       .subscribe((data: any) => {
         console.log('inside  createPresignedUrlNew', JSON.stringify(data));
@@ -1232,7 +1272,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           console.log('current session id:', this.currentSessionId);
 
           if (sessionDetails) {
-            this.backendApiService.putTranscript(this.transcription).subscribe(
+            this._backendApiService.putTranscript(this.transcription).subscribe(
               (data: any) => {
                 console.log(data);
               },
@@ -1335,7 +1375,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     successMessage?: string,
     errorMessage?: string
   ) {
-    this.backendApiService.postData(postData).subscribe({
+    this._backendApiService.postData(postData).subscribe({
       next: () => {
         if (successMessage) {
           this.showSuccessMessage(successMessage);

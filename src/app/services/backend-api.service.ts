@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 import { Observable } from 'rxjs';
+import { tap, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,49 @@ import { Observable } from 'rxjs';
 // TODO: @refactor this service to use defined types instead of objects
 export class BackendApiService {
   constructor(private http: HttpClient) {}
+
+  // TODO: @later move these to a config state service
+  private _currentEventName: string = '';
+  //TODO:  if it's needed for this event
+  private _currentEventDomain: string = 'Healthcare, AI, Digital Innovation';
+
+  getEventDetails(): Observable<Object> {
+    const refreshToken = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${refreshToken}`,
+      'X-Api-Key': environment.X_API_KEY,
+    });
+
+    return this._getEventConfig().pipe(
+      switchMap((configResponse: any) => {
+        const eventNameIdentifier = configResponse?.data?.eventNameIdentifier;
+        this._currentEventDomain = configResponse?.data?.EventDomain;
+
+        return this.http
+          .post(
+            environment.getEventDetails,
+            { event: eventNameIdentifier },
+            { headers }
+          )
+          .pipe(
+            tap((response: any) => {
+              if (response?.data?.length > 0) {
+                this._currentEventName = response.data[0].Event;
+              }
+            })
+          );
+      })
+    );
+  }
+
+  // TODO: @later move these to a config state service
+  getCurrentEventName(): string {
+    return this._currentEventName;
+  }
+
+  getCurrentEventDomain(): string {
+    return this._currentEventDomain;
+  }
 
   getTranscriberPreSignedUrl(body: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
@@ -64,17 +108,7 @@ export class BackendApiService {
     }
     return this.http.post(environment.postData, body, { headers: headers });
   }
-  getEventDetails(): Observable<Object> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-    });
-    return this.http.post(
-      environment.getEventDetails,
-      { event: environment.eventName },
-      { headers: headers }
-    );
-  }
+
   postCurrentSessionId(
     sessionId: any,
     eventName: any,
@@ -95,5 +129,19 @@ export class BackendApiService {
     return this.http.post(environment.postCurrentSessionId, body, {
       headers: headers,
     });
+  }
+
+  // TODO: @later move this to a config data service
+  private _getEventConfig(): Observable<any> {
+    const refreshToken = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${refreshToken}`,
+      'X-Api-Key': environment.X_API_KEY,
+    });
+    const hostname = window.location.hostname;
+    const domain =
+      hostname === 'localhost' ? 'dev-sbx.synopsis.rozie.ai' : hostname;
+
+    return this.http.post(environment.getEventConfig, { domain }, { headers });
   }
 }
