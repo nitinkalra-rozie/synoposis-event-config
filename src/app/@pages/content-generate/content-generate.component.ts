@@ -57,10 +57,17 @@ interface SelectedConfig {
   config: any;
 }
 
+type BreakoutSessionEntry = {
+  title: string;
+  sessionId: string;
+};
+type BreakoutSessionMap = Record<string, BreakoutSessionEntry>;
+
 interface Session {
   EventDay: string;
   SessionTitle: string;
   SessionId: string;
+  PrimarySessionId: string;
   Track: string;
   Status: string;
   Location: string;
@@ -448,6 +455,20 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
           this.speakers = data['data']['speakers'];
           this.dataLoaded = true;
           this.title = data['data']['title'];
+          if (this.selected_session_details.Type == 'PrimarySession') {
+            this.sessionTypes = ['breakout'];
+            this.selectedSessionType = 'breakout';
+            console.log(
+              'breakout sessions: ',
+              this.getBreakoutSessions(this.selected_session_details.SessionId)
+            );
+          } else {
+            this.sessionTypes = [
+              this.selected_session_details.Type.toLowerCase(),
+            ];
+            this.selectedSessionType =
+              this.selected_session_details.Type.toLowerCase();
+          }
           this.postInsightTimestamp =
             response?.data?.data?.[0]?.postInsightTimestamp;
           this.trendsTimestamp = response?.data?.data?.[0]?.trendsTimestamp;
@@ -471,12 +492,21 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   generateNewVersion(): void {
     let transcript = '';
     this.statusSignal.set('generating');
+    let childSectionSessionIds = {};
     if (this.selectedTranscriptSource == 'Text Input') {
       transcript = this.manualTranscript;
     }
-    const speakers = this.selected_session_details.SpeakersInfo.map((ele) =>
-      ele.isModerator ? `Moderator - ${ele.Name}` : `Speaker - ${ele.Name}`
-    ).join('\n');
+
+    if (this.selectedSessionType == 'breakout') {
+      childSectionSessionIds = this.getBreakoutSessions(this.selected_session);
+    }
+    console.log(this.selected_session_details);
+    let speakers = '';
+    if (this.selected_session_details.SpeakersInfo) {
+      speakers = this.selected_session_details.SpeakersInfo.map((ele) =>
+        ele.isModerator ? `Moderator - ${ele.Name}` : `Speaker - ${ele.Name}`
+      ).join('\n');
+    }
     const data = {
       sessionTranscript: '',
       eventId: this.eventName,
@@ -486,7 +516,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       reportType: this.selectedReportType,
       transcriptSource: this.selectedTranscriptSource,
       promptVersion: this.selectedPromptVersion,
-      childSectionSessionIds: {},
+      childSectionSessionIds: childSectionSessionIds,
       speakers: speakers,
     };
     this._backendApiService.generateContent(data).subscribe({
@@ -529,6 +559,26 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
         console.error('Error fetching data:', error);
       },
     });
+  }
+
+  getBreakoutSessions(primarySessionId): BreakoutSessionMap {
+    const breakout_sessions = this.session_details.filter(
+      (session) =>
+        session.PrimarySessionId === primarySessionId &&
+        session.Type === 'BreakoutSession'
+    );
+    const output = {};
+    output['0'] = {
+      title: 'Introduction',
+      sessionId: this.selected_session_details.SessionId,
+    };
+    breakout_sessions.forEach((session, index) => {
+      output[(index + 1).toString()] = {
+        title: 'BreakOutRoom',
+        sessionId: session.SessionId || '',
+      };
+    });
+    return output;
   }
 
   getSignedPdfUrl(version): void {
@@ -607,7 +657,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       this.filtered_sessions = this.session_details.filter(
         (session) =>
           session.EventDay === this.selected_day &&
-          session.Track === this.selected_track
+          session.Track === this.selected_track &&
+          session.Type !== 'Breakout'
       );
       const sessionID = this.filtered_sessions[0];
       this.selected_session =
