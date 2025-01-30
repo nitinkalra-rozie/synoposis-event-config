@@ -7,6 +7,13 @@ export const environment = {
   getEventConfig: 'https://api.synopsis.rozie.ai/getEventConfig',
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/getCurrentSessionDetails',
+  getContentVersionsUrl: '',
+  getVersionContentUrl: '',
+  generateContentPDFUrl: '',
+  prompt_mangement_base_url: '',
+  getPreSignedPDFUrl: '',
+  genarateContentUrl: '',
+  saveEditedVersionContentUrl: '',
   USER_POOL_WEB_CLIENT_ID: '4uoviltr9pd5km5nltmvkf0ovh',
   USER_POOL_ID: 'ca-central-1_zFNGJuTjd',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',
