@@ -103,17 +103,23 @@ export class AuthService {
   };
 
   public getUserRole = (): UserRole => {
-    const groups = this.getUserGroups();
-    if (!groups) {
-      console.error('No groups found for the user');
-      return UserRole.EDITOR;
-    }
-
-    if (groups.some((group) => group.includes('SUPER_ADMIN'))) {
-      return UserRole.SUPERADMIN;
-    } else if (groups.some((group) => group.includes('ADMIN'))) {
-      return UserRole.ADMIN;
-    } else {
+    try {
+      const accessToken = this.getAccessToken();
+      const decodedToken: any = jwtDecode(accessToken);
+      const email = decodedToken.email || decodedToken.username;
+      if (email && email.endsWith('@rozie.ai')) {
+        return UserRole.SUPERADMIN;
+      }
+      const groups = this.getUserGroups();
+      if (groups.some((group) => group.includes('SUPER_ADMIN'))) {
+        return UserRole.SUPERADMIN;
+      } else if (groups.some((group) => group.includes('ADMIN'))) {
+        return UserRole.ADMIN;
+      } else {
+        return UserRole.EDITOR;
+      }
+    } catch (error) {
+      console.error('Error decoding access token:', error);
       return UserRole.EDITOR;
     }
   };
