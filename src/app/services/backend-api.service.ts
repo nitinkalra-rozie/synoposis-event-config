@@ -141,6 +141,7 @@ export class BackendApiService {
     const hostname = window.location.hostname;
     const domain =
       hostname === 'localhost' ? 'dev-sbx.synopsis.rozie.ai' : hostname;
+    domain.replace('admin.', '');
 
     return this.http.post(environment.getEventConfig, { domain }, { headers });
   }
