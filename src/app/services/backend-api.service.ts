@@ -14,8 +14,8 @@ export class BackendApiService {
 
   // TODO: @later move these to a config state service
   private _currentEventName: string = '';
-  //TODO:  if it's needed for this event
-  private _currentEventDomain: string = 'Healthcare, AI, Digital Innovation';
+  //TODO: hardcoding the domain for now as if otherwise it shows the modal service dialog box as the values are not selected. need to get it from the config
+  private _currentEventDomain: string = 'AI, Healthcare, Digital Innovation';
 
   getEventDetails(): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
