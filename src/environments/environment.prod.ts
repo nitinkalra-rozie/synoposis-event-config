@@ -1,12 +1,13 @@
 export const environment = {
   production: true,
-  getTranscriberPreSignedUrl: 'https://api.synopsis.rozie.ai/getPreSignedUrl',
-  putTranscript: 'https://api.synopsis.rozie.ai/postTranscript',
-  postData: 'https://api.synopsis.rozie.ai/adminapplambdaconfig',
-  getEventDetails: 'https://api.synopsis.rozie.ai/getEventDetails',
-  getEventConfig: 'https://api.synopsis.rozie.ai/getEventConfig',
+  getTranscriberPreSignedUrl:
+    'https://api.synopsis.rozie.ai/r2/getPreSignedUrl',
+  putTranscript: 'https://api.synopsis.rozie.ai/r2/postTranscript',
+  postData: 'https://api.synopsis.rozie.ai/r2/config',
+  getEventDetails: 'https://api.synopsis.rozie.ai/r1/getEventDetails',
+  getEventConfig: 'https://api.synopsis.rozie.ai/r1/getEventConfig',
   postCurrentSessionId:
-    'https://api.synopsis.rozie.ai/getCurrentSessionDetails',
+    'https://api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl: '',
   getVersionContentUrl: '',
   generateContentPDFUrl: '',
