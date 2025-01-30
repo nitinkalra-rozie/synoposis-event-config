@@ -21,4 +21,6 @@ export const environment = {
     'https://ifmrpnrth0.execute-api.ca-central-1.amazonaws.com/prod/request-access',
   REQUEST_ACCESS_API_KEY: '9MitsUZQJ566GezJRZXrz6Tqt64MVWyCh4gZ2M07',
   X_API_KEY: 'zpVl7dR3Cf3l56RsfpfDp4aEvfMFMHFL6ualSok5',
+  eventName: 'HEIF2025',
+  eventDomain: 'Healtcare, AI, Digital Innovation',
 };
