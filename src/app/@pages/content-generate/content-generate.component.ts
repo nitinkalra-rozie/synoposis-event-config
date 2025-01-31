@@ -518,6 +518,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       promptVersion: this.selectedPromptVersion,
       childSectionSessionIds: childSectionSessionIds,
       speakers: speakers,
+      generatePDF: false,
     };
     this._backendApiService.generateContent(data).subscribe({
       next: (response) => {
