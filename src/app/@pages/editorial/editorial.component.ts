@@ -336,7 +336,8 @@ export class EditorialComponent implements OnInit {
       this.filtered_sessions = this.session_details.filter(
         (session) =>
           session.EventDay === this.selected_day &&
-          session.Track === this.selected_track
+          session.Track === this.selected_track &&
+          session.Type !== 'BreakoutSession'
       );
       const sessionID = this.filtered_sessions[0];
       this.selected_session =
