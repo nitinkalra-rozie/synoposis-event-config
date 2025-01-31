@@ -26,6 +26,7 @@ jobs:
             'itchartford',
             'clarionexec',
             'demo-sbx',
+            'heif2025',
           ]
     steps:
       - name: Set event environment variable

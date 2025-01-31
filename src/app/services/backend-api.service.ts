@@ -14,6 +14,7 @@ export class BackendApiService {
 
   // TODO: @later move these to a config state service
   private _currentEventName: string = '';
+  //TODO:  if it's needed for this event
   private _currentEventDomain: string = '';
 
   getEventDetails(): Observable<Object> {
@@ -26,6 +27,8 @@ export class BackendApiService {
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
         const eventNameIdentifier = configResponse?.data?.eventNameIdentifier;
+        this._currentEventDomain = configResponse?.data?.EventDomain;
+
         return this.http
           .post(
             environment.getEventDetails,
@@ -36,7 +39,6 @@ export class BackendApiService {
             tap((response: any) => {
               if (response?.data?.length > 0) {
                 this._currentEventName = response.data[0].Event;
-                this._currentEventDomain = response.data[0].EventDomain;
               }
             })
           );
@@ -134,11 +136,12 @@ export class BackendApiService {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
-      'X-Api-Key': environment.CONFIG_X_API_KEY,
+      'X-Api-Key': environment.X_API_KEY,
     });
     const hostname = window.location.hostname;
     const domain =
       hostname === 'localhost' ? 'dev-sbx.synopsis.rozie.ai' : hostname;
+    domain.replace('admin.', '');
 
     return this.http.post(environment.getEventConfig, { domain }, { headers });
   }

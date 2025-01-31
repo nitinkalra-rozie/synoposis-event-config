@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-side-bar',
@@ -14,7 +15,9 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class SideBarComponent implements OnInit {
   // Convert isAdminUser into a signal that defaults to false
+  constructor(private authService: AuthService) {}
   public isAdminUser = signal<boolean>(false);
+  public userRoleRank = this.authService.getUserRoleRank();
 
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
