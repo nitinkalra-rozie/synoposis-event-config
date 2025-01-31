@@ -4,13 +4,20 @@ export const environment = {
   putTranscript: 'https://api.synopsis.rozie.ai/postTranscript',
   postData: 'https://api.synopsis.rozie.ai/adminapplambdaconfig',
   getEventDetails: 'https://api.synopsis.rozie.ai/getEventDetails',
-  getContentVersionsUrl: 'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/get-content-versions',
-  genarateContentUrl: 'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/generate-content',
-  getVersionContentUrl: 'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/get-version-content',
-  saveEditedVersionContentUrl: 'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/manual-edit-generated-content',
-  generateContentPDFUrl: 'https://ek1qodnjjb.execute-api.ca-central-1.amazonaws.com/prd/generate-content-pdf',
-  getPreSignedPDFUrl: 'https://ek1qodnjjb.execute-api.ca-central-1.amazonaws.com/prd/get-content-pdf',
-  prompt_mangement_base_url: 'https://q4ix2hdh16.execute-api.ca-central-1.amazonaws.com/prd',
+  getContentVersionsUrl:
+    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/get-content-versions',
+  genarateContentUrl:
+    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/generate-content',
+  getVersionContentUrl:
+    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/get-version-content',
+  saveEditedVersionContentUrl:
+    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/manual-edit-generated-content',
+  generateContentPDFUrl:
+    'https://ek1qodnjjb.execute-api.ca-central-1.amazonaws.com/prd/generate-content-pdf',
+  getPreSignedPDFUrl:
+    'https://ek1qodnjjb.execute-api.ca-central-1.amazonaws.com/prd/get-content-pdf',
+  prompt_mangement_base_url:
+    'https://q4ix2hdh16.execute-api.ca-central-1.amazonaws.com/prd',
   getEventConfig: 'https://api.synopsis.rozie.ai/getEventConfig',
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/getCurrentSessionDetails',

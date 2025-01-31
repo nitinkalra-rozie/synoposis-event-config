@@ -184,7 +184,7 @@ export class BackendApiService {
       promptVersion: data.promptVersion,
       childSectionSessionIds: data.childSectionSessionIds,
       speakers: data.speakers,
-      generatePDF: data.generatePDF
+      generatePDF: data.generatePDF,
     };
     console.log(body);
     return this.http.post(environment.genarateContentUrl, body, {
