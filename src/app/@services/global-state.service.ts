@@ -50,6 +50,8 @@ export class GlobalStateService {
     ControlPanelState.Default
   );
 
+  private _selectedDomainSignal = signal<string>('');
+
   setRightSidebarState(state: RightSidebarState): void {
     this._rightSidebarStateSignal.set(state);
   }
@@ -70,5 +72,12 @@ export class GlobalStateService {
 
   setControlPanelState(state: ControlPanelState): void {
     this._controlPanelStateSignal.set(state);
+  }
+  setSelectedDomain(domain: string): void {
+    this._selectedDomainSignal.set(domain);
+  }
+
+  getSelectedDomain(): string {
+    return this._selectedDomainSignal();
   }
 }
