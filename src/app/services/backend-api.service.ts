@@ -4,18 +4,22 @@ import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 import { Observable } from 'rxjs';
 import { tap, switchMap } from 'rxjs/operators';
+import { GlobalStateService } from '@syn/services';
 
 @Injectable({
   providedIn: 'root',
 })
 // TODO: @refactor this service to use defined types instead of objects
 export class BackendApiService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private _globalStateService: GlobalStateService
+  ) {}
 
   // TODO: @later move these to a config state service
   private _currentEventName: string = '';
-  //TODO: hardcoding the domain for now as if otherwise it shows the modal service dialog box as the values are not selected. need to get it from the config
-  private _currentEventDomain: string = 'AI, Healthcare, Digital Innovation';
+  //TODO: remove the hardcoded domain
+  private _currentEventDomain: string = '';
 
   getEventDetails(): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
@@ -27,7 +31,8 @@ export class BackendApiService {
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
         const eventNameIdentifier = configResponse?.data?.eventNameIdentifier;
-        this._currentEventDomain = configResponse?.data?.EventDomain;
+        this._currentEventDomain = configResponse?.data?.EventDomain || '';
+        this._globalStateService.setSelectedDomain(this._currentEventDomain);
 
         return this.http
           .post(
