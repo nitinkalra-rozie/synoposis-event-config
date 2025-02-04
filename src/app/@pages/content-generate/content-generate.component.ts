@@ -433,7 +433,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.dataLoaded = false;
     this.applyInitialPromptFilter();
-    this.getContentVersions();
     const data = {
       action: 'get_summary_of_Single_Keynote',
       sessionId: [this.selected_session],
@@ -479,6 +478,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
           } else {
             this.trends = [];
           }
+          this.getContentVersions();
         }
         this.isLoading = false;
       },
