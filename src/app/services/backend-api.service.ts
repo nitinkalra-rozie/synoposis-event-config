@@ -18,7 +18,6 @@ export class BackendApiService {
 
   // TODO: @later move these to a config state service
   private _currentEventName: string = '';
-  //TODO: remove the hardcoded domain
   private _currentEventDomain: string = '';
 
   getEventDetails(): Observable<Object> {
