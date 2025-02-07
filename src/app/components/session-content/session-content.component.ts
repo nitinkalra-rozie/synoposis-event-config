@@ -218,7 +218,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
     this.selectedDomain =
       localStorage.getItem('domain') ||
-      this._backendApiService.getCurrentEventDomain();
+      this._globalStateService.getSelectedDomain();
     this.currentPrimarySessionId =
       localStorage.getItem('currentPrimarySessionId') || '';
     this.getEventDetails();
@@ -287,6 +287,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   getEventDetails() {
     this._backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
+      this.selectedDomain = this._globalStateService.getSelectedDomain();
       this.populateEventNames();
       this.selectDefaultOptions();
     });
