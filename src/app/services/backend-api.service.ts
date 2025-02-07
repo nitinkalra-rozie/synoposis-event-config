@@ -143,9 +143,9 @@ export class BackendApiService {
       'X-Api-Key': environment.X_API_KEY,
     });
     const hostname = window.location.hostname;
-    const domain =
+    let domain =
       hostname === 'localhost' ? 'dev-sbx.synopsis.rozie.ai' : hostname;
-    domain.replace('admin.', '');
+    domain = domain.replace('admin.', '');
 
     return this.http.post(environment.getEventConfig, { domain }, { headers });
   }
