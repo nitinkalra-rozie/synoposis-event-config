@@ -28,7 +28,8 @@ jobs:
             # 'demo-sbx',
             # 'heif2025',
             'pgi2025',
-            'wds2025'
+            'wds2025',
+            'rev2025'
           ]
     steps:
       - name: Set event environment variable
