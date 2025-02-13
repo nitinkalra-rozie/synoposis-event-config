@@ -20,14 +20,16 @@ jobs:
       matrix:
         events:
           [
-            'itc2024',
-            'hlth2024',
-            'clarion',
-            'itchartford',
-            'clarionexec',
-            'demo-sbx',
-            'heif2025',
+            # 'itc2024',
+            # 'hlth2024',
+            # 'clarion',
+            # 'itchartford',
+            # 'clarionexec',
+            # 'demo-sbx',
+            # 'heif2025',
             'pgi2025',
+            'wds2025',
+            'rev2025'
           ]
     steps:
       - name: Set event environment variable
