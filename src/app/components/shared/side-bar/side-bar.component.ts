@@ -15,14 +15,16 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class SideBarComponent implements OnInit {
   constructor() {}
+  public userRoleRank = 2;
   // Convert isAdminUser into a signal that defaults to false
   private _authService = inject(AuthService);
   private _isAdminUser = signal<boolean>(false);
-  private _userRoleRank = this._authService.getUserRoleRank();
 
+  
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
     this.checkIsAdminUser(token);
+    this.userRoleRank =  this._authService.getUserRoleRank();
   }
 
   checkIsAdminUser(token: string): any | null {

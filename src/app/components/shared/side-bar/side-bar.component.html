@@ -8,7 +8,7 @@
   </div>
   <div class="icons">
     <a
-      *ngIf="_userRoleRank > 1"
+      *ngIf="userRoleRank > 1"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -21,7 +21,7 @@
 
     <!-- Use isAdminUser() if it's a signal -->
     <a
-      *ngIf="_userRoleRank > 0"
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -33,7 +33,7 @@
     </a>
 
     <a
-      *ngIf="_userRoleRank > 0"
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -45,7 +45,7 @@
     </a>
 
     <a
-      *ngIf="_userRoleRank > 0"
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -55,8 +55,9 @@
       routerLinkActive="selected">
       <mat-icon style="color: rgb(255, 255, 255)">manage_search</mat-icon>
     </a>
-    <a
-      *ngIf="_userRoleRank > 0"
+    <!--ToDo: Enable Agenda Edit once the view is finalized -->
+    <!--a
+      *ngIf="userRoleRank > 0"
       matTooltipClass="tooltip-text-only-300"
       matTooltipPosition="after"
       class="menu-item"
@@ -65,6 +66,6 @@
       routerLink="/agenda"
       routerLinkActive="selected">
       <mat-icon style="color: rgb(255, 255, 255)">edit_calendar</mat-icon>
-    </a>
+    </a-->
   </div>
 </div>
