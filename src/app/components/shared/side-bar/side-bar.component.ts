@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -14,10 +14,11 @@ import { AuthService } from 'src/app/services/auth.service';
   standalone: true,
 })
 export class SideBarComponent implements OnInit {
+  constructor() {}
   // Convert isAdminUser into a signal that defaults to false
-  constructor(private authService: AuthService) {}
-  public isAdminUser = signal<boolean>(false);
-  public userRoleRank = this.authService.getUserRoleRank();
+  private _authService = inject(AuthService);
+  private _isAdminUser = signal<boolean>(false);
+  private _userRoleRank = this._authService.getUserRoleRank();
 
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
@@ -31,9 +32,9 @@ export class SideBarComponent implements OnInit {
       if (decoded?.username) {
         const normalizedEmail = decoded.username.toLowerCase().trim();
         if (normalizedEmail.endsWith('@rozie.ai')) {
-          this.isAdminUser.set(true);
+          this._isAdminUser.set(true);
         } else {
-          this.isAdminUser.set(false);
+          this._isAdminUser.set(false);
         }
       }
       return decoded;

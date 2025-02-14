@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -45,10 +45,7 @@ interface SessionType {
   ],
 })
 export class PromptManagementComponent implements OnInit {
-  constructor(
-    private service: PromptManagementService,
-    private snackBar: MatSnackBar
-  ) {}
+  constructor(private snackBar: MatSnackBar) {}
 
   public selectedTabIndex = 0;
   public sessionReportPairs = signal<SessionReportType[]>([]);
@@ -97,6 +94,8 @@ export class PromptManagementComponent implements OnInit {
   public userInputs: Record<string, string | number> = {};
   public finalPrompt: string | null = null;
 
+  private _service = inject(PromptManagementService);
+
   ngOnInit(): void {
     this.fetchSessionReportTypes();
   }
@@ -110,7 +109,7 @@ export class PromptManagementComponent implements OnInit {
   }
 
   fetchSessionReportTypes(): void {
-    this.service.getSessionReportTypes().subscribe({
+    this._service.getSessionReportTypes().subscribe({
       next: (data) => {
         if (!data || !Array.isArray(data.types)) {
           this.showError('API did not return a valid "types" array');
@@ -126,7 +125,7 @@ export class PromptManagementComponent implements OnInit {
 
   fetchVersions(): void {
     if (!this.selectedSession() || !this.selectedReportType()) return;
-    this.service
+    this._service
       .getPromptVersions(this.selectedSession(), this.selectedReportType())
       .subscribe({
         next: (data) => {
@@ -167,7 +166,7 @@ export class PromptManagementComponent implements OnInit {
     this.finalPrompt = null; // reset
     this.userInputs = {}; // reset
 
-    this.service
+    this._service
       .getPromptContent(
         this.selectedSession(),
         this.selectedReportType(),
@@ -220,7 +219,7 @@ export class PromptManagementComponent implements OnInit {
    * TAB 3 LOGIC
    */
   uploadOrRefreshPrompts(): void {
-    this.service.uploadOrRefreshDefaultPrompts().subscribe({
+    this._service.uploadOrRefreshDefaultPrompts().subscribe({
       next: (res) => {
         this.showSuccess('Prompts uploaded successfully!');
       },

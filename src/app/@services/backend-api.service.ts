@@ -5,6 +5,14 @@ import { PostData } from '../shared/types';
 import { Observable } from 'rxjs';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/services/backend-api.service';
 
+interface EventReportResponse {
+  data?: {
+    data?: Array<{
+      snapshotData?: any; // Replace 'any' with a more specific type if possible
+    }>;
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -14,7 +22,7 @@ export class BackendApiService {
 
   private _backendApiService = inject(LegacyBackendApiService);
 
-  getTranscriberPreSignedUrl(body: any): Observable<Object> {
+  getTranscriberPreSignedUrl(body: any): Observable<object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -22,6 +30,21 @@ export class BackendApiService {
     return this.http.post(environment.getTranscriberPreSignedUrl, body, {
       headers: headers,
     });
+  }
+
+  sendEmailReport(page_size: string = '10'): Observable<Object> {
+    const refreshToken = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${refreshToken}`,
+    });
+
+    const data = {
+      action: 'emailTranscriptReport',
+      sessionId: 'day2_session2',
+      email: 'dinuka@rozie.ai',
+    };
+    // Pass the headers and the body as arguments to the post() method
+    return this.http.post(environment.postData, data, { headers: headers });
   }
 
   putTranscript(transcript: any): Observable<Object> {
@@ -88,7 +111,7 @@ export class BackendApiService {
     return this.http.post(environment.postData, body, { headers: headers });
   }
 
-  getVersionContent(data: any): Observable<any> {
+  getVersionContent(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken') || '';
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -102,7 +125,7 @@ export class BackendApiService {
     return this.http.get(environment.getVersionContentUrl, { headers, params });
   }
 
-  saveEditedVersionContent(data: any): Observable<any> {
+  saveEditedVersionContent(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -120,7 +143,7 @@ export class BackendApiService {
     });
   }
 
-  getContentVersions(data: any): Observable<any> {
+  getContentVersions(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken') || '';
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -137,7 +160,7 @@ export class BackendApiService {
     });
   }
 
-  generateContentPDFUrl(data: any): Observable<any> {
+  generateContentPDFUrl(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -154,7 +177,7 @@ export class BackendApiService {
     });
   }
 
-  getSignedPdfUrl(data: any): Observable<any> {
+  getSignedPdfUrl(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken') || '';
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -168,7 +191,7 @@ export class BackendApiService {
     return this.http.get(environment.getPreSignedPDFUrl, { headers, params });
   }
 
-  generateContent(data: any): Observable<any> {
+  generateContent(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -192,7 +215,7 @@ export class BackendApiService {
     });
   }
 
-  changeEventStatus(data: any): Observable<any> {
+  changeEventStatus(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -209,7 +232,7 @@ export class BackendApiService {
     return this.http.post(environment.postData, body, { headers: headers });
   }
 
-  updatePostInsights(data: any): Observable<any> {
+  updatePostInsights(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -224,7 +247,7 @@ export class BackendApiService {
     return this.http.post(environment.postData, body, { headers: headers });
   }
 
-  getEventReport(data: PostData): Observable<any> {
+  getEventReport(data: PostData): Observable<EventReportResponse> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
@@ -260,10 +283,10 @@ export class BackendApiService {
     );
   }
   postCurrentSessionId(
-    sessionId: any,
-    eventName: any,
-    domain: any,
-    primarySessionId: any
+    sessionId: string,
+    eventName: string,
+    domain: string,
+    primarySessionId: string
   ): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({

@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { EditReportService } from './editreport.service';
 import { debounceTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -89,12 +88,11 @@ interface RealtimeInsight {
     LargeModalDialogComponent,
     GenerateRealtimeInsightsDialogComponent,
   ],
-  providers: [EditReportService],
+  providers: [],
 })
 export class EditorialComponent implements OnInit {
   constructor(
     private sanitizer: DomSanitizer,
-    private editReportService: EditReportService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
@@ -224,9 +222,9 @@ export class EditorialComponent implements OnInit {
   }
 
   sendEmail(): void {
-    this.editReportService.sendEmailReport().subscribe({
+    this._backendApiService.sendEmailReport().subscribe({
       next: (response) => {
-        if (response.success == true) {
+        if (response['success'] == true) {
           console.log(response);
         }
       },
@@ -267,11 +265,9 @@ export class EditorialComponent implements OnInit {
       next: (response) => {
         console.log(response);
         if (response?.data?.data?.[0]?.snapshotData) {
-          this.original_debrief = JSON.parse(
-            JSON.stringify(response.data.data[0])
-          );
-          const data = JSON.parse(response?.data?.data?.[0]?.snapshotData);
-          console.log(data);
+          const responseData = response.data.data[0];
+          this.original_debrief = JSON.parse(JSON.stringify(responseData));
+          const data = JSON.parse(responseData.snapshotData);
           this.summary = data['data']['summary'];
           this.insights = data['data']['insights'];
           this.topics = data['data']['topics'];
@@ -279,18 +275,17 @@ export class EditorialComponent implements OnInit {
           this.speakers = data['data']['speakers'];
           this.dataLoaded = true;
           this.title = data['data']['title'];
-          this.postInsightTimestamp =
-            response?.data?.data?.[0]?.postInsightTimestamp;
-          this.trendsTimestamp = response?.data?.data?.[0]?.trendsTimestamp;
-          this.transcript = response?.data?.data?.[0]?.transcript;
-          if (response?.data?.data?.[0]?.trendData) {
-            const trendData = JSON.parse(response?.data?.data?.[0]?.trendData);
+          this.postInsightTimestamp = responseData['postInsightTimestamp'];
+          this.trendsTimestamp = responseData['trendsTimestamp'];
+          this.transcript = responseData['transcript'];
+          if (responseData['trendData']) {
+            const trendData = JSON.parse(responseData['trendData']);
             this.trends = trendData?.data?.trends;
           } else {
             this.trends = [];
           }
 
-          const realtimeinsights = response?.data?.data?.[0]?.realtimeinsights;
+          const realtimeinsights = responseData['realtimeinsights'];
           this.realtimeinsights = [];
           for (const item of realtimeinsights) {
             const dataItem = JSON.parse(item.Response);
@@ -372,8 +367,7 @@ export class EditorialComponent implements OnInit {
     };
     this._backendApiService.changeEventStatus(debrief).subscribe({
       next: (response) => {
-        console.log(response.data);
-        if (response.data.status == 'SUCCESS') {
+        if (response['data'].status == 'SUCCESS') {
           this.isEditorMode = true;
         } else {
           this.snackBar.open(
@@ -415,7 +409,7 @@ export class EditorialComponent implements OnInit {
     };
     this._backendApiService.updatePostInsights(data).subscribe({
       next: (response) => {
-        if (response.data?.statusCode == 200) {
+        if (response['data'].statusCode == 200) {
           this.isEditorMode = false;
           this.selected_session_details.Editor = '';
           this.getEventDetails();

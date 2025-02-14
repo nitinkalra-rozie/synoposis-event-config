@@ -323,7 +323,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.getContentVersions(data).subscribe({
       next: (response) => {
-        this.versions = response.versions.map((item) => ({
+        this.versions = response['versions'].map((item) => ({
           version: item.version,
           promptVersion: item.promptVersion,
           pdfPath: item.pdfPath,
@@ -370,7 +370,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
-        this.openMarkdownDialog(response.content, row.version);
+        this.openMarkdownDialog(response['content'], row.version);
       },
       error: (error) => {
         console.error('Error fetching data:', error);
@@ -441,10 +441,9 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       next: (response) => {
         console.log(response);
         if (response?.data?.data?.[0]?.snapshotData) {
-          this.original_debrief = JSON.parse(
-            JSON.stringify(response.data.data[0])
-          );
-          const data = JSON.parse(response?.data?.data?.[0]?.snapshotData);
+          const responseData = response?.data?.data?.[0];
+          this.original_debrief = JSON.parse(JSON.stringify(responseData));
+          const data = JSON.parse(responseData?.snapshotData);
           console.log(data);
           this.manualTranscript = '';
           this.summary = data['data']['summary'];
@@ -468,12 +467,11 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
             this.selectedSessionType =
               this.selected_session_details.Type.toLowerCase();
           }
-          this.postInsightTimestamp =
-            response?.data?.data?.[0]?.postInsightTimestamp;
-          this.trendsTimestamp = response?.data?.data?.[0]?.trendsTimestamp;
-          this.transcript = response?.data?.data?.[0]?.transcript;
-          if (response?.data?.data?.[0]?.trendData) {
-            const trendData = JSON.parse(response?.data?.data?.[0]?.trendData);
+          this.postInsightTimestamp = responseData['postInsightTimestamp'];
+          this.trendsTimestamp = responseData['trendsTimestamp'];
+          this.transcript = responseData['transcript'];
+          if (responseData['trendData']) {
+            const trendData = JSON.parse(responseData['trendData']);
             this.trends = trendData?.data?.trends;
           } else {
             this.trends = [];
@@ -522,10 +520,10 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.generateContent(data).subscribe({
       next: (response) => {
-        console.log(response.version);
+        console.log(response['version']);
         this.statusSignal.set('idle');
-        if (response.version) {
-          this.generateContentPDF(response.version);
+        if (response['version']) {
+          this.generateContentPDF(response['version']);
         }
         this.getContentVersions();
       },
@@ -600,9 +598,9 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.getSignedPdfUrl(data).subscribe({
       next: (response) => {
-        console.log(response.presignedUrl);
+        console.log(response['presignedUrl']);
         dialogRef.close();
-        window.open(response.presignedUrl, '_blank');
+        window.open(response['presignedUrl'], '_blank');
       },
       error: (error) => {
         dialogRef.close();
@@ -694,8 +692,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.changeEventStatus(debrief).subscribe({
       next: (response) => {
-        console.log(response.data);
-        if (response.data.status == 'SUCCESS') {
+        console.log(response['data']);
+        if (response['data'].status == 'SUCCESS') {
           this.isEditorMode = true;
         } else {
           this.snackBar.open(
@@ -737,7 +735,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.updatePostInsights(data).subscribe({
       next: (response) => {
-        if (response.data?.statusCode == 200) {
+        if (response['data']?.statusCode == 200) {
           this.isEditorMode = false;
           this.selected_session_details.Editor = '';
           this.getEventDetails();

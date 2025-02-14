@@ -119,7 +119,7 @@ export class MarkdownEditorDialogComponent implements OnInit {
     };
     this.backendApiService.saveEditedVersionContent(data).subscribe({
       next: (response) => {
-        if (response.s3Key) {
+        if (response['s3Key']) {
           this.dialogRef.close({
             edited: true,
             version: this.data.version,

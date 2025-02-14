@@ -247,12 +247,9 @@ export class AgendaComponent implements OnInit {
       next: (response) => {
         console.log(response);
         if (response?.data?.data?.[0]?.snapshotData) {
-          this.original_debrief = JSON.parse(
-            JSON.stringify(response.data.data[0])
-          );
-          const snapshotJson = JSON.parse(
-            response?.data?.data?.[0]?.snapshotData
-          );
+          const responseData = response.data.data[0];
+          this.original_debrief = JSON.parse(JSON.stringify(responseData));
+          const snapshotJson = JSON.parse(responseData.snapshotData);
 
           this.summary = snapshotJson['data']['summary'];
           this.insights = snapshotJson['data']['insights'];
@@ -261,19 +258,17 @@ export class AgendaComponent implements OnInit {
           this.speakers = snapshotJson['data']['speakers'];
           this.dataLoaded = true;
           this.title = snapshotJson['data']['title'];
-          this.postInsightTimestamp =
-            response?.data?.data?.[0]?.postInsightTimestamp;
-          this.trendsTimestamp = response?.data?.data?.[0]?.trendsTimestamp;
-          this.transcript = response?.data?.data?.[0]?.transcript;
-          if (response?.data?.data?.[0]?.trendData) {
-            const trendData = JSON.parse(response?.data?.data?.[0]?.trendData);
+          this.postInsightTimestamp = responseData['postInsightTimestamp'];
+          this.trendsTimestamp = responseData['trendsTimestamp'];
+          this.transcript = responseData['transcript'];
+          if (responseData['trendData']) {
+            const trendData = JSON.parse(responseData['trendData']);
             this.trends = trendData?.data?.trends;
           } else {
             this.trends = [];
           }
 
-          const realtimeinsights =
-            response?.data?.data?.[0]?.realtimeinsights || [];
+          const realtimeinsights = responseData['realtimeinsights'] || [];
           this.realtimeinsights = [];
           for (const item of realtimeinsights) {
             const dataItem = JSON.parse(item.Response);
@@ -353,8 +348,8 @@ export class AgendaComponent implements OnInit {
     };
     this._backendApiService.changeEventStatus(debrief).subscribe({
       next: (response) => {
-        console.log(response.data);
-        if (response.data.status === 'SUCCESS') {
+        console.log(response['data']);
+        if (response['data'].status === 'SUCCESS') {
           this.isEditorMode = true;
         } else {
           this.snackBar.open(
@@ -396,7 +391,7 @@ export class AgendaComponent implements OnInit {
     };
     this._backendApiService.updatePostInsights(data).subscribe({
       next: (response) => {
-        if (response.data?.statusCode === 200) {
+        if (response['data']?.statusCode === 200) {
           this.isEditorMode = false;
           this.selected_session_details.Editor = '';
           this.getEventDetails();
