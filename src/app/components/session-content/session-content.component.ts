@@ -934,11 +934,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.sessionIds.push(session.SessionId);
       });
       const postData: PostData = {};
-      postData.action = 'displayPostEventDebrief';
+      postData.action = 'displayPostEventInsights';
       postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
-      postData.sessionId = this.sessionIds;
+      postData.sessionIds = this.sessionIds;
       this.postData(
         postData,
         screenIdentifier,
