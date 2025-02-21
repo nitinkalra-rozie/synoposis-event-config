@@ -29,14 +29,15 @@ export class BackendApiService {
 
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
-        const eventNameIdentifier = configResponse?.data?.eventNameIdentifier;
-        this._currentEventDomain = configResponse?.data?.EventDomain || '';
+        const eventIdentifier = configResponse?.data?.EventIdentifier;
+        this._currentEventDomain =
+          configResponse?.data?.Information?.EventDomain || '';
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
 
         return this.http
           .post(
             environment.getEventDetails,
-            { event: eventNameIdentifier },
+            { event: eventIdentifier },
             { headers }
           )
           .pipe(
