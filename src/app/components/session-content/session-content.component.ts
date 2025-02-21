@@ -934,7 +934,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.sessionIds.push(session.SessionId);
       });
       const postData: PostData = {};
-      postData.action = 'displayPostEventInsights';
+      postData.action = 'displayPostEventDebrief';
       postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
