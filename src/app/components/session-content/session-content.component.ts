@@ -202,9 +202,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           }
         }
       },
-      {
-        allowSignalWrites: true,
-      }
+      { allowSignalWrites: true }
     );
   }
 
@@ -458,7 +456,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   showThankYouScreen(screenIdentifier: string): void {
     const postData: PostData = {};
-    postData.action = 'thank_you';
+    postData.action = 'thankYou';
     postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -473,7 +471,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   //it is qr screen
   showInfoScreen(screenIdentifier: string): void {
     const postData: PostData = {};
-    postData.action = 'qr_screen';
+    postData.action = 'qrScreen';
     postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -561,7 +559,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   showEndEvent() {
     const postData: PostData = {};
-    postData.action = 'thank_you';
+    postData.action = 'thankyou';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -823,7 +821,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   endEvent(): void {
     const postData: PostData = {};
-    postData.action = 'thank_you';
+    postData.action = 'thankYou';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -936,11 +934,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.sessionIds.push(session.SessionId);
       });
       const postData: PostData = {};
-      postData.action = 'summary_of_Single_Keynote';
+      postData.action = 'displayPostEventInsights';
       postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
-      postData.sessionId = this.sessionIds;
+      postData.sessionIds = this.sessionIds;
       this.postData(
         postData,
         screenIdentifier,
@@ -962,7 +960,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       return;
     } else {
       const postData: PostData = {};
-      postData.action = 'postEventDebrief';
+      postData.action = 'displayPostEventDebrief';
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
@@ -1073,10 +1071,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.isStreaming = !this.isStreaming;
     console.log('recording');
     window.navigator.mediaDevices
-      .getUserMedia({
-        video: false,
-        audio: true,
-      })
+      .getUserMedia({ video: false, audio: true })
 
       // ...then we convert the mic stream to binary event stream messages when the promise resolves
       .then(this.streamAudioToWebSocket)
@@ -1162,14 +1157,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // wrap the audio data in a JSON envelope
     ({
       headers: {
-        ':message-type': {
-          type: 'string',
-          value: 'event',
-        },
-        ':event-type': {
-          type: 'string',
-          value: 'AudioEvent',
-        },
+        ':message-type': { type: 'string', value: 'event' },
+        ':event-type': { type: 'string', value: 'AudioEvent' },
       },
       body: buffer,
     });
@@ -1254,18 +1243,12 @@ export class SessionContentComponent implements OnInit, OnChanges {
           this.liveSessionTranscript()
         );
         if (existingTranscript?.length === 0) {
-          existingTranscript.push({
-            key: generateUniqueId(),
-            value: '',
-          });
+          existingTranscript.push({ key: generateUniqueId(), value: '' });
         }
         // if this transcript segment is final, add it to the overall transcription
         if (!results[0].IsPartial) {
           console.log('naveen break------------', results);
-          existingTranscript.push({
-            key: generateUniqueId(),
-            value: '',
-          });
+          existingTranscript.push({ key: generateUniqueId(), value: '' });
           this._isTranscriptParaBreak = true;
           //scroll the textarea down
           this.transcription = transcript;

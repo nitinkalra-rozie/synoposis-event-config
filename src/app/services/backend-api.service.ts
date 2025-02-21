@@ -6,9 +6,7 @@ import { Observable } from 'rxjs';
 import { tap, switchMap } from 'rxjs/operators';
 import { GlobalStateService } from '@syn/services';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 // TODO: @refactor this service to use defined types instead of objects
 export class BackendApiService {
   constructor(
@@ -29,14 +27,15 @@ export class BackendApiService {
 
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
-        const eventNameIdentifier = configResponse?.data?.eventNameIdentifier;
-        this._currentEventDomain = configResponse?.data?.EventDomain || '';
+        const eventIdentifier = configResponse?.data?.EventIdentifier;
+        this._currentEventDomain =
+          configResponse?.data?.Information?.EventDomain || '';
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
 
         return this.http
           .post(
             environment.getEventDetails,
-            { event: eventNameIdentifier },
+            { event: eventIdentifier },
             { headers }
           )
           .pipe(
@@ -94,6 +93,7 @@ export class BackendApiService {
     const body = {
       action: data.action,
       sessionId: localStorage.getItem('currentSessionId'),
+      sessionIds: data.sessionIds,
       eventName: data.eventName || localStorage.getItem('selectedEvent'),
       domain: data.domain || localStorage.getItem('domain'),
       day: data.day || localStorage.getItem('currentDay'),
