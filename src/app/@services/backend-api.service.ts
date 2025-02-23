@@ -187,7 +187,8 @@ export class BackendApiService {
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
-      .set('version', data.version);
+      .set('version', data.version)
+      .set('promptVersion', data.promptVersion);
     return this.http.get(environment.getPreSignedPDFUrl, { headers, params });
   }
 

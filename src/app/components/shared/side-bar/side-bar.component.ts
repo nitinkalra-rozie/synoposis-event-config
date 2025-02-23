@@ -20,11 +20,10 @@ export class SideBarComponent implements OnInit {
   private _authService = inject(AuthService);
   private _isAdminUser = signal<boolean>(false);
 
-  
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
     this.checkIsAdminUser(token);
-    this.userRoleRank =  this._authService.getUserRoleRank();
+    this.userRoleRank = this._authService.getUserRoleRank();
   }
 
   checkIsAdminUser(token: string): any | null {

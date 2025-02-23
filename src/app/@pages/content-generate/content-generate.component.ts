@@ -204,6 +204,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   public selected_track: string = '';
   public selected_day: string = '';
   public isLoading: boolean = false;
+  public isContentLoading: boolean = false;
   public dataLoaded: boolean = false;
   public postInsightTimestamp: string = '';
   public trendsTimestamp: string = '';
@@ -314,6 +315,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   }
 
   getContentVersions(): void {
+    this.dataSource.data = [];
+    this.isContentLoading = true;
     const data = {
       eventId: this.eventName,
       sessionId: this.selected_session,
@@ -326,12 +329,15 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
         this.versions = response['versions'].map((item) => ({
           version: item.version,
           promptVersion: item.promptVersion,
-          pdfPath: item.pdfPath,
+          pdfPathV1: item.pdfPathV1,
+          pdfPathV2: item.pdfPathV2
         }));
         this.dataSource.data = this.versions;
+        this.isContentLoading = false;
       },
       error: (error) => {
         console.error('Error fetching data:', error);
+        this.isContentLoading = false;
       },
     });
   }
@@ -351,12 +357,12 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     this.dataSource.filter = filterValue;
   }
 
-  viewPdf(row: VersionData): void {
-    this.getSignedPdfUrl(row.version);
+  viewPdf(row: VersionData, promptVersion: String): void {
+    this.getSignedPdfUrl(row.version, promptVersion);
   }
 
-  viewLastGeneratedPdf(): void {
-    this.getSignedPdfUrl(this.lastGeneratedVersion);
+  viewLastGeneratedPdf(promptVersion): void {
+    this.getSignedPdfUrl(this.lastGeneratedVersion,promptVersion);
   }
 
   editContent(row: VersionData): void {
@@ -370,7 +376,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
-        this.openMarkdownDialog(response['content'], row.version);
+        this.openMarkdownDialog(response, row.version);
       },
       error: (error) => {
         console.error('Error fetching data:', error);
@@ -580,7 +586,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     return output;
   }
 
-  getSignedPdfUrl(version): void {
+  getSignedPdfUrl(version, promptVersion): void {
     const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
       LoadingDialogComponent,
       {
@@ -595,6 +601,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       sessionType: this.selectedSessionType,
       reportType: this.selectedReportType,
       version: version,
+      promptVersion: promptVersion
     };
     this._backendApiService.getSignedPdfUrl(data).subscribe({
       next: (response) => {
@@ -609,10 +616,10 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openMarkdownDialog(content: string, version: string): void {
+  openMarkdownDialog(content: any, version: string): void {
     const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
       data: {
-        initialText: content,
+        initialText: JSON.stringify(content,null,2),
         eventName: this.eventName,
         selected_session: this.selected_session,
         selectedSessionType: this.selectedSessionType,
@@ -625,7 +632,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((result: any | undefined) => {
       if (result && result.edited) {
-        this.generateContentPDF(result.version);
+        this.getContentVersions();
       }
     });
   }
