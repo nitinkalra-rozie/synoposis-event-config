@@ -147,6 +147,6 @@ export class ProjectionImageComponent {
     setTimeout(() => {
       this._projectionStateService.toggleProjectingState(payload.identifier);
     });
-    this._windowService.showInsightsWelcomeWindow();
+    this._windowService.showInsightsProjectedWindow();
   };
 }

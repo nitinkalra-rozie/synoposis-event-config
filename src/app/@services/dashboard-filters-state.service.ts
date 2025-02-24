@@ -6,8 +6,8 @@ import {
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
-import { getDropdownOptionsFromString } from '@syn/utils';
-import { sortBy } from 'lodash-es';
+import { getAbsoluteDate, getDropdownOptionsFromString } from '@syn/utils';
+import { map, sortBy } from 'lodash-es';
 
 @Injectable({
   providedIn: 'root',
@@ -44,28 +44,28 @@ export class DashboardFiltersStateService {
           )
       );
 
-      // #region TODO: @after:clarion, itchartford, clarionexec remove this
-      return sortBy(
-        sessions,
-        (event) => new Date(event.metadata['originalContent'].StartsAt)
-      );
+      // #region only when you want to show the session names
+      // return sortBy(
+      //   sessions,
+      //   (event) => new Date(event.metadata['originalContent'].StartsAt)
+      // );
       // #endregion
 
-      // #region TODO: @after:clarion, itchartford uncomment this
-      // return map(
-      //   sortBy(
-      //     sessions,
-      //     (event) => new Date(event.metadata['originalContent'].StartsAt)
-      //   ),
-      //   (session) => ({
-      //     ...session,
-      //     label: `${session.metadata['originalContent'].EventDay} - ${getAbsoluteDate(
-      //       session.metadata['originalContent'].StartsAt,
-      //       'LT'
-      //     )} - ${session.label} - ${session.metadata['originalContent'].Track}
-      //     ${session.metadata['originalContent'].Location ? '- ' + session.metadata['originalContent'].Location : ''}`,
-      //   })
-      // );
+      // #region show all the info with the day and time
+      return map(
+        sortBy(
+          sessions,
+          (event) => new Date(event.metadata['originalContent'].StartsAt)
+        ),
+        (session) => ({
+          ...session,
+          label: `${session.metadata['originalContent'].EventDay} - ${getAbsoluteDate(
+            session.metadata['originalContent'].StartsAt,
+            'LT'
+          )} - ${session.label} - ${session.metadata['originalContent'].Track}
+          ${session.metadata['originalContent'].Location ? '- ' + session.metadata['originalContent'].Location : ''}`,
+        })
+      );
       // #endregion
     });
 
