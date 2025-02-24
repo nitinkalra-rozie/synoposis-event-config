@@ -22,16 +22,14 @@ $skeleton-content-width-right-sidebar-expanded: calc(
   calc(
       100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
         88px
-    ) *
-    0.318
+    ) * 0.318
 );
 
 $skeleton-content-width-right-sidebar-collapsed: calc(
   calc(
       100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
         88px
-    ) *
-    0.318
+    ) * 0.318
 );
 
 $skeleton-content-width-right-sidebar-hidden: calc(

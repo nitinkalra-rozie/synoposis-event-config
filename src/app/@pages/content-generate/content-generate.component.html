@@ -311,9 +311,9 @@
                     <div>
                       <button
                         mat-flat-button
-                        (click)="viewLastGeneratedPdf()"
+                        (click)="viewLastGeneratedPdf('v1')"
                         color="primary">
-                        View PDF
+                        View PDF V1
                       </button>
                     </div>
                   </div>
@@ -324,7 +324,7 @@
                   *ngIf="status() === 'idle'"
                   style="
                     display: flex;
-                    flex-direction: column;
+                    flex-direction: row-reverse;
                     margin-bottom: 10px;
                   ">
                   <button
@@ -332,6 +332,12 @@
                     (click)="generateNewVersion()"
                     color="primary">
                     Genarate New
+                  </button>
+                  <button
+                    mat-raised-button
+                    (click)="getContentVersions()"
+                    color="primary">
+                    Refresh
                   </button>
                 </div>
 
@@ -343,7 +349,9 @@
                     (keyup)="applyFilter($event)"
                     placeholder="Search by version, promptVersion, etc." />
                 </mat-form-field>
-
+                <div *ngIf="isContentLoading" class="loading-container">
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
                 <table
                   mat-table
                   matSort
@@ -384,28 +392,42 @@
                   <!-- Prompt Version Column -->
                   <ng-container matColumnDef="promptVersion">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                      Prompt Version
+                      PDF V1
                     </th>
                     <td
                       *matCellDef="let row; let i = index"
                       mat-cell
                       [class.selected]="selectedRowIndex === i"
                       (click)="highlightRow(row, i)">
-                      {{ row.promptVersion }}
+                      <div *ngIf="row.pdfPathV1">
+                        <button
+                          mat-flat-button
+                          (click)="viewPdf(row, 'v1')"
+                          color="primary">
+                          View PDF V1
+                        </button>
+                      </div>
                     </td>
                   </ng-container>
 
                   <!-- PDF Path Column -->
                   <ng-container matColumnDef="pdfPath">
                     <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                      PDF
+                      PDF V2
                     </th>
                     <td
                       *matCellDef="let row; let i = index"
                       mat-cell
                       [class.selected]="selectedRowIndex === i"
                       (click)="highlightRow(row, i)">
-                      <div *ngIf="row.pdfPath">Available</div>
+                      <div *ngIf="row.pdfPathV2">
+                        <button
+                          mat-flat-button
+                          (click)="viewPdf(row, 'v2')"
+                          color="primary">
+                          View PDF V2
+                        </button>
+                      </div>
                     </td>
                   </ng-container>
 
@@ -419,12 +441,6 @@
                           flex-direction: row-reverse;
                           padding-bottom: 10px;
                         ">
-                        <button
-                          mat-flat-button
-                          (click)="viewPdf(row)"
-                          color="primary">
-                          View PDF
-                        </button>
                         <button
                           mat-raised-button
                           (click)="editContent(row)"
