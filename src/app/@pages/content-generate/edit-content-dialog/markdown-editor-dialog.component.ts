@@ -38,19 +38,16 @@ export interface MarkdownEditorData {
   ],
   selector: 'app-markdown-editor-dialog',
   template: `
-    <h1 mat-dialog-title>Edit Markdown</h1>
+    <h1 mat-dialog-title>Edit Content</h1>
     <div mat-dialog-content>
       <mat-form-field class="full-width" appearance="fill">
-        <mat-label>Markdown Text</mat-label>
+        <mat-label>Edit Content</mat-label>
         <textarea
           matInput
           [(ngModel)]="markdownContent"
           (ngModelChange)="updatePreview()"
-          rows="10"></textarea>
+          rows="50"></textarea>
       </mat-form-field>
-
-      <h2>Preview</h2>
-      <div class="markdown-preview" [innerHTML]="renderedHtml"></div>
     </div>
     <div mat-dialog-actions>
       <button mat-button mat-dialog-close>Cancel</button>
@@ -109,22 +106,24 @@ export class MarkdownEditorDialogComponent implements OnInit {
    */
   save(): void {
     this.isLoading = true;
+    const markdownContent = this.markdownContent.replace(/\s*\n\s*/g, '');
+    this.dialogRef.close({
+      edited: true,
+      version: this.data.version,
+      content: this.markdownContent,
+    });
     const data = {
       eventId: this.data.eventName,
       sessionId: this.data.selected_session,
       sessionType: this.data.selectedSessionType,
       reportType: this.data.selectedReportType,
       version: this.data.version,
-      updatedContent: this.markdownContent,
+      updatedContent:   JSON.parse(markdownContent)
     };
     this.backendApiService.saveEditedVersionContent(data).subscribe({
       next: (response) => {
-        if (response.s3Key) {
-          this.dialogRef.close({
-            edited: true,
-            version: this.data.version,
-            content: this.markdownContent,
-          });
+        if (response['s3Key']) {
+         
         }
       },
       error: (error) => {

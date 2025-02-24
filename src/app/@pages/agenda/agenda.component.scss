@@ -6,10 +6,8 @@
 
 /* Side panel styles */
 .side-panel {
-  width: 420px;
-  min-width: 420px;
   margin-right: 20px;
-
+  flex-grow: 1;
   mat-card {
     margin: 10px 0;
   }
@@ -132,7 +130,9 @@ mat-form-field {
 
 /* Editor container and content */
 .editor-container {
-  flex-grow: 1;
+  width: 420px;
+  min-width: 420px;
+
   margin-top: 10px;
   .editor-content {
     padding: 16px;
@@ -193,7 +193,7 @@ mat-form-field {
 
 /* Session details */
 .session-details {
-  padding: 16px;
+  padding: 0px;
 }
 
 .session-header {
