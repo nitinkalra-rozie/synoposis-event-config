@@ -59,7 +59,7 @@ export class SessionSelectionComponent {
   public screenProjected = output<ProjectionData>();
 
   protected get getSessionUrl(): string {
-    return `${getInsightsDomainUrl()}/session/${this.activeSession()?.metadata['originalContent'].PrimarySessionId}`;
+    return `${getInsightsDomainUrl()}/session/${this.activeSession()?.metadata['originalContent'].PrimarySessionId}?isPrimaryScreen=true`;
   }
 
   protected isProjectOnPhysicalScreen = signal(false);
@@ -96,9 +96,7 @@ export class SessionSelectionComponent {
   }
 
   protected openSessionInNewWindow(): boolean {
-    this._windowService.openInsightsSessionWindow(
-      this.activeSession().metadata['originalContent'].PrimarySessionId
-    );
+    this._windowService.openInsightsSessionWindow(this.getSessionUrl);
     return false;
   }
 

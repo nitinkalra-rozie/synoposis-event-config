@@ -118,12 +118,11 @@ export class MarkdownEditorDialogComponent implements OnInit {
       sessionType: this.data.selectedSessionType,
       reportType: this.data.selectedReportType,
       version: this.data.version,
-      updatedContent:   JSON.parse(markdownContent)
+      updatedContent: JSON.parse(markdownContent),
     };
     this.backendApiService.saveEditedVersionContent(data).subscribe({
       next: (response) => {
         if (response['s3Key']) {
-         
         }
       },
       error: (error) => {
