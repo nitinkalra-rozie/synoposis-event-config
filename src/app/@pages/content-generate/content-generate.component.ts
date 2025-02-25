@@ -330,7 +330,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
           version: item.version,
           promptVersion: item.promptVersion,
           pdfPathV1: item.pdfPathV1,
-          pdfPathV2: item.pdfPathV2
+          pdfPathV2: item.pdfPathV2,
         }));
         this.dataSource.data = this.versions;
         this.isContentLoading = false;
@@ -362,7 +362,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   }
 
   viewLastGeneratedPdf(promptVersion): void {
-    this.getSignedPdfUrl(this.lastGeneratedVersion,promptVersion);
+    this.getSignedPdfUrl(this.lastGeneratedVersion, promptVersion);
   }
 
   editContent(row: VersionData): void {
@@ -601,7 +601,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       sessionType: this.selectedSessionType,
       reportType: this.selectedReportType,
       version: version,
-      promptVersion: promptVersion
+      promptVersion: promptVersion,
     };
     this._backendApiService.getSignedPdfUrl(data).subscribe({
       next: (response) => {
@@ -619,7 +619,7 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
   openMarkdownDialog(content: any, version: string): void {
     const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
       data: {
-        initialText: JSON.stringify(content,null,2),
+        initialText: JSON.stringify(content, null, 2),
         eventName: this.eventName,
         selected_session: this.selected_session,
         selectedSessionType: this.selectedSessionType,
