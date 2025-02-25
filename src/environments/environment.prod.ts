@@ -9,19 +9,19 @@ export const environment = {
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:
-    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/get-content-versions',
+    'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/get-content-versions',
   genarateContentUrl:
-    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/generate-content',
+    'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/generate-content',
   getVersionContentUrl:
-    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/get-version-content',
+    'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/get-version-content',
   saveEditedVersionContentUrl:
-    'https://6lt16x8bwc.execute-api.ca-central-1.amazonaws.com/prd/manual-edit-generated-content',
+    'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/manual-edit-generated-content',
   generateContentPDFUrl:
-    'https://ek1qodnjjb.execute-api.ca-central-1.amazonaws.com/prd/generate-content-pdf',
+    'https://a4uzi4g0w9.execute-api.ca-central-1.amazonaws.com/prod/generate-content-pdf',
   getPreSignedPDFUrl:
-    'https://ek1qodnjjb.execute-api.ca-central-1.amazonaws.com/prd/get-content-pdf',
+    'https://a4uzi4g0w9.execute-api.ca-central-1.amazonaws.com/prod/get-content-pdf',
   prompt_mangement_base_url:
-    'https://q4ix2hdh16.execute-api.ca-central-1.amazonaws.com/prd',
+    'https://q4ix2hdh16.execute-api.ca-central-1.amazonaws.com/prod',
   USER_POOL_WEB_CLIENT_ID: '4uoviltr9pd5km5nltmvkf0ovh',
   USER_POOL_ID: 'ca-central-1_zFNGJuTjd',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',
