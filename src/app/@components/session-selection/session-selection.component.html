@@ -23,41 +23,14 @@
       (dropdownOpened)="onDropdownOpen()"
       (optionSelected)="onOptionSelect($event)" />
   </div>
-  <div class="content">
-    <!-- #region commented due to the experience change -->
-    <!-- <ng-container
-      *ngTemplateOutlet="
-        sessionInfo;
-        context: {
-          $implicit: {
-            title: 'Session Title',
-            key:
-              rightSidebarState() === RightSidebarState.Expanded
-                ? 'session_title_expanded'
-                : 'session_title',
-          },
-        }
-      " />
-    <ng-container
-      *ngTemplateOutlet="
-        sessionInfo;
-        context: {
-          $implicit: {
-            title: 'Session Insights',
-            key:
-              rightSidebarState() === RightSidebarState.Expanded
-                ? 'session_insights_expanded'
-                : 'session_insights',
-          },
-        }
-      " /> -->
-    <!-- #endregion -->
 
+  <div class="content">
     <div class="content-steps-container">
       <div class="content-step">
         <div class="step-number-wrapper">
           <div class="step-number">2</div>
         </div>
+
         <div class="step-details">
           <div class="step-label">
             Do you want to project the session on a physical screen?
@@ -109,23 +82,3 @@
     </div>
   </div>
 </div>
-
-<ng-template #sessionInfo let-data>
-  @if (activeSession() === null) {
-    <div
-      class="sample-skeleton"
-      [ngClass]="{
-        'right-sidebar-expanded':
-          rightSidebarState() === RightSidebarState.Expanded,
-        'right-sidebar-collapsed':
-          rightSidebarState() === RightSidebarState.Collapsed,
-      }"></div>
-  } @else {
-    <app-projection-image
-      [key]="data.key"
-      [label]="data.title"
-      (projectedToScreen)="onProjectToScreen($event)"
-      filterType="none"
-      imgUrl="assets/projections/{{ data.key }}.svg"></app-projection-image>
-  }
-</ng-template>

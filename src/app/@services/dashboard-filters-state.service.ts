@@ -1,8 +1,8 @@
 import { KeyValue } from '@angular/common';
 import { computed, effect, Injectable, Signal, signal } from '@angular/core';
 import {
-  EventDetails,
-  EventStatus,
+  SessionDetails,
+  SessionStatus,
   LiveSessionState,
 } from '@syn/data-services';
 import { DropdownOption } from '@syn/models';
@@ -76,9 +76,10 @@ export class DashboardFiltersStateService {
             this.allSessions()
               .filter(
                 (aSession) =>
-                  ![EventStatus.InProgress, EventStatus.NotStarted].includes(
-                    aSession.metadata['originalContent'].Status
-                  )
+                  ![
+                    SessionStatus.InProgress,
+                    SessionStatus.NotStarted,
+                  ].includes(aSession.metadata['originalContent'].Status)
               )
               .map((aSession) => aSession.metadata['originalContent'].Track)
           )
@@ -95,7 +96,7 @@ export class DashboardFiltersStateService {
             .filter(
               (aSession) =>
                 aSession.metadata['originalContent'].Status ===
-                EventStatus.InProgress
+                SessionStatus.InProgress
             )
             .map((aSession) => aSession.metadata['originalContent'])
         : []
@@ -129,8 +130,8 @@ export class DashboardFiltersStateService {
   public readonly eventTracks: Signal<DropdownOption[]>;
   public readonly eventDays: Signal<DropdownOption[]>;
   public readonly completedTracks: Signal<DropdownOption[]>;
-  public readonly liveEvent: Signal<EventDetails | null>;
-  public readonly allLiveEvents: Signal<EventDetails[]>;
+  public readonly liveEvent: Signal<SessionDetails | null>;
+  public readonly allLiveEvents: Signal<SessionDetails[]>;
   public readonly liveEventState: Signal<LiveSessionState>;
   public readonly liveSessionTranscript: Signal<
     Array<KeyValue<string, string>>
@@ -170,7 +171,7 @@ export class DashboardFiltersStateService {
   private _eventLocationsSignal = signal<DropdownOption[]>([]);
   private _allSessionsSignal = signal<DropdownOption[]>([]);
   private _activeSessionSignal = signal<DropdownOption | null>(null);
-  private _liveEventSignal = signal<EventDetails | null>(null);
+  private _liveEventSignal = signal<SessionDetails | null>(null);
   private _liveEventStateSignal = signal<LiveSessionState>(
     LiveSessionState.Stopped
   );
@@ -206,7 +207,7 @@ export class DashboardFiltersStateService {
     this._activeSessionSignal.set(activeSession);
   }
 
-  setLiveEvent(event: EventDetails | null): void {
+  setLiveEvent(event: SessionDetails | null): void {
     this._liveEventSignal.set(event);
     this.setLiveSessionState(LiveSessionState.Playing);
   }
