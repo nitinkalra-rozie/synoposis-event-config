@@ -18,6 +18,8 @@ export const environment = {
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
   generateContentPDFUrl:
     'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
+  publishContentPDFUrl:
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/publish-pdf-content',
   prompt_mangement_base_url:
     'https://gfcc9pbk3d.execute-api.ca-central-1.amazonaws.com/dev',
   getPreSignedPDFUrl:
