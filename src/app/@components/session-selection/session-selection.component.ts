@@ -1,4 +1,4 @@
-import { NgClass, NgOptimizedImage, NgTemplateOutlet } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -8,10 +8,7 @@ import {
   DashboardFiltersStateService,
   GlobalStateService,
 } from '@syn/services';
-import {
-  SynSingleSelectComponent,
-  ProjectionImageComponent,
-} from '@syn/components';
+import { SynSingleSelectComponent } from '@syn/components';
 import { ModalService } from 'src/app/services/modal.service';
 import { ProjectionData } from '@syn/data-services';
 import { filter, orderBy } from 'lodash-es';
@@ -26,15 +23,12 @@ import { BackendApiService } from 'src/app/services/backend-api.service';
   standalone: true,
   imports: [
     NgClass,
-    NgTemplateOutlet,
-    NgOptimizedImage,
     ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
     MatSlideToggleModule,
     MatTooltipModule,
     SynSingleSelectComponent,
-    ProjectionImageComponent,
   ],
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',
@@ -90,9 +84,7 @@ export class SessionSelectionComponent {
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(
-      this._backendApiService.getCurrentEventName() === 'ITC'
-    );
+    this.isProjectOnPhysicalScreen.set(true);
   }
 
   protected openSessionInNewWindow(): boolean {

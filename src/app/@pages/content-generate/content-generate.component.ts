@@ -34,6 +34,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu';
 import { isUndefined } from 'lodash-es';
 import { TopBarComponent } from 'src/app/components/shared/top-bar/top-bar.component';
 import { SidebarControlPanelComponent } from 'src/app/@components/sidebar-control-panel/sidebar-control-panel.component';
@@ -143,6 +144,7 @@ export class LoadingDialogComponent {}
     MatProgressSpinnerModule,
     MatBadgeModule,
     MatToolbarModule,
+    MatMenuModule,
     TopBarComponent,
     SidebarControlPanelComponent,
     LargeModalDialogComponent,
@@ -752,6 +754,34 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Error fetching data:', error);
         this.isLoading = false;
+      },
+    });
+  }
+
+  
+  publishPDF(version, promptVersion): void {
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true, // This ensures the dialog cannot be closed by the user prematurely
+      }
+    );
+    const data = {
+      eventId: this.eventName,
+      sessionId: this.selected_session,
+      sessionType: this.selectedSessionType,
+      reportType: this.selectedReportType,
+      version: version,
+      promptVersion: promptVersion,
+    };
+    this._backendApiService.publishPdfReport(data).subscribe({
+      next: (response) => {
+        console.log(response);
+        dialogRef.close();
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching data:', error);
       },
     });
   }

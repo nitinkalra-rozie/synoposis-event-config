@@ -14,6 +14,8 @@ export const environment = {
     'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/generate-content',
   getVersionContentUrl:
     'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/get-version-content',
+  publishContentPDFUrl:
+    'https://a4uzi4g0w9.execute-api.ca-central-1.amazonaws.com/prod/publish-pdf-content',
   saveEditedVersionContentUrl:
     'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/manual-edit-generated-content',
   generateContentPDFUrl:
