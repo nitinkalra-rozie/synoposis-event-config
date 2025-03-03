@@ -1,4 +1,4 @@
-import { NgClass, NgOptimizedImage } from '@angular/common';
+import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
@@ -26,7 +26,6 @@ import { SynSpinnerComponent } from '../syn-spinner/syn-spinner.component';
   standalone: true,
   imports: [
     SynMultiSelectComponent,
-    NgOptimizedImage,
     SynSingleSelectComponent,
     SynSpinnerComponent,
     NgClass,
@@ -147,6 +146,6 @@ export class ProjectionImageComponent {
     setTimeout(() => {
       this._projectionStateService.toggleProjectingState(payload.identifier);
     });
-    this._windowService.showInsightsWelcomeWindow();
+    this._windowService.showInsightsProjectedWindow();
   };
 }

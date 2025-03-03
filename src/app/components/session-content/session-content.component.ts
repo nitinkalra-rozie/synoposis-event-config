@@ -47,8 +47,8 @@ import {
 } from 'src/app/shared/enums';
 import { EventDetail, PostData } from 'src/app/shared/types';
 import {
-  EventDetails,
-  EventStatus,
+  SessionDetails,
+  SessionStatus,
   LiveSessionState,
   ProjectionData,
 } from '@syn/data-services';
@@ -202,9 +202,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           }
         }
       },
-      {
-        allowSignalWrites: true,
-      }
+      { allowSignalWrites: true }
     );
   }
 
@@ -324,20 +322,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
   }
 
-  handleMainSessionChange = (titleValue: string) => {
-    this.selectedSessionTitle = titleValue;
-    const session = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
-    this.selectedSessionType = session.Type;
-    localStorage.setItem(
-      'selectedSessionType',
-      this.selectedSessionType.toString()
-    );
-    this.rotateSessionTitles(this.selectedSessionTitle);
-  };
-
   handleSessionsChange = ({ values }: { values: string[] }) => {
     this.selectedOptions = values;
   };
@@ -433,32 +417,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'Failed to send welcome message.'
     );
   }
-  showSnapshot(): void {
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
-    const postData: PostData = {};
-    postData.action = 'snapshot';
-    postData.day = this.selectedDay;
-    postData.sessionId = sessionDetails.SessionId;
-    postData.eventName = this.selectedEvent;
-    postData.domain = this.selectedDomain;
-    postData.primarySessionId = this.currentPrimarySessionId;
-    this._backendApiService.postData(postData).subscribe(
-      (data: any) => {
-        this.showSuccessMessage('Snapshot message sent successfully!');
-        console.log(data);
-      },
-      (error: any) => {
-        this.showFailureMessage('Failed to send snapshot message.', error);
-      }
-    );
-  }
 
   showThankYouScreen(screenIdentifier: string): void {
     const postData: PostData = {};
-    postData.action = 'thank_you';
+    postData.action = 'thankYou';
     postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -473,7 +435,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   //it is qr screen
   showInfoScreen(screenIdentifier: string): void {
     const postData: PostData = {};
-    postData.action = 'qr_screen';
+    postData.action = 'qrScreen';
     postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -484,6 +446,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'Failed to send qr message.'
     );
   }
+
   findSession = (event: string, SessionTitle: string) => {
     const session = this.eventDetails.find(
       (session: { Event: string; SessionTitle: string }) =>
@@ -517,51 +480,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  showKeyNote(screenIdentifier: string) {
-    if (this.selectedDay != '' && this.selectedSessionTitle != '') {
-      const sessionDetails = this.findSession(
-        this.selectedEvent,
-        this.selectedSessionTitle
-      );
-      if (sessionDetails.Type == 'BreakoutSession') {
-        this.modalService.open(
-          'Confirm Action',
-          "Breakout session don't have Title & Speaker Name Screen",
-          'ok',
-          () => {},
-          this.handleNoSelect
-        );
-      } else {
-        const postData: PostData = {};
-        postData.day = this.selectedDay;
-        postData.eventName = this.selectedEvent;
-        postData.domain = this.selectedDomain;
-        postData.sessionId = sessionDetails.SessionId;
-        postData.action = 'keynote';
-        postData.sessionTitle = sessionDetails.SessionSubject;
-        postData.keyNoteData = sessionDetails;
-        postData.primarySessionId = sessionDetails.PrimarySessionId;
-        this.postData(
-          postData,
-          screenIdentifier,
-          'Show speakers details sent successfully!',
-          'Failed to send show speakers details.'
-        );
-      }
-    } else {
-      this.modalService.open(
-        'Confirm Action',
-        'Event day and Session should be selected to show speaker details!',
-        'ok',
-        () => {},
-        this.handleNoSelect
-      );
-    }
-  }
-
   showEndEvent() {
     const postData: PostData = {};
-    postData.action = 'thank_you';
+    postData.action = 'thankyou';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -576,54 +497,33 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  startListeningPopUp(): void {
-    const session = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
-    console.log('sessionId for start session', session);
-    if (session) {
-      this.modalService.open(
-        'Start Session?',
-        'Are you sure to start session :' + session.SessionTitle + ' ?',
-        'yes_no',
-        this.startListening.bind(this),
-        this.handleNoSelect
-      );
-    } else {
-      this.modalService.open(
-        'Confirm Action',
-        'Please select the Event , Day , Domain and Speaker Name to start the session',
-        'ok',
-        () => {},
-        this.handleNoSelect
-      );
-    }
-  }
-
   onSteamStart(): void {
     // Here I have not refactored the behaviour due to time constraints.
-    // But later we can remove almost all the variables / states used here
+    // But later we can remove almost all the variables / states used here - @naveen
+    // Same. Me too - @saiyaff
     const currentSession = this.activeSession().metadata[
       'originalContent'
-    ] as EventDetails;
+    ] as SessionDetails;
 
     this.selectedDay = currentSession.EventDay;
     this.selectedSessionTitle = currentSession.SessionTitle;
     this.selectedEvent = currentSession.Event;
 
-    this.startListening();
+    this.startListening(currentSession);
   }
 
   onStreamPause(): void {
-    this.stopListening();
+    const currentSession = this.activeSession().metadata[
+      'originalContent'
+    ] as SessionDetails;
+    this.stopListening(currentSession);
   }
 
   onStreamStop(): void {
     this.endSessionPopUpPostInsights();
   }
 
-  async startListening(): Promise<void> {
+  async startListening(session: SessionDetails): Promise<void> {
     this.modalService.close();
     const hasPermission =
       await this.micService.checkAndRequestMicrophonePermission();
@@ -636,10 +536,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.selectedEvent !== ''
       ) {
         localStorage.setItem('currentSessionTitle', this.selectedSessionTitle);
-        const session = this.findSession(
-          this.selectedEvent,
-          this.selectedSessionTitle
-        );
         localStorage.setItem('currentSessionId', session.SessionId);
         localStorage.setItem(
           'currentPrimarySessionId',
@@ -649,8 +545,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
         localStorage.setItem('selectedEvent', this.selectedEvent);
         localStorage.setItem('domain', this.selectedDomain);
         localStorage.setItem('isSessionInProgress', '1');
+
         this.isSessionInProgress = true;
+
         this.startRecording();
+
         this._backendApiService
           .postCurrentSessionId(
             session.SessionId,
@@ -674,9 +573,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
             },
           });
         if (session.Type == 'BreakoutSession') {
-          this.showBreakdownInProgress();
+          this.showBreakdownInProgress(session);
         } else {
-          this.showListeningInsights();
+          this.showListeningInsights(session);
         }
       } else {
         this.modalService.open(
@@ -703,13 +602,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.modalService.close();
   };
 
-  showListeningInsights(screenIdentifier?: string) {
+  showListeningInsights(sessionDetails: SessionDetails) {
     const postData: PostData = {};
     if (this.selectedSessionTitle != '') {
-      const sessionDetails = this.findSession(
-        this.selectedEvent,
-        this.selectedSessionTitle
-      );
       if (sessionDetails.Type == 'BreakoutSession') {
         this.modalService.open(
           'Confirm Action',
@@ -724,7 +619,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.domain = this.selectedDomain;
         postData.action = 'liveInsightsListening';
         postData.sessionTitle = sessionDetails.SessionSubject;
-        this.postData(postData, screenIdentifier, null, null);
+        this.postData(postData, null, null, null);
       }
     } else {
       this.modalService.open(
@@ -737,30 +632,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
   }
 
-  showLoadingInsights(screenIdentifier?: string) {
+  showPausedInsights(sessionDetails: SessionDetails) {
     const postData: PostData = {};
-
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
-
-    postData.day = this.selectedDay;
-    postData.eventName = this.selectedEvent;
-    postData.domain = this.selectedDomain;
-    postData.action = 'liveInsightsLoading';
-    postData.sessionTitle = sessionDetails.SessionSubject;
-
-    this.postData(postData, screenIdentifier, null, null);
-  }
-
-  showPausedInsights() {
-    const postData: PostData = {};
-
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
 
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -771,12 +644,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.postData(postData);
   }
 
-  showBreakdownInProgress() {
+  showBreakdownInProgress(sessionDetails: SessionDetails) {
     const postData: PostData = {};
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
+
     const primarySession = this.findSessionById(
       sessionDetails.Event,
       sessionDetails.PrimarySessionId
@@ -789,12 +659,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe(() => {});
   }
 
-  showPostInsightsLoading() {
+  showPostInsightsLoading(sessionDetails: SessionDetails): void {
     const postData: PostData = {};
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -803,11 +669,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe(() => {});
   }
 
-  stopListening(): void {
-    const session = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
+  stopListening(session: SessionDetails): void {
     console.log('sessionId for stop session', session);
     this.modalService.open(
       'Pause Session?',
@@ -815,7 +677,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'yes_no',
       () => {
         this.closeSocket();
-        this.showPausedInsights();
+        this.showPausedInsights(session);
       },
       this.handleNoSelect
     );
@@ -823,7 +685,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   endEvent(): void {
     const postData: PostData = {};
-    postData.action = 'thank_you';
+    postData.action = 'thankYou';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -859,10 +721,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   endSession = (): void => {
     this.modalService.close();
     this.startListeningClicked = false;
-    const session = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
+    const session = this.activeSession().metadata[
+      'originalContent'
+    ] as SessionDetails;
     const postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -892,7 +753,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
-          this.showPostInsightsLoading();
+          this.showPostInsightsLoading(session);
         },
         (error: any) => {
           this.showFailureMessage('Failed to send end session message.', error);
@@ -903,7 +764,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
-          this.showPostInsightsLoading();
+          this.showPostInsightsLoading(session);
         },
         (error: any) => {
           this.showFailureMessage('Failed to send end session message.', error);
@@ -936,11 +797,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.sessionIds.push(session.SessionId);
       });
       const postData: PostData = {};
-      postData.action = 'summary_of_Single_Keynote';
+      postData.action = 'displayPostEventInsights';
       postData.day = this.selectedMultiSessionDay;
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
-      postData.sessionId = this.sessionIds;
+      postData.sessionIds = this.sessionIds;
       this.postData(
         postData,
         screenIdentifier,
@@ -962,7 +823,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       return;
     } else {
       const postData: PostData = {};
-      postData.action = 'postEventDebrief';
+      postData.action = 'displayPostEventDebrief';
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
@@ -1020,6 +881,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
     clearInterval(this.timeoutId);
   }
+
   sendTranscriptToBackend(transcript: string) {
     this.getRealTimeInsights(transcript);
   }
@@ -1030,10 +892,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   getRealTimeInsights(transcript: string) {
     const postData: PostData = {};
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
+    const sessionDetails = this.activeSession().metadata[
+      'originalContent'
+    ] as SessionDetails;
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
@@ -1073,10 +934,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.isStreaming = !this.isStreaming;
     console.log('recording');
     window.navigator.mediaDevices
-      .getUserMedia({
-        video: false,
-        audio: true,
-      })
+      .getUserMedia({ video: false, audio: true })
 
       // ...then we convert the mic stream to binary event stream messages when the promise resolves
       .then(this.streamAudioToWebSocket)
@@ -1162,14 +1020,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // wrap the audio data in a JSON envelope
     ({
       headers: {
-        ':message-type': {
-          type: 'string',
-          value: 'event',
-        },
-        ':event-type': {
-          type: 'string',
-          value: 'AudioEvent',
-        },
+        ':message-type': { type: 'string', value: 'event' },
+        ':event-type': { type: 'string', value: 'AudioEvent' },
       },
       body: buffer,
     });
@@ -1234,10 +1086,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   };
 
   handleEventStreamMessage = (messageJson) => {
-    const sessionDetails = this.findSession(
-      this.selectedEvent,
-      this.selectedSessionTitle
-    );
+    const sessionDetails = this.activeSession().metadata[
+      'originalContent'
+    ] as SessionDetails;
     const results = messageJson.Transcript.Results;
     console.log(
       'messageJSON got from the transcribe',
@@ -1254,18 +1105,12 @@ export class SessionContentComponent implements OnInit, OnChanges {
           this.liveSessionTranscript()
         );
         if (existingTranscript?.length === 0) {
-          existingTranscript.push({
-            key: generateUniqueId(),
-            value: '',
-          });
+          existingTranscript.push({ key: generateUniqueId(), value: '' });
         }
         // if this transcript segment is final, add it to the overall transcription
         if (!results[0].IsPartial) {
           console.log('naveen break------------', results);
-          existingTranscript.push({
-            key: generateUniqueId(),
-            value: '',
-          });
+          existingTranscript.push({ key: generateUniqueId(), value: '' });
           this._isTranscriptParaBreak = true;
           //scroll the textarea down
           this.transcription = transcript;
@@ -1356,17 +1201,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   onProjectToScreenClick(data: ProjectionData) {
-    if (
-      data.identifier === 'session_title' ||
-      data.identifier === 'session_insights'
-    ) {
-      const session = this.activeSession().metadata[
-        'originalContent'
-      ] as EventDetails;
-      this.selectedDay = session.EventDay;
-      this.selectedSessionTitle = session.SessionTitle;
-    }
-
     this._projectScreen(data);
   }
 
@@ -1398,14 +1232,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   private _projectScreen(data: ProjectionData) {
     switch (data.identifier) {
-      case 'session_title': {
-        this.showKeyNote(data.identifier);
-        return;
-      }
-      case 'session_insights': {
-        this.showLoadingInsights(data.identifier);
-        return;
-      }
       case 'event_info': {
         this.selectedEvent = this.selectedEventName().label;
         this.eventDay[EventCardType.Info] = data.selectedDays[0] ?? '';
@@ -1434,9 +1260,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
                   data.selectedTracks.includes(
                     aSession.metadata['originalContent'].Track
                   ) &&
-                  ![EventStatus.InProgress, EventStatus.NotStarted].includes(
-                    aSession.metadata['originalContent'].Status
-                  )
+                  ![
+                    SessionStatus.InProgress,
+                    SessionStatus.NotStarted,
+                  ].includes(aSession.metadata['originalContent'].Status)
               )
               .map(
                 (aSession) => aSession.metadata['originalContent'].SessionTitle
