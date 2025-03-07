@@ -192,7 +192,6 @@ export class BackendApiService {
     return this.http.get(environment.getPreSignedPDFUrl, { headers, params });
   }
 
-
   publishPdfReport(data: any): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
@@ -204,7 +203,7 @@ export class BackendApiService {
       sessionType: data.sessionType,
       reportType: data.reportType,
       promptVersion: data.promptVersion,
-      version: data.version
+      version: data.version,
     };
     console.log(body);
     return this.http.post(environment.publishContentPDFUrl, body, {
