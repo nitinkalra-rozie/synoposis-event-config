@@ -24,7 +24,7 @@ jobs:
             # 'clarion',
             # 'itchartford',
             # 'clarionexec',
-            # 'demo-sbx',
+            'demo-sbx',
             # 'heif2025',
             # 'pgi2025',
             'wds2025',
