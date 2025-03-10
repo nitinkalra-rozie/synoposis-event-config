@@ -44,6 +44,10 @@ export class LoginService {
 
     attributeList.push(attributeEmail);
 
+    const clientMetadata = {
+      domain: window.location.hostname,
+    };
+
     return new Observable((observer) => {
       userPool.signUp(
         email,
@@ -79,7 +83,8 @@ export class LoginService {
               observer.error(challengeErr);
             }
           }
-        }
+        },
+        clientMetadata
       );
     }).pipe(
       catchError((error) => {
