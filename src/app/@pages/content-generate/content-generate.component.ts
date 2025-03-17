@@ -758,7 +758,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  
   publishPDF(version, promptVersion): void {
     const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
       LoadingDialogComponent,

@@ -441,19 +441,25 @@
                           flex-direction: row-reverse;
                           padding-bottom: 10px;
                         ">
-                        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+                        <button
+                          mat-icon-button
+                          [matMenuTriggerFor]="menu"
+                          aria-label="Example icon-button with a menu">
                           <mat-icon>more_vert</mat-icon>
                         </button>
                         <mat-menu #menu="matMenu">
-                          <button mat-menu-item  (click)="publishPDF(row.version,'v1')">
+                          <button
+                            mat-menu-item
+                            (click)="publishPDF(row.version, 'v1')">
                             <mat-icon>dialpad</mat-icon>
                             <span>Publish V1</span>
                           </button>
-                          <button mat-menu-item  (click)="publishPDF(row.version,'v2')" >
+                          <button
+                            mat-menu-item
+                            (click)="publishPDF(row.version, 'v2')">
                             <mat-icon>dialpad</mat-icon>
                             <span>Publish V2</span>
                           </button>
-                          
                         </mat-menu>
                         <button
                           mat-raised-button
@@ -461,7 +467,6 @@
                           color="accent">
                           Edit Content
                         </button>
-                       
                       </div>
                     </td>
                   </ng-container>
