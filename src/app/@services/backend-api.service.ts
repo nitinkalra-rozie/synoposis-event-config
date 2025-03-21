@@ -195,7 +195,7 @@ export class BackendApiService {
     return this.http.post(environment.postData, body);
   }
 
-  getEventReport(data: PostData): Observable<any> {
+  getEventReport(data: PostData): Observable<EventReportResponse> {
     const body = {
       action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
