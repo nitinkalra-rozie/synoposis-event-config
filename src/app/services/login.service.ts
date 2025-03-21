@@ -167,6 +167,10 @@ export class LoginService {
           response.AuthenticationResult.AccessToken
         ) {
           this.authService.saveAuthInLocal(response);
+
+          const sessionToken = response.AuthenticationResult.RefreshToken;
+          localStorage.setItem('sessionToken', sessionToken);
+
           return response;
         } else {
           console.error(
