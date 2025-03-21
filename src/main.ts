@@ -13,7 +13,7 @@ import NoSleep from '@uriopass/nosleep.js';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
 import { AuthApiService } from './app/services/auth-api.service';
-import { AuthInterceptorService } from './app/services/auth-interceptor.service';
+import { AuthInterceptor } from './app/@interceptors/auth.interceptor';
 import { AuthService } from './app/services/auth.service';
 import { environment } from './environments/environment';
 const noSleep = new NoSleep();
@@ -37,7 +37,7 @@ bootstrapApplication(AppComponent, {
     ),
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptorService,
+      useClass: AuthInterceptor,
       multi: true,
     },
     AuthApiService,
