@@ -171,7 +171,7 @@ export class BackendApiService {
     return this.http.post(environment.genarateContentUrl, body);
   }
 
-  changeEventStatus(data: any): Observable<any> {
+  changeEventStatus(data: any): Observable<Object> {
     const body = {
       action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
@@ -184,7 +184,7 @@ export class BackendApiService {
     return this.http.post(environment.postData, body);
   }
 
-  updatePostInsights(data: any): Observable<any> {
+  updatePostInsights(data: any): Observable<Object> {
     const body = {
       action: data.action,
       sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
