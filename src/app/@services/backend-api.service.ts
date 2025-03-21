@@ -137,7 +137,7 @@ export class BackendApiService {
       .set('reportType', data.reportType)
       .set('version', data.version)
       .set('promptVersion', data.promptVersion);
-    return this.http.get(environment.getPreSignedPDFUrl);
+    return this.http.get(environment.getPreSignedPDFUrl, { params });
   }
 
   publishPdfReport(data: any): Observable<Object> {
@@ -168,7 +168,7 @@ export class BackendApiService {
       generatePDF: data.generatePDF,
     };
     console.log(body);
-    return this.http.post(environment.publishContentPDFUrl, body);
+    return this.http.post(environment.genarateContentUrl, body);
   }
 
   changeEventStatus(data: any): Observable<any> {
