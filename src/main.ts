@@ -1,5 +1,4 @@
 import { CommonModule, IMAGE_CONFIG } from '@angular/common';
-import { provideHttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
@@ -9,8 +8,8 @@ import NoSleep from '@uriopass/nosleep.js';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
 import { AuthApiService } from './app/services/auth-api.service';
-import { AuthService } from './app/services/auth.service';
 import { environment } from './environments/environment';
+import { appConfig } from './app/app.config';
 
 const noSleep = new NoSleep();
 
@@ -31,8 +30,7 @@ bootstrapApplication(AppComponent, {
       ReactiveFormsModule
     ),
     AuthApiService,
-    AuthService,
-    provideHttpClient(),
+    ...appConfig.providers,
     {
       provide: IMAGE_CONFIG,
       useValue: {

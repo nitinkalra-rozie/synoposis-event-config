@@ -7,7 +7,6 @@ import {
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { DashboardFiltersStateService } from '../@services/dashboard-filters-state.service';
 import { AuthService } from '../../app/services/auth.service';
 
 const isPrivateEndpoint = (url: string): boolean => {
@@ -24,7 +23,6 @@ export const authInterceptor = (
   request: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
-  const dashboardFiltersState = inject(DashboardFiltersStateService);
   const authService = inject(AuthService);
 
   if (!isPrivateEndpoint(request.url)) {

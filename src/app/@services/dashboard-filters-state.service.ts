@@ -8,8 +8,6 @@ import {
 import { DropdownOption } from '@syn/models';
 import { getAbsoluteDate, getDropdownOptionsFromString } from '@syn/utils';
 import { map, sortBy } from 'lodash-es';
-import { Router } from '@angular/router';
-import { AuthService } from '../../app/services/auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,10 +16,7 @@ export class DashboardFiltersStateService {
   // todo: store the values in local storage if we need to preserve the states on reload
   // private readonly _localStorageKeyPrefix = 'DASHBOARD_FILTER_';
 
-  constructor(
-    private router: Router,
-    private authService: AuthService
-  ) {
+  constructor() {
     this.eventNames = this._eventNamesSignal.asReadonly();
     this.selectedEvent = this._selectedEventSignal.asReadonly();
     this.eventLocations = this._eventLocationsSignal.asReadonly();

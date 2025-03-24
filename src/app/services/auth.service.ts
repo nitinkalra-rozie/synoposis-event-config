@@ -13,6 +13,7 @@ import { UserRole } from '../shared/enums';
 import { RoleRank } from '../shared/constants';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -49,10 +50,6 @@ export class AuthService {
   };
 
   public logout = (): void => {
-    if (this._tokenCheckInterval) {
-      clearInterval(this._tokenCheckInterval);
-    }
-
     const cognitoUser = this._userPool.getCurrentUser();
     if (cognitoUser) {
       cognitoUser.signOut();
@@ -200,8 +197,11 @@ export class AuthService {
 
   private startTokenCheck(): void {
     interval(this._tokenCheckIntervalMs)
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(() => this.runTokenCheck());
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        tap(() => this.runTokenCheck())
+      )
+      .subscribe();
   }
 
   private runTokenCheck(): void {
