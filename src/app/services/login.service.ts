@@ -41,8 +41,14 @@ export class LoginService {
       Value: email,
     };
     const attributeEmail = new CognitoUserAttribute(dataEmail);
+    const dataDomain = {
+      Name: 'custom:domain',
+      Value: window.location.hostname,
+    };
+    const attributeDomain = new CognitoUserAttribute(dataDomain);
 
     attributeList.push(attributeEmail);
+    attributeList.push(attributeDomain);
 
     const clientMetadata = {
       domain: window.location.hostname,
