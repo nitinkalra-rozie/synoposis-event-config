@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import {
@@ -11,11 +11,13 @@ import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { UserRole } from '../shared/enums';
 import { RoleRank } from '../shared/constants';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService implements OnDestroy {
+export class AuthService {
   constructor(private router: Router) {
     this._userPool = new CognitoUserPool({
       UserPoolId: environment.USER_POOL_ID,
@@ -24,18 +26,14 @@ export class AuthService implements OnDestroy {
 
     this.startTokenCheck();
   }
+
   private readonly _tokenKey = 'auth_token';
   private readonly _tokenCheckIntervalMs = 60000;
 
   private _userPool: CognitoUserPool;
+  private _destroyRef = inject(DestroyRef);
   private _navigateFunction: ((path: string) => void) | null = null;
   private _tokenCheckInterval: any;
-
-  ngOnDestroy(): void {
-    if (this._tokenCheckInterval) {
-      clearInterval(this._tokenCheckInterval);
-    }
-  }
 
   public setNavigateFunction = (navigate: (path: string) => void): void => {
     this._navigateFunction = navigate;
@@ -201,13 +199,9 @@ export class AuthService implements OnDestroy {
   }
 
   private startTokenCheck(): void {
-    if (this._tokenCheckInterval) clearInterval(this._tokenCheckInterval);
-
-    this.runTokenCheck();
-    this._tokenCheckInterval = setInterval(
-      () => this.runTokenCheck(),
-      this._tokenCheckIntervalMs
-    );
+    interval(this._tokenCheckIntervalMs)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(() => this.runTokenCheck());
   }
 
   private runTokenCheck(): void {
