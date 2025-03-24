@@ -124,12 +124,6 @@ export class DashboardFiltersStateService {
         allowSignalWrites: true,
       }
     );
-
-    effect(() => {
-      if (this.shouldHandleUnauthorized()) {
-        this.handleSessionExpired();
-      }
-    });
   }
 
   public readonly allSessions: Signal<DropdownOption[]>;
@@ -148,9 +142,6 @@ export class DashboardFiltersStateService {
     Array<KeyValue<string, string>>
   >;
   public readonly shouldFetchEventDetails: Signal<boolean>;
-  public readonly _shouldHandleUnauthorizedSignal = signal<boolean>(false);
-  public readonly shouldHandleUnauthorized =
-    this._shouldHandleUnauthorizedSignal.asReadonly();
 
   private readonly _selectedLocationsSetSignal = computed<Set<string>>(
     () =>
@@ -240,26 +231,5 @@ export class DashboardFiltersStateService {
 
   setShouldFetchEventDetails(value: boolean): void {
     this._shouldFetchEventDetailsSignal.set(value);
-  }
-
-  handleUnauthorizedResponse(): void {
-    this._shouldHandleUnauthorizedSignal.set(true);
-  }
-
-  private handleSessionExpired(): void {
-    this._eventNamesSignal.set([]);
-    this._selectedEventSignal.set(null);
-    this._eventTracksSignal.set([]);
-    this._eventDaysSignal.set([]);
-    this._eventLocationsSignal.set([]);
-    this._allSessionsSignal.set([]);
-    this._activeSessionSignal.set(null);
-    this._liveEventSignal.set(null);
-    this._liveEventStateSignal.set(LiveSessionState.Stopped);
-    this._liveSessionTranscriptSignal.set([]);
-
-    this.authService.logout();
-
-    this.router.navigate(['/login']);
   }
 }
