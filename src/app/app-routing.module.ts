@@ -9,7 +9,7 @@ import { ContentGenerateComponent } from './@pages/content-generate/content-gene
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { OtpComponent } from './components/otp/otp.component';
 import { AuthGuard } from './auth.guard';
-export const routes: Routes = [
+const routes: Routes = [
   {
     path: '',
     component: LoginPageComponent,

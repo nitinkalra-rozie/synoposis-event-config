@@ -3,13 +3,15 @@ import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { IconsService } from '@syn/services';
+import { DashboardFiltersStateService, IconsService } from '@syn/services';
 import NoSleep from '@uriopass/nosleep.js';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
 import { AuthApiService } from './app/services/auth-api.service';
 import { environment } from './environments/environment';
-import { appConfig } from './app/app.config';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './app/@interceptors/auth.interceptor';
+import { AuthService } from './app/services/auth.service';
 
 const noSleep = new NoSleep();
 
@@ -29,8 +31,10 @@ bootstrapApplication(AppComponent, {
       BrowserModule,
       ReactiveFormsModule
     ),
+    provideHttpClient(withInterceptors([authInterceptor])),
     AuthApiService,
-    ...appConfig.providers,
+    AuthService,
+    DashboardFiltersStateService,
     {
       provide: IMAGE_CONFIG,
       useValue: {
