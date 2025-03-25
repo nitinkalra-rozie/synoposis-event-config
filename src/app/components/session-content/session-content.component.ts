@@ -7,6 +7,7 @@ import {
   OnInit,
   SimpleChanges,
   inject,
+  DestroyRef,
 } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
@@ -54,6 +55,8 @@ import {
 } from '@syn/data-services';
 import { escape } from 'lodash-es';
 import { MatIconModule } from '@angular/material/icon';
+import { timer } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -205,6 +208,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
       { allowSignalWrites: true }
     );
   }
+
+  private _destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -721,9 +726,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
   endSession = (): void => {
     this.modalService.close();
     this.startListeningClicked = false;
-    const session = this.activeSession().metadata[
+    const session = this.activeSession()?.metadata[
       'originalContent'
     ] as SessionDetails;
+
+    if (!session) {
+      this.cleanupSessionState();
+      return;
+    }
+
     const postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -732,52 +743,84 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = session.SessionSubject;
     postData.sessionDescription = session.SessionDescription;
+
     this.isSessionInProgress = false;
+    this.cleanupSessionState();
+
     if (session.Type == EventDetailType.BreakoutSession) {
       postData.action = 'endBreakoutSession';
-      this._backendApiService.postData(postData).subscribe(
-        (data: any) => {
+      this._backendApiService.postData(postData).subscribe({
+        next: () => {
           this.showSuccessMessage(
             'End breakout session message sent successfully!'
           );
         },
-        (error: any) => {
+        error: (error) => {
           this.showFailureMessage(
             'Failed to send end breakout session message.',
             error
           );
-        }
-      );
+        },
+        complete: () => {
+          this.ensureControlPanelClosed();
+        },
+      });
     } else if (session.Type == EventDetailType.PrimarySession) {
       postData.action = 'endPrimarySession';
-      this._backendApiService.postData(postData).subscribe(
-        (data: any) => {
+      this._backendApiService.postData(postData).subscribe({
+        next: () => {
           this.showSuccessMessage('End session message sent successfully!');
           this.showPostInsightsLoading(session);
         },
-        (error: any) => {
+        error: (error) => {
           this.showFailureMessage('Failed to send end session message.', error);
-        }
-      );
+        },
+        complete: () => {
+          this.ensureControlPanelClosed();
+        },
+      });
     } else {
       postData.action = 'endSession';
-      this._backendApiService.postData(postData).subscribe(
-        (data: any) => {
+      this._backendApiService.postData(postData).subscribe({
+        next: () => {
           this.showSuccessMessage('End session message sent successfully!');
           this.showPostInsightsLoading(session);
         },
-        (error: any) => {
+        error: (error) => {
           this.showFailureMessage('Failed to send end session message.', error);
-        }
-      );
+        },
+        complete: () => {
+          this.ensureControlPanelClosed();
+        },
+      });
     }
+
     this.closeSocket();
     this.clearSessionData();
+  };
 
-    // clear global state;
+  private cleanupSessionState(): void {
+    this._globalStateService.setControlPanelState(
+      ControlPanelState.WidgetCollapsed
+    );
     this._dashboardFiltersStateService.setLiveEvent(null);
     this._globalStateService.setRightSidebarState(RightSidebarState.Hidden);
-  };
+  }
+
+  private ensureControlPanelClosed(): void {
+    timer(100)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe(() => {
+        if (
+          this._globalStateService.controlPanelState() !==
+          ControlPanelState.WidgetCollapsed
+        ) {
+          this._globalStateService.setControlPanelState(
+            ControlPanelState.WidgetCollapsed
+          );
+        }
+      });
+  }
 
   showSummary(screenIdentifier: string): void {
     // Check if a keynote type is selected
