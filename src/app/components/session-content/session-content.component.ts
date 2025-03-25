@@ -7,6 +7,7 @@ import {
   OnInit,
   SimpleChanges,
   inject,
+  DestroyRef,
 } from '@angular/core';
 import { BackendApiService } from 'src/app/services/backend-api.service';
 import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
@@ -205,6 +206,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
       { allowSignalWrites: true }
     );
   }
+
+  private _destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
@@ -721,9 +724,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
   endSession = (): void => {
     this.modalService.close();
     this.startListeningClicked = false;
-    const session = this.activeSession().metadata[
+    const session = this.activeSession()?.metadata[
       'originalContent'
     ] as SessionDetails;
+
+    if (!session) {
+      this.cleanupSessionState();
+      return;
+    }
+
     const postData: PostData = {};
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
@@ -733,6 +742,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.sessionTitle = session.SessionSubject;
     postData.sessionDescription = session.SessionDescription;
     this.isSessionInProgress = false;
+
+    this.cleanupSessionState();
     if (session.Type == EventDetailType.BreakoutSession) {
       postData.action = 'endBreakoutSession';
       this._backendApiService.postData(postData).subscribe(
@@ -774,10 +785,27 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.closeSocket();
     this.clearSessionData();
 
-    // clear global state;
+    this.ensureControlPanelClosed();
+  };
+
+  private cleanupSessionState(): void {
+    this._globalStateService.setControlPanelState(
+      ControlPanelState.WidgetCollapsed
+    );
     this._dashboardFiltersStateService.setLiveEvent(null);
     this._globalStateService.setRightSidebarState(RightSidebarState.Hidden);
-  };
+  }
+
+  private ensureControlPanelClosed(): void {
+    if (
+      this._globalStateService.controlPanelState() !==
+      ControlPanelState.WidgetCollapsed
+    ) {
+      this._globalStateService.setControlPanelState(
+        ControlPanelState.WidgetCollapsed
+      );
+    }
+  }
 
   showSummary(screenIdentifier: string): void {
     // Check if a keynote type is selected
