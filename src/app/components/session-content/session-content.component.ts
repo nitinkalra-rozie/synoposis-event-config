@@ -55,8 +55,9 @@ import {
 } from '@syn/data-services';
 import { escape } from 'lodash-es';
 import { MatIconModule } from '@angular/material/icon';
-import { timer } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -743,60 +744,51 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = session.SessionSubject;
     postData.sessionDescription = session.SessionDescription;
-
     this.isSessionInProgress = false;
-    this.cleanupSessionState();
 
+    this.cleanupSessionState();
     if (session.Type == EventDetailType.BreakoutSession) {
       postData.action = 'endBreakoutSession';
-      this._backendApiService.postData(postData).subscribe({
-        next: () => {
+      this._backendApiService.postData(postData).subscribe(
+        (data: any) => {
           this.showSuccessMessage(
             'End breakout session message sent successfully!'
           );
         },
-        error: (error) => {
+        (error: any) => {
           this.showFailureMessage(
             'Failed to send end breakout session message.',
             error
           );
-        },
-        complete: () => {
-          this.ensureControlPanelClosed();
-        },
-      });
+        }
+      );
     } else if (session.Type == EventDetailType.PrimarySession) {
       postData.action = 'endPrimarySession';
-      this._backendApiService.postData(postData).subscribe({
-        next: () => {
+      this._backendApiService.postData(postData).subscribe(
+        (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
           this.showPostInsightsLoading(session);
         },
-        error: (error) => {
+        (error: any) => {
           this.showFailureMessage('Failed to send end session message.', error);
-        },
-        complete: () => {
-          this.ensureControlPanelClosed();
-        },
-      });
+        }
+      );
     } else {
       postData.action = 'endSession';
-      this._backendApiService.postData(postData).subscribe({
-        next: () => {
+      this._backendApiService.postData(postData).subscribe(
+        (data: any) => {
           this.showSuccessMessage('End session message sent successfully!');
           this.showPostInsightsLoading(session);
         },
-        error: (error) => {
+        (error: any) => {
           this.showFailureMessage('Failed to send end session message.', error);
-        },
-        complete: () => {
-          this.ensureControlPanelClosed();
-        },
-      });
+        }
+      );
     }
-
     this.closeSocket();
     this.clearSessionData();
+
+    this.ensureControlPanelClosed();
   };
 
   private cleanupSessionState(): void {
@@ -808,18 +800,21 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   private ensureControlPanelClosed(): void {
-    timer(100)
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(() => {
-        if (
-          this._globalStateService.controlPanelState() !==
-          ControlPanelState.WidgetCollapsed
-        ) {
+    of(null)
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        filter(
+          () =>
+            this._globalStateService.controlPanelState() !==
+            ControlPanelState.WidgetCollapsed
+        ),
+        tap(() => {
           this._globalStateService.setControlPanelState(
             ControlPanelState.WidgetCollapsed
           );
-        }
-      });
+        })
+      )
+      .subscribe();
   }
 
   showSummary(screenIdentifier: string): void {
