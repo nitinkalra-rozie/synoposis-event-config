@@ -55,9 +55,6 @@ import {
 } from '@syn/data-services';
 import { escape } from 'lodash-es';
 import { MatIconModule } from '@angular/material/icon';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -800,21 +797,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   private ensureControlPanelClosed(): void {
-    of(null)
-      .pipe(
-        takeUntilDestroyed(this._destroyRef),
-        filter(
-          () =>
-            this._globalStateService.controlPanelState() !==
-            ControlPanelState.WidgetCollapsed
-        ),
-        tap(() => {
-          this._globalStateService.setControlPanelState(
-            ControlPanelState.WidgetCollapsed
-          );
-        })
-      )
-      .subscribe();
+    if (
+      this._globalStateService.controlPanelState() !==
+      ControlPanelState.WidgetCollapsed
+    ) {
+      this._globalStateService.setControlPanelState(
+        ControlPanelState.WidgetCollapsed
+      );
+    }
   }
 
   showSummary(screenIdentifier: string): void {
