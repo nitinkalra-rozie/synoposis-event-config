@@ -213,8 +213,8 @@ export class UploadAgendaDialogComponent {
       const [time, period] = timeStr.trim().split(' ');
       const [hoursStr, minutesStr] = time.split(':');
       let hours = Number(hoursStr);
-      const minutes = Number(minutesStr); 
-      
+      const minutes = Number(minutesStr);
+
       if (hours === 12) hours = 0;
       if (period.toUpperCase() === 'PM') hours += 12;
       return hours * 60 + minutes;
