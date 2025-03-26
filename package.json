@@ -30,6 +30,7 @@
     "@angular/router": "^18.2.7",
     "@aws-sdk/eventstream-marshaller": "^3.120.0",
     "@aws-sdk/util-utf8-node": "^3.259.0",
+    "@types/xlsx": "^0.0.36",
     "@uriopass/nosleep.js": "^0.12.2",
     "amazon-cognito-identity-js": "^6.3.12",
     "browserify": "^16.5.2",
@@ -44,6 +45,7 @@
     "rxjs": "6.6.7",
     "stream": "0.0.2",
     "tslib": "^2.0.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.14.10"
   },
   "devDependencies": {

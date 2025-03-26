@@ -30,6 +30,7 @@ export class SideBarComponent implements OnInit {
     if (!token) return null;
     try {
       const decoded: any = jwtDecode(token);
+      console.log('acess token decode data', decoded);
       if (decoded?.username) {
         const normalizedEmail = decoded.username.toLowerCase().trim();
         if (normalizedEmail.endsWith('@rozie.ai')) {

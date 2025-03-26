@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 import { Observable } from 'rxjs';
+import { Session } from '../@pages/agenda/agenda.component';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/services/backend-api.service';
 
 interface EventReportResponse {
@@ -89,6 +90,21 @@ export class BackendApiService {
       body.transcript = data.transcript;
     }
     return this.http.post(environment.postData, body, { headers: headers });
+  }
+
+  updateAgenda(data: Session[]): Observable<Object> {
+    const refreshToken = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${refreshToken}`,
+    });
+    const body = {
+      clearCurrentEvents: false,
+      eventName: this._backendApiService.getCurrentEventName(),
+      eventDetails: data,
+    };
+    return this.http.post(environment.updateAgendaUrl, body, {
+      headers: headers,
+    });
   }
 
   generateRealtimeInsights(data: any): Observable<Object> {
