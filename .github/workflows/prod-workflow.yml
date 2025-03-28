@@ -29,7 +29,9 @@ jobs:
             # 'pgi2025',
             # 'wds2025',
             # 'rev2025',
-            'dte2025'
+            'dte2025',
+            'isg2025',
+            'siso2025'
           ]
     steps:
       - name: Set event environment variable
