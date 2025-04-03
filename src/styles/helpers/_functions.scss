@@ -1,0 +1,13 @@
+@use 'variables' as *;
+
+@function color-transparent($alpha, $color: $primary-bg-color) {
+  @return rgba($color, $alpha);
+}
+
+@function is-greater-than($value, $compare-to: 500px) {
+  @if ($value > $compare-to) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}

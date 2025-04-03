@@ -1,0 +1,120 @@
+@use 'mixins' as *;
+@use 'variables' as *;
+
+// #region commented due to the use of the new design
+// $session-dropdown-width-right-sidebar-expanded: calc(
+//   calc(
+//       100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+//         88px
+//     ) * 0.77
+// );
+// $session-dropdown-width-right-sidebar-collapsed: calc(
+//   calc(
+//       100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+//         88px
+//     ) * 0.77
+// );
+// $session-dropdown-width-right-sidebar-hidden: calc(
+//   calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.77
+// );
+// #endregion
+
+$skeleton-content-width-right-sidebar-expanded: calc(
+  calc(
+      100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.318
+);
+
+$skeleton-content-width-right-sidebar-collapsed: calc(
+  calc(
+      100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+        88px
+    ) * 0.318
+);
+
+$skeleton-content-width-right-sidebar-hidden: calc(
+  calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.318
+);
+
+app-syn-single-select {
+  width: 100%;
+}
+
+.session-selection-container {
+  @include d-flex-column;
+  align-items: flex-start;
+  height: 100%;
+}
+
+.header-row {
+  @include d-flex-row;
+  gap: $stepper-content-gap;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.step-number-wrapper {
+  .step-number {
+    width: $stepper-content-number-size;
+    height: $stepper-content-number-size;
+    @include flex-center;
+    border-radius: 100px;
+    border: 1px solid $primary-color-variant-2;
+    background-color: $secondary-color-variant-6;
+    color: $primary-color-variant-2;
+  }
+}
+
+.btn-start-listening {
+  height: 40px;
+
+  > mat-icon {
+    @include flex-center;
+    width: 16px;
+    height: 16px;
+    color: $primary-bg-color;
+    margin-right: 5px;
+    font-size: 16px;
+  }
+}
+
+.content {
+  @include d-flex-row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  height: 100%;
+  flex: 1;
+  width: 100%;
+
+  .content-steps-container {
+    width: 100%;
+    @include d-flex;
+    flex-direction: column;
+    gap: 1.125rem;
+
+    .content-step {
+      @include d-flex-row;
+      gap: $stepper-content-gap;
+      height: 2.5rem;
+
+      .step-details {
+        @include d-flex-row;
+        gap: 1rem;
+
+        .step-label {
+          @include font-14();
+          color: $primary-bg-color-variant-6;
+        }
+
+        .open-link {
+          color: $primary-color-variant-2;
+        }
+
+        .copy-icon-button {
+          color: $primary-color-variant-2;
+        }
+      }
+    }
+  }
+}

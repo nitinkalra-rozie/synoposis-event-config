@@ -1,6 +1,7 @@
 {
   "editor.codeActionsOnSave": {
-    "source.removeUnusedImports": "always"
+    "source.removeUnusedImports": "always",
+    "source.organizeImports": "always"
   },
   "editor.formatOnSave": true,
   "editor.trimAutoWhitespace": true,
@@ -22,6 +23,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[xml]": {
-    "editor.defaultFormatter": "redhat.vscode-xml"
-  }
+    "editor.defaultFormatter": "fabianlauer.vs-code-xml-format"
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

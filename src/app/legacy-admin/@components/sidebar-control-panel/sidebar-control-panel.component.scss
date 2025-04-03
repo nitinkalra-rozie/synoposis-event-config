@@ -1,0 +1,268 @@
+@use 'mixins' as *;
+@use 'variables' as *;
+// @use '../../styles/material/mat-tooltip' as *;
+
+$sidebar-total-vertical-padding: 26px;
+
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+.sidebar-container {
+  height: calc(100vh - $top-bar-height - $sidebar-total-vertical-padding);
+  background-color: $primary-bg-color;
+  padding: 10px 0 16px 0;
+  border-left: 1px solid $secondary-bg-color;
+  @include d-flex-column;
+  flex: 1;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  width: calc($right-sidebar-collapsed-width - 1px);
+  max-width: 58px;
+
+  &.hidden {
+    width: 0;
+  }
+}
+
+.detail-container {
+  height: calc(100vh - $top-bar-height);
+  border-left: 1px solid $secondary-bg-color;
+  background-color: $primary-bg-color;
+  @include d-flex;
+  opacity: 1;
+
+  &.hidden {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+  }
+
+  &.expanded {
+    @include d-flex-column;
+    width: calc(
+      $right-sidebar-expanded-width - $right-sidebar-collapsed-width - 1px
+    );
+    max-width: 356px;
+  }
+
+  &.collapsed {
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+  }
+}
+
+.detail-header {
+  height: 55px;
+  @include d-flex-row;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid $primary-bg-color-variant-2;
+  width: calc(100% - 40px);
+
+  .detail-header-title {
+    @include body-regular;
+    color: $primary-bg-color-variant-6;
+  }
+
+  .collapse-button {
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    @include flex-center;
+    border: 1px solid $primary-bg-color-variant-2;
+    cursor: pointer;
+    background-color: transparent;
+    padding-block: 0;
+    padding-inline: 0;
+
+    > mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+      color: $primary-bg-color-variant-6;
+      @include flex-center;
+    }
+  }
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+  @include flex-center;
+}
+
+.control-quick-action-button {
+  border: none;
+  width: 36px;
+  height: 32px;
+  @include flex-center;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 4px;
+  padding-block: 0;
+  padding-inline: 0;
+  margin-bottom: 20px;
+  color: $primary-bg-color-variant-5;
+  fill: $primary-bg-color-variant-5;
+
+  &.selected {
+    background-color: $primary-color-variant-2;
+    color: $primary-bg-color;
+    fill: $primary-bg-color;
+  }
+}
+
+.content {
+  width: 100%;
+  height: calc(100% - 55px);
+}
+
+.session-details-container {
+  @include d-flex-column;
+  height: calc(100% - 36px);
+  width: calc(100% - 40px);
+  align-items: flex-start;
+  padding: 18px 20px;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+
+  .transcript {
+    @include caption-regular;
+    color: $primary-bg-color-variant-6;
+  }
+
+  .form-row {
+    @include d-flex-column;
+    align-items: flex-start;
+    margin-bottom: 12px;
+
+    .label {
+      @include body-regular;
+      color: $primary-bg-color-variant-5;
+    }
+
+    .value {
+      margin-top: 4px;
+      @include body-regular;
+      color: $primary-bg-color-variant-6;
+    }
+  }
+}
+
+.card-container {
+  @include d-flex-column;
+  width: calc(100% - 36px);
+  height: auto;
+  border: 1px solid $primary-bg-color-variant-2;
+  border-radius: 16px;
+  padding: 16px;
+  align-items: flex-start;
+
+  &:not(:last-of-type) {
+    margin-bottom: 18px;
+  }
+
+  .title {
+    @include caption-semi-bold;
+    color: $primary-bg-color-variant-6;
+    margin-bottom: 12px;
+  }
+
+  .separator {
+    height: 1px;
+    width: 100%;
+    margin-top: 12px;
+    background-color: $primary-bg-color-variant-2;
+  }
+
+  .speakers-list {
+    @include d-flex-row;
+    justify-content: space-between;
+    width: 100%;
+    cursor: pointer;
+    max-height: 48px;
+    overflow: hidden;
+    align-items: flex-start;
+    transition: max-height 0.3s ease;
+
+    &.expanded {
+      max-height: 1000px;
+    }
+
+    > mat-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+      color: $primary-bg-color-variant-4;
+    }
+
+    .speaker-info {
+      @include d-flex-column;
+      margin-right: 18px;
+      align-items: flex-start;
+
+      .speaker {
+        @include branding;
+        color: $primary-bg-color-variant-8;
+        @include ellipsis;
+        line-height: 16px;
+
+        > span {
+          color: $primary-bg-color-variant-5;
+        }
+      }
+    }
+  }
+
+  .card-footer {
+    margin-top: 8px;
+    @include d-flex-row;
+    justify-content: space-between;
+    width: 100%;
+
+    .track {
+      @include d-flex-row;
+      > mat-icon {
+        fill: $primary-bg-color-variant-6;
+        width: 12px;
+        height: 12px;
+        font-size: 12px;
+        margin-right: 8px;
+      }
+
+      .track-name {
+        @include caption-link-sm-regular;
+        color: $primary-bg-color-variant-6;
+      }
+    }
+
+    .indicator {
+      height: 24px;
+      @include d-flex-row;
+      align-items: center;
+      padding: 0 4px;
+      background-color: $secondary-color-variant-9;
+      border-radius: 8px;
+      width: 69px;
+      justify-content: center;
+
+      .indicator-icon {
+        width: 12px;
+        height: 12px;
+        @include flex-center;
+        color: $primary-bg-color;
+        border-radius: 100%;
+        margin-right: 5px;
+      }
+
+      .indicator-label {
+        @include caption-sm-regular;
+        color: $primary-bg-color;
+      }
+    }
+  }
+}

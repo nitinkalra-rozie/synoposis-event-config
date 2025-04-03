@@ -1,17 +1,18 @@
 import { CommonModule, IMAGE_CONFIG } from '@angular/common';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { DashboardFiltersStateService, IconsService } from '@syn/services';
 import NoSleep from '@uriopass/nosleep.js';
+import { IconsService } from 'src/app/core/services/icons.service';
+import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
-import { AuthApiService } from './app/services/auth-api.service';
+import { authInterceptor } from './app/core/interceptors/auth.interceptor';
+import { AuthApiService } from './app/legacy-admin/services/auth-api.service';
+import { AuthService } from './app/legacy-admin/services/auth.service';
 import { environment } from './environments/environment';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './app/@interceptors/auth.interceptor';
-import { AuthService } from './app/services/auth.service';
 
 const noSleep = new NoSleep();
 

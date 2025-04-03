@@ -1,0 +1,12 @@
+@font-face {
+  font-family: Lexend;
+  src:
+    url('./../../assets/Lexend/Lexend-VariableFont_wght.ttf') format('woff2'),
+    url('./../../assets/Lexend/Lexend-VariableFont_wght.ttf') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: Lexend, Roboto, 'Helvetica Neue', sans-serif;
+}

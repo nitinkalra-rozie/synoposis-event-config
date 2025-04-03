@@ -1,0 +1,18 @@
+@use 'mixins' as *;
+@use 'variables' as *;
+
+.row {
+  padding: 20px 0 10px;
+  @include d-flex-row;
+  width: calc(100% - 48px);
+
+  app-projection-image {
+    width: calc(calc(100% - 48px) / 3);
+    max-width: 394px;
+    margin-left: 24px;
+
+    &:first-of-type {
+      margin-left: 0;
+    }
+  }
+}

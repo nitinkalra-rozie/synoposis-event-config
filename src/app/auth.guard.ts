@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from './services/auth.service';
-import { RoleRank } from './shared/constants';
+import { AuthService } from './legacy-admin/services/auth.service';
+import { RoleRank } from './legacy-admin/shared/constants';
 
 @Injectable({
   providedIn: 'root',
@@ -37,24 +37,4 @@ export class AuthGuard {
       return false;
     }
   }
-
-  // TODO: @later - Implement a proper login flow to use cognito or any auth provider and check session
-  // canActivate(): Promise<boolean> {
-  //   return new Promise<boolean>((resolve) => {
-  //     this.authService
-  //       .checkSession()
-  //       .then(() => {
-  //         if (this.authService.isAuthenticated()) {
-  //           resolve(true);
-  //         } else {
-  //           this.router.navigate(['/']);
-  //           resolve(false);
-  //         }
-  //       })
-  //       .catch(() => {
-  //         this.router.navigate(['/']);
-  //         resolve(false);
-  //       });
-  //   });
-  // }
 }

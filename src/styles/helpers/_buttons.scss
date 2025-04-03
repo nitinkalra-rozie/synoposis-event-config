@@ -1,0 +1,62 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.btn-primary-default {
+  @include button-style(
+    $primary-color-variant-2,
+    $selection-variant-3,
+    $primary-bg-color
+  );
+  @include body-regular;
+  height: 32px;
+}
+
+.btn-primary-default-small {
+  @include button-style(
+    $primary-color-variant-2,
+    $selection-variant-3,
+    $primary-bg-color
+  );
+  @include caption-regular;
+  height: 25px;
+}
+
+.btn-primary-white-small {
+  @include button-style(
+    $primary-bg-color,
+    $primary-bg-color-variant-1,
+    $primary-bg-color-variant-6
+  );
+  @include caption-regular;
+  height: 25px;
+}
+
+.btn-secondary-default {
+  @include button-style(
+    $secondary-color-variant-2,
+    $selection-variant-4,
+    $primary-bg-color
+  );
+  @include body-regular;
+  height: 32px;
+}
+
+.btn-destructive-default {
+  @include button-style(
+    $selected-concept-icon-color,
+    $selection-variant-5,
+    $primary-bg-color
+  );
+  @include body-regular;
+  height: 32px;
+}
+
+.btn-text-default {
+  @include button-style(
+    $transparent,
+    $selection-variant-6,
+    $primary-bg-color-variant-8
+  );
+  @include caption-regular;
+  height: 32px;
+}

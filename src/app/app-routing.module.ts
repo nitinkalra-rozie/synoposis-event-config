@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { AudioStreamerComponent } from './components/audio-streamer/audio-streamer.component';
-import { ElsaEventAdminV2Component } from './components/elsa-event-admin-v2/elsa-event-admin-v2.component';
-import { EditorialComponent } from './@pages/editorial/editorial.component';
-import { AgendaComponent } from './@pages/agenda/agenda.component';
-import { PromptManagementComponent } from './@pages/prompt-management/prompt-management.component';
-import { ContentGenerateComponent } from './@pages/content-generate/content-generate.component';
-import { LoginPageComponent } from './components/login-page/login-page.component';
-import { OtpComponent } from './components/otp/otp.component';
+import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './auth.guard';
+import { AgendaComponent } from './legacy-admin/@pages/agenda/agenda.component';
+import { ContentGenerateComponent } from './legacy-admin/@pages/content-generate/content-generate.component';
+import { EditorialComponent } from './legacy-admin/@pages/editorial/editorial.component';
+import { PromptManagementComponent } from './legacy-admin/@pages/prompt-management/prompt-management.component';
+import { AudioStreamerComponent } from './legacy-admin/components/audio-streamer/audio-streamer.component';
+import { ElsaEventAdminV2Component } from './legacy-admin/components/elsa-event-admin-v2/elsa-event-admin-v2.component';
+import { LoginPageComponent } from './legacy-admin/components/login-page/login-page.component';
+import { OtpComponent } from './legacy-admin/components/otp/otp.component';
 const routes: Routes = [
   {
     path: '',
