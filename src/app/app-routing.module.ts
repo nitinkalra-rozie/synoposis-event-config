@@ -9,6 +9,7 @@ import { AudioStreamerComponent } from './legacy-admin/components/audio-streamer
 import { ElsaEventAdminV2Component } from './legacy-admin/components/elsa-event-admin-v2/elsa-event-admin-v2.component';
 import { LoginPageComponent } from './legacy-admin/components/login-page/login-page.component';
 import { OtpComponent } from './legacy-admin/components/otp/otp.component';
+
 const routes: Routes = [
   {
     path: '',

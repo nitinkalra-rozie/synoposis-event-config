@@ -1,21 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
-import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
-import { GenerateRealtimeInsightsDialogComponent } from './generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
-
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -23,11 +13,20 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
+import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { TopBarComponent } from 'src/app/legacy-admin/components/shared/top-bar/top-bar.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
+import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
+import { GenerateRealtimeInsightsDialogComponent } from './generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 
 interface Application {
   value: string;
@@ -85,10 +84,7 @@ interface RealtimeInsight {
     MatToolbarModule,
     TopBarComponent,
     SidebarControlPanelComponent,
-    LargeModalDialogComponent,
-    GenerateRealtimeInsightsDialogComponent,
   ],
-  providers: [],
 })
 export class EditorialComponent implements OnInit {
   constructor(
