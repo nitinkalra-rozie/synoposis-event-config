@@ -34,7 +34,7 @@ jobs:
       - name: Install Serverless Framework
         run: npm install -g serverless@3.38.0
       - name: Install Angular CLI
-        run: npm install -g @angular/cli@18.x
+        run: npm install -g @angular/cli@19.x
       - name: Install Packages
         run: npm install --legacy-peer-deps
       - name: Serverless AWS Authentication
