@@ -421,8 +421,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
-      action: 'get_summary_of_Single_Keynote',
-      sessionId: [this.selected_session],
+      action: 'getDebriefData',
+      sessionIds: [this.selected_session],
     };
     this._backendApiService.getEventReport(data).subscribe({
       next: (response) => {
@@ -442,8 +442,8 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
     this.dataLoaded = false;
     this.applyInitialPromptFilter();
     const data = {
-      action: 'get_summary_of_Single_Keynote',
-      sessionId: [this.selected_session],
+      action: 'getDebriefData',
+      sessionIds: [this.selected_session],
     };
     this._backendApiService.getEventReport(data).subscribe({
       next: (response) => {

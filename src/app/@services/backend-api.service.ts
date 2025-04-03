@@ -192,7 +192,7 @@ export class BackendApiService {
       domain: data.domain || localStorage.getItem('domain'),
       updatedData: data.updatedData,
     };
-    return this.http.post(environment.postData, body);
+    return this.http.post(environment.postDebriefData, body);
   }
 
   getEventReport(data: PostData): Observable<EventReportResponse> {
@@ -210,8 +210,9 @@ export class BackendApiService {
       sessionDescription: data.sessionDescription,
       debriefType: data.debriefType ?? null,
       debriefFilter: data.debriefFilter ?? null,
+      sessionIds: data.sessionIds,
     };
-    return this.http.post(environment.postData, body);
+    return this.http.post(environment.postDebriefData, body);
   }
 
   getEventDetails(): Observable<Object> {
