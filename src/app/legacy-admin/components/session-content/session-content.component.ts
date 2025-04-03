@@ -609,7 +609,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       if (sessionDetails.Type == 'BreakoutSession') {
         this.modalService.open(
           'Confirm Action',
-          'Breakout session don\'t have speaker name screen',
+          "Breakout session don't have speaker name screen",
           'ok',
           () => {},
           this.handleNoSelect
@@ -625,7 +625,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     } else {
       this.modalService.open(
         'Confirm Action',
-        'Breakout session don\'t have Real-time Insights Screen',
+        "Breakout session don't have Real-time Insights Screen",
         'ok',
         () => {},
         this.handleNoSelect
