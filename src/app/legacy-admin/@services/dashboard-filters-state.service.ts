@@ -2,9 +2,9 @@ import { KeyValue } from '@angular/common';
 import { computed, effect, Injectable, Signal, signal } from '@angular/core';
 import { map, sortBy } from 'lodash-es';
 import {
-  SessionStatus,
-  SessionDetails,
   LiveSessionState,
+  SessionDetails,
+  SessionStatus,
 } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { getDropdownOptionsFromString } from 'src/app/legacy-admin/@utils/data-utils';
@@ -103,23 +103,18 @@ export class DashboardFiltersStateService {
         : []
     );
 
-    effect(
-      () => {
-        if (this.activeSession() && this.availableSessions()?.length) {
-          const activeIndex = this.availableSessions().findIndex(
-            (aSession) =>
-              aSession.metadata['originalContent'].SessionId ===
-              this.activeSession()?.metadata['originalContent'].SessionId
-          );
-          if (activeIndex === -1) {
-            this.setActiveSession(null);
-          }
+    effect(() => {
+      if (this.activeSession() && this.availableSessions()?.length) {
+        const activeIndex = this.availableSessions().findIndex(
+          (aSession) =>
+            aSession.metadata['originalContent'].SessionId ===
+            this.activeSession()?.metadata['originalContent'].SessionId
+        );
+        if (activeIndex === -1) {
+          this.setActiveSession(null);
         }
-      },
-      {
-        allowSignalWrites: true,
       }
-    );
+    });
   }
 
   public readonly allSessions: Signal<DropdownOption[]>;

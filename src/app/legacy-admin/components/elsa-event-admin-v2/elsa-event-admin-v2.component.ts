@@ -89,17 +89,12 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   );
 
   constructor() {
-    effect(
-      () => {
-        if (this._shouldFetchEventDetails()) {
-          this.getEventDetails();
-          this._filtersStateService.setShouldFetchEventDetails(false);
-        }
-      },
-      {
-        allowSignalWrites: true,
+    effect(() => {
+      if (this._shouldFetchEventDetails()) {
+        this.getEventDetails();
+        this._filtersStateService.setShouldFetchEventDetails(false);
       }
-    );
+    });
   }
 
   ngOnInit() {

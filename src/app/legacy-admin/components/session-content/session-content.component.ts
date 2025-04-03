@@ -169,8 +169,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     private _dashboardFiltersStateService: DashboardFiltersStateService,
     private _projectionStateService: ProjectionStateService
   ) {
-    effect(
-      () => {
+    effect(() => {
       if (
         this.isSessionInProgress &&
         this.activeSession() === null &&
@@ -199,9 +198,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           this.rotateSessionTitles(this.selectedSessionTitle);
         }
       }
-      },
-      { allowSignalWrites: true }
-    );
+    });
   }
 
   private _destroyRef = inject(DestroyRef);

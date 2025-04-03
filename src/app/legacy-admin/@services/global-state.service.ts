@@ -18,19 +18,14 @@ export class GlobalStateService {
     this.selectedDashboardTab = this._selectedDashboardTabSignal.asReadonly();
     this.controlPanelState = this._controlPanelStateSignal.asReadonly();
 
-    effect(
-      () => {
-        if (
-          this.selectedDashboardTab() === DashboardTabs.SessionSpecific &&
-          this.controlPanelState() !== ControlPanelState.Default
-        ) {
-          this.setControlPanelState(ControlPanelState.Default);
-        }
-      },
-      {
-        allowSignalWrites: true,
+    effect(() => {
+      if (
+        this.selectedDashboardTab() === DashboardTabs.SessionSpecific &&
+        this.controlPanelState() !== ControlPanelState.Default
+      ) {
+        this.setControlPanelState(ControlPanelState.Default);
       }
-    );
+    });
   }
 
   public readonly rightSidebarState: Signal<RightSidebarState>;
