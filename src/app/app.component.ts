@@ -5,7 +5,6 @@ import { PopUpWindowComponent } from './legacy-admin/components/pop-up-window/po
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  standalone: true,
   imports: [PopUpWindowComponent, RouterOutlet],
 })
 export class AppComponent {

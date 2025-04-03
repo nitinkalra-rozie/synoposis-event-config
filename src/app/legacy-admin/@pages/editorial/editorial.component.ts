@@ -63,7 +63,6 @@ interface RealtimeInsight {
   selector: 'app-elsa-event-editorial',
   templateUrl: './editorial.component.html',
   styleUrls: ['./editorial.component.scss'],
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,

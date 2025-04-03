@@ -19,7 +19,6 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 
 @Component({
   selector: 'app-session-selection',
-  standalone: true,
   imports: [
     NgClass,
     ReactiveFormsModule,

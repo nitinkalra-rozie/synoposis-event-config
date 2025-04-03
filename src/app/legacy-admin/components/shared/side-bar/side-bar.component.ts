@@ -11,7 +11,6 @@ import { AuthService } from 'src/app/legacy-admin/services/auth.service';
   templateUrl: './side-bar.component.html',
   styleUrls: ['./side-bar.component.scss'],
   imports: [RouterModule, MatTooltipModule, MatIconModule, CommonModule],
-  standalone: true,
 })
 export class SideBarComponent implements OnInit {
   constructor() {}

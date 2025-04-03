@@ -35,7 +35,6 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
   selector: 'app-elsa-event-admin-v2',
   templateUrl: './elsa-event-admin-v2.component.html',
   styleUrls: ['./elsa-event-admin-v2.component.scss'],
-  standalone: true,
   providers: [
     GetMultiSelectOptionFromStringPipe,
     GetDropdownOptionFromObjectPipe,
@@ -44,10 +43,8 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
     TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
-    GetMultiSelectOptionFromStringPipe,
-    GetDropdownOptionFromObjectPipe,
-    SidebarControlPanelComponent,
-  ],
+    SidebarControlPanelComponent
+],
 })
 export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   @ViewChild('contentContainer')

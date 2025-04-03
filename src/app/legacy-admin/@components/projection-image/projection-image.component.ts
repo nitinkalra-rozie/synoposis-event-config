@@ -19,7 +19,6 @@ import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-detail
 
 @Component({
   selector: 'app-projection-image',
-  standalone: true,
   imports: [
     SynMultiSelectComponent,
     SynSingleSelectComponent,

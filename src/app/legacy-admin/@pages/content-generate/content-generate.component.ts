@@ -103,7 +103,6 @@ const promptSchema = {
 
 @Component({
   selector: 'app-loading-dialog',
-  standalone: true,
   template: `
     <div style="text-align: center; padding: 2rem;">
       <h2>Opening PDF...</h2>
@@ -121,7 +120,6 @@ export class LoadingDialogComponent {}
   selector: 'app-elsa-event-generate-report',
   templateUrl: './content-generate.component.html',
   styleUrls: ['./content-generate.component.scss'],
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -145,10 +143,8 @@ export class LoadingDialogComponent {}
     MatToolbarModule,
     MatMenuModule,
     TopBarComponent,
-    SidebarControlPanelComponent,
-    LargeModalDialogComponent,
-    LoadingDialogComponent,
-  ],
+    SidebarControlPanelComponent
+],
   providers: [],
 })
 export class ContentGenerateComponent implements OnInit, AfterViewInit {

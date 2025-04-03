@@ -25,7 +25,6 @@ import { generateUniqueId } from 'src/app/legacy-admin/@utils/generate-uuid';
 
 @Component({
   selector: 'app-syn-single-select',
-  standalone: true,
   providers: [GetFilteredDropdownOptionsPipe],
   imports: [
     MatMenuModule,

@@ -13,20 +13,18 @@ import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/das
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { SoundAnimationComponent } from '../sound-animation/sound-animation.component';
 import { EllipsisDirective } from 'src/app/legacy-admin/@directives/ellipsis.directive';
-import { OverflowDetectorDirective } from 'src/app/legacy-admin/@directives/overflow-detector.directive';
+
 
 @Component({
   selector: 'app-control-panel',
-  standalone: true,
   imports: [
     NgTemplateOutlet,
     MatIconModule,
     MatTooltipModule,
-    OverflowDetectorDirective,
     EllipsisDirective,
     NgClass,
-    SoundAnimationComponent,
-  ],
+    SoundAnimationComponent
+],
   templateUrl: './control-panel.component.html',
   styleUrl: './control-panel.component.scss',
 })

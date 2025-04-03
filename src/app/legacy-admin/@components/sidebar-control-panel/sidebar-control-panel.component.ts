@@ -22,7 +22,6 @@ import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.
 
 @Component({
   selector: 'app-sidebar-control-panel',
-  standalone: true,
   providers: [SelectedQuickActionHeaderTitlePipe, SanitizeHtmlPipe],
   imports: [
     NgClass,

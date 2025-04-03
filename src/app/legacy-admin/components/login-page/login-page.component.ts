@@ -16,7 +16,6 @@ import { FooterComponent } from '../shared/footer/footer.component';
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
-  standalone: true,
   imports: [
     FooterComponent,
     FormsModule,

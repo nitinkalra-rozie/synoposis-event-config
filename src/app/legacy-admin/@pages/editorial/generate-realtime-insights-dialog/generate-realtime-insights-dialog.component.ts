@@ -27,7 +27,6 @@ interface DialogData {
   selector: 'app-generate-realtime-insights-dialog',
   templateUrl: './generate-realtime-insights-dialog.component.html',
   styleUrls: ['./generate-realtime-insights-dialog.component.scss'],
-  standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,

@@ -6,7 +6,6 @@
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     // TODO: @refactor - Uncomment these once the project is refactored
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,

@@ -6,7 +6,6 @@ import { OutsideClickDirective } from '../../directives/outside-click.directive'
   selector: 'app-main-drop-down',
   templateUrl: './main-drop-down.component.html',
   styleUrls: ['./main-drop-down.component.scss'],
-  standalone: true,
   imports: [OutsideClickDirective, TruncatePipe],
 })
 export class MainDropDownComponent implements OnInit {

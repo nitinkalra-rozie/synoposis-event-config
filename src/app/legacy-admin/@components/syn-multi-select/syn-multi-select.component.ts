@@ -26,7 +26,6 @@ import { generateUniqueId } from 'src/app/legacy-admin/@utils/generate-uuid';
 
 @Component({
   selector: 'app-syn-multi-select',
-  standalone: true,
   providers: [
     GetCheckboxOptionFromMultiSelectPipe,
     GetSelectedOptionsPipe,

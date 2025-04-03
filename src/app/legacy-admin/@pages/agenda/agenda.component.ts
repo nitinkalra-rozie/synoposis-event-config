@@ -61,7 +61,6 @@ interface RealtimeInsight {
   selector: 'app-elsa-event-agenda',
   templateUrl: './agenda.component.html',
   styleUrls: ['./agenda.component.scss'],
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -81,9 +80,8 @@ interface RealtimeInsight {
     MatBadgeModule,
     MatToolbarModule,
     TopBarComponent,
-    SidebarControlPanelComponent,
-    LargeModalDialogComponent,
-  ],
+    SidebarControlPanelComponent
+],
   providers: [],
 })
 export class AgendaComponent implements OnInit {

@@ -25,7 +25,6 @@ interface DialogData {
   selector: 'app-large-modal-dialog',
   templateUrl: './original-debrief-modal-dialog.component.html',
   styleUrls: ['./original-debrief-modal-dialog.component.scss'],
-  standalone: true,
   imports: [
     CommonModule,
     MatDialogModule,

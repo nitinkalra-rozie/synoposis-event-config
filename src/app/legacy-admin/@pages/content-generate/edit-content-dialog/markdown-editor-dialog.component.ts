@@ -27,7 +27,6 @@ export interface MarkdownEditorData {
 }
 
 @Component({
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,

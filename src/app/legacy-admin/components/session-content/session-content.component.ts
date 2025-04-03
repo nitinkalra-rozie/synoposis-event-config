@@ -29,6 +29,12 @@ import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
 import { SessionSelectionComponent } from 'src/app/legacy-admin/@components/session-selection/session-selection.component';
 import {
+  LiveSessionState,
+  ProjectionData,
+  SessionDetails,
+  SessionStatus,
+} from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import {
   ControlPanelState,
   DashboardTabs,
   RightSidebarState,
@@ -47,12 +53,6 @@ import {
   ThemeOptions,
 } from 'src/app/legacy-admin/shared/enums';
 import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
-import {
-  LiveSessionState,
-  SessionDetails,
-  ProjectionData,
-  SessionStatus,
-} from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -62,7 +62,6 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   selector: 'app-session-content',
   templateUrl: './session-content.component.html',
   styleUrls: ['./session-content.component.scss'],
-  standalone: true,
   imports: [
     NgClass,
     MatTabsModule,

@@ -12,7 +12,7 @@ import {
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { FormsModule } from '@angular/forms';
-import { SynMultiSelectComponent } from 'src/app/legacy-admin/@components/syn-multi-select';
+
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { GetMultiSelectOptionFromStringPipe } from 'src/app/legacy-admin/@pipes/get-multi-select-option-from-string.pipe';
 
@@ -31,7 +31,7 @@ import {
   TransitionTimesEnum,
 } from 'src/app/legacy-admin/shared/enums';
 import { PostData } from 'src/app/legacy-admin/shared/types';
-import { MainDropDownComponent } from '../main-drop-down/main-drop-down.component';
+
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 
 @Component({
@@ -39,16 +39,12 @@ import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
   templateUrl: './event-controls.component.html',
   styleUrls: ['./event-controls.component.scss'],
   providers: [GetMultiSelectOptionFromStringPipe],
-  standalone: true,
   imports: [
     NgClass,
     FormsModule,
     MatButtonToggleModule,
-    MainDropDownComponent,
-    SynMultiSelectComponent,
-    GetMultiSelectOptionFromStringPipe,
-    SynSingleSelectComponent,
-  ],
+    SynSingleSelectComponent
+],
 })
 export class EventControlsComponent implements OnInit {
   //#region DI

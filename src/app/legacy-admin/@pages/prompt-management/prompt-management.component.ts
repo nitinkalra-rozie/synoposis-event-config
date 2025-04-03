@@ -25,7 +25,6 @@ interface SessionType {
 }
 
 @Component({
-  standalone: true,
   selector: 'app-prompt-management',
   templateUrl: './prompt-management.component.html',
   styleUrls: ['./prompt-management.component.scss'],

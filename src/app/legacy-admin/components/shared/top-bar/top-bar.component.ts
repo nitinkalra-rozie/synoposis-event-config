@@ -9,7 +9,6 @@ import { SideBarComponent } from '../side-bar/side-bar.component';
   selector: 'app-top-bar',
   templateUrl: './top-bar.component.html',
   styleUrls: ['./top-bar.component.scss'],
-  standalone: true,
   imports: [
     SideBarComponent,
     OutsideClickDirective,

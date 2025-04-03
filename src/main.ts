@@ -1,11 +1,11 @@
 import { CommonModule, IMAGE_CONFIG } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import { importProvidersFrom, provideAppInitializer } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import NoSleep from '@uriopass/nosleep.js';
-import { IconsService } from 'src/app/core/services/icons.service';
+import { appIconsInitializer } from 'src/app/core/config/app-icons.init';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
@@ -43,12 +43,10 @@ bootstrapApplication(AppComponent, {
         disableImageLazyLoadWarning: true,
       },
     },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: () => () => {},
-      multi: true,
-      deps: [IconsService],
-    },
+    provideAppInitializer(() => {
+      const initializerFn = appIconsInitializer();
+      return initializerFn();
+    }),
     provideAnimationsAsync(),
   ],
 }).catch((err) => console.log(err));

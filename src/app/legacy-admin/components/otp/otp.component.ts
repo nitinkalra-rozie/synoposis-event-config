@@ -10,7 +10,6 @@ import { FooterComponent } from '../shared/footer/footer.component';
   selector: 'app-otp',
   templateUrl: './otp.component.html',
   styleUrls: ['./otp.component.scss'],
-  standalone: true,
   imports: [FooterComponent, FormsModule, FooterMobileComponent],
 })
 export class OtpComponent implements OnInit {
