@@ -43,8 +43,8 @@ import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
     NgClass,
     FormsModule,
     MatButtonToggleModule,
-    SynSingleSelectComponent
-],
+    SynSingleSelectComponent,
+  ],
 })
 export class EventControlsComponent implements OnInit {
   //#region DI

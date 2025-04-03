@@ -80,8 +80,8 @@ interface RealtimeInsight {
     MatBadgeModule,
     MatToolbarModule,
     TopBarComponent,
-    SidebarControlPanelComponent
-],
+    SidebarControlPanelComponent,
+  ],
   providers: [],
 })
 export class AgendaComponent implements OnInit {

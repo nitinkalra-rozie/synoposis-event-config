@@ -43,8 +43,8 @@ import { TopBarComponent } from '../shared/top-bar/top-bar.component';
     TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
-    SidebarControlPanelComponent
-],
+    SidebarControlPanelComponent,
+  ],
 })
 export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   @ViewChild('contentContainer')

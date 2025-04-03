@@ -143,8 +143,8 @@ export class LoadingDialogComponent {}
     MatToolbarModule,
     MatMenuModule,
     TopBarComponent,
-    SidebarControlPanelComponent
-],
+    SidebarControlPanelComponent,
+  ],
   providers: [],
 })
 export class ContentGenerateComponent implements OnInit, AfterViewInit {

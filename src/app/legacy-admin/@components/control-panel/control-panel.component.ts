@@ -14,7 +14,6 @@ import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.
 import { SoundAnimationComponent } from '../sound-animation/sound-animation.component';
 import { EllipsisDirective } from 'src/app/legacy-admin/@directives/ellipsis.directive';
 
-
 @Component({
   selector: 'app-control-panel',
   imports: [
@@ -23,8 +22,8 @@ import { EllipsisDirective } from 'src/app/legacy-admin/@directives/ellipsis.dir
     MatTooltipModule,
     EllipsisDirective,
     NgClass,
-    SoundAnimationComponent
-],
+    SoundAnimationComponent,
+  ],
   templateUrl: './control-panel.component.html',
   styleUrl: './control-panel.component.scss',
 })
