@@ -14,7 +14,7 @@ export class BackendApiService {
     private _globalStateService: GlobalStateService
   ) {}
 
-  // TODO: @later move these to a config state service
+  // TODO:@later move these to a config state service
   private _currentEventName: string = '';
   private _currentEventDomain: string = '';
 
@@ -49,7 +49,7 @@ export class BackendApiService {
     );
   }
 
-  // TODO: @later move these to a config state service
+  // TODO:@later move these to a config state service
   getCurrentEventName(): string {
     return this._currentEventName;
   }
@@ -135,7 +135,7 @@ export class BackendApiService {
     });
   }
 
-  // TODO: @later move this to a config data service
+  // TODO:@later move this to a config data service
   private _getEventConfig(): Observable<any> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({

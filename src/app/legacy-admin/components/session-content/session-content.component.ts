@@ -71,7 +71,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
     MatIconModule,
   ],
 })
-// TODO: @later refactor this fully
+// TODO:@later refactor this fully
 export class SessionContentComponent implements OnInit, OnChanges {
   ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
@@ -171,34 +171,34 @@ export class SessionContentComponent implements OnInit, OnChanges {
   ) {
     effect(
       () => {
-        if (
-          this.isSessionInProgress &&
-          this.activeSession() === null &&
-          this.availableSessions()?.length
-        ) {
-          const currentSession = this.availableSessions().find(
-            (aSession) =>
-              aSession.metadata['originalContent'].SessionId ===
-              this.currentSessionId
-          );
-          if (currentSession) {
-            this._dashboardFiltersStateService.setActiveSession(currentSession);
-          }
+      if (
+        this.isSessionInProgress &&
+        this.activeSession() === null &&
+        this.availableSessions()?.length
+      ) {
+        const currentSession = this.availableSessions().find(
+          (aSession) =>
+            aSession.metadata['originalContent'].SessionId ===
+            this.currentSessionId
+        );
+        if (currentSession) {
+          this._dashboardFiltersStateService.setActiveSession(currentSession);
         }
+      }
 
-        if (
-          this.isSessionInProgress &&
-          this.activeSession() &&
-          this.liveEventState() === LiveSessionState.Stopped
-        ) {
-          if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
-            this.startRecording();
-            this.transctiptToInsides = localStorage.getItem(
-              'transctiptToInsides'
-            );
-            this.rotateSessionTitles(this.selectedSessionTitle);
-          }
+      if (
+        this.isSessionInProgress &&
+        this.activeSession() &&
+        this.liveEventState() === LiveSessionState.Stopped
+      ) {
+        if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
+          this.startRecording();
+          this.transctiptToInsides = localStorage.getItem(
+            'transctiptToInsides'
+          );
+          this.rotateSessionTitles(this.selectedSessionTitle);
         }
+      }
       },
       { allowSignalWrites: true }
     );
