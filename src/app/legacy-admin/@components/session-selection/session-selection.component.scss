@@ -1,5 +1,5 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
 
 // #region commented due to the use of the new design
 // $session-dropdown-width-right-sidebar-expanded: calc(
@@ -21,20 +21,20 @@
 
 $skeleton-content-width-right-sidebar-expanded: calc(
   calc(
-      100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width -
+      100vw - v.$right-sidebar-expanded-width - v.$left-sidebar-collapsed-width -
         88px
     ) * 0.318
 );
 
 $skeleton-content-width-right-sidebar-collapsed: calc(
   calc(
-      100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width -
+      100vw - v.$right-sidebar-collapsed-width - v.$left-sidebar-collapsed-width -
         88px
     ) * 0.318
 );
 
 $skeleton-content-width-right-sidebar-hidden: calc(
-  calc(100vw - $left-sidebar-collapsed-width - 88px) * 0.318
+  calc(100vw - v.$left-sidebar-collapsed-width - 88px) * 0.318
 );
 
 app-syn-single-select {
@@ -42,27 +42,27 @@ app-syn-single-select {
 }
 
 .session-selection-container {
-  @include d-flex-column;
+  @include m.d-flex-column;
   align-items: flex-start;
   height: 100%;
 }
 
 .header-row {
-  @include d-flex-row;
-  gap: $stepper-content-gap;
+  @include m.d-flex-row;
+  gap: v.$stepper-content-gap;
   width: 100%;
   margin: 20px 0;
 }
 
 .step-number-wrapper {
   .step-number {
-    width: $stepper-content-number-size;
-    height: $stepper-content-number-size;
-    @include flex-center;
+    width: v.$stepper-content-number-size;
+    height: v.$stepper-content-number-size;
+    @include m.flex-center;
     border-radius: 100px;
-    border: 1px solid $primary-color-variant-2;
-    background-color: $secondary-color-variant-6;
-    color: $primary-color-variant-2;
+    border: 1px solid v.$primary-color-variant-2;
+    background-color: v.$secondary-color-variant-6;
+    color: v.$primary-color-variant-2;
   }
 }
 
@@ -70,17 +70,17 @@ app-syn-single-select {
   height: 40px;
 
   > mat-icon {
-    @include flex-center;
+    @include m.flex-center;
     width: 16px;
     height: 16px;
-    color: $primary-bg-color;
+    color: v.$primary-bg-color;
     margin-right: 5px;
     font-size: 16px;
   }
 }
 
 .content {
-  @include d-flex-row;
+  @include m.d-flex-row;
   flex-wrap: wrap;
   align-items: flex-start;
   height: 100%;
@@ -89,30 +89,30 @@ app-syn-single-select {
 
   .content-steps-container {
     width: 100%;
-    @include d-flex;
+    @include m.d-flex;
     flex-direction: column;
     gap: 1.125rem;
 
     .content-step {
-      @include d-flex-row;
-      gap: $stepper-content-gap;
+      @include m.d-flex-row;
+      gap: v.$stepper-content-gap;
       height: 2.5rem;
 
       .step-details {
-        @include d-flex-row;
+        @include m.d-flex-row;
         gap: 1rem;
 
         .step-label {
-          @include font-14();
-          color: $primary-bg-color-variant-6;
+          @include m.font-14();
+          color: v.$primary-bg-color-variant-6;
         }
 
         .open-link {
-          color: $primary-color-variant-2;
+          color: v.$primary-color-variant-2;
         }
 
         .copy-icon-button {
-          color: $primary-color-variant-2;
+          color: v.$primary-color-variant-2;
         }
       }
     }

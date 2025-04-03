@@ -1,5 +1,4 @@
-@use 'variables' as *;
-@use 'mixins' as *;
+@use 'variables' as v;
 
 .session-content-container-tab-group {
   width: 100%;
@@ -24,7 +23,7 @@
     &.mdc-tab--active,
     &.mdc-tab--active:focus {
       .mdc-tab__text-label {
-        color: $primary-color-variant-2;
+        color: v.$primary-color-variant-2;
       }
     }
     .mdc-tab__content {

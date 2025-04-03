@@ -1,19 +1,20 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
 // @use '../../styles/material/mat-tab' as *;
 
 $control-panel-area-width-right-sidebar-expanded: calc(
-  100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width - 40px
+  100vw - v.$right-sidebar-expanded-width - v.$left-sidebar-collapsed-width -
+    40px
 );
 
 // new styles
 
 .session-content-container {
-  @include d-flex-column;
+  @include m.d-flex-column;
   padding: 20px 24px;
   border-radius: 4px;
-  background-color: $primary-bg-color;
-  box-shadow: $box-shadow-simple-drop-2;
+  background-color: v.$primary-bg-color;
+  box-shadow: v.$box-shadow-simple-drop-2;
   height: 100%;
   align-items: flex-start;
   width: calc(100% - 48px);
@@ -23,10 +24,10 @@ $control-panel-area-width-right-sidebar-expanded: calc(
   margin-top: 20px;
   width: 100%;
   height: 138px;
-  background-color: $primary-bg-color;
-  box-shadow: $box-shadow-simple-drop-2;
+  background-color: v.$primary-bg-color;
+  box-shadow: v.$box-shadow-simple-drop-2;
   position: relative;
-  @include d-flex;
+  @include m.d-flex;
   align-self: flex-end;
 
   &.widget-view {

@@ -1,5 +1,5 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
 // @use '../../styles/material/mat-tooltip' as *;
 
 $checkbox-size: 20px;
@@ -7,21 +7,21 @@ $checkbox-size: 20px;
 $border-radius: 4px;
 
 .checkbox-container {
-  @include d-flex-row;
+  @include m.d-flex-row;
   height: 20px;
   align-items: center;
 }
 
 .checkbox-label {
-  @include body-regular;
-  color: $primary-bg-color-variant-6;
+  @include m.body-regular;
+  color: v.$primary-bg-color-variant-6;
   align-items: center;
   cursor: pointer;
   width: 100%;
   position: relative; // Ensure the label doesn't affect checkbox position
   padding-left: calc($checkbox-size + 12px);
   width: var(--checkbox-label-max-length);
-  @include ellipsis;
+  @include m.ellipsis;
   display: inline-block;
 
   .checkbox-input {
@@ -31,7 +31,7 @@ $border-radius: 4px;
   .checkbox-custom {
     width: $checkbox-size;
     height: $checkbox-size;
-    border: 1px solid $primary-bg-color-variant-2;
+    border: 1px solid v.$primary-bg-color-variant-2;
     border-radius: $border-radius;
     position: absolute;
     left: 0;
@@ -45,7 +45,7 @@ $border-radius: 4px;
       left: 6px;
       width: 6px;
       height: 12px;
-      border: solid $primary-bg-color;
+      border: solid v.$primary-bg-color;
       border-width: 0 2px 2px 0;
       transform: rotate(45deg);
       display: none;
@@ -57,8 +57,8 @@ $border-radius: 4px;
   }
 
   .checkbox-input:checked + .checkbox-custom {
-    background-color: $primary-color-variant-2;
-    border-color: $primary-color-variant-2;
+    background-color: v.$primary-color-variant-2;
+    border-color: v.$primary-color-variant-2;
 
     &::after {
       display: block;
@@ -66,8 +66,8 @@ $border-radius: 4px;
   }
 
   &.checked .checkbox-custom {
-    background-color: $primary-color-variant-2;
-    border-color: $primary-color-variant-2;
+    background-color: v.$primary-color-variant-2;
+    border-color: v.$primary-color-variant-2;
 
     &::after {
       display: block;

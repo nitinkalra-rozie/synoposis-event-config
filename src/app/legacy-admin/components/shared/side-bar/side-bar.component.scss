@@ -1,5 +1,6 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
+@use 'functions' as f;
 
 .sidebar {
   width: 70px;
@@ -35,25 +36,25 @@
   }
 
   .icons {
-    @include d-flex-column;
+    @include m.d-flex-column;
     margin-top: 23px;
 
     .menu-item {
       width: 38px;
       height: 38px;
       border-radius: 4px;
-      background-color: $transparent;
-      @include flex-center;
+      background-color: v.$transparent;
+      @include m.flex-center;
       cursor: pointer;
 
       &.selected {
-        background-color: color-transparent(20%);
+        background-color: f.color-transparent(20%);
       }
 
       > mat-icon {
         width: 20px;
         height: 20px;
-        fill: $primary-bg-color;
+        fill: v.$primary-bg-color;
       }
     }
   }

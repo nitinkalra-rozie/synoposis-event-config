@@ -1,5 +1,6 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
+@use 'functions' as f;
 
 body,
 html {
@@ -91,7 +92,7 @@ app-side-bar {
 
 .top-bar .menu-icon .profile-icon-wrapper {
   padding-right: 28.42px;
-  @include d-flex;
+  @include m.d-flex;
 }
 
 .top-bar .menu-icon .profile-icon-wrapper .profile-icon {
@@ -160,23 +161,23 @@ app-side-bar {
 }
 
 .bar-right-content {
-  @include d-flex-row;
+  @include m.d-flex-row;
 
   .info-icon {
     margin-right: 10px;
     width: 32px;
     height: 32px;
     border-radius: 100%;
-    background-color: color-transparent(30%, $primary-color-variant-2);
-    @include flex-center;
+    background-color: f.color-transparent(30%, v.$primary-color-variant-2);
+    @include m.flex-center;
     cursor: pointer;
 
     > mat-icon {
       width: 17.6px;
       height: 17.6px;
-      fill: $primary-color-variant-2;
-      color: $primary-color-variant-2;
-      @include flex-center;
+      fill: v.$primary-color-variant-2;
+      color: v.$primary-color-variant-2;
+      @include m.flex-center;
     }
   }
 }

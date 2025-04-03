@@ -1,5 +1,5 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
 // @use '../../styles/material/mat-tooltip' as *;
 
 $sidebar-total-vertical-padding: 26px;
@@ -10,15 +10,15 @@ p {
 }
 
 .sidebar-container {
-  height: calc(100vh - $top-bar-height - $sidebar-total-vertical-padding);
-  background-color: $primary-bg-color;
+  height: calc(100vh - v.$top-bar-height - $sidebar-total-vertical-padding);
+  background-color: v.$primary-bg-color;
   padding: 10px 0 16px 0;
-  border-left: 1px solid $secondary-bg-color;
-  @include d-flex-column;
+  border-left: 1px solid v.$secondary-bg-color;
+  @include m.d-flex-column;
   flex: 1;
   transition: width 0.3s ease;
   overflow: hidden;
-  width: calc($right-sidebar-collapsed-width - 1px);
+  width: calc(v.$right-sidebar-collapsed-width - 1px);
   max-width: 58px;
 
   &.hidden {
@@ -27,10 +27,10 @@ p {
 }
 
 .detail-container {
-  height: calc(100vh - $top-bar-height);
-  border-left: 1px solid $secondary-bg-color;
-  background-color: $primary-bg-color;
-  @include d-flex;
+  height: calc(100vh - v.$top-bar-height);
+  border-left: 1px solid v.$secondary-bg-color;
+  background-color: v.$primary-bg-color;
+  @include m.d-flex;
   opacity: 1;
 
   &.hidden {
@@ -40,9 +40,9 @@ p {
   }
 
   &.expanded {
-    @include d-flex-column;
+    @include m.d-flex-column;
     width: calc(
-      $right-sidebar-expanded-width - $right-sidebar-collapsed-width - 1px
+      v.$right-sidebar-expanded-width - v.$right-sidebar-collapsed-width - 1px
     );
     max-width: 356px;
   }
@@ -56,23 +56,23 @@ p {
 
 .detail-header {
   height: 55px;
-  @include d-flex-row;
+  @include m.d-flex-row;
   justify-content: space-between;
   padding: 0 20px;
-  border-bottom: 1px solid $primary-bg-color-variant-2;
+  border-bottom: 1px solid v.$primary-bg-color-variant-2;
   width: calc(100% - 40px);
 
   .detail-header-title {
-    @include body-regular;
-    color: $primary-bg-color-variant-6;
+    @include m.body-regular;
+    color: v.$primary-bg-color-variant-6;
   }
 
   .collapse-button {
     width: 20px;
     height: 20px;
     border-radius: 100%;
-    @include flex-center;
-    border: 1px solid $primary-bg-color-variant-2;
+    @include m.flex-center;
+    border: 1px solid v.$primary-bg-color-variant-2;
     cursor: pointer;
     background-color: transparent;
     padding-block: 0;
@@ -82,8 +82,8 @@ p {
       font-size: 12px;
       width: 12px;
       height: 12px;
-      color: $primary-bg-color-variant-6;
-      @include flex-center;
+      color: v.$primary-bg-color-variant-6;
+      @include m.flex-center;
     }
   }
 }
@@ -92,27 +92,27 @@ p {
   width: 18px;
   height: 18px;
   font-size: 18px;
-  @include flex-center;
+  @include m.flex-center;
 }
 
 .control-quick-action-button {
   border: none;
   width: 36px;
   height: 32px;
-  @include flex-center;
+  @include m.flex-center;
   cursor: pointer;
   background-color: transparent;
   border-radius: 4px;
   padding-block: 0;
   padding-inline: 0;
   margin-bottom: 20px;
-  color: $primary-bg-color-variant-5;
-  fill: $primary-bg-color-variant-5;
+  color: v.$primary-bg-color-variant-5;
+  fill: v.$primary-bg-color-variant-5;
 
   &.selected {
-    background-color: $primary-color-variant-2;
-    color: $primary-bg-color;
-    fill: $primary-bg-color;
+    background-color: v.$primary-color-variant-2;
+    color: v.$primary-bg-color;
+    fill: v.$primary-bg-color;
   }
 }
 
@@ -122,7 +122,7 @@ p {
 }
 
 .session-details-container {
-  @include d-flex-column;
+  @include m.d-flex-column;
   height: calc(100% - 36px);
   width: calc(100% - 40px);
   align-items: flex-start;
@@ -131,33 +131,33 @@ p {
   scrollbar-gutter: stable;
 
   .transcript {
-    @include caption-regular;
-    color: $primary-bg-color-variant-6;
+    @include m.caption-regular;
+    color: v.$primary-bg-color-variant-6;
   }
 
   .form-row {
-    @include d-flex-column;
+    @include m.d-flex-column;
     align-items: flex-start;
     margin-bottom: 12px;
 
     .label {
-      @include body-regular;
-      color: $primary-bg-color-variant-5;
+      @include m.body-regular;
+      color: v.$primary-bg-color-variant-5;
     }
 
     .value {
       margin-top: 4px;
-      @include body-regular;
-      color: $primary-bg-color-variant-6;
+      @include m.body-regular;
+      color: v.$primary-bg-color-variant-6;
     }
   }
 }
 
 .card-container {
-  @include d-flex-column;
+  @include m.d-flex-column;
   width: calc(100% - 36px);
   height: auto;
-  border: 1px solid $primary-bg-color-variant-2;
+  border: 1px solid v.$primary-bg-color-variant-2;
   border-radius: 16px;
   padding: 16px;
   align-items: flex-start;
@@ -167,8 +167,8 @@ p {
   }
 
   .title {
-    @include caption-semi-bold;
-    color: $primary-bg-color-variant-6;
+    @include m.caption-semi-bold;
+    color: v.$primary-bg-color-variant-6;
     margin-bottom: 12px;
   }
 
@@ -176,11 +176,11 @@ p {
     height: 1px;
     width: 100%;
     margin-top: 12px;
-    background-color: $primary-bg-color-variant-2;
+    background-color: v.$primary-bg-color-variant-2;
   }
 
   .speakers-list {
-    @include d-flex-row;
+    @include m.d-flex-row;
     justify-content: space-between;
     width: 100%;
     cursor: pointer;
@@ -197,22 +197,22 @@ p {
       width: 20px;
       height: 20px;
       font-size: 20px;
-      color: $primary-bg-color-variant-4;
+      color: v.$primary-bg-color-variant-4;
     }
 
     .speaker-info {
-      @include d-flex-column;
+      @include m.d-flex-column;
       margin-right: 18px;
       align-items: flex-start;
 
       .speaker {
-        @include branding;
-        color: $primary-bg-color-variant-8;
-        @include ellipsis;
+        @include m.branding;
+        color: v.$primary-bg-color-variant-8;
+        @include m.ellipsis;
         line-height: 16px;
 
         > span {
-          color: $primary-bg-color-variant-5;
+          color: v.$primary-bg-color-variant-5;
         }
       }
     }
@@ -220,14 +220,14 @@ p {
 
   .card-footer {
     margin-top: 8px;
-    @include d-flex-row;
+    @include m.d-flex-row;
     justify-content: space-between;
     width: 100%;
 
     .track {
-      @include d-flex-row;
+      @include m.d-flex-row;
       > mat-icon {
-        fill: $primary-bg-color-variant-6;
+        fill: v.$primary-bg-color-variant-6;
         width: 12px;
         height: 12px;
         font-size: 12px;
@@ -235,17 +235,17 @@ p {
       }
 
       .track-name {
-        @include caption-link-sm-regular;
-        color: $primary-bg-color-variant-6;
+        @include m.caption-link-sm-regular;
+        color: v.$primary-bg-color-variant-6;
       }
     }
 
     .indicator {
       height: 24px;
-      @include d-flex-row;
+      @include m.d-flex-row;
       align-items: center;
       padding: 0 4px;
-      background-color: $secondary-color-variant-9;
+      background-color: v.$secondary-color-variant-9;
       border-radius: 8px;
       width: 69px;
       justify-content: center;
@@ -253,15 +253,15 @@ p {
       .indicator-icon {
         width: 12px;
         height: 12px;
-        @include flex-center;
-        color: $primary-bg-color;
+        @include m.flex-center;
+        color: v.$primary-bg-color;
         border-radius: 100%;
         margin-right: 5px;
       }
 
       .indicator-label {
-        @include caption-sm-regular;
-        color: $primary-bg-color;
+        @include m.caption-sm-regular;
+        color: v.$primary-bg-color;
       }
     }
   }

@@ -1,17 +1,17 @@
-@use 'mixins' as *;
-@use 'variables' as *;
-// @use '../../styles/material/mat-tooltip' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
+@use 'functions' as f;
 
 $control-panel-area-width-right-sidebar-expanded: calc(
-  100vw - $right-sidebar-expanded-width - $left-sidebar-collapsed-width
+  100vw - v.$right-sidebar-expanded-width - v.$left-sidebar-collapsed-width
 );
 
 $control-panel-area-width-right-sidebar-collapsed: calc(
-  100vw - $right-sidebar-collapsed-width - $left-sidebar-collapsed-width
+  100vw - v.$right-sidebar-collapsed-width - v.$left-sidebar-collapsed-width
 );
 
 $control-panel-area-width-right-sidebar-hidden: calc(
-  100vw - $left-sidebar-collapsed-width
+  100vw - v.$left-sidebar-collapsed-width
 );
 
 p {
@@ -20,8 +20,8 @@ p {
 }
 
 .control-panel-container {
-  background: $gray-gradient;
-  @include d-flex-row;
+  background: v.$gray-gradient;
+  @include m.d-flex-row;
   width: calc(100vw - 110px);
   height: 100%;
   border-radius: 4px;
@@ -30,8 +30,8 @@ p {
     position: relative;
     width: 88px !important;
     height: 88px !important;
-    box-shadow: $box-shadow-simple-drop-5;
-    @include flex-center;
+    box-shadow: v.$box-shadow-simple-drop-5;
+    @include m.flex-center;
     border-radius: 100%;
     padding: 0 12px;
     box-sizing: border-box;
@@ -54,11 +54,11 @@ p {
   }
 
   &.right-sidebar-expanded {
-    width: calc(100vw - 111px - $right-sidebar-expanded-width);
+    width: calc(100vw - 111px - v.$right-sidebar-expanded-width);
   }
 
   &.right-sidebar-collapsed {
-    width: calc(100vw - 111px - $right-sidebar-collapsed-width);
+    width: calc(100vw - 111px - v.$right-sidebar-collapsed-width);
   }
 }
 
@@ -67,55 +67,55 @@ p {
   width: 20px;
   height: 20px;
   border-radius: 100%;
-  background: $gray-gradient;
-  @include flex-center;
-  border: 1px solid $secondary-bg-color;
+  background: v.$gray-gradient;
+  @include m.flex-center;
+  border: 1px solid v.$secondary-bg-color;
   right: -10px;
   top: -10px;
   cursor: pointer;
 
   > mat-icon {
     font-size: 12px;
-    @include flex-center;
-    color: $secondary-bg-color;
+    @include m.flex-center;
+    color: v.$secondary-bg-color;
   }
 }
 
 .event-title {
-  @include subhead-regular;
-  color: $primary-bg-color;
+  @include m.subhead-regular;
+  color: v.$primary-bg-color;
   height: 36px; // two lines
   overflow: hidden;
 }
 
 .track-container {
-  @include d-flex-row;
+  @include m.d-flex-row;
   justify-content: space-between;
   width: 100%;
   align-items: flex-end;
   padding: 12px 0;
-  border-bottom: 1px solid color-transparent(15%);
+  border-bottom: 1px solid f.color-transparent(15%);
 
   .event-track {
-    @include d-flex-row;
+    @include m.d-flex-row;
 
     > mat-icon {
       font-size: 16px;
       width: 16px;
       height: 16px;
       margin-right: 8px;
-      color: $primary-bg-color;
+      color: v.$primary-bg-color;
     }
 
     .track-text {
-      @include caption-regular;
-      color: $primary-bg-color;
+      @include m.caption-regular;
+      color: v.$primary-bg-color;
     }
   }
 
   .see-details-link {
-    @include caption-regular;
-    color: $primary-bg-color;
+    @include m.caption-regular;
+    color: v.$primary-bg-color;
     text-decoration: underline;
     line-height: 18px;
     cursor: pointer;
@@ -123,27 +123,27 @@ p {
 }
 
 .view-all-sessions-container {
-  @include d-flex-row;
+  @include m.d-flex-row;
   margin-top: 8px;
   cursor: pointer;
 
   .text {
-    @include caption-regular;
+    @include m.caption-regular;
     letter-spacing: 0.25%;
-    color: $primary-bg-color;
+    color: v.$primary-bg-color;
   }
 
   > mat-icon {
     width: 20px;
     height: 20px;
     font-size: 20px;
-    color: $primary-bg-color;
+    color: v.$primary-bg-color;
     margin-left: 18px;
   }
 }
 
 .action-button-container {
-  @include d-flex-column;
+  @include m.d-flex-column;
   margin-left: 19px;
 
   &:first-of-type {
@@ -160,14 +160,14 @@ p {
     width: 16px;
     height: 16px;
     font-size: 16px;
-    @include flex-center;
+    @include m.flex-center;
   }
 
   &.pause {
-    background-color: $primary-bg-color;
+    background-color: v.$primary-bg-color;
 
     > mat-icon {
-      background: $purple-gradient;
+      background: v.$purple-gradient;
       -webkit-background-clip: text;
       -moz-background-clip: text;
       background-clip: text;
@@ -176,9 +176,9 @@ p {
   }
 
   &.resume {
-    background-color: $primary-bg-color;
+    background-color: v.$primary-bg-color;
     > mat-icon {
-      background: $purple-gradient;
+      background: v.$purple-gradient;
       -webkit-background-clip: text;
       -moz-background-clip: text;
       background-clip: text;
@@ -187,9 +187,9 @@ p {
   }
 
   &.view-transcript {
-    background-color: $primary-bg-color;
+    background-color: v.$primary-bg-color;
     > mat-icon {
-      background: $purple-gradient;
+      background: v.$purple-gradient;
       -webkit-background-clip: text;
       -moz-background-clip: text;
       background-clip: text;
@@ -199,17 +199,17 @@ p {
 }
 
 .action-button-label {
-  @include body-regular;
-  color: $primary-bg-color;
+  @include m.body-regular;
+  color: v.$primary-bg-color;
   margin-top: 8px;
 
   &.pause {
-    color: color-transparent(50%);
+    color: f.color-transparent(50%);
   }
 }
 
 .voice-animation-container {
-  @include flex-center;
+  @include m.flex-center;
   flex: 1;
   margin-left: 19px;
   height: 100px;
@@ -221,13 +221,13 @@ p {
 // Sekeletong styles
 
 @mixin info() {
-  background-color: $primary-bg-color-variant-1;
+  background-color: v.$primary-bg-color-variant-1;
   border-radius: 2px;
   height: 18px;
 }
 
 .main-container {
-  @include d-flex-row;
+  @include m.d-flex-row;
   width: 100%;
   height: 100%;
 
@@ -238,7 +238,7 @@ p {
 }
 
 .information {
-  @include d-flex-column;
+  @include m.d-flex-column;
   padding: 24px;
   align-items: flex-start;
   width: calc($control-panel-area-width-right-sidebar-hidden * 0.4);
@@ -279,7 +279,7 @@ p {
 }
 
 .controls {
-  @include d-flex-row;
+  @include m.d-flex-row;
   padding: 24px;
   width: calc($control-panel-area-width-right-sidebar-hidden * 0.6);
   height: calc(100% - 48px);
@@ -290,7 +290,7 @@ p {
   }
 
   .voice-container {
-    @include d-flex;
+    @include m.d-flex;
     flex: 1;
     justify-content: flex-end;
     width: calc($control-panel-area-width-right-sidebar-hidden * 0.28);
@@ -323,8 +323,8 @@ p {
 }
 
 .skeleton-button-container {
-  @include flex-center;
-  @include d-flex-column;
+  @include m.flex-center;
+  @include m.d-flex-column;
 }
 
 .rounded-button {
@@ -333,13 +333,13 @@ p {
   border-radius: 4px;
   height: 32px;
   padding: 5px 8px 5px 8px;
-  background-color: $primary-bg-color-variant-1;
+  background-color: v.$primary-bg-color-variant-1;
 }
 
 .button-label {
   margin-top: 8px;
   width: 7.2vw;
   max-width: 105px;
-  background-color: $primary-bg-color-variant-1;
+  background-color: v.$primary-bg-color-variant-1;
   height: 16px;
 }

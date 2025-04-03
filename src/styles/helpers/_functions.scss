@@ -1,6 +1,6 @@
-@use 'variables' as *;
+@use 'variables' as v;
 
-@function color-transparent($alpha, $color: $primary-bg-color) {
+@function color-transparent($alpha, $color: v.$primary-bg-color) {
   @return rgba($color, $alpha);
 }
 

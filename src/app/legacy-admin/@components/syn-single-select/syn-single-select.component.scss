@@ -1,5 +1,5 @@
-@use 'mixins' as *;
-@use 'variables' as *;
+@use 'mixins' as m;
+@use 'variables' as v;
 // @use '../../styles/material/mat-tooltip' as *;
 // @use '../../styles/material/mat-menu' as *;
 
@@ -9,33 +9,33 @@ p {
 }
 
 .trigger-container {
-  @include d-flex-column;
+  @include m.d-flex-column;
   align-items: flex-start;
   width: calc(100% - 22px);
 
   .trigger-label {
-    @include footnote-medium;
-    color: $primary-bg-color-variant-6;
+    @include m.footnote-medium;
+    color: v.$primary-bg-color-variant-6;
     margin-bottom: 8px;
   }
 }
 
 .trigger-view {
   .selected-label {
-    @include body-regular;
-    @include ellipsis;
-    color: $primary-bg-color-variant-6;
+    @include m.body-regular;
+    @include m.ellipsis;
+    color: v.$primary-bg-color-variant-6;
     width: 100%;
 
     &.small {
-      @include caption-regular;
+      @include m.caption-regular;
     }
   }
 
   .arrow-icon {
     width: 18px;
     height: 18px;
-    @include flex-center;
+    @include m.flex-center;
   }
 
   &.small {
@@ -44,16 +44,16 @@ p {
   }
 
   &.active {
-    border-color: $primary-color-variant-2;
+    border-color: v.$primary-color-variant-2;
   }
 
   & {
-    @include d-flex-row;
+    @include m.d-flex-row;
     justify-content: space-between;
     padding: 0 10px;
     border-radius: 4px;
-    border: 1px solid $primary-bg-color-variant-3;
-    background-color: $primary-bg-color;
+    border: 1px solid v.$primary-bg-color-variant-3;
+    background-color: v.$primary-bg-color;
     height: 40px;
     width: calc(100%);
     cursor: pointer;
@@ -61,23 +61,23 @@ p {
 }
 
 .dropdown-label {
-  @include body-regular;
-  color: $primary-bg-color-variant-5;
+  @include m.body-regular;
+  color: v.$primary-bg-color-variant-5;
   padding: 0 16px;
 }
 
 .list-filter-container {
-  @include d-flex-row;
+  @include m.d-flex-row;
   margin-top: 8px;
   margin: 8px 16px 0;
   padding: 0 20px;
   width: calc(100% - 72px);
-  background-color: $primary-bg-color;
-  border: 1px solid $primary-bg-color-variant-2;
+  background-color: v.$primary-bg-color;
+  border: 1px solid v.$primary-bg-color-variant-2;
   border-radius: 4px;
 
   .search-icon {
-    color: $primary-bg-color-variant-5;
+    color: v.$primary-bg-color-variant-5;
     margin-right: 10px;
   }
 
@@ -85,8 +85,8 @@ p {
     width: 100%;
 
     .search-input {
-      @include base-input;
-      @include subhead-regular;
+      @include m.base-input;
+      @include m.subhead-regular;
       padding: 0;
       width: 100%;
     }
@@ -94,11 +94,11 @@ p {
 
   &.minimal {
     border: none;
-    background-color: $primary-bg-color-variant-1;
+    background-color: v.$primary-bg-color-variant-1;
     padding: 0 16px;
     > form {
       .search-input {
-        background-color: $primary-bg-color-variant-1;
+        background-color: v.$primary-bg-color-variant-1;
       }
     }
   }
@@ -113,49 +113,49 @@ p {
   max-height: 240px;
   overflow-y: scroll;
   margin-top: 5px;
-  background-color: $primary-bg-color;
+  background-color: v.$primary-bg-color;
   width: 100%;
 
   li {
     padding: 8px 20px;
     margin-top: 9px;
     cursor: pointer;
-    @include d-flex-row;
+    @include m.d-flex-row;
     width: calc(100% - 40px);
 
     &:hover {
-      background-color: $selection-variant-1;
+      background-color: v.$selection-variant-1;
     }
 
     .text {
-      @include body-regular;
-      color: $primary-bg-color-variant-6;
+      @include m.body-regular;
+      color: v.$primary-bg-color-variant-6;
       height: 24px;
-      @include ellipsis;
+      @include m.ellipsis;
       width: 100%;
     }
 
     .indicator {
       height: 24px;
-      @include d-flex-row;
+      @include m.d-flex-row;
       align-items: center;
       padding: 0 4px;
-      background-color: $secondary-color-variant-9;
+      background-color: v.$secondary-color-variant-9;
       margin-left: 10px;
       border-radius: 8px;
 
       .indicator-icon {
         width: 12px;
         height: 12px;
-        @include flex-center;
-        color: $primary-bg-color;
+        @include m.flex-center;
+        color: v.$primary-bg-color;
         border-radius: 100%;
         margin-right: 5px;
       }
 
       .indicator-label {
-        @include caption-sm-regular;
-        color: $primary-bg-color;
+        @include m.caption-sm-regular;
+        color: v.$primary-bg-color;
       }
     }
   }
