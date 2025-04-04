@@ -1,4 +1,59 @@
+/** screen breakpoints */
+$screen-small: 400px; // Small: Phone in portrait
+$screen-compact: 600px; // Compact: Phone in portrait
+$screen-medium: 840px; // Medium: Tablet in portrait, Foldable in portrait (unfolded)
+$screen-expanded: 1200px; // Expanded: Phone in landscape, Tablet in landscape, Foldable in landscape (unfolded), Desktop
+$screen-expanded-cdk-breakpoint: 1280px; // Expanded: cdk breakpoint for expanded
+$screen-expanded-wide: 1440px; // Expanded-wide: Desktop, Wide Quad HD screens
+$screen-large: 1600px; // Large: Desktop
+$screen-extra-large: 1920px; // Extra-large: Desktop, Ultra-wide
+$screen-wide-extra-large: 2560px; // Wide-extra-large: Wide Quad HD screens
+$screen-4k: 3840px; // 4K screens
+$screen-5k: 5120px; // 5K screens
+$screen-8k: 7680px; // 8K screens
+
+/** text color */
+$text-color-white: #ffffff;
+
+/** font */
 $base-font: 'Lexend', sans-serif;
+
+$font-weight-bold: 700;
+$font-weight-semibold: 600;
+$font-weight-medium: 500;
+$font-weight-regular: 400;
+$font-weight-light: 300;
+
+$font-size-xxs: 0.75rem; /* 12px */
+$font-size-xs: 0.8125rem; /* 13px */
+$font-size-sm: 0.875rem; /* 14px */
+$font-size-md: 0.9375rem; /* 15px */
+$font-size-base: 1rem; /* 16px */
+$font-size-lg: 1.125rem; /* 18px */
+$font-size-xl: 1.25rem; /* 20px */
+$font-size-2xl: 1.5rem; /* 24px */
+$font-size-3xl: 1.875rem; /* 30px */
+$font-size-4xl: 2.25rem; /* 36px */
+$font-size-5xl: 3rem; /* 48px */
+$font-size-6xl: 3.75rem; /* 60px */
+$font-size-7xl: 4.5rem; /* 72px */
+$font-size-8xl: 6rem; /* 96px */
+$font-size-9xl: 8rem; /* 128px */
+
+/** Line heights */
+$line-height-xs: 1rem; /* 16px */
+$line-height-sm: 1.25rem; /* 20px */
+$line-height-base: 1.5rem; /* 24px */
+$line-height-lg: 1.75rem; /* 28px */
+$line-height-xl: 1.75rem; /* 28px */
+$line-height-2xl: 2rem; /* 32px */
+$line-height-3xl: 2.25rem; /* 36px */
+$line-height-4xl: 2.5rem; /* 40px */
+$line-height-5xl: 1; /* 48px */
+$line-height-6xl: 1; /* 60px */
+$line-height-7xl: 1; /* 72px */
+$line-height-8xl: 1; /* 96px */
+$line-height-9xl: 1; /* 128px */
 
 $primary-color: #0058d2;
 $primary-color-variant-1: #35a7ff;
@@ -40,8 +95,7 @@ $primary-bg-color-variant-5: #8595a6;
 $primary-bg-color-variant-6: #475258;
 $primary-bg-color-variant-7: #343536;
 $primary-bg-color-variant-8: #1e2225;
-$primary-bg-color-variant-8: #1e2225;
-$primary-bg-color-variant-10: #000000;
+$primary-bg-color-variant-9: #000000;
 
 $building-blocks-yellow: #ffbb00;
 $right-panel-button-yellow: #f49f0a;
@@ -53,6 +107,8 @@ $black: #000000;
 $secondary-color-variant-black: #252526;
 
 $transparent: rgba(0, 0, 0, 0);
+$transparent-white-20: rgba(255, 255, 255, 0.2);
+
 $table-loader-color: rgba(213, 218, 220, 0.2);
 $shadow: rgba(0, 0, 0, 0.08);
 
@@ -87,7 +143,7 @@ $elevation-1dp:
   0px 2px 1px rgba(0, 0, 0, 0.12),
   0px 1px 1px rgba(0, 0, 0, 0.14);
 
-// gradients
+/** gradients */
 $purple-gradient: linear-gradient(
   45deg,
   $primary-color-variant-2 -23.5%,
@@ -119,12 +175,12 @@ $blue-gradient: linear-gradient(
   $primary-color-variant-1 126.5%
 );
 
+/** layout variables */
 $left-sidebar-collapsed-width: 70px;
 $right-sidebar-collapsed-width: 59px;
 $right-sidebar-expanded-width: 414px;
 $stepper-content-number-size: 2rem;
 $stepper-content-gap: 2rem;
-// $right-sidebar-expanded-width: 28.68vw;
 $top-bar-height: 70px;
 $right-sidebar-hidden-content-container-width: calc(
   100vw - $left-sidebar-collapsed-width - 48px
