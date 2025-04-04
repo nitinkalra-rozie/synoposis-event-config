@@ -20,11 +20,10 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { TopBarComponent } from 'src/app/legacy-admin/components/shared/top-bar/top-bar.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { LargeModalDialogComponent } from './components/dialog/original-debrief-modal-dialog.component';
 import { GenerateRealtimeInsightsDialogComponent } from './components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 
@@ -81,8 +80,7 @@ interface RealtimeInsight {
     MatProgressSpinnerModule,
     MatBadgeModule,
     MatToolbarModule,
-    TopBarComponent,
-    SidebarControlPanelComponent,
+    LayoutMainComponent,
   ],
 })
 export class EditorialComponent implements OnInit {
