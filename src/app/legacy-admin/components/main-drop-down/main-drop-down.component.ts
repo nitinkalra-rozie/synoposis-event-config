@@ -71,7 +71,7 @@ export class MainDropDownComponent implements OnInit {
       : text;
   };
 
-  // TODO: @refactor this function
+  // TODO:@refactor this function
   getSelectedText = () => {
     const maxLengthDesktop = 40;
     const maxLengthMobile = 25;

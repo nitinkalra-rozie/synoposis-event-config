@@ -6,6 +6,7 @@ import { RoleRank } from './legacy-admin/shared/constants';
 @Injectable({
   providedIn: 'root',
 })
+// TODO:@now refactor this guard to use the new angular approach
 export class AuthGuard {
   constructor(
     private authService: AuthService,

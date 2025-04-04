@@ -16,7 +16,7 @@ interface EventReportResponse {
 @Injectable({
   providedIn: 'root',
 })
-// TODO: @refactor this service to use defined types instead of objects
+// TODO:@refactor this service to use defined types instead of objects
 export class BackendApiService {
   constructor(private http: HttpClient) {}
 
