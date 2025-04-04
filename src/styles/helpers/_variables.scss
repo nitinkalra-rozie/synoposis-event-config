@@ -176,12 +176,12 @@ $blue-gradient: linear-gradient(
 );
 
 /** layout variables */
-$left-sidebar-collapsed-width: 70px;
+$left-sidebar-collapsed-width: 4.375rem;
 $right-sidebar-collapsed-width: 59px;
 $right-sidebar-expanded-width: 414px;
 $stepper-content-number-size: 2rem;
 $stepper-content-gap: 2rem;
-$top-bar-height: 70px;
+$top-bar-height: 4.375rem;
 $right-sidebar-hidden-content-container-width: calc(
   100vw - $left-sidebar-collapsed-width - 48px
 );
