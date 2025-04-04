@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
@@ -19,12 +19,6 @@ export class BackendApiService {
   private _currentEventDomain: string = '';
 
   getEventDetails(): Observable<Object> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-      'X-Api-Key': environment.X_API_KEY,
-    });
-
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
         const eventIdentifier = configResponse?.data?.EventIdentifier;
@@ -33,11 +27,7 @@ export class BackendApiService {
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
 
         return this.http
-          .post(
-            environment.getEventDetails,
-            { event: eventIdentifier },
-            { headers }
-          )
+          .post(environment.getEventDetails, { event: eventIdentifier })
           .pipe(
             tap((response: any) => {
               if (response?.data?.length > 0) {
@@ -59,20 +49,10 @@ export class BackendApiService {
   }
 
   getTranscriberPreSignedUrl(body: any): Observable<Object> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-    });
-    return this.http.post(environment.getTranscriberPreSignedUrl, body, {
-      headers: headers,
-    });
+    return this.http.post(environment.getTranscriberPreSignedUrl, body);
   }
 
   putTranscript(transcript: any): Observable<Object> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-    });
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
       primarySessionId: localStorage.getItem('currentPrimarySessionId'),
@@ -80,16 +60,10 @@ export class BackendApiService {
       eventName: localStorage.getItem('selectedEvent'),
       domain: localStorage.getItem('domain'),
     };
-    return this.http.post(environment.putTranscript, body, {
-      headers: headers,
-    });
+    return this.http.post(environment.putTranscript, body);
   }
   // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any
   postData(data: PostData): Observable<Object> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-    });
     const body = {
       action: data.action,
       sessionId: localStorage.getItem('currentSessionId'),
@@ -110,7 +84,7 @@ export class BackendApiService {
       body.keyNoteData = {};
       body.transcript = data.transcript;
     }
-    return this.http.post(environment.postData, body, { headers: headers });
+    return this.http.post(environment.postData, body);
   }
 
   postCurrentSessionId(
@@ -119,10 +93,6 @@ export class BackendApiService {
     domain: any,
     primarySessionId: any
   ): Observable<Object> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-    });
     console.log('Inside postCurrent', sessionId);
     const body = {
       sessionId: sessionId,
@@ -130,23 +100,16 @@ export class BackendApiService {
       domain: domain,
       primarySessionId: primarySessionId,
     };
-    return this.http.post(environment.postCurrentSessionId, body, {
-      headers: headers,
-    });
+    return this.http.post(environment.postCurrentSessionId, body);
   }
 
   // TODO:@later move this to a config data service
   private _getEventConfig(): Observable<any> {
-    const refreshToken = localStorage.getItem('accessToken');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${refreshToken}`,
-      'X-Api-Key': environment.X_API_KEY,
-    });
     const hostname = window.location.hostname;
     let domain =
       hostname === 'localhost' ? 'dev-sbx.synopsis.rozie.ai' : hostname;
     domain = domain.replace('admin.', '');
 
-    return this.http.post(environment.getEventConfig, { domain }, { headers });
+    return this.http.post(environment.getEventConfig, { domain });
   }
 }

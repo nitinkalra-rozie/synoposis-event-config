@@ -7,6 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { AuthService } from '../../legacy-admin/services/auth.service';
 
 const isPrivateEndpoint = (url: string): boolean => {
@@ -15,6 +16,13 @@ const isPrivateEndpoint = (url: string): boolean => {
     '/refresh-token',
     '/auth/login',
     '/auth/refresh',
+    'r1/getEventConfig',
+    'r1/getEventDetails',
+    'r4/config',
+    'r2/config',
+    'r2/getPreSignedUrl',
+    'r2/postTranscript',
+    'r2/getCurrentSessionDetails',
   ];
   return authEndpoints.some((endpoint) => url.includes(endpoint));
 };
@@ -35,15 +43,14 @@ export const authInterceptor = (
   }
 
   const token = authService.getAccessToken();
-  let authRequest = request;
+  const authHeaders: Record<string, string> = {
+    'X-Api-Key': environment.X_API_KEY,
+  };
 
   if (token) {
-    authRequest = request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    authHeaders['Authorization'] = `Bearer ${token}`;
   }
+  const authRequest = request.clone({ setHeaders: authHeaders });
 
   return next(authRequest).pipe(
     catchError((error: HttpErrorResponse) => {
