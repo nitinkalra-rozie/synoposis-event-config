@@ -41,8 +41,18 @@ export class LoginService {
       Value: email,
     };
     const attributeEmail = new CognitoUserAttribute(dataEmail);
+    const dataDomain = {
+      Name: 'custom:domain',
+      Value: window.location.hostname,
+    };
+    const attributeDomain = new CognitoUserAttribute(dataDomain);
 
     attributeList.push(attributeEmail);
+    attributeList.push(attributeDomain);
+
+    const clientMetadata = {
+      domain: window.location.hostname,
+    };
 
     return new Observable((observer) => {
       userPool.signUp(
@@ -79,7 +89,8 @@ export class LoginService {
               observer.error(challengeErr);
             }
           }
-        }
+        },
+        clientMetadata
       );
     }).pipe(
       catchError((error) => {
@@ -162,6 +173,10 @@ export class LoginService {
           response.AuthenticationResult.AccessToken
         ) {
           this.authService.saveAuthInLocal(response);
+
+          const sessionToken = response.AuthenticationResult.RefreshToken;
+          localStorage.setItem('sessionToken', sessionToken);
+
           return response;
         } else {
           console.error(

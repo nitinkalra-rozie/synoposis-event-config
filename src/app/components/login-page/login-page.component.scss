@@ -27,7 +27,7 @@ html {
   left: 15%;
   width: 55%;
   height: 40%;
-  background-image: url('../../../assets/login/login_card2.svg');
+  background-image: url('../../../assets/login/login-card-synopsis.svg');
   background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 1;
@@ -40,7 +40,7 @@ html {
   left: 25%;
   width: 55%;
   height: 40%;
-  background-image: url('../../../assets/login/login_card1.svg');
+  background-image: url('../../../assets/login/side-interaction.svg');
   background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 2;
@@ -174,11 +174,10 @@ html {
 }
 
 .bg {
-  background-image: url('../../../assets/login/rozie-logo.svg');
-  width: 12rem;
-  height: 2.3rem;
-  margin-top: 9rem;
-  margin-bottom: 1rem;
+  background-image: url('../../../assets/login/rozie-synopsis-logo.svg');
+  width: 12.5rem;
+  height: 3.4rem;
+  margin-top: 9.1rem;
   background-size: cover !important;
 }
 
@@ -306,7 +305,7 @@ html {
     left: 25%;
     width: 55%;
     height: 40%;
-    background-image: url('../../../assets/login/login_card1.svg');
+    background-image: url('../../../assets/login/login-card-synopsis.svg');
     background-size: 100% 100%;
     border-radius: 0.7rem;
     z-index: 1;

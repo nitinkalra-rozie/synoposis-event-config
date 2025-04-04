@@ -18,16 +18,20 @@ jobs:
     environment: prod
     strategy:
       matrix:
-        events:
-          [
-            'itc2024',
-            'hlth2024',
-            'clarion',
-            'itchartford',
-            'clarionexec',
+        events: [
+            # 'itc2024',
+            # 'hlth2024',
+            # 'clarion',
+            # 'itchartford',
+            # 'clarionexec',
             'demo-sbx',
-            'heif2025',
-            'pgi2025',
+            # 'heif2025',
+            # 'pgi2025',
+            # 'wds2025',
+            # 'rev2025',
+            'dte2025',
+            'isg2025',
+            'siso2025',
           ]
     steps:
       - name: Set event environment variable

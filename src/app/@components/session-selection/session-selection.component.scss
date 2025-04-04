@@ -38,10 +38,6 @@ $skeleton-content-width-right-sidebar-hidden: calc(
 
 app-syn-single-select {
   width: 100%;
-  // #region commented due to the use of the new design
-  // width: $session-dropdown-width-right-sidebar-hidden;
-  // max-width: 756px;
-  // #endregion
 }
 
 .session-selection-container {
@@ -55,20 +51,6 @@ app-syn-single-select {
   gap: $stepper-content-gap;
   width: 100%;
   margin: 20px 0;
-
-  // #region commented due to the use of the new design
-  // &.right-sidebar-expanded {
-  //   // app-syn-single-select {
-  //   //   width: $session-dropdown-width-right-sidebar-expanded;
-  //   // }
-  // }
-
-  // &.right-sidebar-collapsed {
-  //   // app-syn-single-select {
-  //   //   width: $session-dropdown-width-right-sidebar-collapsed;
-  //   // }
-  // }
-  // #endregion
 }
 
 .step-number-wrapper {
@@ -133,33 +115,5 @@ app-syn-single-select {
         }
       }
     }
-  }
-}
-
-.sample-skeleton {
-  width: $skeleton-content-width-right-sidebar-hidden;
-  max-width: 424px;
-  height: 100%;
-  max-height: 310px;
-  background-color: $primary-bg-color-variant-1;
-  border-radius: 4px;
-  margin-right: 40px;
-
-  &.right-sidebar-expanded {
-    width: $skeleton-content-width-right-sidebar-expanded;
-  }
-
-  &.right-sidebar-collapsed {
-    width: $skeleton-content-width-right-sidebar-collapsed;
-  }
-}
-
-app-projection-image {
-  width: calc(calc(100% - 56px) / 3);
-  max-width: 371px;
-  margin-left: 24px;
-
-  &:first-of-type {
-    margin-left: 0;
   }
 }
