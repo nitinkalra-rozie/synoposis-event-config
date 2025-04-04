@@ -233,8 +233,8 @@ export class EditorialComponent implements OnInit {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
-      action: 'get_summary_of_Single_Keynote',
-      sessionId: [this.selected_session],
+      action: 'getDebriefData',
+      sessionIds: [this.selected_session],
     };
     this._backendApiService.getEventReport(data).subscribe({
       next: (response) => {
@@ -253,14 +253,14 @@ export class EditorialComponent implements OnInit {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
-      action: 'get_summary_of_Single_Keynote',
-      sessionId: [this.selected_session],
+      action: 'getDebriefData',
+      sessionIds: [this.selected_session],
     };
     this._backendApiService.getEventReport(data).subscribe({
       next: (response) => {
         console.log(response);
-        if (response?.data?.data?.[0]?.snapshotData) {
-          const responseData = response.data.data[0];
+        if (response?.data?.[0]?.snapshotData) {
+          const responseData = response?.data[0];
           this.original_debrief = JSON.parse(JSON.stringify(responseData));
           const data = JSON.parse(responseData.snapshotData);
           this.summary = data['data']['summary'];
