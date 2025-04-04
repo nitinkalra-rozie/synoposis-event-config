@@ -55,8 +55,4 @@ export class LargeModalDialogComponent implements OnInit {
   onClose(): void {
     this.dialogRef.close();
   }
-
-  trackByFn(index: number): number {
-    return index;
-  }
 }

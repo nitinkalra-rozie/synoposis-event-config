@@ -259,11 +259,7 @@
                     <!-- Key Takeaways -->
                     <div class="section">
                       <h3>Key Takeaways</h3>
-                      @for (
-                        item of keytakeaways;
-                        track trackByFn(i, item);
-                        let i = $index
-                      ) {
+                      @for (item of keytakeaways; track item; let i = $index) {
                         <div class="item-row">
                           <mat-form-field class="flex-grow" appearance="fill">
                             <textarea
@@ -298,11 +294,7 @@
                     <!-- Insights -->
                     <div class="section">
                       <h3>Recommendations</h3>
-                      @for (
-                        item of insights;
-                        track trackByFn(i, item);
-                        let i = $index
-                      ) {
+                      @for (item of insights; track item; let i = $index) {
                         <div class="item-row">
                           <mat-form-field class="flex-grow" appearance="fill">
                             <textarea
@@ -338,11 +330,7 @@
                   <div class="row">
                     <div class="section">
                       <h3>Trends</h3>
-                      @for (
-                        item of trends;
-                        track trackByIndex(i, item);
-                        let i = $index
-                      ) {
+                      @for (item of trends; track item.title; let i = $index) {
                         <div
                           style="
                             margin-bottom: 40px;
@@ -377,11 +365,7 @@
                     <!-- Topics -->
                     <div class="section">
                       <h3>Topics</h3>
-                      @for (
-                        item of topics;
-                        track trackByFn(i, item);
-                        let i = $index
-                      ) {
+                      @for (item of topics; track item; let i = $index) {
                         <div class="item-row">
                           <mat-form-field class="flex-grow" appearance="fill">
                             <input
@@ -419,13 +403,13 @@
                       <h3>Realtime Insights</h3>
                       @for (
                         item of realtimeinsights;
-                        track trackByIndex(i, item);
+                        track item.Timestamp;
                         let i = $index
                       ) {
                         <div>
                           @for (
                             rinsight of item.Insights;
-                            track trackByIndex(j, rinsight);
+                            track rinsight;
                             let j = $index
                           ) {
                             <div

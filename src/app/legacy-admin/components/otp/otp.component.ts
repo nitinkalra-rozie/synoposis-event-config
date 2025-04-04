@@ -88,10 +88,6 @@ export class OtpComponent implements OnInit {
     }
   }
 
-  trackByFn(index: number, obj: any) {
-    return index;
-  }
-
   handleSubmit() {
     this.submitPressed = true;
     this.errorMessage = '';

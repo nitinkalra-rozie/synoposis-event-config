@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -120,6 +121,7 @@ export class LoadingDialogComponent {}
   templateUrl: './content-generate.component.html',
   styleUrls: ['./content-generate.component.scss'],
   imports: [
+    NgClass,
     FormsModule,
     RouterModule,
     MatSnackBarModule,
@@ -404,10 +406,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
         panelClass: ['error-snackbar'],
       }
     );
-  }
-
-  trackByFn(index: number, item: string): number {
-    return index; // or a unique identifier if you have one
   }
 
   updateEventReport(): void {
@@ -844,10 +842,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       default:
         return '';
     }
-  }
-
-  trackByIndex(index: number, item: any): number {
-    return index;
   }
 
   removeKeytakeaway(index: number): void {

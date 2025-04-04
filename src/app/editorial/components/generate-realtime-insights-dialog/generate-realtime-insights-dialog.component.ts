@@ -59,10 +59,6 @@ export class GenerateRealtimeInsightsDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  trackByFn(index: number): number {
-    return index;
-  }
-
   splitIntoParagraphs(text): string[] {
     // Split text into paragraphs using two or more consecutive newlines as the separator
     let paragraphs = text.trim().split(/\n\s*\n/);

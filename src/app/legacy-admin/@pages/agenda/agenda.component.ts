@@ -210,10 +210,6 @@ export class AgendaComponent implements OnInit {
     );
   }
 
-  trackByFn(index: number, item: string): number {
-    return index; // or a unique identifier if you have one
-  }
-
   updateEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
@@ -468,10 +464,6 @@ export class AgendaComponent implements OnInit {
       default:
         return '';
     }
-  }
-
-  trackByIndex(index: number, _item: any): number {
-    return index;
   }
 
   removeKeytakeaway(index: number): void {

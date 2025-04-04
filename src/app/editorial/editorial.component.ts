@@ -210,10 +210,6 @@ export class EditorialComponent implements OnInit {
     );
   }
 
-  trackByFn(index: number, item: string): number {
-    return index; // or a unique identifier if you have one
-  }
-
   sendEmail(): void {
     this._backendApiService.sendEmailReport().subscribe({
       next: (response) => {
@@ -481,10 +477,6 @@ export class EditorialComponent implements OnInit {
       default:
         return '';
     }
-  }
-
-  trackByIndex(index: number, item: any): number {
-    return index;
   }
 
   removeKeytakeaway(index: number): void {
