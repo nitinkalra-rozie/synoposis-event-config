@@ -7,13 +7,12 @@ import { jwtDecode } from 'jwt-decode';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
 @Component({
-  selector: 'app-side-bar',
-  templateUrl: './side-bar.component.html',
-  styleUrls: ['./side-bar.component.scss'],
+  selector: 'app-side-nav',
+  templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.component.scss'],
   imports: [RouterModule, MatTooltipModule, MatIconModule, CommonModule],
 })
-export class SideBarComponent implements OnInit {
-  constructor() {}
+export class SideNavComponent implements OnInit {
   public userRoleRank = 2;
   // Convert isAdminUser into a signal that defaults to false
   private _authService = inject(AuthService);
