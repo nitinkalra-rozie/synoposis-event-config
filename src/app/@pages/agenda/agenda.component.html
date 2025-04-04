@@ -6,7 +6,24 @@
       <mat-card>
         <mat-card-content>
           <!-- Filters -->
-          <div style="display: flex; flex-direction: row-reverse">
+          <div class="toolbar-container">
+            <div class="timezone-section">
+              <mat-icon class="timezone-icon">schedule</mat-icon>
+              <div>
+                <span class="timezone-label">Event Timezone:</span>
+                <select
+                  class="timezone-select"
+                  [(ngModel)]="selectedTimezone"
+                  (change)="updateTimezone()">
+                  <option
+                    *ngFor="let tz of availableTimezones"
+                    [value]="tz.value">
+                    {{ tz.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
             <div class="action-buttons">
               <button
                 class="upload-agenda-button"
@@ -15,6 +32,9 @@
               </button>
               <button class="add-session-button" (click)="createNewSession()">
                 Add New Session
+              </button>
+              <button class="refresh-button" (click)="refreshAgenda()">
+                <mat-icon>refresh</mat-icon>
               </button>
             </div>
           </div>
@@ -132,7 +152,7 @@
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)"
                     style="min-width: 110px">
-                    {{ row.StartsAt | date: 'yyyy-MM-dd' }}
+                    {{ row.StartsAt | date: 'yyyy-MM-dd' : formattedTimezone }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="startTime">
@@ -144,7 +164,7 @@
                     mat-cell
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)">
-                    {{ row.StartsAt | date: 'HH:mm' }}
+                    {{ row.StartsAt | date: 'HH:mm' : formattedTimezone }}
                   </td>
                 </ng-container>
 

@@ -7,6 +7,10 @@
         <mat-label>Event</mat-label>
         <input matInput formControlName="Event" required />
       </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Session Title</mat-label>
+        <input matInput formControlName="SessionTitle" required />
+      </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Track</mat-label>
@@ -24,11 +28,6 @@
             {{ option }}
           </mat-option>
         </mat-autocomplete>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Session Title</mat-label>
-        <input matInput formControlName="SessionTitle" required />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -90,12 +89,20 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Starts At</mat-label>
-        <input matInput formControlName="StartsAt" required />
+        <input
+          matInput
+          formControlName="StartsAt"
+          required
+          type="datetime-local" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Ends At</mat-label>
-        <input matInput formControlName="EndsAt" required />
+        <input
+          matInput
+          formControlName="EndsAt"
+          required
+          type="datetime-local" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -170,7 +177,6 @@
             </mat-card>
           </div>
         </div>
-
         <button
           mat-raised-button
           (click)="addSpeaker()"

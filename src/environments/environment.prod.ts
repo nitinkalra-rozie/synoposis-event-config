@@ -6,7 +6,7 @@ export const environment = {
   postData: 'https://api.synopsis.rozie.ai/r2/config',
   getEventDetails: 'https://api.synopsis.rozie.ai/r1/getEventDetails',
   getEventConfig: 'https://api.synopsis.rozie.ai/r1/getEventConfig',
-  updateAgendaUrl: 'https://api.synopsis.rozie.ai/r2/postEventDetails',
+  updateAgendaUrl: 'https://api.synopsis.rozie.ai/r5/postEventDetails',
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:

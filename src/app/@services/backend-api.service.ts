@@ -92,13 +92,14 @@ export class BackendApiService {
     return this.http.post(environment.postData, body, { headers: headers });
   }
 
-  updateAgenda(data: Session[]): Observable<Object> {
+  updateAgenda(data: Session[], timezone: string = ''): Observable<Object> {
     const refreshToken = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${refreshToken}`,
     });
     const body = {
       clearCurrentEvents: false,
+      timeZoneUpdate: timezone,
       eventName: this._backendApiService.getCurrentEventName(),
       eventDetails: data,
     };

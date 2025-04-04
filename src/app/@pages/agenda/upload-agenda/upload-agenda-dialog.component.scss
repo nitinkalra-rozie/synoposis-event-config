@@ -70,6 +70,36 @@
   }
 }
 
+.cancel-button {
+  padding: 10px 15px;
+  align-items: center;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  color: #534ad8 !important;
+  border: 1px solid #8d87de;
+  font-family: Lexend;
+  font-size: 16px;
+}
+
+.confirm-button {
+  padding: 10px 15px;
+  align-items: center;
+  border-radius: 4px;
+  background: #534ad8;
+  cursor: pointer;
+  color: #fff !important;
+  border: none;
+  font-family: Lexend;
+  font-size: 16px;
+}
+
+.confirm-button:disabled {
+  background: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
 .count-badge {
   background: #e8eaf6;
   color: #3f51b5;

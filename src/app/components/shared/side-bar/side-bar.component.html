@@ -40,9 +40,10 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/generate-report"
         routerLinkActive="selected">
-        <mat-icon style="color: rgb(255, 255, 255)">picture_as_pdf</mat-icon>
+        <mat-icon style="color: rgb(255, 255, 255)">description</mat-icon>
       </a>
-
+    }
+    @if (isSuperAdmin || isEventOrganizer) {
       <a
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
@@ -51,7 +52,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/agenda"
         routerLinkActive="selected">
-        <mat-icon style="color: rgb(255, 255, 255)">edit_calendar</mat-icon>
+        <mat-icon style="color: rgb(255, 255, 255)">event</mat-icon>
       </a>
     }
   </div>

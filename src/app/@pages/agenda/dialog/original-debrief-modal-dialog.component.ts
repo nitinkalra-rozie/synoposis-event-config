@@ -1,7 +1,6 @@
 import {
   Component,
   inject,
-  Inject,
   Signal,
   signal,
   WritableSignal,
@@ -52,26 +51,27 @@ import { BackendApiService } from 'src/app/@services/backend-api.service';
   ],
 })
 export class SessionDialogComponent {
-  constructor(
-    private dialogRef: MatDialogRef<SessionDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public dialogData: { data: Session; type: string; trackList: string[] },
-    private fb: FormBuilder
-  ) {
-    this.sessionForm = this.createForm(this.dialogData.data);
-    this.trackOptions = this.dialogData.trackList || [];
-    this.filteredTrackOptions = toSignal(
-      this.sessionForm.get('Track').valueChanges.pipe(
-        startWith(''),
-        map((value) => this._filter(value || ''))
-      )
-    );
-  }
-  public sessionForm: FormGroup;
-  public type: WritableSignal<String> = signal(this.dialogData.type);
-  public filteredTrackOptions: Signal<string[]>;
-  public isLoading: boolean;
-  public trackOptions: string[] = [];
+  public dialogData = inject(MAT_DIALOG_DATA) as {
+    adjustSessionTimesFn: (data: Session[]) => Session[];
+    displayErrorMessageFn: (msg: string) => void;
+    data: Session;
+    type: string;
+    trackList: string[];
+  };
+
+  public dialogRef = inject(MatDialogRef<SessionDialogComponent>);
+  public fb = inject(FormBuilder);
+
+  public sessionForm: FormGroup = this.createForm(this.dialogData.data);
+  public trackOptions: string[] = this.dialogData.trackList || [];
+  public filteredTrackOptions: Signal<string[]> = toSignal(
+    this.sessionForm.get('Track')!.valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filter(value || ''))
+    )
+  );
+  public type: WritableSignal<string> = signal(this.dialogData.type);
+  public isLoading: boolean = false;
   private _backendApiService = inject(BackendApiService);
 
   public get trackControl(): FormControl {
@@ -138,21 +138,58 @@ export class SessionDialogComponent {
     this.dialogRef.close();
   }
 
+  updateSessionTimes(sessions: Session[]): Session[] {
+    return sessions.map((session) => {
+      const updatedSession = { ...session };
+      if (
+        typeof updatedSession.StartsAt === 'string' &&
+        !updatedSession.StartsAt.endsWith('+0000')
+      ) {
+        updatedSession.StartsAt += '+0000';
+      }
+      if (
+        typeof updatedSession.EndsAt === 'string' &&
+        !updatedSession.EndsAt.endsWith('+0000')
+      ) {
+        updatedSession.EndsAt += '+0000';
+      }
+      return updatedSession;
+    });
+  }
+
   saveChanges(): void {
-    console.log(this.sessionForm.getRawValue());
     this.isLoading = true;
     if (this.sessionForm.valid) {
-      this._backendApiService
-        .updateAgenda([this.sessionForm.getRawValue()])
-        .subscribe({
+      const sessionData: Session = this.sessionForm.getRawValue();
+      if (sessionData.StartsAt > sessionData.EndsAt) {
+        this.dialogData.displayErrorMessageFn(
+          'Error incorrect Start and End time. Please update.'
+        );
+        this.isLoading = false;
+        return;
+      }
+      if (this.dialogData.adjustSessionTimesFn) {
+        const formattedSessionDetails = this.updateSessionTimes([
+          this.sessionForm.getRawValue(),
+        ]);
+        const updatedSessionDetails = this.dialogData.adjustSessionTimesFn(
+          formattedSessionDetails
+        );
+        this._backendApiService.updateAgenda(updatedSessionDetails).subscribe({
           next: (response) => {
             this.isLoading = false;
             this.dialogRef.close('SUCCESS');
           },
           error: (error) => {
+            this.isLoading = false;
             console.error('Error fetching data:', error);
           },
         });
+      }
+    } else {
+      this.dialogData.displayErrorMessageFn(
+        'Session details not valid. Please update the session details and retry.'
+      );
     }
   }
 

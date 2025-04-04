@@ -30,21 +30,6 @@
         <span>{{ errorMessage }}</span>
       </div>
 
-      <!-- Timezone Dropdown -->
-      <div
-        *ngIf="sessions.length"
-        class="timezone-section"
-        style="margin-bottom: 16px">
-        <mat-form-field class="full-width" appearance="outline">
-          <mat-label>Timezone</mat-label>
-          <mat-select [(ngModel)]="selectedTimezone">
-            <mat-option *ngFor="let tz of timezones" [value]="tz.value">
-              {{ tz.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
       <!-- Accordion for session preview -->
       <div *ngIf="sessions.length" class="preview-section">
         <h3 class="preview-title">
@@ -242,9 +227,10 @@
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
   } @else {
-    <button mat-stroked-button (click)="close()">Cancel</button>
+    <button mat-button class="cancel-button" (click)="close()">Cancel</button>
     <button
-      mat-raised-button
+      mat-button
+      class="confirm-button"
       [disabled]="!sessions.length"
       (click)="confirm()"
       color="primary">

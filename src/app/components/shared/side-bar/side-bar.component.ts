@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { AuthService } from 'src/app/services/auth.service';
+import { UserRole } from 'src/app/shared/enums';
 
 @Component({
   selector: 'app-side-bar',
@@ -16,7 +17,26 @@ import { AuthService } from 'src/app/services/auth.service';
 export class SideBarComponent implements OnInit {
   constructor() {}
   public userRoleRank = 2;
-  // Convert isAdminUser into a signal that defaults to false
+  public isEventOrganizer = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.EVENTORGANIZER) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  public isSuperAdmin = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.SUPERADMIN) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
   private _authService = inject(AuthService);
   private _isAdminUser = signal<boolean>(false);
 
