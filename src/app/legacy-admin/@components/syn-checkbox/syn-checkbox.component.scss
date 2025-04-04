@@ -7,7 +7,7 @@ $checkbox-size: 20px;
 $border-radius: 4px;
 
 .checkbox-container {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   height: 20px;
   align-items: center;
 }

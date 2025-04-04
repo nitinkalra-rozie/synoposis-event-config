@@ -2,7 +2,7 @@
 
 .row {
   padding: 20px 0 10px;
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   width: calc(100% - 48px);
 
   app-projection-image {

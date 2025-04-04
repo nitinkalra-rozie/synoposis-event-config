@@ -9,7 +9,7 @@ p {
 }
 
 .trigger-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   align-items: flex-start;
   width: calc(100% - 22px);
 
@@ -48,7 +48,7 @@ p {
   }
 
   & {
-    @include m.d-flex-row;
+    @include m.d-flex-row-align-center;
     justify-content: space-between;
     padding: 0 10px;
     border-radius: 4px;
@@ -67,7 +67,7 @@ p {
 }
 
 .list-filter-container {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   margin-top: 8px;
   margin: 8px 16px 0;
   padding: 0 20px;
@@ -120,7 +120,7 @@ p {
     padding: 8px 20px;
     margin-top: 9px;
     cursor: pointer;
-    @include m.d-flex-row;
+    @include m.d-flex-row-align-center;
     width: calc(100% - 40px);
 
     &:hover {
@@ -137,7 +137,7 @@ p {
 
     .indicator {
       height: 24px;
-      @include m.d-flex-row;
+      @include m.d-flex-row-align-center;
       align-items: center;
       padding: 0 4px;
       background-color: v.$secondary-color-variant-9;

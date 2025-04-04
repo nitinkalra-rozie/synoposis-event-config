@@ -2,7 +2,7 @@
 @use 'variables' as v;
 
 .card-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   border-radius: 4px;
   align-items: flex-start;
   flex: 1;
@@ -23,7 +23,7 @@
 }
 
 .card-footer {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   height: 45px;
   padding: 0 14px;
   border-radius: 0px 0px 4px 4px;
@@ -38,7 +38,7 @@
 }
 
 .toolbar {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
 }
 
 .projecting {

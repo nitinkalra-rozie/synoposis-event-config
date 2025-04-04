@@ -14,7 +14,7 @@ p {
   background-color: v.$primary-bg-color;
   padding: 10px 0 16px 0;
   border-left: 1px solid v.$secondary-bg-color;
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   flex: 1;
   transition: width 0.3s ease;
   overflow: hidden;
@@ -40,7 +40,7 @@ p {
   }
 
   &.expanded {
-    @include m.d-flex-column;
+    @include m.d-flex-column-align-center;
     width: calc(
       v.$right-sidebar-expanded-width - v.$right-sidebar-collapsed-width - 1px
     );
@@ -56,7 +56,7 @@ p {
 
 .detail-header {
   height: 55px;
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   justify-content: space-between;
   padding: 0 20px;
   border-bottom: 1px solid v.$primary-bg-color-variant-2;
@@ -122,7 +122,7 @@ p {
 }
 
 .session-details-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   height: calc(100% - 36px);
   width: calc(100% - 40px);
   align-items: flex-start;
@@ -136,7 +136,7 @@ p {
   }
 
   .form-row {
-    @include m.d-flex-column;
+    @include m.d-flex-column-align-center;
     align-items: flex-start;
     margin-bottom: 12px;
 
@@ -154,7 +154,7 @@ p {
 }
 
 .card-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   width: calc(100% - 36px);
   height: auto;
   border: 1px solid v.$primary-bg-color-variant-2;
@@ -180,7 +180,7 @@ p {
   }
 
   .speakers-list {
-    @include m.d-flex-row;
+    @include m.d-flex-row-align-center;
     justify-content: space-between;
     width: 100%;
     cursor: pointer;
@@ -201,7 +201,7 @@ p {
     }
 
     .speaker-info {
-      @include m.d-flex-column;
+      @include m.d-flex-column-align-center;
       margin-right: 18px;
       align-items: flex-start;
 
@@ -220,12 +220,12 @@ p {
 
   .card-footer {
     margin-top: 8px;
-    @include m.d-flex-row;
+    @include m.d-flex-row-align-center;
     justify-content: space-between;
     width: 100%;
 
     .track {
-      @include m.d-flex-row;
+      @include m.d-flex-row-align-center;
       > mat-icon {
         fill: v.$primary-bg-color-variant-6;
         width: 12px;
@@ -235,14 +235,17 @@ p {
       }
 
       .track-name {
-        @include m.caption-link-sm-regular;
+        @include m.font-regular();
+        font-size: 10px;
+        letter-spacing: -1%;
+        line-height: 16px;
         color: v.$primary-bg-color-variant-6;
       }
     }
 
     .indicator {
       height: 24px;
-      @include m.d-flex-row;
+      @include m.d-flex-row-align-center;
       align-items: center;
       padding: 0 4px;
       background-color: v.$secondary-color-variant-9;

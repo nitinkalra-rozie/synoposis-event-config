@@ -21,8 +21,8 @@ import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
+import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { TopBarComponent } from 'src/app/legacy-admin/components/shared/top-bar/top-bar.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
 
