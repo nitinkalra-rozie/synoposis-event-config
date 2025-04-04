@@ -25,8 +25,8 @@ import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.se
 import { TopBarComponent } from 'src/app/legacy-admin/components/shared/top-bar/top-bar.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
-import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
-import { GenerateRealtimeInsightsDialogComponent } from './generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
+import { LargeModalDialogComponent } from './components/dialog/original-debrief-modal-dialog.component';
+import { GenerateRealtimeInsightsDialogComponent } from './components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 
 interface Application {
   value: string;

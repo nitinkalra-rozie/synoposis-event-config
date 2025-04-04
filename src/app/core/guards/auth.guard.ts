@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from './legacy-admin/services/auth.service';
-import { RoleRank } from './legacy-admin/shared/constants';
+import { AuthService } from '../../legacy-admin/services/auth.service';
+import { RoleRank } from '../../legacy-admin/shared/constants';
 
 @Injectable({
   providedIn: 'root',

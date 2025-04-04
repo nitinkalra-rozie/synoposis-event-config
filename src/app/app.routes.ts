@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/auth.guard';
+import { AuthGuard } from 'src/app/core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -40,10 +40,8 @@ export const routes: Routes = [
   },
   {
     path: 'editorial',
-    loadComponent: () =>
-      import('src/app/legacy-admin/@pages/editorial/editorial.component').then(
-        (c) => c.EditorialComponent
-      ),
+    loadChildren: () =>
+      import('./editorial/editorial.routes').then((r) => r.editorialRoutes),
     canActivate: [AuthGuard],
   },
   {
