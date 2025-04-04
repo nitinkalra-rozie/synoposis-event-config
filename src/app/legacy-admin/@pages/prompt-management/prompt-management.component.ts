@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +27,6 @@ interface SessionType {
   templateUrl: './prompt-management.component.html',
   styleUrls: ['./prompt-management.component.scss'],
   imports: [
-    CommonModule,
     FormsModule,
     MatTabsModule,
     MatButtonModule,

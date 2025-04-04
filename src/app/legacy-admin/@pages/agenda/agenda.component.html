@@ -23,9 +23,9 @@
                 <mat-select
                   [(value)]="selected_day"
                   (selectionChange)="filterTracksByDay()">
-                  <mat-option *ngFor="let day of uniqueDays" [value]="day">{{
-                    day
-                  }}</mat-option>
+                  @for (day of uniqueDays; track day) {
+                    <mat-option [value]="day">{{ day }}</mat-option>
+                  }
                 </mat-select>
               </mat-form-field>
             </div>
@@ -35,11 +35,9 @@
                 <mat-select
                   [(value)]="selected_track"
                   (selectionChange)="filterSessionsByTrack()">
-                  <mat-option
-                    *ngFor="let track of availableTracks"
-                    [value]="track"
-                    >{{ track }}</mat-option
-                  >
+                  @for (track of availableTracks; track track) {
+                    <mat-option [value]="track">{{ track }}</mat-option>
+                  }
                 </mat-select>
               </mat-form-field>
             </div>
@@ -47,42 +45,45 @@
 
           <!-- Session List -->
           <div class="session-list">
-            <div
-              *ngFor="let session of filtered_sessions"
-              class="session-item"
-              [ngClass]="{
-                'session-item-selected': session.SessionId === selected_session,
-              }"
-              (click)="selectSession(session)">
-              <div class="session-info">
-                <span class="session-title">{{ session.SessionTitle }}</span>
-                <span
-                  *ngIf="session.Status === 'UNDER_REVIEW' && !session.Editor"
-                  class="session-status-badge"
-                  [ngClass]="getStatusClass(session.Status)">
-                  To Review
-                </span>
-                <span
-                  *ngIf="session.Status === 'UNDER_REVIEW' && session.Editor"
-                  class="session-status-badge"
-                  [ngClass]="getStatusClass(session.Status)"
-                  style="background-color: rgb(156 106 255)">
-                  In Review
-                </span>
-                <span
-                  *ngIf="session.Status === 'REVIEW_COMPLETE'"
-                  class="session-status-badge"
-                  [ngClass]="getStatusClass(session.Status)"
-                  style="background-color: rgb(0, 161, 94)">
-                  Completed
-                </span>
+            @for (session of filtered_sessions; track session) {
+              <div
+                class="session-item"
+                [ngClass]="{
+                  'session-item-selected':
+                    session.SessionId === selected_session,
+                }"
+                (click)="selectSession(session)">
+                <div class="session-info">
+                  <span class="session-title">{{ session.SessionTitle }}</span>
+                  @if (session.Status === 'UNDER_REVIEW' && !session.Editor) {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)">
+                      To Review
+                    </span>
+                  }
+                  @if (session.Status === 'UNDER_REVIEW' && session.Editor) {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)"
+                      style="background-color: rgb(156 106 255)">
+                      In Review
+                    </span>
+                  }
+                  @if (session.Status === 'REVIEW_COMPLETE') {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)"
+                      style="background-color: rgb(0, 161, 94)">
+                      Completed
+                    </span>
+                  }
+                </div>
+                @if (session.SessionId !== selected_session) {
+                  <mat-icon class="session-icon">chevron_right</mat-icon>
+                }
               </div>
-              <mat-icon
-                *ngIf="session.SessionId !== selected_session"
-                class="session-icon"
-                >chevron_right</mat-icon
-              >
-            </div>
+            }
           </div>
         </mat-card-content>
       </mat-card>
@@ -91,100 +92,123 @@
     <div class="editor-container">
       <div class="col-lg-12">
         <mat-card class="editor-content">
-          <mat-card-content *ngIf="dataLoaded || isLoading">
-            <div *ngIf="isLoading" class="loading-container">
-              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            </div>
-            <div *ngIf="!isLoading && dataLoaded">
-              <!-- Session Details -->
-              <div class="session-details">
-                <mat-card class="event-card">
-                  <mat-card-content>
-                    <h2>{{ title }}</h2>
-                    <div class="event-info-grid">
-                      <div class="event-info-row">
-                        <div class="event-info-item">
-                          <mat-icon>place</mat-icon>
-                          <span>{{ selected_session_details.Location }}</span>
+          @if (dataLoaded || isLoading) {
+            <mat-card-content>
+              @if (isLoading) {
+                <div class="loading-container">
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+              }
+              @if (!isLoading && dataLoaded) {
+                <div>
+                  <!-- Session Details -->
+                  <div class="session-details">
+                    <mat-card class="event-card">
+                      <mat-card-content>
+                        <h2>{{ title }}</h2>
+                        <div class="event-info-grid">
+                          <div class="event-info-row">
+                            <div class="event-info-item">
+                              <mat-icon>place</mat-icon>
+                              <span>{{
+                                selected_session_details.Location
+                              }}</span>
+                            </div>
+                            <div class="event-info-item">
+                              <mat-icon>event</mat-icon>
+                              <span>{{
+                                selected_session_details.StartsAt
+                              }}</span>
+                            </div>
+                            <div class="event-info-item">
+                              <mat-icon>layers</mat-icon>
+                              <span>{{ selected_session_details.Event }}</span>
+                            </div>
+                            <div class="event-info-item">
+                              <mat-icon>alarm_on</mat-icon>
+                              <span>{{
+                                selected_session_details.Duration
+                              }}</span>
+                            </div>
+                          </div>
+                          <div class="event-info-row">
+                            <div class="event-info-item">
+                              <mat-icon>fact_check</mat-icon>
+                              <span>{{
+                                selected_session_details.SessionId
+                              }}</span>
+                            </div>
+                            <div class="event-info-item">
+                              <mat-icon>layers</mat-icon>
+                              <span>{{ selected_session_details.Type }}</span>
+                            </div>
+                            <div class="event-info-item">
+                              <mat-icon>stacked_line_chart</mat-icon>
+                              <span>{{ selected_session_details.Track }}</span>
+                            </div>
+                            <div class="event-info-item">
+                              <mat-icon>person</mat-icon>
+                              <span>{{ selected_session_details.Editor }}</span>
+                            </div>
+                          </div>
+                          <div style="flex: 1">
+                            <div style="display: flex">
+                              @if (
+                                selected_session_details.Status ===
+                                  'UNDER_REVIEW' &&
+                                !selected_session_details.Editor
+                              ) {
+                                <span
+                                  class="session-status-badge"
+                                  [ngClass]="
+                                    getStatusClass(
+                                      selected_session_details.Status
+                                    )
+                                  ">
+                                  To Review
+                                </span>
+                              }
+                              @if (
+                                selected_session_details.Status ===
+                                  'UNDER_REVIEW' &&
+                                selected_session_details.Editor
+                              ) {
+                                <span
+                                  class="session-status-badge"
+                                  [ngClass]="
+                                    getStatusClass(
+                                      selected_session_details.Status
+                                    )
+                                  "
+                                  style="background-color: rgb(156 106 255)">
+                                  In Review
+                                </span>
+                              }
+                              @if (
+                                selected_session_details.Status ===
+                                'REVIEW_COMPLETE'
+                              ) {
+                                <span
+                                  class="session-status-badge"
+                                  [ngClass]="
+                                    getStatusClass(
+                                      selected_session_details.Status
+                                    )
+                                  "
+                                  style="background-color: rgb(0, 161, 94)">
+                                  Completed
+                                </span>
+                              }
+                            </div>
+                          </div>
                         </div>
-                        <div class="event-info-item">
-                          <mat-icon>event</mat-icon>
-                          <span>{{ selected_session_details.StartsAt }}</span>
-                        </div>
-                        <div class="event-info-item">
-                          <mat-icon>layers</mat-icon>
-                          <span>{{ selected_session_details.Event }}</span>
-                        </div>
-                        <div class="event-info-item">
-                          <mat-icon>alarm_on</mat-icon>
-                          <span>{{ selected_session_details.Duration }}</span>
-                        </div>
-                      </div>
-                      <div class="event-info-row">
-                        <div class="event-info-item">
-                          <mat-icon>fact_check</mat-icon>
-                          <span>{{ selected_session_details.SessionId }}</span>
-                        </div>
-                        <div class="event-info-item">
-                          <mat-icon>layers</mat-icon>
-                          <span>{{ selected_session_details.Type }}</span>
-                        </div>
-                        <div class="event-info-item">
-                          <mat-icon>stacked_line_chart</mat-icon>
-                          <span>{{ selected_session_details.Track }}</span>
-                        </div>
-                        <div class="event-info-item">
-                          <mat-icon>person</mat-icon>
-                          <span>{{ selected_session_details.Editor }}</span>
-                        </div>
-                      </div>
-                      <div style="flex: 1">
-                        <div style="display: flex">
-                          <span
-                            *ngIf="
-                              selected_session_details.Status ===
-                                'UNDER_REVIEW' &&
-                              !selected_session_details.Editor
-                            "
-                            class="session-status-badge"
-                            [ngClass]="
-                              getStatusClass(selected_session_details.Status)
-                            ">
-                            To Review
-                          </span>
-                          <span
-                            *ngIf="
-                              selected_session_details.Status ===
-                                'UNDER_REVIEW' &&
-                              selected_session_details.Editor
-                            "
-                            class="session-status-badge"
-                            [ngClass]="
-                              getStatusClass(selected_session_details.Status)
-                            "
-                            style="background-color: rgb(156 106 255)">
-                            In Review
-                          </span>
-                          <span
-                            *ngIf="
-                              selected_session_details.Status ===
-                              'REVIEW_COMPLETE'
-                            "
-                            class="session-status-badge"
-                            [ngClass]="
-                              getStatusClass(selected_session_details.Status)
-                            "
-                            style="background-color: rgb(0, 161, 94)">
-                            Completed
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </mat-card-content>
-                </mat-card>
-              </div>
-            </div>
-          </mat-card-content>
+                      </mat-card-content>
+                    </mat-card>
+                  </div>
+                </div>
+              }
+            </mat-card-content>
+          }
         </mat-card>
       </div>
     </div>

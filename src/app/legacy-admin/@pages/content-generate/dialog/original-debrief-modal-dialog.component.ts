@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +25,6 @@ interface DialogData {
   templateUrl: './original-debrief-modal-dialog.component.html',
   styleUrls: ['./original-debrief-modal-dialog.component.scss'],
   imports: [
-    CommonModule,
     MatDialogModule,
     FormsModule,
     MatIconModule,

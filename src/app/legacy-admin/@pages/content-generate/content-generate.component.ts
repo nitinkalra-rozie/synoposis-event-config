@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -112,7 +111,7 @@ const promptSchema = {
       </div>
     </div>
   `,
-  imports: [CommonModule, MatDialogModule, MatProgressSpinnerModule],
+  imports: [MatDialogModule, MatProgressSpinnerModule],
 })
 export class LoadingDialogComponent {}
 
@@ -121,7 +120,6 @@ export class LoadingDialogComponent {}
   templateUrl: './content-generate.component.html',
   styleUrls: ['./content-generate.component.scss'],
   imports: [
-    CommonModule,
     FormsModule,
     RouterModule,
     MatSnackBarModule,

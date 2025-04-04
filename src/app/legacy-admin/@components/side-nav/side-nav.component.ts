@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,7 +9,7 @@ import { AuthService } from 'src/app/legacy-admin/services/auth.service';
   selector: 'app-side-nav',
   templateUrl: './side-nav.component.html',
   styleUrls: ['./side-nav.component.scss'],
-  imports: [RouterModule, MatTooltipModule, MatIconModule, CommonModule],
+  imports: [RouterModule, MatTooltipModule, MatIconModule],
 })
 export class SideNavComponent implements OnInit {
   public userRoleRank = 2;
