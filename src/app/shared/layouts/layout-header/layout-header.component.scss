@@ -5,6 +5,7 @@
 
 .layout-header-container {
   width: 100%;
+  height: v.$top-bar-height;
   @include m.d-flex-row;
 
   .product-logo-mark-wrapper {

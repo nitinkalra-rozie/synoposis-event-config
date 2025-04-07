@@ -9,10 +9,12 @@
   width: 420px;
   min-width: 420px;
   margin-right: 20px;
+  overflow-y: auto;
 }
 
 .content-container {
   display: flex;
+  height: 100%;
 }
 
 .edit-mode {
@@ -126,6 +128,8 @@ mat-form-field {
 /* Editor container and content */
 .editor-container {
   flex-grow: 1;
+  overflow-y: auto;
+
   .editor-content {
     padding: 16px;
   }
