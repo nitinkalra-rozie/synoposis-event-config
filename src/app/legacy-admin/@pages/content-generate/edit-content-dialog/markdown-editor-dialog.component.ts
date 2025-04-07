@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +27,6 @@ export interface MarkdownEditorData {
 
 @Component({
   imports: [
-    CommonModule,
     FormsModule,
     MatDialogModule,
     MatButtonModule,

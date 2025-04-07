@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -7,13 +6,12 @@ import { jwtDecode } from 'jwt-decode';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
 @Component({
-  selector: 'app-side-bar',
-  templateUrl: './side-bar.component.html',
-  styleUrls: ['./side-bar.component.scss'],
-  imports: [RouterModule, MatTooltipModule, MatIconModule, CommonModule],
+  selector: 'app-side-nav',
+  templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.component.scss'],
+  imports: [RouterModule, MatTooltipModule, MatIconModule],
 })
-export class SideBarComponent implements OnInit {
-  constructor() {}
+export class SideNavComponent implements OnInit {
   public userRoleRank = 2;
   // Convert isAdminUser into a signal that defaults to false
   private _authService = inject(AuthService);

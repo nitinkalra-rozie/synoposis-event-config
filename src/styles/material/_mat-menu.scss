@@ -51,7 +51,7 @@ $session-selection-menu-width-right-sidebar-hidden: calc(
     width: 100%;
     height: calc(100% - 32px);
     background-color: v.$primary-bg-color;
-    @include m.d-flex-column;
+    @include m.d-flex-column-align-center;
     align-items: flex-start;
 
     .mat-mdc-menu-item:hover {
@@ -72,7 +72,7 @@ $session-selection-menu-width-right-sidebar-hidden: calc(
     width: 100%;
     height: calc(100% - 32px);
     background-color: v.$primary-bg-color;
-    @include m.d-flex-column;
+    @include m.d-flex-column-align-center;
     align-items: flex-start;
 
     .mat-mdc-menu-item:hover {
@@ -108,7 +108,7 @@ $session-selection-menu-width-right-sidebar-hidden: calc(
     width: 100%;
     height: calc(100% - 16px);
     background-color: v.$primary-bg-color;
-    @include m.d-flex-column;
+    @include m.d-flex-column-align-center;
     align-items: flex-start;
 
     .mat-mdc-menu-item:hover {
@@ -143,7 +143,7 @@ $session-selection-menu-width-right-sidebar-hidden: calc(
     padding: 0 !important; /* Remove padding for the menu panel */
     height: auto;
     background-color: v.$primary-bg-color;
-    @include m.d-flex-column;
+    @include m.d-flex-column-align-center;
     align-items: flex-start;
     @include m.body-regular;
     color: v.$primary-bg-color-variant-6;

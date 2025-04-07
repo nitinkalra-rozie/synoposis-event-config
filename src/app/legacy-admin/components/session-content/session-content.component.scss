@@ -10,7 +10,7 @@ $control-panel-area-width-right-sidebar-expanded: calc(
 // new styles
 
 .session-content-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   padding: 20px 24px;
   border-radius: 4px;
   background-color: v.$primary-bg-color;
@@ -93,7 +93,7 @@ $control-panel-area-width-right-sidebar-expanded: calc(
   z-index: 1000;
 }
 
-@media (width <= 767px) {
+@media (width <= v.$screen-medium) {
   .alert-box {
     margin: 0 auto;
     right: 5%;

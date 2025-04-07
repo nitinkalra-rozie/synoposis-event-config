@@ -8,7 +8,7 @@ p {
 }
 
 .trigger-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   align-items: flex-start;
   width: 100%;
 
@@ -31,7 +31,7 @@ p {
     }
 
     .selection-info {
-      @include m.d-flex-row;
+      @include m.d-flex-row-align-center;
       width: calc(100% - 30px);
     }
 
@@ -50,7 +50,7 @@ p {
     }
 
     & {
-      @include m.d-flex-row;
+      @include m.d-flex-row-align-center;
       justify-content: space-between;
       padding: 0 10px;
       border-radius: 4px;
@@ -110,7 +110,7 @@ p {
 }
 
 .dropdown-footer {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   justify-content: flex-end;
   padding: 12px;
   width: calc(100% - 24px);

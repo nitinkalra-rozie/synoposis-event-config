@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -36,8 +36,8 @@ import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
+import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { TopBarComponent } from 'src/app/legacy-admin/components/shared/top-bar/top-bar.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
@@ -112,7 +112,7 @@ const promptSchema = {
       </div>
     </div>
   `,
-  imports: [CommonModule, MatDialogModule, MatProgressSpinnerModule],
+  imports: [MatDialogModule, MatProgressSpinnerModule],
 })
 export class LoadingDialogComponent {}
 
@@ -121,7 +121,7 @@ export class LoadingDialogComponent {}
   templateUrl: './content-generate.component.html',
   styleUrls: ['./content-generate.component.scss'],
   imports: [
-    CommonModule,
+    NgClass,
     FormsModule,
     RouterModule,
     MatSnackBarModule,
@@ -406,10 +406,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
         panelClass: ['error-snackbar'],
       }
     );
-  }
-
-  trackByFn(index: number, item: string): number {
-    return index; // or a unique identifier if you have one
   }
 
   updateEventReport(): void {
@@ -846,10 +842,6 @@ export class ContentGenerateComponent implements OnInit, AfterViewInit {
       default:
         return '';
     }
-  }
-
-  trackByIndex(index: number, item: any): number {
-    return index;
   }
 
   removeKeytakeaway(index: number): void {

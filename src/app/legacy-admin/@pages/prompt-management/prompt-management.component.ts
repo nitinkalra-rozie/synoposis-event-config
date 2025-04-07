@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,8 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
-import { TopBarComponent } from 'src/app/legacy-admin/components/shared/top-bar/top-bar.component';
-
+import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
   PromptContent,
   PromptManagementService,
@@ -29,7 +27,6 @@ interface SessionType {
   templateUrl: './prompt-management.component.html',
   styleUrls: ['./prompt-management.component.scss'],
   imports: [
-    CommonModule,
     FormsModule,
     MatTabsModule,
     MatButtonModule,

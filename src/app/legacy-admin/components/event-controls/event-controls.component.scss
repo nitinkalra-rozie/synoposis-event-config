@@ -20,7 +20,7 @@
 }
 
 .content-wrapper {
-  @include d-flex-row;
+  @include d-flex-row-align-center;
   padding: 20px 24px;
 
   &.sidebar-expanded {
@@ -39,7 +39,10 @@
 
   .filter-by-toggle {
     margin-right: 1.125rem;
-    @include font-13();
+    font-family: $base-font !important;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 18px;
     color: $primary-bg-color-variant-6;
 
     .filter-by-label {

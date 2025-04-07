@@ -1,5 +1,6 @@
 @use 'variables' as *;
 
+/** layout */
 @mixin d-flex {
   display: -webkit-box;
   display: -moz-box;
@@ -7,15 +8,13 @@
   display: flex;
 }
 
-@mixin d-flex-row {
+@mixin d-flex-row() {
   @include d-flex();
-  @include align-items-center();
   flex-direction: row;
 }
 
-@mixin d-flex-column {
+@mixin d-flex-column() {
   @include d-flex();
-  @include align-items-center();
   flex-direction: column;
 }
 
@@ -26,80 +25,30 @@
   align-items: center;
 }
 
+@mixin justify-content-center() {
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
 @mixin flex-center {
   @include d-flex;
   @include align-items-center;
   justify-content: center;
 }
 
-@mixin font-12 {
-  font-family: $base-font !important;
-  font-weight: 400;
-  font-size: 12px;
-  line-height: 14px;
+// #region These mixins are legacy and should be removed in the future eventually. Reason: these were copied from the experience builder
+@mixin d-flex-row-align-center {
+  @include d-flex();
+  @include align-items-center();
+  flex-direction: row;
 }
 
-@mixin font-13 {
-  font-family: $base-font !important;
-  font-weight: 500;
-  font-size: 13px;
-  line-height: 18px;
-}
-
-@mixin font-14 {
-  font-family: $base-font !important;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 24px;
-}
-
-@mixin font-15 {
-  font-family: $base-font !important;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 18px;
-}
-
-@mixin font-16 {
-  font-family: $base-font !important;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 18px;
-}
-
-@mixin font-17 {
-  font-family: $base-font !important;
-  font-weight: 600;
-  font-size: 20px;
-  line-height: 24px;
-}
-
-@mixin font-18 {
-  font-family: $base-font !important;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  letter-spacing: -0.14px;
-}
-
-@mixin font-20 {
-  font-family: $base-font !important;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 18px;
-}
-
-@mixin font-light {
-  // using important only because
-  // otherwise it will get replaced by Lato due to styles.scss line 12
-  font-family: $base-font !important;
-  font-weight: 300;
-}
-
-@mixin editor-font {
-  font-family: $code-block-font !important;
-  font-weight: 400;
+@mixin d-flex-column-align-center {
+  @include d-flex();
+  @include align-items-center();
+  flex-direction: column;
 }
 
 @mixin font-default {
@@ -109,89 +58,17 @@
 
 @mixin font-regular {
   font-family: $base-font !important;
-  font-weight: 400;
+  font-weight: $font-weight-regular;
 }
 
 @mixin font-medium {
   font-family: $base-font !important;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
 }
 
 @mixin font-semi-bold {
   font-family: $base-font !important;
-  font-weight: 600;
-}
-
-@mixin font-bold {
-  font-family: $base-font !important;
-  font-weight: 700;
-}
-
-@mixin heading1 {
-  @include font-light;
-  font-size: 96px;
-  letter-spacing: -1.5%;
-}
-
-@mixin heading2 {
-  @include font-light;
-  font-size: 60px;
-  letter-spacing: -0.5%;
-}
-
-@mixin heading3 {
-  @include font-regular;
-  font-size: 48px;
-  letter-spacing: 0;
-}
-
-@mixin heading4 {
-  @include font-regular;
-  font-size: 34px;
-  line-height: normal;
-  letter-spacing: 0.085px;
-}
-
-@mixin heading5 {
-  @include font-regular;
-  font-size: 24px;
-  letter-spacing: 0 !important;
-}
-
-@mixin heading6 {
-  @include font-medium;
-  font-size: 20px;
-  letter-spacing: 0.15% !important;
-}
-
-@mixin main-title {
-  @include font-regular;
-  font-size: 24px;
-  letter-spacing: 0;
-  line-height: 23px !important;
-  font-style: normal;
-}
-
-@mixin title {
-  @include font-regular;
-  font-size: 20px;
-  letter-spacing: 0;
-  line-height: 23px !important;
-  font-style: normal;
-}
-
-@mixin sub-title-regular {
-  @include font-regular;
-  font-size: 18px;
-  line-height: normal;
-  letter-spacing: 0;
-}
-
-@mixin headline {
-  @include font-semi-bold;
-  font-size: 20px;
-  letter-spacing: 0;
-  line-height: 24px !important;
+  font-weight: $font-weight-semibold;
 }
 
 @mixin body-regular {
@@ -201,37 +78,12 @@
   letter-spacing: -0.14px;
 }
 
-@mixin editor-body {
-  @include font-default;
-  font-size: 12px;
-  line-height: 150%;
-}
-
-@mixin editor-output {
-  @include font-default;
-  font-size: 12px;
-}
-
-@mixin editor-button {
-  @include font-default;
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: -0.005em;
-}
-
 @mixin tooltip-body {
   @include font-regular;
   font-size: 14px;
   font-style: normal;
   line-height: normal;
   letter-spacing: -0.14px;
-}
-
-@mixin footnote-regular {
-  @include font-regular;
-  font-size: 13px;
-  letter-spacing: 0;
-  line-height: 23px !important;
 }
 
 @mixin footnote-medium {
@@ -255,32 +107,11 @@
   line-height: 18px !important;
 }
 
-@mixin subhead-large {
-  @include font-medium;
-  font-size: 18px;
-  letter-spacing: 0;
-  line-height: 24px !important;
-}
-
-@mixin agent-text-medium {
-  @include font-medium;
-  font-size: 13px;
-  font-style: normal;
-  line-height: 18px;
-}
-
 @mixin callout-semi-bold {
   @include font-medium;
   font-size: 14px;
   letter-spacing: 0;
   line-height: 22px;
-}
-
-@mixin callout-sm-regular {
-  @include font-regular();
-  font-size: 12px;
-  letter-spacing: 0;
-  line-height: 20px;
 }
 
 @mixin caption-semi-bold {
@@ -306,13 +137,6 @@
 
 @mixin caption-sm-regular {
   @include font-regular();
-  font-size: 11px;
-  letter-spacing: 0.01em;
-  line-height: 16px;
-}
-
-@mixin caption-sm-semi-bold {
-  @include font-semi-bold();
   font-size: 11px;
   letter-spacing: 0.01em;
   line-height: 16px;
@@ -345,19 +169,13 @@
   letter-spacing: -1%;
   line-height: 16px;
 }
+// #endregion
 
 @mixin tooltip {
   @include font-regular;
   letter-spacing: 0.01em;
   font-size: 13px;
   line-height: 23px;
-}
-
-@mixin tooltip-normal {
-  @include font-regular;
-  letter-spacing: 0;
-  font-size: 13px;
-  line-height: auto;
 }
 
 @mixin base-input {

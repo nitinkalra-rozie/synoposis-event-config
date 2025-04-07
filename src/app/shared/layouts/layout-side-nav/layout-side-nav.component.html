@@ -1,13 +1,6 @@
-<div class="sidebar">
-  <div class="logopart">
-    <div class="logo">
-      <img
-        alt="Logo"
-        src="../../../../../assets/side-bar/rozie-synopsis-logo-mark.svg" />
-    </div>
-  </div>
-  <div class="icons">
-    @if (userRoleRank > 1) {
+<div class="layout-side-nav-container">
+  <div class="side-nav-items">
+    @if (userRoleRank() > 1) {
       <a
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
@@ -16,11 +9,11 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/admin"
         routerLinkActive="selected">
-        <mat-icon svgIcon="syn:space_dashboard_outlined"></mat-icon>
+        <mat-icon svgIcon="syn:space_dashboard_outlined" />
       </a>
     }
-    <!-- Use isAdminUser() if it's a signal -->
-    @if (userRoleRank > 0) {
+    <!-- TODO:@later Use isAdminUser() as the necessity arises -->
+    @if (userRoleRank() > 0) {
       <a
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
@@ -29,7 +22,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/editorial"
         routerLinkActive="selected">
-        <mat-icon style="color: rgb(255, 255, 255)">dashboard</mat-icon>
+        <mat-icon>dashboard</mat-icon>
       </a>
 
       <a
@@ -40,7 +33,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/generate-report"
         routerLinkActive="selected">
-        <mat-icon style="color: rgb(255, 255, 255)">picture_as_pdf</mat-icon>
+        <mat-icon>picture_as_pdf</mat-icon>
       </a>
 
       <a
@@ -51,19 +44,19 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/prompt-management"
         routerLinkActive="selected">
-        <mat-icon style="color: rgb(255, 255, 255)">manage_search</mat-icon>
+        <mat-icon>manage_search</mat-icon>
       </a>
       <!--ToDo: Enable Agenda Edit once the view is finalized -->
       <!--a
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [matTooltip]="'Agenda'"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/agenda"
-        routerLinkActive="selected">
-        <mat-icon style="color: rgb(255, 255, 255)">edit_calendar</mat-icon>
-      </a-->
+      matTooltipClass="tooltip-text-only-300"
+      matTooltipPosition="after"
+      class="menu-item"
+      [matTooltip]="'Agenda'"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLink="/agenda"
+      routerLinkActive="selected">
+      <mat-icon>edit_calendar</mat-icon>
+    </a-->
     }
   </div>
 </div>

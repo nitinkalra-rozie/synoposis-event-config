@@ -42,13 +42,13 @@ app-syn-single-select {
 }
 
 .session-selection-container {
-  @include m.d-flex-column;
+  @include m.d-flex-column-align-center;
   align-items: flex-start;
   height: 100%;
 }
 
 .header-row {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   gap: v.$stepper-content-gap;
   width: 100%;
   margin: 20px 0;
@@ -80,7 +80,7 @@ app-syn-single-select {
 }
 
 .content {
-  @include m.d-flex-row;
+  @include m.d-flex-row-align-center;
   flex-wrap: wrap;
   align-items: flex-start;
   height: 100%;
@@ -94,16 +94,19 @@ app-syn-single-select {
     gap: 1.125rem;
 
     .content-step {
-      @include m.d-flex-row;
+      @include m.d-flex-row-align-center;
       gap: v.$stepper-content-gap;
       height: 2.5rem;
 
       .step-details {
-        @include m.d-flex-row;
+        @include m.d-flex-row-align-center;
         gap: 1rem;
 
         .step-label {
-          @include m.font-14();
+          font-family: v.$base-font !important;
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 24px;
           color: v.$primary-bg-color-variant-6;
         }
 

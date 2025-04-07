@@ -9,17 +9,10 @@
   width: 420px;
   min-width: 420px;
   margin-right: 20px;
-
-  mat-card {
-    margin: 10px 0;
-  }
 }
 
 .content-container {
   display: flex;
-  margin-top: 10px;
-  padding-left: 80px;
-  padding-right: 20px;
 }
 
 .edit-mode {
@@ -133,7 +126,6 @@ mat-form-field {
 /* Editor container and content */
 .editor-container {
   flex-grow: 1;
-  margin-top: 10px;
   .editor-content {
     padding: 16px;
   }
