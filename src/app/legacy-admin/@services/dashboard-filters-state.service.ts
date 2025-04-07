@@ -8,7 +8,7 @@ import {
 } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { getDropdownOptionsFromString } from 'src/app/legacy-admin/@utils/data-utils';
-import { getAbsoluteDate } from 'src/app/legacy-admin/@utils/date-util';
+import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 
 @Injectable({
   providedIn: 'root',

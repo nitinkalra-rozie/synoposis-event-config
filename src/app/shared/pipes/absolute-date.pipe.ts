@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { getAbsoluteDate } from 'src/app/legacy-admin/@utils/date-util';
+import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 
 @Pipe({
   name: 'absoluteDate',

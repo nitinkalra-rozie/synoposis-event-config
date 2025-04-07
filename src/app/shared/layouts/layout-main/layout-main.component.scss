@@ -10,12 +10,12 @@
   overflow-y: hidden;
 
   .content-wrapper {
-    height: 100%;
+    height: calc(100dvh - v.$top-bar-height);
     @include m.d-flex-row;
 
     .content-container {
       width: 100%;
-      padding: 1.25rem 1.75rem;
+      padding: 1.25rem 1.25rem;
     }
   }
 }

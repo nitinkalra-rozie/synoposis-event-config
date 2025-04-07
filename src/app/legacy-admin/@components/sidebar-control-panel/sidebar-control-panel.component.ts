@@ -14,7 +14,7 @@ import {
   RightSidebarSelectedAction,
   RightSidebarState,
 } from 'src/app/legacy-admin/@models/global-state';
-import { AbsoluteDatePipe } from 'src/app/legacy-admin/@pipes/absolute-date.pipe';
+import { AbsoluteDatePipe } from 'src/app/shared/pipes/absolute-date.pipe';
 import { SanitizeHtmlPipe } from 'src/app/legacy-admin/@pipes/sanitize-html.pipe';
 import { SelectedQuickActionHeaderTitlePipe } from 'src/app/legacy-admin/@pipes/selected-quick-action-header-title.pipe';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
