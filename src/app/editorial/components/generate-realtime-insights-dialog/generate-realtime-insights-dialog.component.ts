@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
+import { EditorialDataService } from 'src/app/editorial/data-service/editorial.data-service';
 
 interface DialogData {
   type: string;
@@ -36,15 +36,15 @@ interface DialogData {
   ],
 })
 export class GenerateRealtimeInsightsDialogComponent implements OnInit {
-  constructor(
-    public dialogRef: MatDialogRef<GenerateRealtimeInsightsDialogComponent>,
-    private backendApiService: BackendApiService,
-    private sanitizer: DomSanitizer,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
-  ) {}
-
+  public dialogRef = inject(
+    MatDialogRef<GenerateRealtimeInsightsDialogComponent>
+  );
+  public data = inject(MAT_DIALOG_DATA);
   public sanitizedText: SafeHtml;
   public transcriptChucks = [];
+
+  private _editorialDataService = inject(EditorialDataService);
+  private _sanitizer = inject(DomSanitizer);
 
   ngOnInit(): void {
     const rawText = this.data.transcript.join('\n\n');
@@ -52,7 +52,7 @@ export class GenerateRealtimeInsightsDialogComponent implements OnInit {
   }
 
   sanitizeText(text: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(text);
+    return this._sanitizer.bypassSecurityTrustHtml(text);
   }
 
   onClose(): void {
@@ -122,7 +122,7 @@ export class GenerateRealtimeInsightsDialogComponent implements OnInit {
       console.log(
         `Chunk ${idx + 1} (${this.countWords(chunk)} words):\n${chunk}\n`
       );
-      this.backendApiService.generateRealtimeInsights({
+      this._editorialDataService.generateRealtimeInsights({
         action: 'realTimeInsights',
         sessionId: sessionData.SessionId,
         eventName: sessionData.Event,
