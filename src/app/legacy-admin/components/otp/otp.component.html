@@ -10,7 +10,7 @@
       <h4>Enter 6 digits code</h4>
       <form (submit)="handleSubmit()">
         <div #inputs class="otp-inputs">
-          @for (digit of otp; track digit; let i = $index) {
+          @for (digit of otp; track i; let i = $index) {
             <input
               [value]="digit"
               (input)="handleOtpChange(i, $event)"
