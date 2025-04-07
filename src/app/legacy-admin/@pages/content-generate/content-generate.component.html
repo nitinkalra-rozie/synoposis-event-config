@@ -1,0 +1,532 @@
+<app-top-bar />
+<div class="main-content">
+  <div class="content-container">
+    <!-- Side Panel -->
+    <div class="side-panel">
+      <mat-card>
+        <mat-card-content>
+          <!-- Filters -->
+          <div class="filters">
+            <div class="filter-item">
+              <mat-form-field appearance="fill">
+                <mat-label>Select Day</mat-label>
+                <mat-select
+                  [(value)]="selected_day"
+                  (selectionChange)="filterTracksByDay()">
+                  @for (day of uniqueDays; track day) {
+                    <mat-option [value]="day">{{ day }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="filter-item">
+              <mat-form-field appearance="fill">
+                <mat-label>Select Track</mat-label>
+                <mat-select
+                  [(value)]="selected_track"
+                  (selectionChange)="filterSessionsByTrack()">
+                  @for (track of availableTracks; track track) {
+                    <mat-option [value]="track">{{ track }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Session List -->
+          <div class="session-list">
+            @for (session of filtered_sessions; track session) {
+              <div
+                class="session-item"
+                [ngClass]="{
+                  'session-item-selected':
+                    session.SessionId === selected_session,
+                }"
+                (click)="selectSession(session)">
+                <div class="session-info">
+                  <span class="session-title">{{ session.SessionTitle }}</span>
+                  @if (session.Status === 'UNDER_REVIEW' && !session.Editor) {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)">
+                      To Review
+                    </span>
+                  }
+                  @if (session.Status === 'UNDER_REVIEW' && session.Editor) {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)"
+                      style="background-color: rgb(156 106 255)">
+                      In Review
+                    </span>
+                  }
+                  @if (session.Status === 'REVIEW_COMPLETE') {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)"
+                      style="background-color: rgb(0, 161, 94)">
+                      Completed
+                    </span>
+                  }
+                </div>
+                @if (session.SessionId !== selected_session) {
+                  <mat-icon class="session-icon">chevron_right</mat-icon>
+                }
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <!-- Main Editor Container -->
+    <div class="editor-container">
+      <div class="col-lg-12">
+        <mat-card class="editor-content">
+          @if (dataLoaded || isLoading) {
+            <mat-card-content>
+              @if (isLoading) {
+                <div class="loading-container">
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+              }
+              @if (!isLoading && dataLoaded) {
+                <div>
+                  <!-- Session Details -->
+                  <div class="session-details">
+                    <div class="session-header">
+                      <h2>{{ title }}</h2>
+                    </div>
+                    <div style="display: flex; flex-direction: row">
+                      <mat-card class="event-card">
+                        <mat-card-content>
+                          <div class="event-info-grid">
+                            <div class="event-info-row">
+                              <div class="event-info-item">
+                                <mat-icon>place</mat-icon>
+                                <span>{{
+                                  selected_session_details.Location
+                                }}</span>
+                              </div>
+                              <div class="event-info-item">
+                                <mat-icon>event</mat-icon>
+                                <span>{{
+                                  selected_session_details.StartsAt
+                                }}</span>
+                              </div>
+                              <div class="event-info-item">
+                                <mat-icon>layers</mat-icon>
+                                <span>{{
+                                  selected_session_details.Event
+                                }}</span>
+                              </div>
+                              <div class="event-info-item">
+                                <mat-icon>alarm_on</mat-icon>
+                                <span>{{
+                                  selected_session_details.Duration
+                                }}</span>
+                              </div>
+                            </div>
+                            <div class="event-info-row">
+                              <div class="event-info-item">
+                                <mat-icon>fact_check</mat-icon>
+                                <span>{{
+                                  selected_session_details.SessionId
+                                }}</span>
+                              </div>
+                              <div class="event-info-item">
+                                <mat-icon>layers</mat-icon>
+                                <span>{{ selected_session_details.Type }}</span>
+                              </div>
+                              <div class="event-info-item">
+                                <mat-icon>stacked_line_chart</mat-icon>
+                                <span>{{
+                                  selected_session_details.Track
+                                }}</span>
+                              </div>
+                              <div class="event-info-item">
+                                <mat-icon>person</mat-icon>
+                                <span>{{
+                                  selected_session_details.Editor
+                                }}</span>
+                              </div>
+                            </div>
+                            <div style="flex: 1">
+                              <div style="display: flex">
+                                @if (
+                                  selected_session_details.Status ===
+                                    'UNDER_REVIEW' &&
+                                  !selected_session_details.Editor
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="
+                                      getStatusClass(
+                                        selected_session_details.Status
+                                      )
+                                    ">
+                                    To Review
+                                  </span>
+                                }
+                                @if (
+                                  selected_session_details.Status ===
+                                    'UNDER_REVIEW' &&
+                                  selected_session_details.Editor
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="
+                                      getStatusClass(
+                                        selected_session_details.Status
+                                      )
+                                    "
+                                    style="background-color: rgb(156 106 255)">
+                                    In Review
+                                  </span>
+                                }
+                                @if (
+                                  selected_session_details.Status ===
+                                  'REVIEW_COMPLETE'
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="
+                                      getStatusClass(
+                                        selected_session_details.Status
+                                      )
+                                    "
+                                    style="background-color: rgb(0, 161, 94)">
+                                    Completed
+                                  </span>
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </mat-card-content>
+                      </mat-card>
+                      <!-- Status and Actions -->
+                      <div class="status-container">
+                        <div class="action-buttons">
+                          <button
+                            mat-raised-button
+                            (click)="openLargeModal()"
+                            color="primary">
+                            View Realtime Debrief
+                          </button>
+                          <button
+                            mat-raised-button
+                            (click)="openTranscriptModal()"
+                            color="primary">
+                            View Transcript
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="table-container">
+                    <h1>Content Versions</h1>
+                    <div class="dropdown-row">
+                      <!-- 1) Session Type Selection -->
+                      <mat-form-field class="dropdown-col" appearance="fill">
+                        <mat-label>Select Session Type</mat-label>
+                        <mat-select
+                          [(value)]="selectedSessionType"
+                          (selectionChange)="onSessionTypeChange($event.value)">
+                          @for (st of sessionTypes; track st) {
+                            <mat-option [value]="st">
+                              {{ st }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <!-- 2) Report Type Selection -->
+                      <mat-form-field class="dropdown-col" appearance="fill">
+                        <mat-label>Select Report Type</mat-label>
+                        <mat-select
+                          [(value)]="selectedReportType"
+                          (selectionChange)="onReportTypeChange($event.value)">
+                          @for (rt of reportTypes; track rt) {
+                            <mat-option [value]="rt">
+                              {{ rt }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <!-- 3) Transcript Source -->
+                      <mat-form-field class="dropdown-col" appearance="fill">
+                        <mat-label>Select Transcript Source</mat-label>
+                        <mat-select [(value)]="selectedTranscriptSource">
+                          @for (source of transcriptSources; track source) {
+                            <mat-option [value]="source">
+                              {{ source }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                      <!-- 4) Prompt Version -->
+                      <mat-form-field class="dropdown-col" appearance="fill">
+                        <mat-label>Select Prompt version</mat-label>
+                        <mat-select [(value)]="selectedPromptVersion">
+                          @for (
+                            version of availablePromptVersions;
+                            track version
+                          ) {
+                            <mat-option [value]="version">
+                              {{ version }}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    @if (selectedTranscriptSource === 'Text Input') {
+                      <div
+                        style="
+                          display: flex;
+                          flex-direction: column;
+                          margin-top: 20px;
+                          margin-bottom: 20px;
+                        ">
+                        <mat-form-field class="full-width" appearance="fill">
+                          <mat-label>Enter Transcript</mat-label>
+                          <textarea
+                            matInput
+                            [(ngModel)]="manualTranscript"
+                            rows="10"></textarea>
+                        </mat-form-field>
+                      </div>
+                    }
+                    <div class="generate-content-loader-container">
+                      @if (status() === 'generating') {
+                        <div class="step-panel">
+                          <!-- / grid loader -->
+                          <section>
+                            <div class="sk-cube-grid">
+                              <div class="sk-cube sk-cube-1"></div>
+                              <div class="sk-cube sk-cube-2"></div>
+                              <div class="sk-cube sk-cube-3"></div>
+                              <div class="sk-cube sk-cube-4"></div>
+                              <div class="sk-cube sk-cube-5"></div>
+                              <div class="sk-cube sk-cube-6"></div>
+                              <div class="sk-cube sk-cube-7"></div>
+                              <div class="sk-cube sk-cube-8"></div>
+                              <div class="sk-cube sk-cube-9"></div>
+                            </div>
+                          </section>
+                          <h2>Generating Content...</h2>
+                        </div>
+                      }
+                      @if (status() === 'creating') {
+                        <div class="step-panel">
+                          <!-- / grid loader -->
+                          <section>
+                            <div class="sk-cube-grid">
+                              <div class="sk-cube sk-cube-1"></div>
+                              <div class="sk-cube sk-cube-2"></div>
+                              <div class="sk-cube sk-cube-3"></div>
+                              <div class="sk-cube sk-cube-4"></div>
+                              <div class="sk-cube sk-cube-5"></div>
+                              <div class="sk-cube sk-cube-6"></div>
+                              <div class="sk-cube sk-cube-7"></div>
+                              <div class="sk-cube sk-cube-8"></div>
+                              <div class="sk-cube sk-cube-9"></div>
+                            </div>
+                          </section>
+                          <h2>Creating PDF...</h2>
+                        </div>
+                      }
+                      @if (status() === 'done') {
+                        <div class="step-panel success">
+                          <h2>
+                            <span class="check-mark">✓</span> Content generated
+                            successfully!
+                          </h2>
+                          <div>
+                            <button
+                              mat-flat-button
+                              (click)="viewLastGeneratedPdf('v1')"
+                              color="primary">
+                              View PDF V1
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    <!-- =========== End of Dropdown Menus ============ -->
+                    @if (status() === 'idle') {
+                      <div
+                        style="
+                          display: flex;
+                          flex-direction: row-reverse;
+                          margin-bottom: 10px;
+                        ">
+                        <button
+                          mat-raised-button
+                          (click)="generateNewVersion()"
+                          color="primary">
+                          Genarate New
+                        </button>
+                        <button
+                          mat-raised-button
+                          (click)="getContentVersions()"
+                          color="primary">
+                          Refresh
+                        </button>
+                      </div>
+                    }
+                    <!-- Example filter search box (optional) -->
+                    <mat-form-field class="filter-field" appearance="outline">
+                      <mat-label>Search Versions</mat-label>
+                      <input
+                        matInput
+                        (keyup)="applyFilter($event)"
+                        placeholder="Search by version, promptVersion, etc." />
+                    </mat-form-field>
+                    @if (isContentLoading) {
+                      <div class="loading-container">
+                        <mat-progress-bar
+                          mode="indeterminate"></mat-progress-bar>
+                      </div>
+                    }
+                    <table
+                      mat-table
+                      matSort
+                      class="versions-table"
+                      [dataSource]="dataSource"
+                      (matSortChange)="paginator.pageIndex = 0">
+                      <!-- Select Column (radio or checkbox, or just highlight on click) -->
+                      <ng-container matColumnDef="select">
+                        <th *matHeaderCellDef mat-header-cell></th>
+                        <td
+                          *matCellDef="let row; let i = index"
+                          mat-cell
+                          [class.selected]="selectedRowIndex === i"
+                          (click)="highlightRow(row, i)">
+                          @if (selectedRowIndex === i) {
+                            <mat-icon>check_circle</mat-icon>
+                          }
+                          @if (selectedRowIndex !== i) {
+                            <mat-icon>radio_button_unchecked</mat-icon>
+                          }
+                        </td>
+                      </ng-container>
+                      <!-- Version Column -->
+                      <ng-container matColumnDef="version">
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                          Version
+                        </th>
+                        <td
+                          *matCellDef="let row; let i = index"
+                          mat-cell
+                          [class.selected]="selectedRowIndex === i"
+                          (click)="highlightRow(row, i)">
+                          {{ row.version }}
+                        </td>
+                      </ng-container>
+                      <!-- Prompt Version Column -->
+                      <ng-container matColumnDef="promptVersion">
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                          PDF V1
+                        </th>
+                        <td
+                          *matCellDef="let row; let i = index"
+                          mat-cell
+                          [class.selected]="selectedRowIndex === i"
+                          (click)="highlightRow(row, i)">
+                          @if (row.pdfPathV1) {
+                            <div>
+                              <button
+                                mat-flat-button
+                                (click)="viewPdf(row, 'v1')"
+                                color="primary">
+                                View PDF V1
+                              </button>
+                            </div>
+                          }
+                        </td>
+                      </ng-container>
+                      <!-- PDF Path Column -->
+                      <ng-container matColumnDef="pdfPath">
+                        <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                          PDF V2
+                        </th>
+                        <td
+                          *matCellDef="let row; let i = index"
+                          mat-cell
+                          [class.selected]="selectedRowIndex === i"
+                          (click)="highlightRow(row, i)">
+                          @if (row.pdfPathV2) {
+                            <div>
+                              <button
+                                mat-flat-button
+                                (click)="viewPdf(row, 'v2')"
+                                color="primary">
+                                View PDF V2
+                              </button>
+                            </div>
+                          }
+                        </td>
+                      </ng-container>
+                      <!-- Actions Column -->
+                      <ng-container matColumnDef="actions">
+                        <th *matHeaderCellDef mat-header-cell>Actions</th>
+                        <td *matCellDef="let row; let i = index" mat-cell>
+                          <div
+                            style="
+                              display: flex;
+                              flex-direction: row-reverse;
+                              padding-bottom: 10px;
+                            ">
+                            <button
+                              mat-icon-button
+                              [matMenuTriggerFor]="menu"
+                              aria-label="Example icon-button with a menu">
+                              <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                              <button
+                                mat-menu-item
+                                (click)="publishPDF(row.version, 'v1')">
+                                <mat-icon>dialpad</mat-icon>
+                                <span>Publish V1</span>
+                              </button>
+                              <button
+                                mat-menu-item
+                                (click)="publishPDF(row.version, 'v2')">
+                                <mat-icon>dialpad</mat-icon>
+                                <span>Publish V2</span>
+                              </button>
+                            </mat-menu>
+                            <button
+                              mat-raised-button
+                              (click)="editContent(row)"
+                              color="accent">
+                              Edit Content
+                            </button>
+                          </div>
+                        </td>
+                      </ng-container>
+                      <!-- Table Header and Row Declarations -->
+                      <tr
+                        *matHeaderRowDef="displayedColumns"
+                        mat-header-row></tr>
+                      <tr
+                        *matRowDef="let row; columns: displayedColumns"
+                        mat-row
+                        [class.selected]="selectedRowIndex === row"></tr>
+                    </table>
+                    <mat-paginator
+                      [length]="dataSource.data.length"
+                      [pageSize]="5"
+                      [pageSizeOptions]="[5, 10, 20]">
+                    </mat-paginator>
+                  </div>
+                </div>
+              }
+            </mat-card-content>
+          }
+        </mat-card>
+      </div>
+    </div>
+  </div>
+  <div></div>
+  <app-sidebar-control-panel></app-sidebar-control-panel>
+</div>

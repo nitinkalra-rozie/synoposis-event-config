@@ -1,0 +1,150 @@
+@use 'mixins' as m;
+@use 'variables' as v;
+@use 'functions' as f;
+
+// TODO:@now Remove this
+body,
+html {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+}
+
+app-side-nav {
+  width: v.$left-sidebar-collapsed-width;
+}
+
+.top-bar {
+  display: flex;
+  position: relative;
+  justify-content: space-between;
+  gap: 0;
+  height: v.$top-bar-height;
+  background: v.$primary-bg-color;
+  align-items: center;
+  fill: v.$primary-bg-color;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.25));
+  flex-grow: 1;
+
+  .bar-left-content {
+    display: flex;
+
+    .mobile-logo-container {
+      display: none;
+      padding: 1.25rem;
+      flex-direction: column;
+      align-items: flex-start;
+      flex-shrink: 0;
+      background: v.$gradient-purple;
+
+      @media (width <= v.$screen-compact) {
+        display: inline-flex;
+      }
+
+      .logo-styles {
+        height: 2rem;
+        width: 2rem;
+      }
+    }
+
+    .title {
+      color: v.$primary-bg-color-variant-8;
+      font-family: v.$base-font;
+      font-size: v.$font-size-xl;
+      font-style: normal;
+      font-weight: v.$font-weight-regular;
+      line-height: 1.4375rem;
+      padding: 1.375rem 0 1.5625rem 1.75rem;
+      display: flex;
+
+      @media (width <= v.$screen-compact) {
+        padding-left: 1.585rem;
+        white-space: normal;
+      }
+    }
+  }
+
+  .menu-icon {
+    padding: 1.125rem 0 1.25rem;
+
+    .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .profile-icon-wrapper {
+      padding-right: 1.77rem;
+      @include m.d-flex;
+
+      .profile-icon {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 2rem;
+      }
+    }
+  }
+
+  .dropdown {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    width: 12.5rem;
+    padding: 0.44rem 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.31rem;
+    border-radius: v.$button-border-radius;
+    background: v.$primary-bg-color;
+    box-shadow: v.$elevation-6dp;
+    right: 1.875rem;
+
+    li {
+      list-style: none;
+      display: flex;
+      padding: 0.5rem 0.625rem;
+      align-items: center;
+      gap: 0.0625rem;
+      align-self: stretch;
+      cursor: pointer;
+      color: v.$primary-bg-color-variant-6;
+      font-size: v.$font-size-sm;
+      font-style: normal;
+      font-weight: v.$font-weight-regular;
+      line-height: 1.5rem;
+      letter-spacing: -0.14px;
+
+      &:hover {
+        background-color: v.$selection-variant-1;
+      }
+    }
+  }
+}
+
+.bar-right-content {
+  @include m.d-flex-row-align-center;
+
+  .info-icon {
+    margin-right: 0.625rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 100%;
+    background-color: f.color-transparent(30%, v.$primary-color-variant-2);
+    @include m.flex-center;
+    cursor: pointer;
+
+    mat-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+      fill: v.$primary-color-variant-2;
+      color: v.$primary-color-variant-2;
+      @include m.flex-center;
+    }
+  }
+}

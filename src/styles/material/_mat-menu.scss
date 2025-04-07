@@ -1,0 +1,157 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// previously multiplied value * 0.77
+$session-selection-menu-width-right-sidebar-expanded: calc(
+  calc(
+    100vw - v.$right-sidebar-expanded-width - v.$left-sidebar-collapsed-width -
+      v.$stepper-content-number-size - v.$stepper-content-gap - 88px
+  )
+);
+$session-selection-menu-width-right-sidebar-collapsed: calc(
+  calc(
+    100vw - v.$right-sidebar-collapsed-width - v.$left-sidebar-collapsed-width -
+      v.$stepper-content-number-size - v.$stepper-content-gap - 88px
+  )
+);
+$session-selection-menu-width-right-sidebar-hidden: calc(
+  calc(
+    100vw - v.$left-sidebar-collapsed-width - v.$stepper-content-number-size -
+      v.$stepper-content-gap - 88px
+  )
+);
+
+.session-selection-menu {
+  // #region commented due to the use of the new design
+  // width: calc(100% - 88px);
+  // max-width: 756px !important;
+  // min-width: 100% !important;
+  // #endregion
+
+  width: $session-selection-menu-width-right-sidebar-hidden !important;
+  box-shadow: v.$box-shadow-simple-drop-5;
+  min-height: 100px;
+  max-height: 345px;
+  height: auto;
+
+  &.mat-mdc-menu-panel {
+    max-width: 100%;
+  }
+
+  &.right-sidebar-expanded {
+    width: $session-selection-menu-width-right-sidebar-expanded !important;
+  }
+
+  &.right-sidebar-collapsed {
+    width: $session-selection-menu-width-right-sidebar-collapsed !important;
+  }
+
+  .mat-mdc-menu-content {
+    padding: 16px 0 !important; /* Remove padding for the menu panel */
+    width: 100%;
+    height: calc(100% - 32px);
+    background-color: v.$primary-bg-color;
+    @include m.d-flex-column-align-center;
+    align-items: flex-start;
+
+    .mat-mdc-menu-item:hover {
+      background-color: v.$selection-variant-1 !important;
+    }
+  }
+}
+
+.dropdown-menu-single-select {
+  border-radius: 4px;
+  background-color: v.$primary-bg-color;
+  box-shadow: v.$elevation-6dp;
+  min-width: unset !important;
+  min-height: 100px;
+
+  .mat-mdc-menu-content {
+    padding: 16px 0 !important; /* Remove padding for the menu panel */
+    width: 100%;
+    height: calc(100% - 32px);
+    background-color: v.$primary-bg-color;
+    @include m.d-flex-column-align-center;
+    align-items: flex-start;
+
+    .mat-mdc-menu-item:hover {
+      background-color: v.$selection-variant-1 !important;
+    }
+  }
+
+  &.filters {
+    margin-top: 8px;
+    width: calc(v.$right-sidebar-hidden-content-container-width / 3);
+    max-width: 240px;
+
+    &.right-sidebar-expanded {
+      width: calc(v.$right-sidebar-expanded-content-container-width / 3);
+    }
+
+    &.right-sidebar-collapsed {
+      width: calc(v.$right-sidebar-collapsed-content-container-width / 3);
+    }
+  }
+}
+
+.dropdown-menu {
+  border-radius: 4px;
+  background-color: v.$primary-bg-color;
+  box-shadow: v.$elevation-6dp;
+  min-width: unset !important;
+  min-height: 100px;
+
+  .mat-mdc-menu-content {
+    padding: 0 !important; /* Remove padding for the menu panel */
+    padding-top: 16px !important;
+    width: 100%;
+    height: calc(100% - 16px);
+    background-color: v.$primary-bg-color;
+    @include m.d-flex-column-align-center;
+    align-items: flex-start;
+
+    .mat-mdc-menu-item:hover {
+      background-color: v.$selection-variant-1 !important;
+    }
+  }
+
+  &.filters {
+    margin-top: 8px;
+    width: calc(v.$right-sidebar-hidden-content-container-width / 3);
+    max-width: 240px;
+
+    &.right-sidebar-expanded {
+      width: calc(v.$right-sidebar-expanded-content-container-width / 3);
+    }
+
+    &.right-sidebar-collapsed {
+      width: calc(v.$right-sidebar-collapsed-content-container-width / 3);
+    }
+  }
+}
+
+.info-menu {
+  box-shadow: v.$elevation-6dp;
+  min-width: unset !important;
+  min-height: 100px;
+  border-radius: 4px;
+  max-width: 640px !important;
+  margin-top: 5px;
+
+  .mat-mdc-menu-content {
+    padding: 0 !important; /* Remove padding for the menu panel */
+    height: auto;
+    background-color: v.$primary-bg-color;
+    @include m.d-flex-column-align-center;
+    align-items: flex-start;
+    @include m.body-regular;
+    color: v.$primary-bg-color-variant-6;
+
+    > p {
+      padding: 15px;
+      margin-block-start: 0;
+      margin-block-end: 0;
+    }
+  }
+}
