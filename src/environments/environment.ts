@@ -7,6 +7,7 @@ export const environment = {
   saveEditedVersionContentUrl: '',
   generateContentPDFUrl: '',
   updateAgendaUrl: '',
+  getUploadFIlePresigendUrl: '',
   publishContentPDFUrl: '',
   getPreSignedPDFUrl: '',
   prompt_mangement_base_url: '',

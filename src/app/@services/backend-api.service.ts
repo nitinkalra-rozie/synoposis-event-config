@@ -37,6 +37,40 @@ export class BackendApiService {
     return this.http.post(environment.postData, data);
   }
 
+  getUploadPresignedUrl(
+    eventName: string,
+    fileType: string,
+    fileExtension: string
+  ): Observable<Object> {
+    const refreshToken = localStorage.getItem('accessToken');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${refreshToken}`,
+    });
+
+    const data = {
+      action: 'uploadFile',
+      eventName: eventName,
+      clientType: 'client',
+      fileType: fileType,
+      fileExtension: fileExtension,
+    };
+    // Pass the headers and the body as arguments to the post() method
+    return this.http.post(environment.getUploadFIlePresigendUrl, data, {
+      headers: headers,
+    });
+  }
+
+  uploadFileUsingPreSignedUrl(
+    file: File,
+    preSignedUrl: string
+  ): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': file.type,
+    });
+
+    return this.http.put(preSignedUrl, file, { headers, responseType: 'text' });
+  }
+
   putTranscript(transcript: any): Observable<Object> {
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),

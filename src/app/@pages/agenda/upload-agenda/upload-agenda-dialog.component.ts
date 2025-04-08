@@ -17,10 +17,11 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
+import { UploadImageComponent } from '../upload-image-component/upload-image.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-
 import * as XLSX from 'xlsx';
-import { Session, SpeakerDetails, TimeZones } from '../agenda.component';
+import { Session, SpeakerDetails } from '../agenda.component';
+import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
 
 @Component({
   selector: 'app-upload-agenda-dialog',
@@ -40,6 +41,7 @@ import { Session, SpeakerDetails, TimeZones } from '../agenda.component';
     MatAutocompleteModule,
     MatProgressBarModule,
     MatExpansionModule,
+    UploadImageComponent,
   ],
   templateUrl: './upload-agenda-dialog.component.html',
   styleUrls: ['./upload-agenda-dialog.component.scss'],
@@ -63,6 +65,7 @@ export class UploadAgendaDialogComponent {
   public sessions: Session[] = [];
   public errorMessage: string = '';
   public isLoading: boolean;
+  public isUploading: boolean;
   public displayedColumns: string[] = [
     'Session Title',
     'Start Time',
@@ -72,7 +75,8 @@ export class UploadAgendaDialogComponent {
     'Stage',
   ];
   public selectedTimezone: string = '+0:00';
-  public timezones: { value: string; label: string }[] = TimeZones;
+  public timezones: { value: string; label: string }[] =
+    inject(TIMEZONE_OPTIONS);
   public isDragging = false;
   public filteredTrackOptions: Signal<string[]>;
   private _backendApiService = inject(BackendApiService);
@@ -200,6 +204,7 @@ export class UploadAgendaDialogComponent {
       Title: '',
       Url: '',
       SpeakerBio: '',
+      S3FileKey: '',
       Name: '',
       isModerator: false,
       Organization: '',
@@ -244,6 +249,10 @@ export class UploadAgendaDialogComponent {
       }
     }
     return true;
+  }
+
+  updateSpeakerImage(speakerImage: string, speaker: SpeakerDetails): void {
+    speaker.S3FileKey = speakerImage;
   }
 
   confirm(): void {

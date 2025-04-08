@@ -13,7 +13,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SessionDialogComponent } from './dialog/original-debrief-modal-dialog.component';
+import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
 import { UploadAgendaDialogComponent } from './upload-agenda/upload-agenda-dialog.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation.dialog.component';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
@@ -39,6 +39,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
 
 interface Application {
   value: string;
@@ -51,45 +52,11 @@ interface SelectedConfig {
   config: any;
 }
 
-export const TimeZones = [
-  { value: '-11:00', label: 'UTC-11:00' },
-  { value: '-10:00', label: 'UTC-10:00' },
-  { value: '-9:00', label: 'UTC-9:00' },
-  { value: '-8:00', label: 'UTC-8:00' },
-  { value: '-7:00', label: 'UTC-7:00' },
-  { value: '-6:00', label: 'UTC-6:00' },
-  { value: '-5:00', label: 'UTC-5:00' },
-  { value: '-4:00', label: 'UTC-4:00' },
-  { value: '-3:00', label: 'UTC-3:00' },
-  { value: '-2:00', label: 'UTC-2:00' },
-  { value: '-1:00', label: 'UTC-1:00' },
-  { value: '+0:00', label: 'UTC+0:00' },
-  { value: '+1:00', label: 'UTC+1:00' },
-  { value: '+2:00', label: 'UTC+2:00' },
-  { value: '+3:00', label: 'UTC+3:00' },
-  { value: '+3:30', label: 'UTC+3:30' },
-  { value: '+4:00', label: 'UTC+4:00' },
-  { value: '+4:30', label: 'UTC+4:30' },
-  { value: '+5:00', label: 'UTC+5:00' },
-  { value: '+5:30', label: 'UTC+5:30' },
-  { value: '+5:45', label: 'UTC+5:45' },
-  { value: '+6:00', label: 'UTC+6:00' },
-  { value: '+6:30', label: 'UTC+6:30' },
-  { value: '+7:00', label: 'UTC+7:00' },
-  { value: '+8:00', label: 'UTC+8:00' },
-  { value: '+8:45', label: 'UTC+8:45' },
-  { value: '+9:00', label: 'UTC+9:00' },
-  { value: '+9:30', label: 'UTC+9:30' },
-  { value: '+10:00', label: 'UTC+10:00' },
-  { value: '+10:30', label: 'UTC+10:30' },
-  { value: '+11:00', label: 'UTC+11:00' },
-  { value: '+12:00', label: 'UTC+12:00' },
-];
-
 export interface SpeakerDetails {
   Title: string;
   Organization: string;
   Url: string;
+  S3FileKey: string;
   SpeakerBio: string;
   isModerator: boolean;
   Name: string;
@@ -150,7 +117,7 @@ interface RealtimeInsight {
     TopBarComponent,
     SidebarControlPanelComponent,
     UploadAgendaDialogComponent,
-    SessionDialogComponent,
+    UpdateSessionDialogComponent,
     ConfirmationDialogComponent,
   ],
   providers: [],
@@ -220,7 +187,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public topics: Array<string> = [];
   public speakers: Array<string> = [];
   public session_details: Session[] = [];
-  public availableTimezones: { value: string; label: string }[] = TimeZones;
+  public availableTimezones: { value: string; label: string }[] =
+    inject(TIMEZONE_OPTIONS);
   public selectedTimezone: string = '+0:00';
   public eventTimezone: string = '+0:00';
   public selectedStatus: { label: string; class: string } = {
@@ -235,12 +203,12 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   ];
 
   public displayedColumns: string[] = [
+    'startDate',
+    'startTime',
     'title',
     'sessionid',
     'Type',
     'status',
-    'startDate',
-    'startTime',
     'track',
     'actions',
   ];
@@ -658,7 +626,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   adjustSessionTimes(sessions: Session[], hoursToAdjust: number): Session[] {
     return sessions.map((session): Session => {
-      const adjustTime = (datetime: string):string => {
+      const adjustTime = (datetime: string): string => {
         const isoString = datetime
           .replace(' ', 'T')
           .replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
@@ -702,7 +670,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         : s.StartsAt,
       EndsAt: s.EndsAt.endsWith('+0000') ? s.EndsAt.slice(0, -5) : s.EndsAt,
     }));
-    const dialogRef = this.dialog.open(SessionDialogComponent, {
+    const dialogRef = this.dialog.open(UpdateSessionDialogComponent, {
       width: '1200px',
       maxWidth: 'none',
       data: {

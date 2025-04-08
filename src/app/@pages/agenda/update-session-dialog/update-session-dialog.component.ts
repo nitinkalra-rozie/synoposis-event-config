@@ -29,11 +29,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { map, startWith } from 'rxjs/operators';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
+import { UploadImageComponent } from '../upload-image-component/upload-image.component';
 
 @Component({
-  selector: 'app-large-modal-dialog',
-  templateUrl: './original-debrief-modal-dialog.component.html',
-  styleUrls: ['./original-debrief-modal-dialog.component.scss'],
+  selector: 'app-update-session-dialog',
+  templateUrl: './update-session-dialog.component.html',
+  styleUrls: ['./update-session-dialog.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -48,9 +49,10 @@ import { BackendApiService } from 'src/app/@services/backend-api.service';
     MatAutocompleteModule,
     MatProgressBarModule,
     MatSelectModule,
+    UploadImageComponent,
   ],
 })
-export class SessionDialogComponent {
+export class UpdateSessionDialogComponent {
   public dialogData = inject(MAT_DIALOG_DATA) as {
     adjustSessionTimesFn: (data: Session[]) => Session[];
     displayErrorMessageFn: (msg: string) => void;
@@ -59,7 +61,7 @@ export class SessionDialogComponent {
     trackList: string[];
   };
 
-  public dialogRef = inject(MatDialogRef<SessionDialogComponent>);
+  public dialogRef = inject(MatDialogRef<UpdateSessionDialogComponent>);
   public fb = inject(FormBuilder);
 
   public sessionForm: FormGroup = this.createForm(this.dialogData.data);
@@ -72,10 +74,81 @@ export class SessionDialogComponent {
   );
   public type: WritableSignal<string> = signal(this.dialogData.type);
   public isLoading: boolean = false;
+  public isUploading = false;
   private _backendApiService = inject(BackendApiService);
 
   public get trackControl(): FormControl {
     return this.sessionForm.get('Track') as FormControl;
+  }
+
+  async uploadSpeakerImage(file: File): Promise<string> {
+    if (!file) return '';
+
+    const fileExtension = file.type.replace('image/', '');
+    const fileType = 'speaker_headshots';
+    const eventName = this.dialogData.data.Event;
+
+    try {
+      const uploadUrlResponse = await this._backendApiService
+        .getUploadPresignedUrl(eventName, fileType, fileExtension)
+        .toPromise();
+
+      if (uploadUrlResponse?.['success']) {
+        const preSignedUrl = uploadUrlResponse['data']['preSignedUrl'];
+        const s3Key = uploadUrlResponse['data']['key'];
+        await this._backendApiService
+          .uploadFileUsingPreSignedUrl(file, preSignedUrl)
+          .toPromise();
+        return s3Key;
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+      this.dialogData.displayErrorMessageFn?.(
+        'Error uploading image. Please try again.'
+      );
+    }
+
+    return '';
+  }
+
+  updateSpeakerImage(speakerImage: string, speaker: any): void {
+    speaker.get('S3FileKey').setValue(speakerImage);
+  }
+
+  async onFileSelected(event: Event, speaker: any): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (file && this.validateImage(file)) {
+      this.isUploading = true;
+      try {
+        const imageS3Key = await this.uploadSpeakerImage(file);
+        if (imageS3Key) {
+          speaker.get('S3FileKey').setValue(imageS3Key);
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            speaker.get('Url').setValue(e.target.result);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          this.dialogData.displayErrorMessageFn(
+            'Error uploading image. Please try again.'
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        this.dialogData.displayErrorMessageFn(
+          'Error uploading image. Please try again.'
+        );
+      } finally {
+        this.isUploading = false;
+        input.value = ''; // Reset input
+      }
+    }
+  }
+
+  removeImage(speaker): void {
+    speaker.get('Url')?.setValue(null);
   }
 
   createForm(session: Session): FormGroup {
@@ -117,9 +190,19 @@ export class SessionDialogComponent {
       Title: [speaker?.Title || ''],
       Organization: [speaker?.Organization || ''],
       Url: [speaker?.Url || ''],
+      S3FileKey: [this.getS3KeyFromUrl(speaker?.Url) || ''],
       SpeakerBio: [speaker?.SpeakerBio || ''],
       isModerator: [speaker?.isModerator || false],
     });
+  }
+
+  getS3KeyFromUrl(presignedUrl: string): string {
+    if (presignedUrl) {
+      const S3FileKey = new URL(presignedUrl).pathname.substring(1);
+      return S3FileKey;
+    } else {
+      return '';
+    }
   }
 
   public get speakers(): FormArray {
@@ -169,12 +252,15 @@ export class SessionDialogComponent {
         return;
       }
       if (this.dialogData.adjustSessionTimesFn) {
-        const formattedSessionDetails = this.updateSessionTimes([
-          this.sessionForm.getRawValue(),
-        ]);
-        const updatedSessionDetails = this.dialogData.adjustSessionTimesFn(
-          formattedSessionDetails
-        );
+        sessionData.SpeakersInfo = sessionData.SpeakersInfo.map((speaker) => {
+          speaker.Url = '';
+          return speaker;
+        });
+        const formattedSessionDetails = this.updateSessionTimes([sessionData]);
+
+        const updatedSessionDetails: Session[] =
+          this.dialogData.adjustSessionTimesFn(formattedSessionDetails);
+
         this._backendApiService.updateAgenda(updatedSessionDetails).subscribe({
           next: (response) => {
             this.isLoading = false;
@@ -191,6 +277,27 @@ export class SessionDialogComponent {
         'Session details not valid. Please update the session details and retry.'
       );
     }
+  }
+
+  private validateImage(file: File): boolean {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+    if (!validTypes.includes(file.type)) {
+      this.dialogData.displayErrorMessageFn(
+        'Invalid file type. Please upload a JPEG, PNG or GIF.'
+      );
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      this.dialogData.displayErrorMessageFn(
+        'File size too large. Max 5MB allowed.'
+      );
+      return false;
+    }
+
+    return true;
   }
 
   private _filter(value: string): string[] {
