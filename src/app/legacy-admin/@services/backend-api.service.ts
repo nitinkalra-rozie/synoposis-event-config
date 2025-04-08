@@ -49,7 +49,7 @@ export class BackendApiService {
       fileType: fileType,
       fileExtension: fileExtension,
     };
-    return this.http.post(environment.getUploadFIlePresigendUrl, data);
+    return this.http.post(environment.getUploadFilePresignedUrl, data);
   }
 
   uploadFileUsingPreSignedUrl(
