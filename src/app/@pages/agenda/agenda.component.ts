@@ -1,9 +1,8 @@
 import {
   AfterViewInit,
   Component,
-  inject,
-  OnInit,
-  ViewChild,
+  inject, OnInit,
+  ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { debounceTime } from 'rxjs/operators';
@@ -39,6 +38,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
+
 
 interface Application {
   value: string;
@@ -51,40 +52,7 @@ interface SelectedConfig {
   config: any;
 }
 
-export const TimeZones = [
-  { value: '-11:00', label: 'UTC-11:00' },
-  { value: '-10:00', label: 'UTC-10:00' },
-  { value: '-9:00', label: 'UTC-9:00' },
-  { value: '-8:00', label: 'UTC-8:00' },
-  { value: '-7:00', label: 'UTC-7:00' },
-  { value: '-6:00', label: 'UTC-6:00' },
-  { value: '-5:00', label: 'UTC-5:00' },
-  { value: '-4:00', label: 'UTC-4:00' },
-  { value: '-3:00', label: 'UTC-3:00' },
-  { value: '-2:00', label: 'UTC-2:00' },
-  { value: '-1:00', label: 'UTC-1:00' },
-  { value: '+0:00', label: 'UTC+0:00' },
-  { value: '+1:00', label: 'UTC+1:00' },
-  { value: '+2:00', label: 'UTC+2:00' },
-  { value: '+3:00', label: 'UTC+3:00' },
-  { value: '+3:30', label: 'UTC+3:30' },
-  { value: '+4:00', label: 'UTC+4:00' },
-  { value: '+4:30', label: 'UTC+4:30' },
-  { value: '+5:00', label: 'UTC+5:00' },
-  { value: '+5:30', label: 'UTC+5:30' },
-  { value: '+5:45', label: 'UTC+5:45' },
-  { value: '+6:00', label: 'UTC+6:00' },
-  { value: '+6:30', label: 'UTC+6:30' },
-  { value: '+7:00', label: 'UTC+7:00' },
-  { value: '+8:00', label: 'UTC+8:00' },
-  { value: '+8:45', label: 'UTC+8:45' },
-  { value: '+9:00', label: 'UTC+9:00' },
-  { value: '+9:30', label: 'UTC+9:30' },
-  { value: '+10:00', label: 'UTC+10:00' },
-  { value: '+10:30', label: 'UTC+10:30' },
-  { value: '+11:00', label: 'UTC+11:00' },
-  { value: '+12:00', label: 'UTC+12:00' },
-];
+
 
 export interface SpeakerDetails {
   Title: string;
@@ -221,7 +189,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public topics: Array<string> = [];
   public speakers: Array<string> = [];
   public session_details: Session[] = [];
-  public availableTimezones: { value: string; label: string }[] = TimeZones;
+  public availableTimezones: { value: string; label: string }[] =  inject(TIMEZONE_OPTIONS);
   public selectedTimezone: string = '+0:00';
   public eventTimezone: string = '+0:00';
   public selectedStatus: { label: string; class: string } = {

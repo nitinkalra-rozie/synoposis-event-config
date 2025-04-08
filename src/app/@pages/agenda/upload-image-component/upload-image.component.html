@@ -1,23 +1,25 @@
 <div class="image-section">
   <div class="image-preview" (click)="fileInput.click()">
-    <div *ngIf="isUploading" class="upload-overlay">
-      <div class="modern-loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">Uploading...</div>
+    @if (isUploading) {
+      <div class="upload-overlay">
+        <div class="modern-loader">
+          <div class="loader-spinner"></div>
+          <div class="loader-text">Uploading...</div>
+        </div>
       </div>
-    </div>
+    }
+    @if (speakerImage) {
     <img
-      *ngIf="speakerImage; else noImage"
       class="preview-image"
       [src]="speakerImage"
       alt="Speaker Image" />
-    <ng-template #noImage>
+    } @else {
       <div class="upload-prompt">
         <mat-icon class="upload-icon">cloud_upload</mat-icon>
         <div class="upload-instruction">Click to upload photo</div>
         <div class="upload-subtext">PNG or JPG (max 5MB)</div>
       </div>
-    </ng-template>
+    }
   </div>
   <input
     #fileInput
@@ -25,13 +27,15 @@
     accept="image/*"
     hidden
     type="file" />
-  <div *ngIf="speakerImage" class="image-actions">
-    <button
-      mat-stroked-button
-      class="remove-image-btn"
-      (click)="onRemoveImage()"
-      color="warn">
-      Remove Image
-    </button>
-  </div>
+  @if (speakerImage) {
+    <div class="image-actions">
+      <button
+        mat-stroked-button
+        class="remove-image-btn"
+        (click)="onRemoveImage()"
+        color="warn">
+        Remove Image
+      </button>
+    </div>
+  }
 </div>

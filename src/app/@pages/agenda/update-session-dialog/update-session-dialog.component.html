@@ -21,12 +21,11 @@
           placeholder="Select or enter track"
           type="text" />
         <mat-autocomplete #auto="matAutocomplete">
-          <!-- Notice the call to filteredTrackOptions() -->
-          <mat-option
-            *ngFor="let option of filteredTrackOptions()"
-            [value]="option">
-            {{ option }}
-          </mat-option>
+          @for (option of filteredTrackOptions(); track option) {
+            <mat-option [value]="option">
+              {{ option }}
+            </mat-option>
+          }
         </mat-autocomplete>
       </mat-form-field>
 
@@ -115,65 +114,61 @@
       <div class="speakers-section">
         <h3>Speakers</h3>
         <div formArrayName="SpeakersInfo">
-          <div
-            *ngFor="let speaker of speakers.controls; let i = index"
-            class="speaker-card"
-            [formGroupName]="i">
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>Speaker {{ i + 1 }}</mat-card-title>
-                <button
-                  mat-stroked-button
-                  class="remove-speaker-button"
-                  (click)="removeSpeaker(i)"
-                  color="danger">
-                  Remove Speaker
-                </button>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="form-row">
-                  <app-speaker-image-uploader
-                    [eventName]="dialogData?.data?.Event"
-                    [isUploading]="isUploading"
-                    [speakerImage]="speaker.get('Url')?.value"
-                    (displayErrorMessageFn)="
-                      this.dialogData.displayErrorMessageFn?.($event)
-                    "
-                    (updateSpeakerImage)="updateSpeakerImage($event, speaker)">
-                  </app-speaker-image-uploader>
-
-                  <div class="form-fields">
-                    <mat-form-field appearance="fill">
-                      <mat-label>Name</mat-label>
-                      <input matInput formControlName="Name" required />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="fill">
-                      <mat-label>Title</mat-label>
-                      <input matInput formControlName="Title" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="fill">
-                      <mat-label>Organization</mat-label>
-                      <input matInput formControlName="Organization" />
-                    </mat-form-field>
-
-                    <mat-checkbox formControlName="isModerator"
-                      >Is Moderator</mat-checkbox
-                    >
-
-                    <mat-form-field class="bio-field" appearance="fill">
-                      <mat-label>Speaker Bio</mat-label>
-                      <textarea
-                        matInput
-                        formControlName="SpeakerBio"
-                        rows="4"></textarea>
-                    </mat-form-field>
+          
+          @for (speaker of speakers.controls; track $index; let i = $index) {
+            <div class="speaker-card" [formGroupName]="i">
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title>Speaker {{ i + 1 }}</mat-card-title>
+                  <button
+                    mat-stroked-button
+                    class="remove-speaker-button"
+                    (click)="removeSpeaker(i)"
+                    color="danger">
+                    Remove Speaker
+                  </button>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="form-row">
+                    <app-speaker-image-uploader
+                      [eventName]="dialogData?.data?.Event"
+                      [isUploading]="isUploading"
+                      [speakerImage]="speaker.get('Url')?.value"
+                      (displayErrorMessageFn)="this.dialogData.displayErrorMessageFn?.($event)"
+                      (updateSpeakerImage)="updateSpeakerImage($event, speaker)">
+                    </app-speaker-image-uploader>
+            
+                    <div class="form-fields">
+                      <mat-form-field appearance="fill">
+                        <mat-label>Name</mat-label>
+                        <input matInput formControlName="Name" required />
+                      </mat-form-field>
+            
+                      <mat-form-field appearance="fill">
+                        <mat-label>Title</mat-label>
+                        <input matInput formControlName="Title" />
+                      </mat-form-field>
+            
+                      <mat-form-field appearance="fill">
+                        <mat-label>Organization</mat-label>
+                        <input matInput formControlName="Organization" />
+                      </mat-form-field>
+            
+                      <mat-checkbox formControlName="isModerator">Is Moderator</mat-checkbox>
+            
+                      <mat-form-field class="bio-field" appearance="fill">
+                        <mat-label>Speaker Bio</mat-label>
+                        <textarea
+                          matInput
+                          formControlName="SpeakerBio"
+                          rows="4"></textarea>
+                      </mat-form-field>
+                    </div>
                   </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            }
         </div>
         <button
           mat-stroked-button

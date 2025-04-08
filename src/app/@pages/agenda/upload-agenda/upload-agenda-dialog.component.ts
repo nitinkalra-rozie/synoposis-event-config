@@ -20,7 +20,8 @@ import { BackendApiService } from 'src/app/@services/backend-api.service';
 import { UploadImageComponent } from '../upload-image-component/upload-image.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import * as XLSX from 'xlsx';
-import { Session, SpeakerDetails, TimeZones } from '../agenda.component';
+import { Session, SpeakerDetails } from '../agenda.component';
+import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
 
 @Component({
   selector: 'app-upload-agenda-dialog',
@@ -74,7 +75,7 @@ export class UploadAgendaDialogComponent {
     'Stage',
   ];
   public selectedTimezone: string = '+0:00';
-  public timezones: { value: string; label: string }[] = TimeZones;
+  public timezones: { value: string; label: string }[] =  inject(TIMEZONE_OPTIONS);
   public isDragging = false;
   public filteredTrackOptions: Signal<string[]>;
   private _backendApiService = inject(BackendApiService);

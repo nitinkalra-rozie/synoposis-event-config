@@ -2,8 +2,9 @@
 <mat-dialog-content>
   <mat-card class="modern-card">
     <mat-card-content>
-      <!-- Upload section remains unchanged -->
-      <div *ngIf="!sessions.length" class="upload-section">
+      <!-- Upload section -->
+      @if (!sessions.length) {
+      <div class="upload-section">
         <input
           #fileInput
           (change)="onFileChange($event)"
@@ -23,21 +24,25 @@
           </div>
         </div>
       </div>
+      }
 
-      <!-- Error message remains unchanged -->
-      <div *ngIf="errorMessage" class="error-message">
+      <!-- Error message -->
+      @if (errorMessage) {
+      <div class="error-message">
         <mat-icon>error_outline</mat-icon>
         <span>{{ errorMessage }}</span>
       </div>
+      }
 
-      <!-- Accordion for session preview -->
-      <div *ngIf="sessions.length" class="preview-section">
+      @if (sessions.length) {
+      <div class="preview-section">
         <h3 class="preview-title">
           Session Preview
           <span class="count-badge">{{ sessions.length }} sessions</span>
         </h3>
         <mat-accordion>
-          <mat-expansion-panel *ngFor="let session of sessions; let i = index">
+          @for (session of sessions; track $index; let i = $index) {
+          <mat-expansion-panel>
             <mat-expansion-panel-header>
               <mat-panel-title>
                 {{ session.StartsAt | date: 'short' }}
@@ -85,13 +90,11 @@
                     placeholder="Select or enter track"
                     type="text" />
                   <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option
-                      *ngFor="
-                        let option of getFilteredTrackOptions(session.Track)
-                      "
-                      [value]="option">
+                    @for (option of getFilteredTrackOptions(session.Track); track option) {
+                    <mat-option [value]="option">
                       {{ option }}
                     </mat-option>
+                    }
                   </mat-autocomplete>
                 </mat-form-field>
               </div>
@@ -103,20 +106,12 @@
                   <mat-label>Type</mat-label>
                   <mat-select [(ngModel)]="session.Type">
                     <mat-option value="Keynote">Keynote</mat-option>
-                    <mat-option value="PrimarySession"
-                      >Primary Session</mat-option
-                    >
-                    <mat-option value="BreakoutSession"
-                      >Breakout Session</mat-option
-                    >
+                    <mat-option value="PrimarySession">Primary Session</mat-option>
+                    <mat-option value="BreakoutSession">Breakout Session</mat-option>
                     <mat-option value="presentation">Presentation</mat-option>
                     <mat-option value="fireside_chat">Fireside chat</mat-option>
-                    <mat-option value="audience_debate"
-                      >Audience Debate</mat-option
-                    >
-                    <mat-option value="panel_discussion"
-                      >Panel discussion</mat-option
-                    >
+                    <mat-option value="audience_debate">Audience Debate</mat-option>
+                    <mat-option value="panel_discussion">Panel discussion</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field class="full-width" appearance="outline">
@@ -145,16 +140,13 @@
                   border-radius: 4px;
                 ">
                 <h4>Speaker Info</h4>
-                <div
-                  *ngFor="let speaker of session.SpeakersInfo; let j = index"
-                  class="speaker-info-item">
+                @for (speaker of session.SpeakersInfo; track $index; let j = $index) {
+                <div class="speaker-info-item">
                   <app-speaker-image-uploader
                     [eventName]="eventName"
                     [isUploading]="isUploading"
                     [speakerImage]="speaker.Url"
-                    (displayErrorMessageFn)="
-                      this.dialogData?.displayErrorMessageFn?.($event)
-                    "
+                    (displayErrorMessageFn)="this.dialogData?.displayErrorMessageFn?.($event)"
                     (updateSpeakerImage)="updateSpeakerImage($event, speaker)">
                   </app-speaker-image-uploader>
                   <div class="speaker-bio-data">
@@ -191,9 +183,7 @@
                         placeholder="Speaker Bio"></textarea>
                     </mat-form-field>
                     <div class="remove-button-container">
-                      <mat-checkbox [(ngModel)]="speaker.isModerator"
-                        >Moderator</mat-checkbox
-                      >
+                      <mat-checkbox [(ngModel)]="speaker.isModerator">Moderator</mat-checkbox>
                       <button
                         mat-stroked-button
                         class="remove-speaker-button"
@@ -204,6 +194,7 @@
                     </div>
                   </div>
                 </div>
+                }
                 <button
                   mat-stroked-button
                   class="add-speaker-button"
@@ -212,11 +203,12 @@
                   Add New Speaker
                 </button>
               </div>
-              <!-- End Speaker Info Section -->
             </div>
           </mat-expansion-panel>
+          }
         </mat-accordion>
       </div>
+      }
     </mat-card-content>
   </mat-card>
 </mat-dialog-content>

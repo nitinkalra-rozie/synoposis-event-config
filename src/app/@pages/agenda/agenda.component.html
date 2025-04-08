@@ -15,11 +15,12 @@
                   class="timezone-select"
                   [(ngModel)]="selectedTimezone"
                   (change)="updateTimezone()">
-                  <option
-                    *ngFor="let tz of availableTimezones"
-                    [value]="tz.value">
-                    {{ tz.label }}
-                  </option>
+                  @for (tz of availableTimezones; track tz.value) {
+                    <option
+                      [value]="tz.value">
+                      {{ tz.label }}
+                    </option>
+                  }
                 </select>
               </div>
             </div>
@@ -125,45 +126,46 @@
                         align-items: center;
                         text-align: center;
                       ">
+                      @if (row.Status === 'NOT_STARTED') {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          Not Started
+                        </span>
+                      } @else if (row.Status === 'IN_PROGRESS') {
                       <span
-                        *ngIf="row.Status === 'NOT_STARTED'"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)">
-                        Not Started
-                      </span>
-                      <span
-                        *ngIf="row.Status === 'IN_PROGRESS'"
                         class="session-status-badge"
                         [ngClass]="getStatusClass(row.Status)"
                         style="background-color: rgb(0, 161, 94)">
                         In progress
                       </span>
+                      } @else if (row.Status === 'NOT_AVAILABLE') {
                       <span
-                        *ngIf="row.Status === 'NOT_AVAILABLE'"
                         class="session-status-badge"
                         [ngClass]="getStatusClass(row.Status)">
                         Not Available
                       </span>
+                      } @else if (row.Status === 'UNDER_REVIEW' && !row.Editor) {
                       <span
-                        *ngIf="row.Status === 'UNDER_REVIEW' && !row.Editor"
                         class="session-status-badge"
                         [ngClass]="getStatusClass(row.Status)">
                         To Review
                       </span>
+                      } @else if (row.Status === 'UNDER_REVIEW' && row.Editor) {
                       <span
-                        *ngIf="row.Status === 'UNDER_REVIEW' && row.Editor"
                         class="session-status-badge"
                         [ngClass]="getStatusClass(row.Status)"
                         style="background-color: rgb(156 106 255)">
                         In Review
                       </span>
+                      } @else if (row.Status === 'REVIEW_COMPLETE') {
                       <span
-                        *ngIf="row.Status === 'REVIEW_COMPLETE'"
                         class="session-status-badge"
                         [ngClass]="getStatusClass(row.Status)"
                         style="background-color: rgb(0, 161, 94)">
                         Completed
                       </span>
+                      } 
                     </div>
                   </td>
                 </ng-container>
