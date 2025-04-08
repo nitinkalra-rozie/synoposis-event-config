@@ -22,7 +22,7 @@ export class BackendApiService {
   getEventDetails(): Observable<Object> {
     return this._getEventConfig().pipe(
       switchMap((configResponse: any) => {
-         const eventIdentifier = configResponse?.data?.EventIdentifier;
+        const eventIdentifier = configResponse?.data?.EventIdentifier;
         this._currentEventDomain =
           configResponse?.data?.Information?.EventDomain || '';
         this.setCurrentTimezone(
