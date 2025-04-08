@@ -11,12 +11,14 @@ export const environment = {
   postDebriefData: 'https://dev.api.synopsis.rozie.ai/r4/config',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
   getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
+  updateAgendaUrl: 'https://dev.api.synopsis.rozie.ai/r5/postEventDetails',
+  getUploadFilePresignedUrl: 'https://dev.api.synopsis.rozie.ai/r6/config',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:
-    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
   getVersionContentUrl:
-    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
   generateContentPDFUrl:
     'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
   publishContentPDFUrl:
@@ -26,9 +28,9 @@ export const environment = {
   getPreSignedPDFUrl:
     'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/get-content-pdf',
   genarateContentUrl:
-    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/generate-content',
+    'https://oda3k47th4.execute-api.ca-central-1.amazonaws.com/dev/session-debrief',
   saveEditedVersionContentUrl:
-    'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
+    'https://4hh26c9db5.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',

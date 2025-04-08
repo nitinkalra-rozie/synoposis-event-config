@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
@@ -36,6 +37,30 @@ export class BackendApiService {
     return this.http.post(environment.postData, data);
   }
 
+  getUploadPresignedUrl(
+    eventName: string,
+    fileType: string,
+    fileExtension: string
+  ): Observable<Object> {
+    const data = {
+      action: 'uploadFile',
+      eventName: eventName,
+      clientType: 'client',
+      fileType: fileType,
+      fileExtension: fileExtension,
+    };
+    return this.http.post(environment.getUploadFilePresignedUrl, data);
+  }
+
+  uploadFileUsingPreSignedUrl(
+    file: File,
+    preSignedUrl: string
+  ): Observable<any> {
+    return this.http.put(preSignedUrl, file, {
+      responseType: 'text',
+    });
+  }
+
   putTranscript(transcript: any): Observable<Object> {
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
@@ -46,7 +71,7 @@ export class BackendApiService {
     };
     return this.http.post(environment.putTranscript, body);
   }
-  // action:any,sessionId:any,flag:any,day:any, data?:any,sessionTitle?:any,theme?:any, eventName?:any, domain?:any
+
   postData(data: PostData): Observable<Object> {
     const body = {
       action: data.action,
@@ -68,6 +93,16 @@ export class BackendApiService {
       body.transcript = data.transcript;
     }
     return this.http.post(environment.postData, body);
+  }
+
+  updateAgenda(data: Session[], timezone: string = ''): Observable<Object> {
+    const body = {
+      clearCurrentEvents: false,
+      timeZoneUpdate: timezone,
+      eventName: this._backendApiService.getCurrentEventName(),
+      eventDetails: data,
+    };
+    return this.http.post(environment.updateAgendaUrl, body);
   }
 
   generateRealtimeInsights(data: any): Observable<Object> {

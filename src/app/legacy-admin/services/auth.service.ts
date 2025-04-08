@@ -136,6 +136,8 @@ export class AuthService {
         return UserRole.SUPERADMIN;
       } else if (groups.some((group) => group.includes('ADMIN'))) {
         return UserRole.ADMIN;
+      } else if (groups.some((group) => group.includes('EVENT_ORGANIZER'))) {
+        return UserRole.EVENTORGANIZER;
       } else {
         return UserRole.EDITOR;
       }

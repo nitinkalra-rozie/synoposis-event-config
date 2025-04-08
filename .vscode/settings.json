@@ -12,11 +12,13 @@
     "clarionexec",
     "devkit",
     "downeast",
+    "EVENTORGANIZER",
     "HLTH",
     "itchartford",
     "Lexend",
     "Rozie",
-    "stylelint"
+    "stylelint",
+    "SUPERADMIN"
   ],
   "json.format.enable": false,
   "[jsonc]": {

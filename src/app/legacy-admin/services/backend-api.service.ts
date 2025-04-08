@@ -17,6 +17,7 @@ export class BackendApiService {
   // TODO:@later move these to a config state service
   private _currentEventName: string = '';
   private _currentEventDomain: string = '';
+  private _currentTimezone: string = '';
 
   getEventDetails(): Observable<Object> {
     return this._getEventConfig().pipe(
@@ -24,8 +25,10 @@ export class BackendApiService {
         const eventIdentifier = configResponse?.data?.EventIdentifier;
         this._currentEventDomain =
           configResponse?.data?.Information?.EventDomain || '';
+        this.setCurrentTimezone(
+          configResponse?.data?.Information?.Timezone || '+0.00'
+        );
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
-
         return this.http
           .post(environment.getEventDetails, { event: eventIdentifier })
           .pipe(
@@ -46,6 +49,14 @@ export class BackendApiService {
 
   getCurrentEventDomain(): string {
     return this._currentEventDomain;
+  }
+
+  getCurrentTimezone(): string {
+    return this._currentTimezone;
+  }
+
+  setCurrentTimezone(timezone: string): void {
+    this._currentTimezone = timezone;
   }
 
   getTranscriberPreSignedUrl(body: any): Observable<Object> {

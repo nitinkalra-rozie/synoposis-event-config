@@ -40,21 +40,11 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/generate-report"
         routerLinkActive="selected">
-        <mat-icon>picture_as_pdf</mat-icon>
+        <mat-icon>description</mat-icon>
       </a>
-
+    }
+    @if (isSuperAdmin || isEventOrganizer) {
       <a
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [matTooltip]="'Prompt Management'"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/prompt-management"
-        routerLinkActive="selected">
-        <mat-icon>manage_search</mat-icon>
-      </a>
-      <!--ToDo: Enable Agenda Edit once the view is finalized -->
-      <!--a
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
@@ -62,8 +52,8 @@
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/agenda"
         routerLinkActive="selected">
-        <mat-icon>edit_calendar</mat-icon>
-      </a-->
+        <mat-icon>event</mat-icon>
+      </a>
     }
   </div>
 </div>
