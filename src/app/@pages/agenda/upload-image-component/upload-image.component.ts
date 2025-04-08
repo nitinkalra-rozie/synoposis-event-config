@@ -16,9 +16,9 @@ export class UploadImageComponent {
   @Input() public eventName!: string;
   @Input() public isUploading = false;
 
-  @Output() private _updateSpeakerImage: EventEmitter<string> =
+  @Output() public updateSpeakerImage: EventEmitter<string> =
     new EventEmitter<string>();
-  @Output() private _displayErrorMessageFn: EventEmitter<string> =
+  @Output() public displayErrorMessageFn: EventEmitter<string> =
     new EventEmitter<string>();
   private _backendApiService = inject(BackendApiService);
 
@@ -44,7 +44,7 @@ export class UploadImageComponent {
       }
     } catch (error) {
       console.error('Upload failed:', error);
-      this._displayErrorMessageFn.emit(
+      this.displayErrorMessageFn.emit(
         'Error uploading image. Please try again.'
       );
     }
@@ -66,15 +66,15 @@ export class UploadImageComponent {
             this.speakerImage = e.target.result;
           };
           reader.readAsDataURL(file);
-          this._updateSpeakerImage.emit(imageS3Key);
+          this.updateSpeakerImage.emit(imageS3Key);
         } else {
-          this._displayErrorMessageFn.emit(
+          this.displayErrorMessageFn.emit(
             'Error uploading image. Please try again.'
           );
         }
       } catch (error) {
         console.error(error);
-        this._displayErrorMessageFn.emit(
+        this.displayErrorMessageFn.emit(
           'Error uploading image. Please try again.'
         );
       } finally {
@@ -86,7 +86,7 @@ export class UploadImageComponent {
 
   onRemoveImage(): void {
     this.speakerImage = '';
-    this._updateSpeakerImage.emit('');
+    this.updateSpeakerImage.emit('');
   }
 
   private validateImage(file: File): boolean {
@@ -94,14 +94,14 @@ export class UploadImageComponent {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 
     if (!validTypes.includes(file.type)) {
-      this._displayErrorMessageFn.emit(
+      this.displayErrorMessageFn.emit(
         'Invalid file type. Please upload a JPEG, PNG or GIF.'
       );
       return false;
     }
 
     if (file.size > maxSize) {
-      this._displayErrorMessageFn.emit('File size too large. Max 5MB allowed.');
+      this.displayErrorMessageFn.emit('File size too large. Max 5MB allowed.');
       return false;
     }
 
