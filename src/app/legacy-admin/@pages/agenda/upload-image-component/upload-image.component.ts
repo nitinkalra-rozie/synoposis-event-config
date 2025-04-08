@@ -59,13 +59,16 @@ export class UploadImageComponent {
     if (file && this.validateImage(file)) {
       this.isUploading = true;
       try {
-        const imageS3Key = await this.uploadSpeakerImage(file);
+        // Resize the image before uploading
+        const resizedFile = await this.resizeImage(file, 500, 400);
+        const imageS3Key = await this.uploadSpeakerImage(resizedFile);
+
         if (imageS3Key) {
           const reader = new FileReader();
           reader.onload = (e: any) => {
             this.speakerImage = e.target.result;
           };
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(resizedFile);
           this.updateSpeakerImage.emit(imageS3Key);
         } else {
           this.displayErrorMessageFn.emit(
@@ -87,6 +90,72 @@ export class UploadImageComponent {
   onRemoveImage(): void {
     this.speakerImage = '';
     this.updateSpeakerImage.emit('');
+  }
+
+  private resizeImage(
+    file: File,
+    maxWidth: number,
+    maxHeight: number
+  ): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          reject(new Error('Canvas context not found'));
+          return;
+        }
+
+        // Set canvas to target size
+        canvas.width = maxWidth;
+        canvas.height = maxHeight;
+
+        // Calculate scale to fill the canvas
+        const scale = Math.max(maxWidth / img.width, maxHeight / img.height);
+
+        // Calculate new dimensions
+        const newWidth = img.width * scale;
+        const newHeight = img.height * scale;
+
+        // Calculate position to center and crop
+        const x = (maxWidth - newWidth) / 2;
+        const y = (maxHeight - newHeight) / 2;
+
+        // Draw image to fill canvas
+        ctx.drawImage(img, x, y, newWidth, newHeight);
+
+        // Convert to JPEG
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Canvas to Blob conversion failed'));
+              return;
+            }
+            resolve(
+              new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              })
+            );
+          },
+          'image/jpeg',
+          0.8 // Quality setting
+        );
+      };
+
+      img.onerror = reject;
+    });
   }
 
   private validateImage(file: File): boolean {
