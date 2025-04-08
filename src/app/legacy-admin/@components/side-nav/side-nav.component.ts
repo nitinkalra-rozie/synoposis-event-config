@@ -1,0 +1,64 @@
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
+import { AuthService } from 'src/app/legacy-admin/services/auth.service';
+import { UserRole } from 'src/app/legacy-admin/shared/enums';
+
+@Component({
+  selector: 'app-side-nav',
+  templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.component.scss'],
+  imports: [RouterModule, MatTooltipModule, MatIconModule],
+})
+export class SideNavComponent implements OnInit {
+  public userRoleRank = 2;
+  public isEventOrganizer = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.EVENTORGANIZER) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  public isSuperAdmin = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.SUPERADMIN) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  private _authService = inject(AuthService);
+  private _isAdminUser = signal<boolean>(false);
+
+  ngOnInit(): void {
+    const token = localStorage.getItem('accessToken');
+    this.checkIsAdminUser(token);
+    this.userRoleRank = this._authService.getUserRoleRank();
+  }
+
+  checkIsAdminUser(token: string): any | null {
+    if (!token) return null;
+    try {
+      const decoded: any = jwtDecode(token);
+      if (decoded?.username) {
+        const normalizedEmail = decoded.username.toLowerCase().trim();
+        if (normalizedEmail.endsWith('@rozie.ai')) {
+          this._isAdminUser.set(true);
+        } else {
+          this._isAdminUser.set(false);
+        }
+      }
+      return decoded;
+    } catch (error) {
+      console.error('Invalid token:', error);
+      return null;
+    }
+  }
+}

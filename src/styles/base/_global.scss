@@ -1,0 +1,18 @@
+@use 'mixins' as m;
+@use 'variables' as v;
+
+.sample-skeleton-square {
+  max-width: 424px;
+}
+
+.hide-element {
+  display: none !important;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}

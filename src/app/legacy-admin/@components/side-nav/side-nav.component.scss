@@ -1,0 +1,58 @@
+@use 'mixins' as m;
+@use 'variables' as v;
+@use 'functions' as f;
+
+.side-nav-container {
+  width: v.$left-sidebar-collapsed-width;
+  height: 100%;
+  background-color: v.$primary-color-variant-2;
+  color: v.$text-color-white;
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  @media (width <= v.$screen-medium) {
+    height: 0;
+    position: unset;
+  }
+
+  .product-logo-mark-wrapper {
+    padding: 1.25rem;
+    background: v.$purple-gradient;
+
+    .product-logo-mark {
+      width: 2rem;
+      height: 2rem;
+
+      @media (width <= v.$screen-medium) {
+        width: 2rem;
+        height: 2rem;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .nav-items {
+    @include m.d-flex-column-align-center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+
+    .menu-item {
+      @include m.flex-center;
+      padding: 0.75rem;
+      border-radius: v.$button-border-radius;
+      background-color: v.$transparent;
+      cursor: pointer;
+
+      &.selected {
+        background-color: f.color-transparent(20%);
+      }
+
+      mat-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: v.$text-color-white;
+      }
+    }
+  }
+}

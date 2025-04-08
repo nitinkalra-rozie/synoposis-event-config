@@ -1,0 +1,59 @@
+<div class="side-nav-container">
+  <div class="product-logo-mark-wrapper">
+    <div class="product-logo-mark">
+      <img
+        alt="Rozie Synopsis Logo"
+        src="../../../../../assets/side-nav/rozie-synopsis-logo-mark.svg" />
+    </div>
+  </div>
+  <div class="nav-items">
+    @if (userRoleRank > 1) {
+      <a
+        matTooltipClass="tooltip-text-only-300"
+        matTooltipPosition="after"
+        class="menu-item"
+        [matTooltip]="'Admin Dashboard'"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/admin"
+        routerLinkActive="selected">
+        <mat-icon svgIcon="syn:space_dashboard_outlined" />
+      </a>
+    }
+    <!-- Use isAdminUser() if it's a signal -->
+    @if (userRoleRank > 0) {
+      <a
+        matTooltipClass="tooltip-text-only-300"
+        matTooltipPosition="after"
+        class="menu-item"
+        [matTooltip]="'Editorial Dashboard'"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/editorial"
+        routerLinkActive="selected">
+        <mat-icon>dashboard</mat-icon>
+      </a>
+
+      <a
+        matTooltipClass="tooltip-text-only-300"
+        matTooltipPosition="after"
+        class="menu-item"
+        [matTooltip]="'Generate PDF'"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/generate-report"
+        routerLinkActive="selected">
+        <mat-icon>picture_as_pdf</mat-icon>
+      </a>
+    }
+    @if (isSuperAdmin || isEventOrganizer) {
+      <a
+        matTooltipClass="tooltip-text-only-300"
+        matTooltipPosition="after"
+        class="menu-item"
+        [matTooltip]="'Agenda'"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/agenda"
+        routerLinkActive="selected">
+        <mat-icon>edit_calendar</mat-icon>
+      </a>
+    }
+  </div>
+</div>
