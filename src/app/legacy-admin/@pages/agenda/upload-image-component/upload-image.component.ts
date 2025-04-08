@@ -55,14 +55,14 @@ export class UploadImageComponent {
   async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-  
+
     if (file && this.validateImage(file)) {
       this.isUploading = true;
       try {
         // Resize the image before uploading
         const resizedFile = await this.resizeImage(file, 500, 400);
         const imageS3Key = await this.uploadSpeakerImage(resizedFile);
-  
+
         if (imageS3Key) {
           const reader = new FileReader();
           reader.onload = (e: any) => {
