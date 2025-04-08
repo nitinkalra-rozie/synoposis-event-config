@@ -45,6 +45,7 @@ export class SideNavComponent implements OnInit {
 
   checkIsAdminUser(token: string): any | null {
     if (!token) return null;
+
     try {
       const decoded: any = jwtDecode(token);
       if (decoded?.username) {
@@ -55,6 +56,7 @@ export class SideNavComponent implements OnInit {
           this._isAdminUser.set(false);
         }
       }
+
       return decoded;
     } catch (error) {
       console.error('Invalid token:', error);
