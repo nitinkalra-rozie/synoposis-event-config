@@ -1,7 +1,9 @@
 import { InjectionToken } from '@angular/core';
 
-export const TIMEZONE_OPTIONS = new InjectionToken<{ value: string, label: string }[]>('TIMEZONE_OPTIONS', {
-  factory: () =>  [
+export const TIMEZONE_OPTIONS = new InjectionToken<
+  { value: string; label: string }[]
+>('TIMEZONE_OPTIONS', {
+  factory: () => [
     { value: '-11:00', label: 'UTC-11:00' },
     { value: '-10:00', label: 'UTC-10:00' },
     { value: '-9:00', label: 'UTC-9:00' },
@@ -34,5 +36,5 @@ export const TIMEZONE_OPTIONS = new InjectionToken<{ value: string, label: strin
     { value: '+10:30', label: 'UTC+10:30' },
     { value: '+11:00', label: 'UTC+11:00' },
     { value: '+12:00', label: 'UTC+12:00' },
-  ]
+  ],
 });

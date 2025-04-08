@@ -1,8 +1,9 @@
 import {
   AfterViewInit,
   Component,
-  inject, OnInit,
-  ViewChild
+  inject,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { debounceTime } from 'rxjs/operators';
@@ -40,7 +41,6 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
 
-
 interface Application {
   value: string;
   name: string;
@@ -51,8 +51,6 @@ interface SelectedConfig {
   application_id: string;
   config: any;
 }
-
-
 
 export interface SpeakerDetails {
   Title: string;
@@ -189,7 +187,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public topics: Array<string> = [];
   public speakers: Array<string> = [];
   public session_details: Session[] = [];
-  public availableTimezones: { value: string; label: string }[] =  inject(TIMEZONE_OPTIONS);
+  public availableTimezones: { value: string; label: string }[] =
+    inject(TIMEZONE_OPTIONS);
   public selectedTimezone: string = '+0:00';
   public eventTimezone: string = '+0:00';
   public selectedStatus: { label: string; class: string } = {

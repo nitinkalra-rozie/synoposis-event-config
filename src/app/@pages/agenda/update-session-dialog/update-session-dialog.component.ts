@@ -190,10 +190,19 @@ export class UpdateSessionDialogComponent {
       Title: [speaker?.Title || ''],
       Organization: [speaker?.Organization || ''],
       Url: [speaker?.Url || ''],
-      S3FileKey: [speaker?.S3FileKey || ''],
+      S3FileKey: [this.getS3KeyFromUrl(speaker?.Url) || ''],
       SpeakerBio: [speaker?.SpeakerBio || ''],
       isModerator: [speaker?.isModerator || false],
     });
+  }
+
+  getS3KeyFromUrl(presignedUrl: string): string {
+    if (presignedUrl) {
+      const S3FileKey = new URL(presignedUrl).pathname.substring(1);
+      return S3FileKey;
+    } else {
+      return '';
+    }
   }
 
   public get speakers(): FormArray {

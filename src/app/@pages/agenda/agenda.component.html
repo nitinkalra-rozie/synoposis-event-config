@@ -16,8 +16,7 @@
                   [(ngModel)]="selectedTimezone"
                   (change)="updateTimezone()">
                   @for (tz of availableTimezones; track tz.value) {
-                    <option
-                      [value]="tz.value">
+                    <option [value]="tz.value">
                       {{ tz.label }}
                     </option>
                   }
@@ -133,39 +132,41 @@
                           Not Started
                         </span>
                       } @else if (row.Status === 'IN_PROGRESS') {
-                      <span
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)"
-                        style="background-color: rgb(0, 161, 94)">
-                        In progress
-                      </span>
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)"
+                          style="background-color: rgb(0, 161, 94)">
+                          In progress
+                        </span>
                       } @else if (row.Status === 'NOT_AVAILABLE') {
-                      <span
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)">
-                        Not Available
-                      </span>
-                      } @else if (row.Status === 'UNDER_REVIEW' && !row.Editor) {
-                      <span
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)">
-                        To Review
-                      </span>
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          Not Available
+                        </span>
+                      } @else if (
+                        row.Status === 'UNDER_REVIEW' && !row.Editor
+                      ) {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          To Review
+                        </span>
                       } @else if (row.Status === 'UNDER_REVIEW' && row.Editor) {
-                      <span
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)"
-                        style="background-color: rgb(156 106 255)">
-                        In Review
-                      </span>
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)"
+                          style="background-color: rgb(156 106 255)">
+                          In Review
+                        </span>
                       } @else if (row.Status === 'REVIEW_COMPLETE') {
-                      <span
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)"
-                        style="background-color: rgb(0, 161, 94)">
-                        Completed
-                      </span>
-                      } 
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)"
+                          style="background-color: rgb(0, 161, 94)">
+                          Completed
+                        </span>
+                      }
                     </div>
                   </td>
                 </ng-container>

@@ -114,7 +114,6 @@
       <div class="speakers-section">
         <h3>Speakers</h3>
         <div formArrayName="SpeakersInfo">
-          
           @for (speaker of speakers.controls; track $index; let i = $index) {
             <div class="speaker-card" [formGroupName]="i">
               <mat-card>
@@ -134,28 +133,34 @@
                       [eventName]="dialogData?.data?.Event"
                       [isUploading]="isUploading"
                       [speakerImage]="speaker.get('Url')?.value"
-                      (displayErrorMessageFn)="this.dialogData.displayErrorMessageFn?.($event)"
-                      (updateSpeakerImage)="updateSpeakerImage($event, speaker)">
+                      (displayErrorMessageFn)="
+                        this.dialogData.displayErrorMessageFn?.($event)
+                      "
+                      (updateSpeakerImage)="
+                        updateSpeakerImage($event, speaker)
+                      ">
                     </app-speaker-image-uploader>
-            
+
                     <div class="form-fields">
                       <mat-form-field appearance="fill">
                         <mat-label>Name</mat-label>
                         <input matInput formControlName="Name" required />
                       </mat-form-field>
-            
+
                       <mat-form-field appearance="fill">
                         <mat-label>Title</mat-label>
                         <input matInput formControlName="Title" />
                       </mat-form-field>
-            
+
                       <mat-form-field appearance="fill">
                         <mat-label>Organization</mat-label>
                         <input matInput formControlName="Organization" />
                       </mat-form-field>
-            
-                      <mat-checkbox formControlName="isModerator">Is Moderator</mat-checkbox>
-            
+
+                      <mat-checkbox formControlName="isModerator"
+                        >Is Moderator</mat-checkbox
+                      >
+
                       <mat-form-field class="bio-field" appearance="fill">
                         <mat-label>Speaker Bio</mat-label>
                         <textarea
@@ -168,7 +173,7 @@
                 </mat-card-content>
               </mat-card>
             </div>
-            }
+          }
         </div>
         <button
           mat-stroked-button

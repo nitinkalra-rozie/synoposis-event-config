@@ -75,7 +75,8 @@ export class UploadAgendaDialogComponent {
     'Stage',
   ];
   public selectedTimezone: string = '+0:00';
-  public timezones: { value: string; label: string }[] =  inject(TIMEZONE_OPTIONS);
+  public timezones: { value: string; label: string }[] =
+    inject(TIMEZONE_OPTIONS);
   public isDragging = false;
   public filteredTrackOptions: Signal<string[]>;
   private _backendApiService = inject(BackendApiService);
