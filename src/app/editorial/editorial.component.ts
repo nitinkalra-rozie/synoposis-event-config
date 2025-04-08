@@ -27,10 +27,10 @@ import {
   Session,
 } from 'src/app/editorial/data-service/editorial.data-model';
 import { EditorialDataService } from 'src/app/editorial/data-service/editorial.data-service';
-import { convertDate } from 'src/app/editorial/utils/editorial-utils';
-import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
+import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
+import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 import { LargeModalDialogComponent } from './components/dialog/original-debrief-modal-dialog.component';
 import { GenerateRealtimeInsightsDialogComponent } from './components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 @Component({
@@ -89,6 +89,8 @@ export class EditorialComponent implements OnInit {
       this.speakers[index] = text;
     });
   }
+  private readonly _authService = inject(AuthService);
+  private readonly _editorialDataService = inject(EditorialDataService);
 
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
@@ -144,9 +146,6 @@ export class EditorialComponent implements OnInit {
   private _insightUpdate = new Subject<{ text: string; index: number }>();
   private _topicUpdate = new Subject<{ text: string; index: number }>();
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
-  private _backendApiService = inject(BackendApiService);
-  private _authService = inject(AuthService);
-  private _editorialDataService = inject(EditorialDataService);
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -171,16 +170,22 @@ export class EditorialComponent implements OnInit {
   }
 
   sendEmail(): void {
-    this._editorialDataService.sendEmailReport().subscribe({
-      next: (response) => {
-        if (response['success'] == true) {
-          console.log(response);
-        }
-      },
-      error: (error) => {
-        console.error('Error sending email:', error);
-      },
-    });
+    this._editorialDataService
+      .sendEmailReport({
+        action: 'emailTranscriptReport',
+        sessionId: 'day2_session2',
+        email: 'dinuka@rozie.ai',
+      })
+      .subscribe({
+        next: (response) => {
+          if (response['success'] == true) {
+            console.log(response);
+          }
+        },
+        error: (error) => {
+          console.error('Error sending email:', error);
+        },
+      });
   }
 
   updateEventReport(): void {
@@ -210,6 +215,7 @@ export class EditorialComponent implements OnInit {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
     };
+
     this._editorialDataService.getEventReport(data).subscribe({
       next: (response) => {
         console.log(response);
@@ -355,6 +361,8 @@ export class EditorialComponent implements OnInit {
       action: 'updatePostInsights',
       sessionId: this.selected_session,
       updatedData: debrief,
+      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      domain: getLocalStorageItem<string>('EVENT_DOMAIN'),
     };
     this._editorialDataService.updatePostInsights(data).subscribe({
       next: (response) => {
@@ -412,7 +420,7 @@ export class EditorialComponent implements OnInit {
       this.selected_session = session['SessionId'];
       const sessionObj = JSON.parse(JSON.stringify(session));
       if (sessionObj.StartsAt) {
-        sessionObj.StartsAt = convertDate(sessionObj.StartsAt);
+        sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
       }
       if (sessionObj.Editor == this._authService.getUserEmail()) {
         this.isEditorMode = true;

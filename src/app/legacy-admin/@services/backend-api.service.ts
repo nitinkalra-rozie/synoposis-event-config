@@ -142,7 +142,7 @@ export class BackendApiService {
       generatePDF: data.generatePDF,
     };
     console.log(body);
-    return this.http.post(environment.genarateContentUrl, body);
+    return this.http.post(environment.generateContentUrl, body);
   }
 
   changeEventStatus(data: any): Observable<Object> {

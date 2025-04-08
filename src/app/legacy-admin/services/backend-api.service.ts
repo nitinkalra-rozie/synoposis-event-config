@@ -3,6 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from 'src/app/shared/utils/local-storage-util';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 
@@ -24,6 +28,7 @@ export class BackendApiService {
         const eventIdentifier = configResponse?.data?.EventIdentifier;
         this._currentEventDomain =
           configResponse?.data?.Information?.EventDomain || '';
+        setLocalStorageItem('EVENT_DOMAIN', this._currentEventDomain);
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
 
         return this.http
@@ -32,6 +37,10 @@ export class BackendApiService {
             tap((response: any) => {
               if (response?.data?.length > 0) {
                 this._currentEventName = response.data[0].Event;
+                setLocalStorageItem(
+                  'SELECTED_EVENT_NAME',
+                  response.data[0].Event
+                );
               }
             })
           );
@@ -40,12 +49,12 @@ export class BackendApiService {
   }
 
   // TODO:@later move these to a config state service
-  getCurrentEventName(): string {
-    return this._currentEventName;
+  getCurrentEventName(): string | null {
+    return getLocalStorageItem<string>('SELECTED_EVENT_NAME');
   }
 
-  getCurrentEventDomain(): string {
-    return this._currentEventDomain;
+  getCurrentEventDomain(): string | null {
+    return getLocalStorageItem<string>('EVENT_DOMAIN');
   }
 
   getTranscriberPreSignedUrl(body: any): Observable<Object> {

@@ -11,7 +11,7 @@ export const environment = {
     'https://api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:
     'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/get-content-versions',
-  genarateContentUrl:
+  generateContentUrl:
     'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/generate-content',
   getVersionContentUrl:
     'https://1vqk7ozb25.execute-api.ca-central-1.amazonaws.com/prod/get-version-content',

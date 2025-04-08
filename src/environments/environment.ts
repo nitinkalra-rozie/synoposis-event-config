@@ -2,7 +2,7 @@ export const environment = {
   production: false,
   getTranscriberPreSignedUrl: '',
   getContentVersionsUrl: '',
-  genarateContentUrl: '',
+  generateContentUrl: '',
   getVersionContentUrl: '',
   saveEditedVersionContentUrl: '',
   generateContentPDFUrl: '',

@@ -36,15 +36,15 @@ interface DialogData {
   ],
 })
 export class GenerateRealtimeInsightsDialogComponent implements OnInit {
-  public dialogRef = inject(
+  private readonly _dialogRef = inject(
     MatDialogRef<GenerateRealtimeInsightsDialogComponent>
   );
+  private readonly _editorialDataService = inject(EditorialDataService);
+  private readonly _sanitizer = inject(DomSanitizer);
+
   public data = inject(MAT_DIALOG_DATA);
   public sanitizedText: SafeHtml;
   public transcriptChucks = [];
-
-  private _editorialDataService = inject(EditorialDataService);
-  private _sanitizer = inject(DomSanitizer);
 
   ngOnInit(): void {
     const rawText = this.data.transcript.join('\n\n');
@@ -56,7 +56,7 @@ export class GenerateRealtimeInsightsDialogComponent implements OnInit {
   }
 
   onClose(): void {
-    this.dialogRef.close();
+    this._dialogRef.close();
   }
 
   splitIntoParagraphs(text): string[] {

@@ -1,0 +1,2 @@
+export const EVENT_DOMAIN = 'EVENT_DOMAIN';
+export const SELECTED_EVENT_NAME = 'SELECTED_EVENT_NAME';
