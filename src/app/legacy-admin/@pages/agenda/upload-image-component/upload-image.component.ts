@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { BackendApiService } from 'src/app/@services/backend-api.service';
+import { MatIconModule } from '@angular/material/icon';
+import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 
 @Component({
   selector: 'app-speaker-image-uploader',

@@ -17,7 +17,6 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -31,14 +30,14 @@ import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
-import { ConfirmationDialogComponent } from 'src/app/@pages/agenda/confirmation-dialog/confirmation.dialog.component';
-import { UpdateSessionDialogComponent } from 'src/app/@pages/agenda/update-session-dialog/update-session-dialog.component';
-import { UploadAgendaDialogComponent } from 'src/app/@pages/agenda/upload-agenda/upload-agenda-dialog.component';
-import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation.dialog.component';
+import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
+import { UploadAgendaDialogComponent } from './upload-agenda/upload-agenda-dialog.component';
+
 interface Application {
   value: string;
   name: string;
@@ -89,6 +88,7 @@ interface RealtimeInsight {
   selector: 'app-elsa-event-agenda',
   templateUrl: './agenda.component.html',
   styleUrls: ['./agenda.component.scss'],
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -107,15 +107,10 @@ interface RealtimeInsight {
     MatProgressSpinnerModule,
     MatBadgeModule,
     MatSortModule,
-    MatPaginatorModule,
     MatMenuModule,
     MatTableModule,
     MatToolbarModule,
     TopBarComponent,
-    SidebarControlPanelComponent,
-    UploadAgendaDialogComponent,
-    UpdateSessionDialogComponent,
-    ConfirmationDialogComponent,
   ],
   providers: [],
 })
@@ -150,7 +145,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
-  @ViewChild(MatPaginator) public paginator!: MatPaginator;
   @ViewChild(MatSort) public sort!: MatSort;
 
   public breadCrumbItems!: Array<{}>;
@@ -245,7 +239,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
   }
 
   convertDate(dateString: string): string {
@@ -277,76 +270,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     );
   }
 
-  updateEventReport(): void {
-    this.isLoading = true;
-    this.dataLoaded = false;
-    const data = {
-      action: 'get_summary_of_Single_Keynote',
-      sessionId: [this.selected_session],
-    };
-    this._backendApiService.getEventReport(data).subscribe({
-      next: (response) => {
-        console.log(response);
-        this.isEditorMode = false;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
-  }
-
-  getEventReport(): void {
-    this.isLoading = true;
-    this.dataLoaded = false;
-    const data = {
-      action: 'get_summary_of_Single_Keynote',
-      sessionId: [this.selected_session],
-    };
-    this._backendApiService.getEventReport(data).subscribe({
-      next: (response) => {
-        console.log(response);
-        if (response?.data?.data?.[0]?.snapshotData) {
-          const responseData = response.data.data[0];
-          this.original_debrief = JSON.parse(JSON.stringify(responseData));
-          const snapshotJson = JSON.parse(responseData.snapshotData);
-
-          this.summary = snapshotJson['data']['summary'];
-          this.insights = snapshotJson['data']['insights'];
-          this.topics = snapshotJson['data']['topics'];
-          this.keytakeaways = snapshotJson['data']['key_takeaways'];
-          this.speakers = snapshotJson['data']['speakers'];
-          this.dataLoaded = true;
-          this.title = snapshotJson['data']['title'];
-          this.postInsightTimestamp = responseData['postInsightTimestamp'];
-          this.trendsTimestamp = responseData['trendsTimestamp'];
-          this.transcript = responseData['transcript'];
-          if (responseData['trendData']) {
-            const trendData = JSON.parse(responseData['trendData']);
-            this.trends = trendData?.data?.trends;
-          } else {
-            this.trends = [];
-          }
-
-          const realtimeinsights = responseData['realtimeinsights'] || [];
-          this.realtimeinsights = [];
-          for (const item of realtimeinsights) {
-            const dataItem = JSON.parse(item.Response);
-            this.realtimeinsights.push({
-              Timestamp: item.Timestamp,
-              Insights: dataItem.data.insights,
-            });
-          }
-          console.log(this.realtimeinsights);
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+  trackByFn(index: number, item: string): number {
+    return index; // or a unique identifier if you have one
   }
 
   getUniqueDays(): void {
@@ -555,6 +480,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       .trim()
       .toLowerCase();
     this.dataSource.filter = filterValue;
+  }
+
+  trackByIndex(index: number, _item: any): number {
+    return index;
   }
 
   removeKeytakeaway(index: number): void {

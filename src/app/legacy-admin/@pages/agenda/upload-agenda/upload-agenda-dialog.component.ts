@@ -1,27 +1,30 @@
-import { Component, inject, Signal } from '@angular/core';
-import {
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
+import { Component, inject, Signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatOptionModule } from '@angular/material/core';
-import { MatInputModule } from '@angular/material/input';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { BackendApiService } from 'src/app/@services/backend-api.service';
-import { UploadImageComponent } from '../upload-image-component/upload-image.component';
+import { MatOptionModule } from '@angular/material/core';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import * as XLSX from 'xlsx';
-import { Session, SpeakerDetails } from '../agenda.component';
+import { MatSelectModule } from '@angular/material/select';
 import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
+import {
+  Session,
+  SpeakerDetails,
+} from 'src/app/legacy-admin/@pages/agenda/agenda.component';
+import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
+import * as XLSX from 'xlsx';
+import { UploadImageComponent } from '../upload-image-component/upload-image.component';
 
 @Component({
   selector: 'app-upload-agenda-dialog',

@@ -23,6 +23,8 @@ const isPrivateEndpoint = (url: string): boolean => {
     'r2/getPreSignedUrl',
     'r2/postTranscript',
     'r2/getCurrentSessionDetails',
+    'r6/config',
+    'r5/postEventDetails',
   ];
   return authEndpoints.some((endpoint) => url.includes(endpoint));
 };
