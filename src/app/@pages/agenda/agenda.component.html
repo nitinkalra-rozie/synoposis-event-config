@@ -6,7 +6,24 @@
       <mat-card>
         <mat-card-content>
           <!-- Filters -->
-          <div style="display: flex; flex-direction: row-reverse">
+          <div class="toolbar-container">
+            <div class="timezone-section">
+              <mat-icon class="timezone-icon">schedule</mat-icon>
+              <div>
+                <span class="timezone-label">Event Timezone:</span>
+                <select
+                  class="timezone-select"
+                  [(ngModel)]="selectedTimezone"
+                  (change)="updateTimezone()">
+                  @for (tz of availableTimezones; track tz.value) {
+                    <option [value]="tz.value">
+                      {{ tz.label }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+
             <div class="action-buttons">
               <button
                 class="upload-agenda-button"
@@ -15,6 +32,9 @@
               </button>
               <button class="add-session-button" (click)="createNewSession()">
                 Add New Session
+              </button>
+              <button class="refresh-button" (click)="refreshAgenda()">
+                <mat-icon>refresh</mat-icon>
               </button>
             </div>
           </div>
@@ -40,6 +60,31 @@
                 [dataSource]="dataSource"
                 (matSortChange)="paginator.pageIndex = 0">
                 <!-- Version Column -->
+                <ng-container matColumnDef="startDate">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    Start Date
+                  </th>
+                  <td
+                    *matCellDef="let row; let i = index"
+                    mat-cell
+                    [class.selected]="selectedRowIndex === i"
+                    (click)="highlightRow(row, i)"
+                    style="min-width: 110px">
+                    {{ row.StartsAt | date: 'yyyy-MM-dd' : formattedTimezone }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="startTime">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    Start Time
+                  </th>
+                  <td
+                    *matCellDef="let row; let i = index"
+                    mat-cell
+                    [class.selected]="selectedRowIndex === i"
+                    (click)="highlightRow(row, i)">
+                    {{ row.StartsAt | date: 'HH:mm' : formattedTimezone }}
+                  </td>
+                </ng-container>
                 <ng-container matColumnDef="title">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
                     Session Title
@@ -80,71 +125,49 @@
                         align-items: center;
                         text-align: center;
                       ">
-                      <span
-                        *ngIf="row.Status === 'NOT_STARTED'"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)">
-                        Not Started
-                      </span>
-                      <span
-                        *ngIf="row.Status === 'IN_PROGRESS'"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)"
-                        style="background-color: rgb(0, 161, 94)">
-                        In progress
-                      </span>
-                      <span
-                        *ngIf="row.Status === 'NOT_AVAILABLE'"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)">
-                        Not Available
-                      </span>
-                      <span
-                        *ngIf="row.Status === 'UNDER_REVIEW' && !row.Editor"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)">
-                        To Review
-                      </span>
-                      <span
-                        *ngIf="row.Status === 'UNDER_REVIEW' && row.Editor"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)"
-                        style="background-color: rgb(156 106 255)">
-                        In Review
-                      </span>
-                      <span
-                        *ngIf="row.Status === 'REVIEW_COMPLETE'"
-                        class="session-status-badge"
-                        [ngClass]="getStatusClass(row.Status)"
-                        style="background-color: rgb(0, 161, 94)">
-                        Completed
-                      </span>
+                      @if (row.Status === 'NOT_STARTED') {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          Not Started
+                        </span>
+                      } @else if (row.Status === 'IN_PROGRESS') {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)"
+                          style="background-color: rgb(0, 161, 94)">
+                          In progress
+                        </span>
+                      } @else if (row.Status === 'NOT_AVAILABLE') {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          Not Available
+                        </span>
+                      } @else if (
+                        row.Status === 'UNDER_REVIEW' && !row.Editor
+                      ) {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          To Review
+                        </span>
+                      } @else if (row.Status === 'UNDER_REVIEW' && row.Editor) {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)"
+                          style="background-color: rgb(156 106 255)">
+                          In Review
+                        </span>
+                      } @else if (row.Status === 'REVIEW_COMPLETE') {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)"
+                          style="background-color: rgb(0, 161, 94)">
+                          Completed
+                        </span>
+                      }
                     </div>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="startDate">
-                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Date
-                  </th>
-                  <td
-                    *matCellDef="let row; let i = index"
-                    mat-cell
-                    [class.selected]="selectedRowIndex === i"
-                    (click)="highlightRow(row, i)"
-                    style="min-width: 110px">
-                    {{ row.StartsAt | date: 'yyyy-MM-dd' }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="startTime">
-                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Time
-                  </th>
-                  <td
-                    *matCellDef="let row; let i = index"
-                    mat-cell
-                    [class.selected]="selectedRowIndex === i"
-                    (click)="highlightRow(row, i)">
-                    {{ row.StartsAt | date: 'HH:mm' }}
                   </td>
                 </ng-container>
 

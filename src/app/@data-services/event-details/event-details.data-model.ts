@@ -1,6 +1,6 @@
 import { EventDetailType } from 'src/app/shared/enums';
 
-export interface EventDetails {
+export interface SessionDetails {
   GenerateInsights: boolean;
   Event: string;
   Track: string;
@@ -11,7 +11,7 @@ export interface EventDetails {
     Name: string;
   }>;
   SessionDescription: string;
-  Status: EventStatus;
+  Status: SessionStatus;
   EndsAt: string;
   Type: EventDetailType;
   sid: number;
@@ -30,15 +30,10 @@ export interface ProjectionData {
   selectedTracks: string[];
 }
 
-export enum EventStatus {
+export enum SessionStatus {
   InProgress = 'IN_PROGRESS',
   NotStarted = 'NOT_STARTED',
   Paused = 'PAUSED',
-}
-
-export enum EventType {
-  PrimarySession = 'PrimarySession',
-  BreakoutSession = 'BreakoutSession',
 }
 
 export enum LiveSessionState {

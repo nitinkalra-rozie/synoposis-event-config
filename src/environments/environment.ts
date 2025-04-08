@@ -7,6 +7,7 @@ export const environment = {
   saveEditedVersionContentUrl: '',
   generateContentPDFUrl: '',
   updateAgendaUrl: '',
+  getUploadFIlePresigendUrl: '',
   publishContentPDFUrl: '',
   getPreSignedPDFUrl: '',
   prompt_mangement_base_url: '',
@@ -21,4 +22,5 @@ export const environment = {
   REQUEST_ACCESS_API_KEY: '',
   USER_POOL_ID: '',
   X_API_KEY: '',
+  postDebriefData: '',
 };

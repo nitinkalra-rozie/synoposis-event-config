@@ -42,7 +42,7 @@ input[type='text']::-webkit-outer-spin-button {
   left: 15%;
   width: 55%;
   height: 40%;
-  background-image: url('../../../assets/login/login_card2.svg');
+  background-image: url('../../../assets/login/side-interaction.svg');
   background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 1;
@@ -55,7 +55,7 @@ input[type='text']::-webkit-outer-spin-button {
   left: 25%;
   width: 55%;
   height: 40%;
-  background-image: url('../../../assets/login/login_card1.svg');
+  background-image: url('../../../assets/login/login-card-synopsis.svg');
   background-size: 100% 100%;
   border-radius: 0.7rem;
   z-index: 2;
@@ -163,9 +163,9 @@ input[type='text']::-webkit-outer-spin-button {
 }
 
 .otp-bg {
-  background-image: url('../../../assets/login/rozie-logo.svg');
-  width: 12rem;
-  height: 2.3rem;
+  background-image: url('../../../assets/login/rozie-synopsis-logo.svg');
+  width: 12.5rem;
+  height: 3.4rem;
   margin-top: 6rem;
   margin-bottom: 1rem;
   background-size: cover;
@@ -322,7 +322,7 @@ input[type='text']::-webkit-outer-spin-button {
     left: 25%;
     width: 55%;
     height: 40%;
-    background-image: url('../../../assets/login/login_card1.svg');
+    background-image: url('../../../assets/login/login-card-synopsis.svg');
     background-size: 100% 100%;
     border-radius: 0.7rem;
     z-index: 1;

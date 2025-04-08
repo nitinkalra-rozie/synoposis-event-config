@@ -13,8 +13,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SessionDialogComponent } from './dialog/original-debrief-modal-dialog.component';
+import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
 import { UploadAgendaDialogComponent } from './upload-agenda/upload-agenda-dialog.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation.dialog.component';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/services/backend-api.service';
 import { AuthService } from 'src/app/services/auth.service';
@@ -38,6 +39,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
 
 interface Application {
   value: string;
@@ -54,6 +56,7 @@ export interface SpeakerDetails {
   Title: string;
   Organization: string;
   Url: string;
+  S3FileKey: string;
   SpeakerBio: string;
   isModerator: boolean;
   Name: string;
@@ -114,7 +117,8 @@ interface RealtimeInsight {
     TopBarComponent,
     SidebarControlPanelComponent,
     UploadAgendaDialogComponent,
-    SessionDialogComponent,
+    UpdateSessionDialogComponent,
+    ConfirmationDialogComponent,
   ],
   providers: [],
 })
@@ -183,6 +187,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public topics: Array<string> = [];
   public speakers: Array<string> = [];
   public session_details: Session[] = [];
+  public availableTimezones: { value: string; label: string }[] =
+    inject(TIMEZONE_OPTIONS);
+  public selectedTimezone: string = '+0:00';
+  public eventTimezone: string = '+0:00';
   public selectedStatus: { label: string; class: string } = {
     label: 'In Review',
     class: 'status-in-progress',
@@ -195,12 +203,12 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   ];
 
   public displayedColumns: string[] = [
+    'startDate',
+    'startTime',
     'title',
     'sessionid',
     'Type',
     'status',
-    'startDate',
-    'startTime',
     'track',
     'actions',
   ];
@@ -255,6 +263,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       minute: '2-digit',
     };
     return new Intl.DateTimeFormat('en-US', options).format(parsedDate);
+  }
+
+  updateTimezone(): void {
+    this.openConfirmationDialog(this.selectedTimezone);
   }
 
   showError(): void {
@@ -366,6 +378,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       .subscribe((response: any) => {
         this.session_details = response.data;
         this.eventName = this._legacyBackendApiService.getCurrentEventName();
+        this.selectedTimezone =
+          this._legacyBackendApiService.getCurrentTimezone();
+        this.eventTimezone = this._legacyBackendApiService.getCurrentTimezone();
         if (response.data.length > 0) {
           console.log('get events response', response.data);
           this.dataSource.data = response.data;
@@ -539,12 +554,129 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
+  refreshAgenda(): void {
+    this.getEventDetails();
+  }
+
+  openConfirmationDialog(selectedTimezone: string): void {
+    const timeDiff = this.getTimezoneDifference(
+      this.eventTimezone,
+      selectedTimezone
+    );
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Confirm Timezone Update',
+        message:
+          'Are you sure you want to update the event timezone? This will change the start and end times of all sessions relative to UTC.',
+        warning: `Warning: Session UTC times will be adjusted by ${timeDiff} hour from their previous values.`,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.updateEventTimezone(selectedTimezone, timeDiff);
+      } else {
+        this.selectedTimezone = this.eventTimezone;
+      }
+    });
+  }
+
+  displayErrorMessage(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 20000,
+      panelClass: ['snackbar-error'],
+    });
+  }
+
+  updateEventTimezone(selectedTimezone, timeDiff): void {
+    this.isLoading = true;
+    this._backendApiService.getEventDetails().subscribe({
+      next: (response: any) => {
+        const latestSessionData: Session[] = response.data;
+        const updatedSessionData = this.adjustSessionTimes(
+          latestSessionData,
+          timeDiff
+        );
+        this._backendApiService
+          .updateAgenda(updatedSessionData, selectedTimezone)
+          .subscribe({
+            next: (response) => {
+              this.getEventDetails();
+            },
+            error: (error) => {
+              console.error('Error fetching data:', error);
+              this.isLoading = false;
+            },
+          });
+      },
+      error: (error) => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  public get formattedTimezone(): string {
+    const match = this.eventTimezone.match(/^([+-])(\d+)(?::(\d+))?/);
+    if (!match) return '+0000'; // Fallback to UTC
+    const sign = match[1];
+    const hours = match[2].padStart(2, '0');
+    const minutes = (match[3] || '00').padStart(2, '0');
+    return `${sign}${hours}${minutes}`;
+  }
+
+  adjustSessionTimes(sessions: Session[], hoursToAdjust: number): Session[] {
+    return sessions.map((session): Session => {
+      const adjustTime = (datetime: string): string => {
+        const isoString = datetime
+          .replace(' ', 'T')
+          .replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
+        const date = new Date(isoString);
+        const adjustedTime = date.getTime() + hoursToAdjust * 60 * 60 * 1000;
+        const adjustedDate = new Date(adjustedTime);
+        return (
+          [
+            adjustedDate.getUTCFullYear(),
+            String(adjustedDate.getUTCMonth() + 1).padStart(2, '0'),
+            String(adjustedDate.getUTCDate()).padStart(2, '0'),
+          ].join('-') +
+          ' ' +
+          [
+            String(adjustedDate.getUTCHours()).padStart(2, '0'),
+            String(adjustedDate.getUTCMinutes()).padStart(2, '0'),
+            String(adjustedDate.getUTCSeconds()).padStart(2, '0'),
+          ].join(':') +
+          '+0000'
+        );
+      };
+
+      return {
+        ...session,
+        StartsAt: adjustTime(session.StartsAt),
+        EndsAt: adjustTime(session.EndsAt),
+      };
+    });
+  }
+
   openSessionDetailsModal(data: Session, type: string): void {
-    const dialogRef = this.dialog.open(SessionDialogComponent, {
+    const timeDiff = this.getTimezoneDifference('+0:00', this.eventTimezone);
+    let adjustedSessionData = this.adjustSessionTimes(
+      [data],
+      this.getTimezoneDifference(this.eventTimezone, '+0:00')
+    );
+    adjustedSessionData = adjustedSessionData.map((s) => ({
+      ...s,
+      StartsAt: s.StartsAt.endsWith('+0000')
+        ? s.StartsAt.slice(0, -5)
+        : s.StartsAt,
+      EndsAt: s.EndsAt.endsWith('+0000') ? s.EndsAt.slice(0, -5) : s.EndsAt,
+    }));
+    const dialogRef = this.dialog.open(UpdateSessionDialogComponent, {
       width: '1200px',
       maxWidth: 'none',
       data: {
-        data: data,
+        data: adjustedSessionData?.[0],
+        adjustSessionTimesFn: (data) => this.adjustSessionTimes(data, timeDiff),
+        displayErrorMessageFn: (msg) => this.displayErrorMessage(msg),
         type: type,
         trackList: [
           ...new Set(
@@ -564,12 +696,25 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
+  getTimezoneDifference(timezoneA, timezoneB): number {
+    const parseOffset = (tz): number => {
+      const [hours, minutes] = tz.split(':').map(Number);
+      return hours + (Math.sign(hours) * minutes) / 60;
+    };
+    const offset1 = parseOffset(timezoneA);
+    const offset2 = parseOffset(timezoneB);
+    return offset1 - offset2;
+  }
+
   openUploadAgendaDialog(): void {
+    const timeDiff = this.getTimezoneDifference('+0:00', this.eventTimezone);
     const dialogRef = this.dialog.open(UploadAgendaDialogComponent, {
       width: '1200px',
       maxWidth: 'none',
       data: {
         nextSessionId: this.getNextSessionId(),
+        adjustSessionTimesFn: (data) => this.adjustSessionTimes(data, timeDiff),
+        displayErrorMessageFn: (msg) => this.displayErrorMessage(msg),
         eventName: this.eventName,
         trackList: [
           ...new Set(

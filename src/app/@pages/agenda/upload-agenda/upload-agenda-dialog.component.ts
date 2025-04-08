@@ -1,4 +1,4 @@
-import { Component, inject, Inject, Signal } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import {
   MatDialogRef,
   MatDialogModule,
@@ -17,10 +17,11 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
+import { UploadImageComponent } from '../upload-image-component/upload-image.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-
 import * as XLSX from 'xlsx';
 import { Session, SpeakerDetails } from '../agenda.component';
+import { TIMEZONE_OPTIONS } from 'src/app/@data-providers/timezone.data-provider';
 
 @Component({
   selector: 'app-upload-agenda-dialog',
@@ -40,6 +41,7 @@ import { Session, SpeakerDetails } from '../agenda.component';
     MatAutocompleteModule,
     MatProgressBarModule,
     MatExpansionModule,
+    UploadImageComponent,
   ],
   templateUrl: './upload-agenda-dialog.component.html',
   styleUrls: ['./upload-agenda-dialog.component.scss'],
@@ -48,23 +50,22 @@ import { Session, SpeakerDetails } from '../agenda.component';
   ],
 })
 export class UploadAgendaDialogComponent {
-  constructor(
-    private dialogRef: MatDialogRef<UploadAgendaDialogComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public dialogData: {
-      nextSessionId: string;
-      eventName: string;
-      trackList: string[];
-    }
-  ) {
-    this.nextSessionId = this.dialogData.nextSessionId;
-    this.eventName = this.dialogData.eventName;
-    this.trackOptions = this.dialogData.trackList || [];
-  }
+  public dialogRef = inject(MatDialogRef<UploadAgendaDialogComponent>);
+  public dialogData = inject(MAT_DIALOG_DATA) as {
+    nextSessionId: string;
+    eventName: string;
+    trackList: string[];
+    adjustSessionTimesFn: (data: any) => Session[];
+    displayErrorMessageFn: (msg: string) => void;
+  };
+  public nextSessionId: string = this.dialogData.nextSessionId;
+  public eventName: string = this.dialogData.eventName;
+  public trackOptions: string[] = this.dialogData.trackList || [];
 
   public sessions: Session[] = [];
   public errorMessage: string = '';
   public isLoading: boolean;
+  public isUploading: boolean;
   public displayedColumns: string[] = [
     'Session Title',
     'Start Time',
@@ -74,45 +75,10 @@ export class UploadAgendaDialogComponent {
     'Stage',
   ];
   public selectedTimezone: string = '+0:00';
-  public timezones = [
-    { value: '-11:00', label: 'UTC-11:00' },
-    { value: '-10:00', label: 'UTC-10:00' },
-    { value: '-9:00', label: 'UTC-9:00' },
-    { value: '-8:00', label: 'UTC-8:00' },
-    { value: '-7:00', label: 'UTC-7:00' },
-    { value: '-6:00', label: 'UTC-6:00' },
-    { value: '-5:00', label: 'UTC-5:00' },
-    { value: '-4:00', label: 'UTC-4:00' },
-    { value: '-3:00', label: 'UTC-3:00' },
-    { value: '-2:00', label: 'UTC-2:00' },
-    { value: '-1:00', label: 'UTC-1:00' },
-    { value: '+0:00', label: 'UTC+0:00' },
-    { value: '+1:00', label: 'UTC+1:00' },
-    { value: '+2:00', label: 'UTC+2:00' },
-    { value: '+3:00', label: 'UTC+3:00' },
-    { value: '+3:30', label: 'UTC+3:30' },
-    { value: '+4:00', label: 'UTC+4:00' },
-    { value: '+4:30', label: 'UTC+4:30' },
-    { value: '+5:00', label: 'UTC+5:00' },
-    { value: '+5:30', label: 'UTC+5:30' },
-    { value: '+5:45', label: 'UTC+5:45' },
-    { value: '+6:00', label: 'UTC+6:00' },
-    { value: '+6:30', label: 'UTC+6:30' },
-    { value: '+7:00', label: 'UTC+7:00' },
-    { value: '+8:00', label: 'UTC+8:00' },
-    { value: '+8:45', label: 'UTC+8:45' },
-    { value: '+9:00', label: 'UTC+9:00' },
-    { value: '+9:30', label: 'UTC+9:30' },
-    { value: '+10:00', label: 'UTC+10:00' },
-    { value: '+10:30', label: 'UTC+10:30' },
-    { value: '+11:00', label: 'UTC+11:00' },
-    { value: '+12:00', label: 'UTC+12:00' },
-  ];
+  public timezones: { value: string; label: string }[] =
+    inject(TIMEZONE_OPTIONS);
   public isDragging = false;
-  public eventName: string;
-  public nextSessionId: string;
   public filteredTrackOptions: Signal<string[]>;
-  public trackOptions: string[] = [];
   private _backendApiService = inject(BackendApiService);
 
   getFilteredTrackOptions(input: string): string[] {
@@ -238,6 +204,7 @@ export class UploadAgendaDialogComponent {
       Title: '',
       Url: '',
       SpeakerBio: '',
+      S3FileKey: '',
       Name: '',
       isModerator: false,
       Organization: '',
@@ -254,20 +221,76 @@ export class UploadAgendaDialogComponent {
     this.dialogRef.close();
   }
 
+  updateSessionTimes(sessions: Session[]): Session[] {
+    return sessions.map((session) => {
+      const updatedSession = { ...session };
+      if (
+        typeof updatedSession.StartsAt === 'string' &&
+        !updatedSession.StartsAt.endsWith('+0000')
+      ) {
+        updatedSession.StartsAt += '+0000';
+      }
+      if (
+        typeof updatedSession.EndsAt === 'string' &&
+        !updatedSession.EndsAt.endsWith('+0000')
+      ) {
+        updatedSession.EndsAt += '+0000';
+      }
+      return updatedSession;
+    });
+  }
+
+  isSessionDatesValid(sessions: Session[]): boolean {
+    for (const session of sessions) {
+      const startsAt = new Date(session.StartsAt);
+      const endsAt = new Date(session.EndsAt);
+      if (endsAt <= startsAt) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  updateSpeakerImage(speakerImage: string, speaker: SpeakerDetails): void {
+    speaker.S3FileKey = speakerImage;
+  }
+
   confirm(): void {
-    // Additional validation before closing
     if (this.validateSessions()) {
+      if (!this.isSessionDatesValid(this.sessions)) {
+        this.dialogData.displayErrorMessageFn(
+          'Invalid Session Start and End time. Please update the details and retry.'
+        );
+        return;
+      }
       this.isLoading = true;
-      this._backendApiService.updateAgenda(this.sessions).subscribe({
-        next: (response) => {
-          this.dialogRef.close('SUCCESS');
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-          this.isLoading = false;
-        },
-      });
+      if (this.dialogData.adjustSessionTimesFn) {
+        const updatedSessionDetails = this.dialogData.adjustSessionTimesFn(
+          this.updateSessionTimes(this.sessions)
+        );
+        this._backendApiService.updateAgenda(updatedSessionDetails).subscribe({
+          next: (response) => {
+            this.dialogRef.close('SUCCESS');
+            this.isLoading = false;
+          },
+          error: (error) => {
+            this.dialogData.displayErrorMessageFn(
+              'Server Error. Failed update the session data.'
+            );
+            console.error('Error fetching data:', error);
+            this.isLoading = false;
+          },
+        });
+      } else {
+        this.dialogData.displayErrorMessageFn(
+          'Error formatting Session Date and Time'
+        );
+        return;
+      }
+    } else {
+      this.dialogData.displayErrorMessageFn(
+        'Session details not valid. Please update the session details and retry.'
+      );
     }
   }
 
