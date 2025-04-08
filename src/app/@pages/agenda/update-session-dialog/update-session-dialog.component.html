@@ -122,22 +122,25 @@
             <mat-card>
               <mat-card-header>
                 <mat-card-title>Speaker {{ i + 1 }}</mat-card-title>
-                <button mat-icon-button (click)="removeSpeaker(i)" color="warn">
-                  <mat-icon>delete</mat-icon>
+                <button
+                  mat-stroked-button
+                  class="remove-speaker-button"
+                  (click)="removeSpeaker(i)"
+                  color="danger">
+                  Remove Speaker
                 </button>
               </mat-card-header>
-
               <mat-card-content>
                 <div class="form-row">
-                  <div class="image-preview">
-                    <img
-                      *ngIf="speaker.get('Url')?.value; else noImage"
-                      [src]="speaker.get('Url')?.value"
-                      alt="Speaker Image" />
-                    <ng-template #noImage>
-                      <div class="image-placeholder">No image available</div>
-                    </ng-template>
-                  </div>
+                  <app-speaker-image-uploader
+                    [eventName]="dialogData?.data?.Event"
+                    [isUploading]="isUploading"
+                    [speakerImage]="speaker.get('Url')?.value"
+                    (displayErrorMessageFn)="
+                      this.dialogData.displayErrorMessageFn?.($event)
+                    "
+                    (updateSpeakerImage)="updateSpeakerImage($event, speaker)">
+                  </app-speaker-image-uploader>
 
                   <div class="form-fields">
                     <mat-form-field appearance="fill">
@@ -153,11 +156,6 @@
                     <mat-form-field appearance="fill">
                       <mat-label>Organization</mat-label>
                       <input matInput formControlName="Organization" />
-                    </mat-form-field>
-
-                    <mat-form-field appearance="fill">
-                      <mat-label>Image URL</mat-label>
-                      <input matInput formControlName="Url" />
                     </mat-form-field>
 
                     <mat-checkbox formControlName="isModerator"
@@ -178,7 +176,8 @@
           </div>
         </div>
         <button
-          mat-raised-button
+          mat-stroked-button
+          class="add-speaker-button"
           (click)="addSpeaker()"
           color="primary"
           type="button">

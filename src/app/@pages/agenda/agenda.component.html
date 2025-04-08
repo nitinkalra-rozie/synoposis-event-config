@@ -60,6 +60,31 @@
                 [dataSource]="dataSource"
                 (matSortChange)="paginator.pageIndex = 0">
                 <!-- Version Column -->
+                <ng-container matColumnDef="startDate">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    Start Date
+                  </th>
+                  <td
+                    *matCellDef="let row; let i = index"
+                    mat-cell
+                    [class.selected]="selectedRowIndex === i"
+                    (click)="highlightRow(row, i)"
+                    style="min-width: 110px">
+                    {{ row.StartsAt | date: 'yyyy-MM-dd' : formattedTimezone }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="startTime">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    Start Time
+                  </th>
+                  <td
+                    *matCellDef="let row; let i = index"
+                    mat-cell
+                    [class.selected]="selectedRowIndex === i"
+                    (click)="highlightRow(row, i)">
+                    {{ row.StartsAt | date: 'HH:mm' : formattedTimezone }}
+                  </td>
+                </ng-container>
                 <ng-container matColumnDef="title">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
                     Session Title
@@ -140,31 +165,6 @@
                         Completed
                       </span>
                     </div>
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="startDate">
-                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Date
-                  </th>
-                  <td
-                    *matCellDef="let row; let i = index"
-                    mat-cell
-                    [class.selected]="selectedRowIndex === i"
-                    (click)="highlightRow(row, i)"
-                    style="min-width: 110px">
-                    {{ row.StartsAt | date: 'yyyy-MM-dd' : formattedTimezone }}
-                  </td>
-                </ng-container>
-                <ng-container matColumnDef="startTime">
-                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Time
-                  </th>
-                  <td
-                    *matCellDef="let row; let i = index"
-                    mat-cell
-                    [class.selected]="selectedRowIndex === i"
-                    (click)="highlightRow(row, i)">
-                    {{ row.StartsAt | date: 'HH:mm' : formattedTimezone }}
                   </td>
                 </ng-container>
 

@@ -57,7 +57,9 @@
               </mat-form-field>
               <div class="Input-field-row">
                 <!-- Starts At -->
-                <mat-form-field class="full-width" appearance="outline">
+                <mat-form-field
+                  class="full-width starts-at-input"
+                  appearance="outline">
                   <mat-label>Starts At</mat-label>
                   <input
                     matInput
@@ -65,7 +67,9 @@
                     type="datetime-local" />
                 </mat-form-field>
                 <!-- Ends At -->
-                <mat-form-field class="full-width" appearance="outline">
+                <mat-form-field
+                  class="full-width ends-at-input"
+                  appearance="outline">
                   <mat-label>Ends At</mat-label>
                   <input
                     matInput
@@ -92,35 +96,37 @@
                 </mat-form-field>
               </div>
 
-              <!-- Type -->
-              <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Type</mat-label>
-                <mat-select [(ngModel)]="session.Type">
-                  <mat-option value="Keynote">Keynote</mat-option>
-                  <mat-option value="PrimarySession"
-                    >Primary Session</mat-option
-                  >
-                  <mat-option value="BreakoutSession"
-                    >Breakout Session</mat-option
-                  >
-                  <mat-option value="presentation">Presentation</mat-option>
-                  <mat-option value="fireside_chat">Fireside chat</mat-option>
-                  <mat-option value="audience_debate"
-                    >Audience Debate</mat-option
-                  >
-                  <mat-option value="panel_discussion"
-                    >Panel discussion</mat-option
-                  >
-                </mat-select>
-              </mat-form-field>
-              <!-- Location -->
-              <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Location / Stage</mat-label>
-                <input
-                  matInput
-                  [(ngModel)]="session.Location"
-                  placeholder="Stage" />
-              </mat-form-field>
+              <div class="Input-field-row">
+                <mat-form-field
+                  class="full-width type-input"
+                  appearance="outline">
+                  <mat-label>Type</mat-label>
+                  <mat-select [(ngModel)]="session.Type">
+                    <mat-option value="Keynote">Keynote</mat-option>
+                    <mat-option value="PrimarySession"
+                      >Primary Session</mat-option
+                    >
+                    <mat-option value="BreakoutSession"
+                      >Breakout Session</mat-option
+                    >
+                    <mat-option value="presentation">Presentation</mat-option>
+                    <mat-option value="fireside_chat">Fireside chat</mat-option>
+                    <mat-option value="audience_debate"
+                      >Audience Debate</mat-option
+                    >
+                    <mat-option value="panel_discussion"
+                      >Panel discussion</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="full-width" appearance="outline">
+                  <mat-label>Location / Stage</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="session.Location"
+                    placeholder="Stage" />
+                </mat-form-field>
+              </div>
               <mat-form-field class="full-width" appearance="outline">
                 <mat-label>Session Description</mat-label>
                 <textarea
@@ -141,10 +147,17 @@
                 <h4>Speaker Info</h4>
                 <div
                   *ngFor="let speaker of session.SpeakersInfo; let j = index"
-                  class="speaker-info-item"
-                  style="margin-bottom: 12px">
-                  <!-- Speaker Name -->
-                  <div style="display: flex; flex-direction: row">
+                  class="speaker-info-item">
+                  <app-speaker-image-uploader
+                    [eventName]="eventName"
+                    [isUploading]="isUploading"
+                    [speakerImage]="speaker.Url"
+                    (displayErrorMessageFn)="
+                      this.dialogData?.displayErrorMessageFn?.($event)
+                    "
+                    (updateSpeakerImage)="updateSpeakerImage($event, speaker)">
+                  </app-speaker-image-uploader>
+                  <div class="speaker-bio-data">
                     <mat-form-field class="full-width" appearance="outline">
                       <mat-label>Speaker Name</mat-label>
                       <input
@@ -152,65 +165,51 @@
                         [(ngModel)]="speaker.Name"
                         placeholder="Speaker Name" />
                     </mat-form-field>
-                    <!-- Speaker Title -->
+                    <div style="display: flex; flex-direction: row">
+                      <mat-form-field
+                        class="full-width speaker-title"
+                        appearance="outline">
+                        <mat-label>Title</mat-label>
+                        <input
+                          matInput
+                          [(ngModel)]="speaker.Title"
+                          placeholder="Title" />
+                      </mat-form-field>
+                      <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Organization</mat-label>
+                        <input
+                          matInput
+                          [(ngModel)]="speaker.Organization"
+                          placeholder="Organization" />
+                      </mat-form-field>
+                    </div>
                     <mat-form-field class="full-width" appearance="outline">
-                      <mat-label>Title</mat-label>
-                      <input
+                      <mat-label>Speaker Bio</mat-label>
+                      <textarea
                         matInput
-                        [(ngModel)]="speaker.Title"
-                        placeholder="Title" />
+                        [(ngModel)]="speaker.SpeakerBio"
+                        placeholder="Speaker Bio"></textarea>
                     </mat-form-field>
-                    <mat-form-field class="full-width" appearance="outline">
-                      <mat-label>Organization</mat-label>
-                      <input
-                        matInput
-                        [(ngModel)]="speaker.Organization"
-                        placeholder="Organization" />
-                    </mat-form-field>
-                  </div>
-
-                  <!-- Speaker URL -->
-                  <mat-form-field class="full-width" appearance="outline">
-                    <mat-label>URL</mat-label>
-                    <input
-                      matInput
-                      [(ngModel)]="speaker.Url"
-                      placeholder="Url" />
-                  </mat-form-field>
-                  <!-- Speaker Bio -->
-                  <mat-form-field class="full-width" appearance="outline">
-                    <mat-label>Speaker Bio</mat-label>
-                    <textarea
-                      matInput
-                      [(ngModel)]="speaker.SpeakerBio"
-                      placeholder="Speaker Bio"></textarea>
-                  </mat-form-field>
-                  <!-- Speaker Organisation -->
-
-                  <!-- Is Moderator -->
-                  <div
-                    style="
-                      display: flex;
-                      flex-direction: row;
-                      justify-content: space-between;
-                    ">
-                    <mat-checkbox [(ngModel)]="speaker.isModerator"
-                      >Moderator</mat-checkbox
-                    >
-                    <!-- Remove Speaker Button -->
-                    <button
-                      mat-stroked-button
-                      (click)="removeSpeaker(session, j)"
-                      color="warn">
-                      Remove Speaker
-                    </button>
+                    <div class="remove-button-container">
+                      <mat-checkbox [(ngModel)]="speaker.isModerator"
+                        >Moderator</mat-checkbox
+                      >
+                      <button
+                        mat-stroked-button
+                        class="remove-speaker-button"
+                        (click)="removeSpeaker(session, j)"
+                        color="warn">
+                        Remove Speaker
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <button
                   mat-stroked-button
+                  class="add-speaker-button"
                   (click)="addSpeaker(session)"
                   color="primary">
-                  Add Speaker
+                  Add New Speaker
                 </button>
               </div>
               <!-- End Speaker Info Section -->

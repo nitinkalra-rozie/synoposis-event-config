@@ -11,6 +11,7 @@ export const environment = {
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
   getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
   updateAgendaUrl: 'https://dev.api.synopsis.rozie.ai/r5/postEventDetails',
+  getUploadFIlePresigendUrl: 'https://dev.api.synopsis.rozie.ai/r6/config',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:

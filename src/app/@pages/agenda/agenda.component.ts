@@ -13,7 +13,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SessionDialogComponent } from './dialog/original-debrief-modal-dialog.component';
+import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
 import { UploadAgendaDialogComponent } from './upload-agenda/upload-agenda-dialog.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation.dialog.component';
 import { BackendApiService } from 'src/app/@services/backend-api.service';
@@ -90,6 +90,7 @@ export interface SpeakerDetails {
   Title: string;
   Organization: string;
   Url: string;
+  S3FileKey: string;
   SpeakerBio: string;
   isModerator: boolean;
   Name: string;
@@ -150,7 +151,7 @@ interface RealtimeInsight {
     TopBarComponent,
     SidebarControlPanelComponent,
     UploadAgendaDialogComponent,
-    SessionDialogComponent,
+    UpdateSessionDialogComponent,
     ConfirmationDialogComponent,
   ],
   providers: [],
@@ -235,12 +236,12 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   ];
 
   public displayedColumns: string[] = [
+    'startDate',
+    'startTime',
     'title',
     'sessionid',
     'Type',
     'status',
-    'startDate',
-    'startTime',
     'track',
     'actions',
   ];
@@ -658,7 +659,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   adjustSessionTimes(sessions: Session[], hoursToAdjust: number): Session[] {
     return sessions.map((session): Session => {
-      const adjustTime = (datetime: string):string => {
+      const adjustTime = (datetime: string): string => {
         const isoString = datetime
           .replace(' ', 'T')
           .replace(/([+-]\d{2})(\d{2})$/, '$1:$2');
@@ -702,7 +703,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         : s.StartsAt,
       EndsAt: s.EndsAt.endsWith('+0000') ? s.EndsAt.slice(0, -5) : s.EndsAt,
     }));
-    const dialogRef = this.dialog.open(SessionDialogComponent, {
+    const dialogRef = this.dialog.open(UpdateSessionDialogComponent, {
       width: '1200px',
       maxWidth: 'none',
       data: {
