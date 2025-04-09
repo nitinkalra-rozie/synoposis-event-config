@@ -28,7 +28,7 @@ export class AuthGuard {
       );
 
       if (isAdminRoute && userRoleRank < RoleRank.ADMIN) {
-        this.router.navigate(['/editorial']);
+        this.router.navigate(['/insights-editor']);
         return false;
       }
 

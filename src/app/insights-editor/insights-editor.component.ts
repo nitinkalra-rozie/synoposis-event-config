@@ -20,20 +20,20 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
 import {
   RealtimeInsight,
   Session,
-} from 'src/app/editorial/data-services/editorial.data-model';
-import { EditorialDataService } from 'src/app/editorial/data-services/editorial.data-service';
-import { LargeModalDialogComponent } from 'src/app/legacy-admin/@pages/content-generate/dialog/original-debrief-modal-dialog.component';
+} from 'src/app/insights-editor/data-services/insights-editor.data-model';
+import { InsightsEditorDataService } from 'src/app/insights-editor/data-services/insights-editor.data-service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 @Component({
-  selector: 'app-elsa-event-editorial',
-  templateUrl: './editorial.component.html',
-  styleUrls: ['./editorial.component.scss'],
+  selector: 'app-insights-editor',
+  templateUrl: './insights-editor.component.html',
+  styleUrls: ['./insights-editor.component.scss'],
   imports: [
     CommonModule,
     FormsModule,
@@ -55,9 +55,8 @@ import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
     LayoutMainComponent,
   ],
 })
-export class EditorialComponent implements OnInit {
+export class InsightsEditorComponent implements OnInit {
   constructor(
-    private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
@@ -87,7 +86,7 @@ export class EditorialComponent implements OnInit {
     });
   }
   private readonly _authService = inject(AuthService);
-  private readonly _editorialDataService = inject(EditorialDataService);
+  private readonly _editorialDataService = inject(InsightsEditorDataService);
 
   public breadCrumbItems!: Array<{}>;
   public yourHtmlContent!: SafeHtml;

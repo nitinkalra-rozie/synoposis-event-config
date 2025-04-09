@@ -9,14 +9,14 @@ import {
   EventReportResponse,
   UpdatePostInsightsRequest,
   UpdatePostInsightsResponse,
-} from 'src/app/editorial/data-services/editorial.data-model';
+} from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class EditorialDataService {
+export class InsightsEditorDataService {
   private readonly _http = inject(HttpClient);
   private readonly _backendApiService = inject(LegacyBackendApiService);
 

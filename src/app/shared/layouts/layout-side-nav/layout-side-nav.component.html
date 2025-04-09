@@ -2,10 +2,10 @@
   <div class="side-nav-items">
     @if (userRoleRank() > 1) {
       <a
+        matTooltip="Admin Dashboard"
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
-        [matTooltip]="'Admin Dashboard'"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/admin"
         routerLinkActive="selected">
@@ -15,34 +15,33 @@
     <!-- TODO:@later Use isAdminUser() as the necessity arises -->
     @if (userRoleRank() > 0) {
       <a
+        matTooltip="Insights Editor"
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
-        [matTooltip]="'Editorial Dashboard'"
         [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/editorial"
+        routerLink="/insights-editor"
         routerLinkActive="selected">
         <mat-icon>dashboard</mat-icon>
       </a>
 
       <a
+        matTooltip="Content Editor"
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
-        [matTooltip]="'Generate PDF'"
         [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/generate-report"
+        routerLink="/content-editor"
         routerLinkActive="selected">
         <mat-icon>description</mat-icon>
       </a>
     }
-
     @if (isSuperAdmin || isEventOrganizer) {
       <a
+        matTooltip="Agenda"
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
-        [matTooltip]="'Agenda'"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLink="/agenda"
         routerLinkActive="selected">

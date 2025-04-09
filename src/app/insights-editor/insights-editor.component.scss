@@ -1,4 +1,5 @@
 @use 'variables' as v;
+@use 'mixins' as m;
 
 // Global element styles
 mat-form-field {
@@ -54,9 +55,10 @@ mat-chip {
 }
 
 // Main container
-.editorial-container {
-  display: flex;
+.insights-editor-container {
   height: 100%;
+  @include m.d-flex;
+  box-sizing: border-box;
   padding: 1.25rem 1.25rem;
   background-image: v.$soft-sky-gradient;
 
@@ -65,6 +67,7 @@ mat-chip {
     width: 420px;
     min-width: 420px;
     margin-right: 20px;
+    border-radius: 0.75rem;
     overflow-y: auto;
 
     // Filters section
