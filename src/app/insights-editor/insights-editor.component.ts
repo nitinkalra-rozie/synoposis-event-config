@@ -24,8 +24,8 @@ import { LargeModalDialogComponent } from 'src/app/content-editor/components/dia
 import {
   RealtimeInsight,
   Session,
-} from 'src/app/editorial/data-services/editorial.data-model';
-import { EditorialDataService } from 'src/app/editorial/data-services/editorial.data-service';
+} from 'src/app/insights-editor/data-services/insights-editor.data-model';
+import { InsightsEditorDataService } from 'src/app/insights-editor/data-services/insights-editor.data-service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
@@ -86,7 +86,7 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
   private readonly _authService = inject(AuthService);
-  private readonly _editorialDataService = inject(EditorialDataService);
+  private readonly _editorialDataService = inject(InsightsEditorDataService);
 
   public breadCrumbItems!: Array<{}>;
   public yourHtmlContent!: SafeHtml;
