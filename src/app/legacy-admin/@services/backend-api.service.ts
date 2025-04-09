@@ -27,16 +27,6 @@ export class BackendApiService {
     return this.http.post(environment.getTranscriberPreSignedUrl, body);
   }
 
-  sendEmailReport(page_size: string = '10'): Observable<Object> {
-    const data = {
-      action: 'emailTranscriptReport',
-      sessionId: 'day2_session2',
-      email: 'dinuka@rozie.ai',
-    };
-    // Pass the headers and the body as arguments to the post() method
-    return this.http.post(environment.postData, data);
-  }
-
   getUploadPresignedUrl(
     eventName: string,
     fileType: string,
@@ -103,22 +93,6 @@ export class BackendApiService {
       eventDetails: data,
     };
     return this.http.post(environment.updateAgendaUrl, body);
-  }
-
-  generateRealtimeInsights(data: any): Observable<Object> {
-    const body = {
-      action: 'realTimeInsights',
-      sessionId: data.sessionId,
-      eventName: data.eventName,
-      domain: this._backendApiService.getCurrentEventDomain(),
-      day: data.day,
-      keyNoteData: {},
-      screenTimeout: 15,
-      sessionTitle: data.sessionTitle,
-      transcript: '',
-      sessionDescription: data.sessionDescription,
-    };
-    return this.http.post(environment.postData, body);
   }
 
   getVersionContent(data: any): Observable<Object> {
@@ -203,7 +177,7 @@ export class BackendApiService {
       generatePDF: data.generatePDF,
     };
     console.log(body);
-    return this.http.post(environment.genarateContentUrl, body);
+    return this.http.post(environment.generateContentUrl, body);
   }
 
   changeEventStatus(data: any): Observable<Object> {

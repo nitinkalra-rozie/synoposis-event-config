@@ -21,43 +21,15 @@ import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
-import { GenerateRealtimeInsightsDialogComponent } from 'src/app/insights-editor/components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
-import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
+import {
+  RealtimeInsight,
+  Session,
+} from 'src/app/editorial/data-services/editorial.data-model';
+import { EditorialDataService } from 'src/app/editorial/data-services/editorial.data-service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
-import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
-
-interface Application {
-  value: string;
-  name: string;
-}
-
-interface SelectedConfig {
-  type: string;
-  application_id: string;
-  config: any;
-}
-
-interface Session {
-  EventDay: string;
-  SessionTitle: string;
-  SessionId: string;
-  Track: string;
-  Status: string;
-  Location: string;
-  StartsAt: string;
-  Editor: string;
-  Duration: string;
-  Type: string;
-  Event: string;
-  Speakers: any;
-}
-
-interface RealtimeInsight {
-  Timestamp: string;
-  Insights: Array<string>;
-}
-
+import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
+import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 @Component({
   selector: 'app-insights-editor',
   templateUrl: './insights-editor.component.html',
@@ -113,10 +85,10 @@ export class InsightsEditorComponent implements OnInit {
       this.speakers[index] = text;
     });
   }
+  private readonly _authService = inject(AuthService);
+  private readonly _editorialDataService = inject(EditorialDataService);
 
   public breadCrumbItems!: Array<{}>;
-  public applicationList!: Application[];
-  public selectedConfig!: SelectedConfig;
   public yourHtmlContent!: SafeHtml;
   public summary!: string;
   public title!: string;
@@ -168,9 +140,6 @@ export class InsightsEditorComponent implements OnInit {
   private _insightUpdate = new Subject<{ text: string; index: number }>();
   private _topicUpdate = new Subject<{ text: string; index: number }>();
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
-  private _backendApiService = inject(BackendApiService);
-  private _legacyBackendApiService = inject(LegacyBackendApiService);
-  private _authService = inject(AuthService);
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -178,24 +147,9 @@ export class InsightsEditorComponent implements OnInit {
       { label: 'Elsa Events' },
       { label: 'Edit Report', active: true },
     ];
-    this._legacyBackendApiService.getEventDetails().subscribe((data: any) => {
+    this._editorialDataService.getEventDetails().subscribe((data) => {
       this.getEventDetails();
     });
-  }
-
-  // Methods
-  convertDate(dateString: string): string {
-    // Replace the space with 'T' to parse the date correctly
-    const parsedDate = new Date(dateString.replace(' ', 'T'));
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(parsedDate);
   }
 
   showError(): void {
@@ -209,27 +163,15 @@ export class InsightsEditorComponent implements OnInit {
     );
   }
 
-  sendEmail(): void {
-    this._backendApiService.sendEmailReport().subscribe({
-      next: (response) => {
-        if (response['success'] == true) {
-          console.log(response);
-        }
-      },
-      error: (error) => {
-        console.error('Error sending email:', error);
-      },
-    });
-  }
-
   updateEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
+      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
     };
-    this._backendApiService.getEventReport(data).subscribe({
+    this._editorialDataService.getEventReport(data).subscribe({
       next: (response) => {
         console.log(response);
         this.isEditorMode = false;
@@ -248,8 +190,10 @@ export class InsightsEditorComponent implements OnInit {
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
+      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
     };
-    this._backendApiService.getEventReport(data).subscribe({
+
+    this._editorialDataService.getEventReport(data).subscribe({
       next: (response) => {
         console.log(response);
         if (response?.data?.[0]?.snapshotData) {
@@ -260,7 +204,6 @@ export class InsightsEditorComponent implements OnInit {
           this.insights = data['data']['insights'];
           this.topics = data['data']['topics'];
           this.keytakeaways = data['data']['key_takeaways'];
-          this.speakers = data['data']['speakers'];
           this.dataLoaded = true;
           this.title = data['data']['title'];
           this.postInsightTimestamp = responseData['postInsightTimestamp'];
@@ -353,7 +296,7 @@ export class InsightsEditorComponent implements OnInit {
       changeEditMode: true,
       editor: this._authService.getUserEmail(),
     };
-    this._backendApiService.changeEventStatus(debrief).subscribe({
+    this._editorialDataService.changeEventStatus(debrief).subscribe({
       next: (response) => {
         if (response['data'].status == 'SUCCESS') {
           this.isEditorMode = true;
@@ -379,23 +322,25 @@ export class InsightsEditorComponent implements OnInit {
 
   postEditedDebrief(): void {
     this.isLoading = true;
-    const debrief = {
-      realtimeinsights: this.realtimeinsights,
-      summary: this.summary,
-      keytakeaways: this.keytakeaways,
-      insights: this.insights,
-      status: this.selected_session_details.Status,
-      topics: this.topics,
-      trends: this.trends,
-      postInsightTimestamp: this.postInsightTimestamp,
-      trendsTimestamp: this.trendsTimestamp,
-    };
     const data = {
       action: 'updatePostInsights',
       sessionId: this.selected_session,
-      updatedData: debrief,
+      updatedData: {
+        realtimeinsights: this.realtimeinsights,
+        summary: this.summary,
+        keytakeaways: this.keytakeaways,
+        insights: this.insights,
+        status: this.selected_session_details.Status,
+        topics: this.topics,
+        trends: this.trends,
+        postInsightTimestamp: this.postInsightTimestamp,
+        trendsTimestamp: this.trendsTimestamp,
+      },
+      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      domain: getLocalStorageItem<string>('EVENT_LLM_DOMAIN'),
     };
-    this._backendApiService.updatePostInsights(data).subscribe({
+
+    this._editorialDataService.updatePostInsights(data).subscribe({
       next: (response) => {
         if (response['data'].statusCode == 200) {
           this.isEditorMode = false;
@@ -421,7 +366,7 @@ export class InsightsEditorComponent implements OnInit {
   }
 
   getEventDetails(): void {
-    this._backendApiService.getEventDetails().subscribe((response: any) => {
+    this._editorialDataService.getEventDetails().subscribe((response: any) => {
       this.session_details = response.data;
       if (response.data.length > 0) {
         console.log('get events response', response.data);
@@ -451,7 +396,7 @@ export class InsightsEditorComponent implements OnInit {
       this.selected_session = session['SessionId'];
       const sessionObj = JSON.parse(JSON.stringify(session));
       if (sessionObj.StartsAt) {
-        sessionObj.StartsAt = this.convertDate(sessionObj.StartsAt);
+        sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
       }
       if (sessionObj.Editor == this._authService.getUserEmail()) {
         this.isEditorMode = true;
@@ -543,19 +488,6 @@ export class InsightsEditorComponent implements OnInit {
       transcript: this.transcript,
     };
     this.dialog.open(LargeModalDialogComponent, {
-      width: '1200px', // Makes the modal large
-      data: data,
-      panelClass: 'custom-dialog-container', // Custom CSS class for further styling
-    });
-  }
-
-  openGenerateRealtimeInsightsModal(): void {
-    const data = {
-      type: 'generate_realtime',
-      transcript: this.transcript,
-      selected_session: this.selected_session_details,
-    };
-    this.dialog.open(GenerateRealtimeInsightsDialogComponent, {
       width: '1200px', // Makes the modal large
       data: data,
       panelClass: 'custom-dialog-container', // Custom CSS class for further styling
