@@ -22,6 +22,7 @@ grab-git-info.js
 *.launch
 .settings/
 *.sublime-workspace
+.cursorrules
 
 # IDE - VSCode
 .vscode/*

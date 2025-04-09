@@ -1,12 +1,5 @@
 import { NgClass } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  OnInit,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +15,6 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -45,6 +37,8 @@ import {
   MarkdownEditorDialogComponent,
 } from './components/edit-content-dialog/markdown-editor-dialog.component';
 
+// TODO: move these to the appropriate models. Either *.data-model.ts or *.model.ts
+// #region - legacy interfaces
 interface Application {
   value: string;
   name: string;
@@ -99,7 +93,10 @@ const promptSchema = {
   welcome: ['session_debrief'],
   breakout: ['session_debrief'],
 };
+// #endregion
 
+// TODO: move this to a new loading component. Unless if this is moved to a separate component and used in the new design then this will be removed - most likely
+// #region - legacy loading-dialog
 @Component({
   selector: 'app-loading-dialog',
   template: `
@@ -114,7 +111,10 @@ const promptSchema = {
   imports: [MatDialogModule, MatProgressSpinnerModule],
 })
 export class LoadingDialogComponent {}
+// #endregion
 
+// TODO: eventually convert the component to use the new patterns and remove the legacy code
+// TODO: Convert to OnPush change detection strategy
 @Component({
   selector: 'app-content-editor',
   templateUrl: './content-editor.component.html',
@@ -126,7 +126,6 @@ export class LoadingDialogComponent {}
     MatSnackBarModule,
     MatTableModule,
     MatSortModule,
-    MatPaginatorModule,
     MatDialogModule,
     MatCardModule,
     MatIconModule,
@@ -143,20 +142,32 @@ export class LoadingDialogComponent {}
     MatMenuModule,
     LayoutMainComponent,
   ],
-  providers: [],
 })
-export class ContentEditorComponent implements OnInit, AfterViewInit {
+export class ContentEditorComponent {
   constructor(
-    private sanitizer: DomSanitizer,
+    // TODO: convert these to use the inject function
+    // #region - legacy injections
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer
+    //#endregion
   ) {
+    // TODO: convert these to be reactive and remove as the mat icon registration is done globally
+    //#region - legacy constructor code
     // Register Material icons
     this.matIconRegistry.addSvgIconSet(
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/mdi.svg')
     );
+
+    // BreadCrumb Set
+    this.breadCrumbItems = [
+      { label: 'Elsa Events' },
+      { label: 'Edit Report', active: true },
+    ];
+    this._legacyBackendApiService.getEventDetails().subscribe((data: any) => {
+      this.getEventDetails();
+    });
 
     this._keyTakeawayUpdate
       .pipe(debounceTime(300))
@@ -175,9 +186,11 @@ export class ContentEditorComponent implements OnInit, AfterViewInit {
     this._speakerUpdate.pipe(debounceTime(300)).subscribe(({ text, index }) => {
       this.speakers[index] = text;
     });
+    // #endregion
   }
 
-  @ViewChild(MatPaginator) public paginator!: MatPaginator;
+  // TODO: convert to use signal based variables
+  //#region - legacy decorators, variables and etc.
   @ViewChild(MatSort) public sort!: MatSort;
 
   public breadCrumbItems!: Array<{}>;
@@ -271,25 +284,11 @@ export class ContentEditorComponent implements OnInit, AfterViewInit {
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
-
   private _authService = inject(AuthService);
+  //#endregion
 
-  ngOnInit(): void {
-    // BreadCrumb Set
-    this.breadCrumbItems = [
-      { label: 'Elsa Events' },
-      { label: 'Edit Report', active: true },
-    ];
-    this._legacyBackendApiService.getEventDetails().subscribe((data: any) => {
-      this.getEventDetails();
-    });
-  }
-
-  ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-  }
-
+  // TODO: convert to the new patterns, apply separations and etc. Remove if not valid anymore by the end if initial phase
+  // #region - legacy functions
   applyInitialPromptFilter(): void {
     this.selectedSessionType = this.sessionTypes[0];
     this.reportTypes = promptSchema[this.selectedSessionType];
@@ -912,4 +911,5 @@ export class ContentEditorComponent implements OnInit, AfterViewInit {
       panelClass: 'custom-dialog-container', // Custom CSS class for further styling
     });
   }
+  //#endregion
 }
