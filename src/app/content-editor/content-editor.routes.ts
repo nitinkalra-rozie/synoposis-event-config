@@ -7,5 +7,6 @@ export const contentEditorRoutes: Route[] = [
   {
     path: '',
     component: ContentEditorComponent,
+    title: 'Rozie Synopsis - Content Editor',
   },
 ];
