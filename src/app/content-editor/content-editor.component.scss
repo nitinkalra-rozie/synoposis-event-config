@@ -108,7 +108,8 @@
     overflow-y: auto;
 
     .editor-content {
-      height: 100%;
+      height: max-content;
+      min-height: 100%;
       padding: 16px;
 
       /* Session details */
