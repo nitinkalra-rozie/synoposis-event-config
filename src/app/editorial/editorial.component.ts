@@ -27,11 +27,11 @@ import {
   Session,
 } from 'src/app/editorial/data-service/editorial.data-model';
 import { EditorialDataService } from 'src/app/editorial/data-service/editorial.data-service';
+import { LargeModalDialogComponent } from 'src/app/legacy-admin/@pages/content-generate/dialog/original-debrief-modal-dialog.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
-import { LargeModalDialogComponent } from './components/dialog/original-debrief-modal-dialog.component';
 import { GenerateRealtimeInsightsDialogComponent } from './components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 @Component({
   selector: 'app-elsa-event-editorial',
@@ -362,7 +362,7 @@ export class EditorialComponent implements OnInit {
       sessionId: this.selected_session,
       updatedData: debrief,
       eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
-      domain: getLocalStorageItem<string>('EVENT_DOMAIN'),
+      domain: getLocalStorageItem<string>('EVENT_LLM_DOMAIN'),
     };
     this._editorialDataService.updatePostInsights(data).subscribe({
       next: (response) => {

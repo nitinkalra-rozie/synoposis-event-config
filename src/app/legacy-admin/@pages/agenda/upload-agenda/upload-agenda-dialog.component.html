@@ -1,0 +1,262 @@
+<h2 mat-dialog-title>Upload Agenda from Excel</h2>
+<mat-dialog-content>
+  <mat-card class="modern-card">
+    <mat-card-content>
+      <!-- Upload section -->
+      @if (!sessions.length) {
+        <div class="upload-section">
+          <input
+            #fileInput
+            (change)="onFileChange($event)"
+            accept=".xlsx, .xls"
+            hidden
+            type="file" />
+          <div
+            class="drop-zone"
+            [class.dragover]="isDragging"
+            (click)="fileInput.click()"
+            (dragover)="onDragOver($event)"
+            (drop)="onFileDrop($event)">
+            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+            <div class="upload-text">
+              <p>Drag & Drop Excel File</p>
+              <p class="subtext">or click to browse</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Error message -->
+      @if (errorMessage) {
+        <div class="error-message">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ errorMessage }}</span>
+        </div>
+      }
+
+      @if (sessions.length) {
+        <div class="preview-section">
+          <h3 class="preview-title">
+            Session Preview
+            <span class="count-badge">{{ sessions.length }} sessions</span>
+          </h3>
+          <mat-accordion>
+            @for (session of sessions; track $index; let i = $index) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ session.StartsAt | date: 'short' }}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{ session.SessionTitle || 'Untitled Session' }}
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <div class="session-details">
+                  <!-- Session Title -->
+                  <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Session Title</mat-label>
+                    <input
+                      matInput
+                      [(ngModel)]="session.SessionTitle"
+                      placeholder="Session title" />
+                  </mat-form-field>
+                  <div class="Input-field-row">
+                    <!-- Starts At -->
+                    <mat-form-field
+                      class="full-width starts-at-input"
+                      appearance="outline">
+                      <mat-label>Starts At</mat-label>
+                      <input
+                        matInput
+                        [(ngModel)]="session.StartsAt"
+                        type="datetime-local" />
+                    </mat-form-field>
+                    <!-- Ends At -->
+                    <mat-form-field
+                      class="full-width ends-at-input"
+                      appearance="outline">
+                      <mat-label>Ends At</mat-label>
+                      <input
+                        matInput
+                        [(ngModel)]="session.EndsAt"
+                        type="datetime-local" />
+                    </mat-form-field>
+                    <mat-form-field class="full-width" appearance="outline">
+                      <mat-label>Track</mat-label>
+                      <input
+                        matInput
+                        [matAutocomplete]="auto"
+                        [(ngModel)]="session.Track"
+                        placeholder="Select or enter track"
+                        type="text" />
+                      <mat-autocomplete #auto="matAutocomplete">
+                        @for (
+                          option of getFilteredTrackOptions(session.Track);
+                          track option
+                        ) {
+                          <mat-option [value]="option">
+                            {{ option }}
+                          </mat-option>
+                        }
+                      </mat-autocomplete>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="Input-field-row">
+                    <mat-form-field
+                      class="full-width type-input"
+                      appearance="outline">
+                      <mat-label>Type</mat-label>
+                      <mat-select [(ngModel)]="session.Type">
+                        <mat-option value="Keynote">Keynote</mat-option>
+                        <mat-option value="PrimarySession"
+                          >Primary Session</mat-option
+                        >
+                        <mat-option value="BreakoutSession"
+                          >Breakout Session</mat-option
+                        >
+                        <mat-option value="presentation"
+                          >Presentation</mat-option
+                        >
+                        <mat-option value="fireside_chat"
+                          >Fireside chat</mat-option
+                        >
+                        <mat-option value="audience_debate"
+                          >Audience Debate</mat-option
+                        >
+                        <mat-option value="panel_discussion"
+                          >Panel discussion</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="full-width" appearance="outline">
+                      <mat-label>Location / Stage</mat-label>
+                      <input
+                        matInput
+                        [(ngModel)]="session.Location"
+                        placeholder="Stage" />
+                    </mat-form-field>
+                  </div>
+                  <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Session Description</mat-label>
+                    <textarea
+                      matInput
+                      [(ngModel)]="session.SessionDescription"
+                      placeholder="Session Description"></textarea>
+                  </mat-form-field>
+
+                  <!-- Speaker Info Section -->
+                  <div
+                    class="speaker-info-section"
+                    style="
+                      margin-top: 16px;
+                      padding: 8px;
+                      border: 1px solid #e0e0e0;
+                      border-radius: 4px;
+                    ">
+                    <h4>Speaker Info</h4>
+                    @for (
+                      speaker of session.SpeakersInfo;
+                      track $index;
+                      let j = $index
+                    ) {
+                      <div class="speaker-info-item">
+                        <app-speaker-image-uploader
+                          [eventName]="eventName"
+                          [isUploading]="isUploading"
+                          [speakerImage]="speaker.Url"
+                          (displayErrorMessageFn)="
+                            this.dialogData?.displayErrorMessageFn?.($event)
+                          "
+                          (updateSpeakerImage)="
+                            updateSpeakerImage($event, speaker)
+                          ">
+                        </app-speaker-image-uploader>
+                        <div class="speaker-bio-data">
+                          <mat-form-field
+                            class="full-width"
+                            appearance="outline">
+                            <mat-label>Speaker Name</mat-label>
+                            <input
+                              matInput
+                              [(ngModel)]="speaker.Name"
+                              placeholder="Speaker Name" />
+                          </mat-form-field>
+                          <div style="display: flex; flex-direction: row">
+                            <mat-form-field
+                              class="full-width speaker-title"
+                              appearance="outline">
+                              <mat-label>Title</mat-label>
+                              <input
+                                matInput
+                                [(ngModel)]="speaker.Title"
+                                placeholder="Title" />
+                            </mat-form-field>
+                            <mat-form-field
+                              class="full-width"
+                              appearance="outline">
+                              <mat-label>Organization</mat-label>
+                              <input
+                                matInput
+                                [(ngModel)]="speaker.Organization"
+                                placeholder="Organization" />
+                            </mat-form-field>
+                          </div>
+                          <mat-form-field
+                            class="full-width"
+                            appearance="outline">
+                            <mat-label>Speaker Bio</mat-label>
+                            <textarea
+                              matInput
+                              [(ngModel)]="speaker.SpeakerBio"
+                              placeholder="Speaker Bio"></textarea>
+                          </mat-form-field>
+                          <div class="remove-button-container">
+                            <mat-checkbox [(ngModel)]="speaker.isModerator"
+                              >Moderator</mat-checkbox
+                            >
+                            <button
+                              mat-stroked-button
+                              class="remove-speaker-button"
+                              (click)="removeSpeaker(session, j)"
+                              color="warn">
+                              Remove Speaker
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                    <button
+                      mat-stroked-button
+                      class="add-speaker-button"
+                      (click)="addSpeaker(session)"
+                      color="primary">
+                      Add New Speaker
+                    </button>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+<mat-dialog-actions class="dialog-actions" align="end">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+  } @else {
+    <button mat-button class="cancel-button" (click)="close()">Cancel</button>
+    <button
+      mat-button
+      class="confirm-button"
+      [disabled]="!sessions.length"
+      (click)="confirm()"
+      color="primary">
+      Confirm Upload
+    </button>
+  }
+</mat-dialog-actions>

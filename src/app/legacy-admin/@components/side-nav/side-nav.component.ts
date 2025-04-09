@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
+import { UserRole } from 'src/app/legacy-admin/shared/enums';
 
 @Component({
   selector: 'app-side-nav',
@@ -13,7 +14,26 @@ import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 })
 export class SideNavComponent implements OnInit {
   public userRoleRank = 2;
-  // Convert isAdminUser into a signal that defaults to false
+  public isEventOrganizer = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.EVENTORGANIZER) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  public isSuperAdmin = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.SUPERADMIN) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
   private _authService = inject(AuthService);
   private _isAdminUser = signal<boolean>(false);
 
@@ -25,6 +45,7 @@ export class SideNavComponent implements OnInit {
 
   checkIsAdminUser(token: string): any | null {
     if (!token) return null;
+
     try {
       const decoded: any = jwtDecode(token);
       if (decoded?.username) {
@@ -35,6 +56,7 @@ export class SideNavComponent implements OnInit {
           this._isAdminUser.set(false);
         }
       }
+
       return decoded;
     } catch (error) {
       console.error('Invalid token:', error);

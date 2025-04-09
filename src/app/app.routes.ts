@@ -53,14 +53,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'prompt-management',
-    loadComponent: () =>
-      import(
-        'src/app/legacy-admin/@pages/prompt-management/prompt-management.component'
-      ).then((c) => c.PromptManagementComponent),
-    canActivate: [AuthGuard],
-  },
-  {
     path: 'agenda',
     loadComponent: () =>
       import('src/app/legacy-admin/@pages/agenda/agenda.component').then(

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnInit,
   signal,
@@ -10,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
+import { UserRole } from 'src/app/legacy-admin/shared/enums';
 
 interface DecodedToken {
   [key: string]: any;
@@ -27,6 +29,26 @@ const ADMIN_EMAIL_DOMAIN = '@rozie.ai';
   imports: [RouterLinkActive, RouterLink, MatTooltipModule, MatIconModule],
 })
 export class LayoutSideNavComponent implements OnInit {
+  protected readonly isEventOrganizer = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.EVENTORGANIZER) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  protected readonly isSuperAdmin = computed(() => {
+    const userRole = this._authService.getUserRole();
+    if (!userRole) return false;
+    if (userRole === UserRole.SUPERADMIN) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+
   private readonly _authService = inject(AuthService);
 
   protected userRoleRank = signal<number>(2);

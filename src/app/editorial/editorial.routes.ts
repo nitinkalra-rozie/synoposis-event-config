@@ -6,4 +6,6 @@ export const editorialRoutes: Route[] = [
     path: '',
     component: EditorialComponent,
   },
+
+  
 ];
