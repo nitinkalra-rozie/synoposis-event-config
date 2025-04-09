@@ -35,16 +35,15 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
-import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
-import { LargeModalDialogComponent } from './dialog/original-debrief-modal-dialog.component';
+import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
+import { LargeModalDialogComponent } from './components/dialog/original-debrief-modal-dialog.component';
 import {
   MarkdownEditorData,
   MarkdownEditorDialogComponent,
-} from './edit-content-dialog/markdown-editor-dialog.component';
+} from './components/edit-content-dialog/markdown-editor-dialog.component';
 
 interface Application {
   value: string;
@@ -117,9 +116,9 @@ const promptSchema = {
 export class LoadingDialogComponent {}
 
 @Component({
-  selector: 'app-elsa-event-generate-report',
-  templateUrl: './content-generate.component.html',
-  styleUrls: ['./content-generate.component.scss'],
+  selector: 'app-content-editor',
+  templateUrl: './content-editor.component.html',
+  styleUrls: ['./content-editor.component.scss'],
   imports: [
     NgClass,
     FormsModule,
@@ -142,12 +141,12 @@ export class LoadingDialogComponent {}
     MatBadgeModule,
     MatToolbarModule,
     MatMenuModule,
-    TopBarComponent,
-    SidebarControlPanelComponent,
+    // TopBarComponent,
+    LayoutMainComponent,
   ],
   providers: [],
 })
-export class ContentGenerateComponent implements OnInit, AfterViewInit {
+export class ContentEditorComponent implements OnInit, AfterViewInit {
   constructor(
     private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,

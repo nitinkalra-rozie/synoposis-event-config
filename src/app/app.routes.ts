@@ -39,17 +39,19 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'editorial',
+    path: 'insights-editor',
     loadChildren: () =>
-      import('./editorial/editorial.routes').then((r) => r.editorialRoutes),
+      import('./insights-editor/insights-editor.routes').then(
+        (r) => r.insightsEditorRoutes
+      ),
     canActivate: [AuthGuard],
   },
   {
-    path: 'generate-report',
-    loadComponent: () =>
-      import(
-        'src/app/legacy-admin/@pages/content-generate/content-generate.component'
-      ).then((c) => c.ContentGenerateComponent),
+    path: 'content-editor',
+    loadChildren: () =>
+      import('src/app/content-editor/content-editor.routes').then(
+        (r) => r.contentEditorRoutes
+      ),
     canActivate: [AuthGuard],
   },
   {
