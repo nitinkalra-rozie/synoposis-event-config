@@ -1,238 +1,50 @@
-/* Container for the entire layout */
-.row-container {
-  display: flex;
-  width: 100%; /* Ensure it takes the full width */
-}
+@use 'variables' as v;
 
-/* Side panel styles */
-.side-panel {
-  width: 420px;
-  min-width: 420px;
-  margin-right: 20px;
-  overflow-y: auto;
-}
-
-.content-container {
-  display: flex;
-  height: 100%;
-}
-
-.edit-mode {
-  background-color: #54df85;
-  text-align: center;
-  margin: 0px 15px;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 400;
-  align-items: center;
-}
-
-.edit-mode mat-icon {
-  margin-right: 8px;
-  font-size: 16px; /* Ensure the icon size matches the text */
-}
-
-/* Filters styles */
-.filters {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+// Global element styles
+mat-form-field {
+  width: 100%;
   margin-bottom: 16px;
 }
 
-.filter-item {
-  width: 48%; /* Make sure both filters are side-by-side and even */
-}
-
-/* Session list styles */
-.session-list {
-  width: 100%;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  overflow: hidden;
-  padding: 0;
+button {
+  margin-top: 8px;
 }
 
 .mat-mdc-input-element {
   color: #333 !important;
 }
 
-mat-form-field {
-  width: 100%;
+.mat-input-element[disabled] {
+  color: rgba(0, 0, 0, 0.6);
 }
 
-.session-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 5px;
-  border-bottom: 1px solid #e0e0e0;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  background-color: #fff;
-
-  &:hover {
-    background-color: #f0f0f0;
-  }
+mat-chip {
+  margin-right: 8px;
 }
 
-.session-item-selected {
-  background-color: #e3ffdf !important;
-  border-right: 4px solid #ff4d4d;
+// Status badges
+.status-not-started {
+  background-color: #ff4d4d !important;
 }
 
-/* Session Info */
-.session-info {
-  display: flex;
-  align-items: center;
-  width: calc(100% - 20px);
+.status-in-progress {
+  background-color: #ff9900 !important;
 }
 
-.session-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.status-complete {
+  background-color: #00cc66 !important;
 }
 
-.session-status-badge {
-  padding: 5px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #fff;
-  margin-left: auto; /* Push to the right side */
-
-  &.status-not-started {
-    background-color: #ff4d4d; /* Red for Not Started */
-  }
-
-  &.status-in-review {
-    background-color: #ff9900; /* Orange for In Review */
-  }
-
-  &.status-complete {
-    background-color: #00cc66; /* Green for Complete */
-  }
-}
-
-/* Chevron Icon for Navigation */
-.session-icon {
-  font-size: 24px;
-  color: #aaa;
-}
-
-/* Editor container and content */
-.editor-container {
+// Utilities
+.flex-grow {
   flex-grow: 1;
-  overflow-y: auto;
-
-  .editor-content {
-    padding: 16px;
-  }
 }
 
-/* Loading container */
-.loading-container {
-  min-height: 10rem;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.full-width {
+  width: 100%;
 
-/* Loading bar animation */
-.loading-bar,
-.loading-bar:before,
-.loading-bar:after {
-  width: 1rem;
-  height: 2rem;
-  background-color: #4f4fe7;
-  animation: animateBar 1s ease-in-out infinite;
-}
-
-.loading-bar {
-  animation-delay: -0.16s;
-  position: relative;
-  margin: auto;
-  display: flex;
-  align-items: center;
-}
-
-.loading-bar:before {
-  position: absolute;
-  right: 1.5rem;
-  content: '';
-}
-
-.loading-bar:after {
-  position: absolute;
-  animation-delay: -0.32s;
-  content: '';
-  left: 1.5rem;
-}
-
-@keyframes animateBar {
-  0% {
-    height: 2rem;
-  }
-  50% {
-    height: 4rem;
-  }
-  100% {
-    height: 2rem;
-  }
-}
-
-/* Session details */
-.session-details {
-  padding: 16px;
-}
-
-.session-header {
-  h2 {
-    font-size: 24px;
-    margin-bottom: 16px;
-  }
-}
-
-/* Event card styles */
-.event-card {
-  flex: 2;
-  margin: 10px 0;
-  padding: 16px;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Event info grid */
-.event-info-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.event-info-row {
-  flex: 2;
-}
-
-.event-info-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-
-  mat-icon {
-    margin-right: 8px;
-    color: #757de8; /* Light purple color */
-  }
-
-  span {
-    color: #6c757d; /* Gray color for the text */
-    font-size: 14px;
+  textarea {
+    resize: vertical;
   }
 }
 
@@ -241,7 +53,204 @@ mat-form-field {
   flex-direction: row;
 }
 
-/* Status container */
+// Main container
+.editorial-container {
+  display: flex;
+  height: 100%;
+  padding: 1.25rem 1.25rem;
+  background-image: v.$soft-sky-gradient;
+
+  // Side panel
+  .side-panel {
+    width: 420px;
+    min-width: 420px;
+    margin-right: 20px;
+    overflow-y: auto;
+
+    // Filters section
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+
+      .filter-item {
+        width: 48%;
+      }
+    }
+
+    // Session list
+    .session-list {
+      width: 100%;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      overflow: hidden;
+      padding: 0;
+
+      .session-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 5px;
+        border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        background-color: #fff;
+
+        &:hover {
+          background-color: #f0f0f0;
+        }
+
+        .session-info {
+          display: flex;
+          align-items: center;
+          width: calc(100% - 20px);
+
+          .session-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+
+        .session-icon {
+          font-size: 24px;
+          color: #aaa;
+        }
+      }
+
+      .session-item-selected {
+        background-color: #e3ffdf !important;
+        border-right: 4px solid #ff4d4d;
+      }
+    }
+  }
+
+  // Editor container
+  .editor-container {
+    flex-grow: 1;
+    overflow-y: auto;
+
+    .editor-content {
+      padding: 16px;
+
+      // Session details
+      .session-details {
+        padding: 16px;
+
+        .session-header {
+          h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+          }
+        }
+
+        // Event card
+        .event-card {
+          flex: 2;
+          margin: 10px 0;
+          padding: 16px;
+          border-radius: 8px;
+          background-color: white;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+          .event-info-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+
+            .event-info-row {
+              flex: 2;
+            }
+
+            .event-info-item {
+              display: flex;
+              align-items: center;
+              margin-bottom: 8px;
+
+              mat-icon {
+                margin-right: 8px;
+                color: #757de8;
+              }
+
+              span {
+                color: #6c757d;
+                font-size: 14px;
+              }
+            }
+          }
+        }
+      }
+
+      // Action buttons
+      .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+
+        button {
+          margin-right: 8px;
+        }
+      }
+
+      // Content sections
+      .section {
+        flex: 1;
+        padding: 10px;
+
+        h3 {
+          margin-bottom: 16px;
+        }
+
+        .item-row {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+
+          .flex-grow {
+            flex-grow: 1;
+          }
+
+          button {
+            margin-left: 8px;
+          }
+        }
+      }
+
+      // Footer action bar
+      .footer-action-bar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        box-shadow: 0px -2px 8px -4px rgba(0, 0, 0, 0.75);
+        margin-top: 32px;
+
+        .editorial-status {
+          flex: 1;
+          margin-right: 16px;
+        }
+      }
+    }
+
+    // Loading container
+    .loading-container {
+      min-height: 10rem;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
+// Status elements
 .status-container {
   flex: 1;
   padding: 20px;
@@ -261,82 +270,49 @@ mat-form-field {
     margin-bottom: 15px;
     color: #6c757d;
   }
-}
 
-/* Action buttons */
-.action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-/* Section styles */
-.section {
-  flex: 1;
-  padding: 10px;
-
-  h3 {
+  mat-chip {
     margin-bottom: 16px;
   }
 }
 
-/* Item row */
-.item-row {
-  display: flex;
+.edit-mode {
+  background-color: #54df85;
+  text-align: center;
+  margin: 0px 15px;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 400;
   align-items: center;
-  margin-bottom: 8px;
 
-  .flex-grow {
-    flex-grow: 1;
+  mat-icon {
+    margin-right: 8px;
+    font-size: 16px;
+  }
+}
+
+.session-status-badge {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  margin-left: auto;
+
+  &.status-not-started {
+    background-color: #ff4d4d;
   }
 
-  button {
-    margin-left: 8px;
+  &.status-in-review {
+    background-color: #ff9900;
+  }
+
+  &.status-complete {
+    background-color: #00cc66;
   }
 }
 
-/* Flex grow utility */
-.flex-grow {
-  flex-grow: 1;
-}
-
-/* Full width utility */
-.full-width {
-  width: 100%;
-}
-
-/* Footer action bar */
-.footer-action-bar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  box-shadow: 0px -2px 8px -4px rgba(0, 0, 0, 0.75);
-  margin-top: 32px;
-}
-
-/* Editorial status */
-.editorial-status {
-  flex: 1;
-  margin-right: 16px;
-}
-
-/* Status badges */
-.status-not-started {
-  background-color: #ff4d4d !important; /* Red for Not Started */
-}
-
-.status-in-progress {
-  background-color: #ff9900 !important; /* Orange for In Progress */
-}
-
-.status-complete {
-  background-color: #00cc66 !important; /* Green for Complete */
-}
-
-/* Delete icon (if used) */
+// Delete icon
 .delete-icon {
   margin-top: 10px;
   cursor: pointer;
@@ -344,49 +320,58 @@ mat-form-field {
   font-size: 24px;
 }
 
-/* Adjusting mat-form-field to have consistent margins */
-.mat-form-field {
-  margin-bottom: 16px;
+// Loading bar animation
+.loading-bar {
+  width: 1rem;
+  height: 2rem;
+  background-color: #4f4fe7;
+  animation: animateBar 1s ease-in-out infinite;
+  animation-delay: -0.16s;
+  position: relative;
+  margin: auto;
+  display: flex;
+  align-items: center;
+
+  &:before,
+  &:after {
+    width: 1rem;
+    height: 2rem;
+    background-color: #4f4fe7;
+    animation: animateBar 1s ease-in-out infinite;
+    content: '';
+    position: absolute;
+  }
+
+  &:before {
+    right: 1.5rem;
+  }
+
+  &:after {
+    animation-delay: -0.32s;
+    left: 1.5rem;
+  }
 }
 
-/* Ensuring buttons have consistent margins */
-button {
-  margin-top: 8px;
+@keyframes animateBar {
+  0% {
+    height: 2rem;
+  }
+  50% {
+    height: 4rem;
+  }
+  100% {
+    height: 2rem;
+  }
 }
 
-/* Styles for the summary textarea */
-.full-width textarea {
-  resize: vertical;
-}
-
-/* Adjusting mat-chip appearance */
-mat-chip {
-  margin-right: 8px;
-}
-
-/* Styles for the action buttons */
-.action-buttons button {
-  margin-right: 8px;
-}
-
-/* Styles for disabled inputs in read-only mode */
-.mat-input-element[disabled] {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-/* Styling the mat-chip in the status container */
-.status-container mat-chip {
-  margin-bottom: 16px;
-}
-
-/* Responsive adjustments */
+// Responsive adjustments
 @media (max-width: 768px) {
   .row-container {
     flex-direction: column;
   }
 
   .side-panel {
-    width: 100%;
+    width: 100% !important;
     margin-right: 0;
   }
 
@@ -397,6 +382,7 @@ mat-chip {
   .footer-action-bar {
     flex-direction: column;
     align-items: flex-end;
+
     .editorial-status {
       display: flex;
       flex-direction: row-reverse;
@@ -404,7 +390,7 @@ mat-chip {
   }
 
   .editorial-status {
-    margin-right: 0;
+    margin-right: 0 !important;
     margin-bottom: 16px;
     width: 100%;
   }

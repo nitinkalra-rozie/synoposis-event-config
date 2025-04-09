@@ -144,35 +144,47 @@ $elevation-1dp:
   0px 1px 1px rgba(0, 0, 0, 0.14);
 
 /** gradients */
+$gradient-degrees-45: 45deg;
+$gradient-degrees-180: 180deg;
+
 $purple-gradient: linear-gradient(
-  45deg,
+  $gradient-degrees-45,
   $primary-color-variant-2 -23.5%,
   $gradient-purple 107.38%
 );
 
 $green-gradient: linear-gradient(
-  45.36deg,
+  $gradient-degrees-45,
   $secondary-color-variant-2 -4.75%,
   $gradient-green 116%
 );
 
 $orange-gradient: linear-gradient(
-  180deg,
+  $gradient-degrees-180,
   $gradient-orange-1 14.58%,
   $gradient-orange-2 100%
 );
 
 $red-gradient: linear-gradient(
-  45.17deg,
+  $gradient-degrees-45,
   $secondary-color-variant-9 -21.13%,
   $selected-concept-icon-color 64.86%
 );
 
 $gray-gradient: linear-gradient(42.84deg, #22292e -4.79%, #45545c 107.92%);
 $blue-gradient: linear-gradient(
-  45.38deg,
+  $gradient-degrees-45,
   $primary-color -23.51%,
   $primary-color-variant-1 126.5%
+);
+
+$gradient-soft-sky-start: #b6b4e4;
+$gradient-soft-sky-end: #b9e2ff;
+$soft-sky-gradient: linear-gradient(
+  $gradient-degrees-45,
+  $gradient-soft-sky-start 11.9%,
+  $primary-bg-color 58.51%,
+  $gradient-soft-sky-end 100.5%
 );
 
 /** layout variables */
