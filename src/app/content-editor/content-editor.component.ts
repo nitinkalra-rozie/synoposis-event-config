@@ -141,7 +141,6 @@ export class LoadingDialogComponent {}
     MatBadgeModule,
     MatToolbarModule,
     MatMenuModule,
-    // TopBarComponent,
     LayoutMainComponent,
   ],
   providers: [],
