@@ -23,7 +23,6 @@ export interface Session {
   Duration: string;
   Type: string;
   Event: string;
-  Speakers: any;
   SpeakersInfo: SpeakerInfo[];
 }
 

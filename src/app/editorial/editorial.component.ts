@@ -205,7 +205,6 @@ export class EditorialComponent implements OnInit {
           this.insights = data['data']['insights'];
           this.topics = data['data']['topics'];
           this.keytakeaways = data['data']['key_takeaways'];
-          this.speakers = data['data']['speakers'];
           this.dataLoaded = true;
           this.title = data['data']['title'];
           this.postInsightTimestamp = responseData['postInsightTimestamp'];
