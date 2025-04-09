@@ -4,14 +4,8 @@ import { Observable } from 'rxjs';
 import {
   ChangeEventStatusRequest,
   ChangeEventStatusResponse,
-  EmailReportResponse,
   EventReportRequestData,
   EventReportResponse,
-  GenerateContentRequest,
-  GenerateContentResponse,
-  GenerateRealtimeInsightsRequest,
-  GenerateRealtimeInsightsResponse,
-  SendEmailReportRequest,
   UpdatePostInsightsRequest,
   UpdatePostInsightsResponse,
 } from 'src/app/editorial/data-service/editorial.data-model';
@@ -30,15 +24,6 @@ export class EditorialDataService {
   ): Observable<EventReportResponse> {
     return this._http.post<EventReportResponse>(
       environment.postDebriefData,
-      requestData
-    );
-  }
-
-  sendEmailReport(
-    requestData: SendEmailReportRequest
-  ): Observable<EmailReportResponse> {
-    return this._http.post<EmailReportResponse>(
-      environment.postData,
       requestData
     );
   }
@@ -65,23 +50,5 @@ export class EditorialDataService {
     return this._http.post(environment.getEventDetails, {
       event: this._backendApiService.getCurrentEventName(),
     });
-  }
-
-  generateContent(
-    requestData: GenerateContentRequest
-  ): Observable<GenerateContentResponse> {
-    return this._http.post<GenerateContentResponse>(
-      environment.generateContentUrl,
-      requestData
-    );
-  }
-
-  generateRealtimeInsights(
-    requestData: GenerateRealtimeInsightsRequest
-  ): Observable<GenerateRealtimeInsightsResponse> {
-    return this._http.post<GenerateRealtimeInsightsResponse>(
-      environment.postData,
-      requestData
-    );
   }
 }

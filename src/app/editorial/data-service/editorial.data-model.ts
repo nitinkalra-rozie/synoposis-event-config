@@ -1,25 +1,14 @@
 export interface EventReportResponse {
   data?: {
     data?: Array<{
-      snapshotData?: String; // Replace 'any' with a more specific type if possible
+      snapshotData?: string;
     }>;
   };
-}
-
-export interface Application {
-  value: string;
-  name: string;
 }
 
 export interface RealtimeInsight {
   Timestamp: string;
   Insights: Array<string>;
-}
-
-export interface SelectedConfig {
-  type: string;
-  application_id: string;
-  config: any;
 }
 
 export interface Session {
@@ -57,31 +46,10 @@ export interface EventDetailsResponse {
   sessions: string[];
 }
 
-export interface GenerateContentResponse {
-  content: string;
-  pdfUrl?: string;
-}
-
-export interface GenerateRealtimeInsightsResponse {
-  insights: string[];
-  summary: string;
-}
-
 export interface EventReportRequestData {
   action: string;
-  sessionId?: string;
-  eventName?: string;
-  domain?: string;
-  day?: string;
-  keyNoteData?: any;
-  screenTimeout?: number;
-  sessionTitle?: string;
-  theme?: string;
-  transcript?: string;
-  sessionDescription?: string;
-  debriefType?: string | null;
-  debriefFilter?: string[] | null;
-  sessionIds?: string[];
+  sessionIds: string[];
+  eventName: string;
 }
 
 export interface SpeakerInfo {
@@ -89,19 +57,12 @@ export interface SpeakerInfo {
   Name: string;
 }
 
-export interface SendEmailReportRequest {
-  action: 'emailTranscriptReport';
-  sessionId: string;
-  email: string;
-}
-
 export interface ChangeEventStatusRequest {
   action: string;
-  sessionId?: string;
-  domain?: string;
+  sessionId: string;
   status: string;
-  changeEditMode?: boolean;
-  editor?: string;
+  changeEditMode: boolean;
+  editor: string;
 }
 
 export interface UpdatePostInsightsRequest {
@@ -109,32 +70,27 @@ export interface UpdatePostInsightsRequest {
   sessionId: string;
   eventName: string;
   domain: string;
-  updatedData: any;
+  updatedData: DebriefData;
 }
 
-export interface GenerateContentRequest {
-  sessionTranscript: string;
-  eventId: string;
-  sessionTitle: string;
-  sessionId: string;
-  sessionType: string;
-  reportType: string;
-  transcriptSource: string;
-  promptVersion?: string;
-  childSectionSessionIds?: string[];
-  speakers?: any;
-  generatePDF?: boolean;
+export interface DebriefData {
+  realtimeinsights: RealtimeInsight[];
+  summary: string;
+  keytakeaways: string[];
+  insights: string[];
+  status: string;
+  topics: string[];
+  trends: Trend[];
+  postInsightTimestamp: string;
+  trendsTimestamp: string;
 }
 
-export interface GenerateRealtimeInsightsRequest {
-  action: 'realTimeInsights';
-  sessionId: string;
-  eventName: string;
-  domain: string;
-  day: string;
-  keyNoteData?: any;
-  screenTimeout?: number;
-  sessionTitle: string;
-  transcript?: string;
-  sessionDescription?: string;
+export interface Trend {
+  title: string;
+  description: string;
+}
+
+export interface RealtimeInsight {
+  Timestamp: string;
+  Insights: string[];
 }

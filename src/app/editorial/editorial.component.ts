@@ -21,9 +21,7 @@ import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import {
-  Application,
   RealtimeInsight,
-  SelectedConfig,
   Session,
 } from 'src/app/editorial/data-service/editorial.data-model';
 import { EditorialDataService } from 'src/app/editorial/data-service/editorial.data-service';
@@ -32,7 +30,6 @@ import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
-import { GenerateRealtimeInsightsDialogComponent } from './components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 @Component({
   selector: 'app-elsa-event-editorial',
   templateUrl: './editorial.component.html',
@@ -93,8 +90,6 @@ export class EditorialComponent implements OnInit {
   private readonly _editorialDataService = inject(EditorialDataService);
 
   public breadCrumbItems!: Array<{}>;
-  public applicationList!: Application[];
-  public selectedConfig!: SelectedConfig;
   public yourHtmlContent!: SafeHtml;
   public summary!: string;
   public title!: string;
@@ -169,31 +164,13 @@ export class EditorialComponent implements OnInit {
     );
   }
 
-  sendEmail(): void {
-    this._editorialDataService
-      .sendEmailReport({
-        action: 'emailTranscriptReport',
-        sessionId: 'day2_session2',
-        email: 'dinuka@rozie.ai',
-      })
-      .subscribe({
-        next: (response) => {
-          if (response['success'] == true) {
-            console.log(response);
-          }
-        },
-        error: (error) => {
-          console.error('Error sending email:', error);
-        },
-      });
-  }
-
   updateEventReport(): void {
     this.isLoading = true;
     this.dataLoaded = false;
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
+      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
     };
     this._editorialDataService.getEventReport(data).subscribe({
       next: (response) => {
@@ -214,6 +191,7 @@ export class EditorialComponent implements OnInit {
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
+      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
     };
 
     this._editorialDataService.getEventReport(data).subscribe({
@@ -346,24 +324,24 @@ export class EditorialComponent implements OnInit {
 
   postEditedDebrief(): void {
     this.isLoading = true;
-    const debrief = {
-      realtimeinsights: this.realtimeinsights,
-      summary: this.summary,
-      keytakeaways: this.keytakeaways,
-      insights: this.insights,
-      status: this.selected_session_details.Status,
-      topics: this.topics,
-      trends: this.trends,
-      postInsightTimestamp: this.postInsightTimestamp,
-      trendsTimestamp: this.trendsTimestamp,
-    };
     const data = {
       action: 'updatePostInsights',
       sessionId: this.selected_session,
-      updatedData: debrief,
+      updatedData: {
+        realtimeinsights: this.realtimeinsights,
+        summary: this.summary,
+        keytakeaways: this.keytakeaways,
+        insights: this.insights,
+        status: this.selected_session_details.Status,
+        topics: this.topics,
+        trends: this.trends,
+        postInsightTimestamp: this.postInsightTimestamp,
+        trendsTimestamp: this.trendsTimestamp,
+      },
       eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
       domain: getLocalStorageItem<string>('EVENT_LLM_DOMAIN'),
     };
+
     this._editorialDataService.updatePostInsights(data).subscribe({
       next: (response) => {
         if (response['data'].statusCode == 200) {
@@ -512,19 +490,6 @@ export class EditorialComponent implements OnInit {
       transcript: this.transcript,
     };
     this.dialog.open(LargeModalDialogComponent, {
-      width: '1200px', // Makes the modal large
-      data: data,
-      panelClass: 'custom-dialog-container', // Custom CSS class for further styling
-    });
-  }
-
-  openGenerateRealtimeInsightsModal(): void {
-    const data = {
-      type: 'generate_realtime',
-      transcript: this.transcript,
-      selected_session: this.selected_session_details,
-    };
-    this.dialog.open(GenerateRealtimeInsightsDialogComponent, {
       width: '1200px', // Makes the modal large
       data: data,
       panelClass: 'custom-dialog-container', // Custom CSS class for further styling

@@ -7,8 +7,8 @@ import {
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { environment } from 'src/environments/environment';
-import { AuthService } from '../../legacy-admin/services/auth.service';
 
 const isPrivateEndpoint = (url: string): boolean => {
   const authEndpoints = [

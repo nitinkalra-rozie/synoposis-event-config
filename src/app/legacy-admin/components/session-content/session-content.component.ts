@@ -682,6 +682,18 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   endEvent(): void {
     const postData: PostData = {};
+
+    console.log('PostData:', postData, 'Types:', {
+      day: typeof postData.day,
+      eventName: typeof postData.eventName,
+      domain: typeof postData.domain,
+      sessionId: typeof postData.sessionId,
+      primarySessionId: typeof postData.primarySessionId,
+      sessionTitle: typeof postData.sessionTitle,
+      sessionDescription: typeof postData.sessionDescription,
+      action: typeof postData.action,
+      keyNoteData: typeof postData.keyNoteData,
+    });
     postData.action = 'thankYou';
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
@@ -728,6 +740,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
 
     const postData: PostData = {};
+
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
