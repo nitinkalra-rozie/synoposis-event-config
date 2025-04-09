@@ -116,4 +116,5 @@ export interface EventDetail {
 export interface EventDetailsResponse {
   success: boolean;
   data: EventDetail[];
+  error: string | null;
 }
