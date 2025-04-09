@@ -58,15 +58,15 @@ mat-chip {
 .insights-editor-container {
   height: 100%;
   @include m.d-flex;
+  gap: 1rem;
   box-sizing: border-box;
-  padding: 1.25rem 1.25rem;
+  padding: 1rem;
   background-image: v.$soft-sky-gradient;
 
   // Side panel
   .side-panel {
     width: 420px;
     min-width: 420px;
-    margin-right: 20px;
     border-radius: 0.75rem;
     overflow-y: auto;
 
