@@ -93,3 +93,28 @@ export interface RealtimeInsight {
   Timestamp: string;
   Insights: string[];
 }
+
+export interface EventDetail {
+  GenerateInsights: boolean;
+  Event: string;
+  Track: string;
+  SessionTitle: string;
+  SessionId: string;
+  SpeakersInfo: SpeakerInfo[];
+  SessionDescription: string;
+  Status: string;
+  EndsAt: string;
+  Type: string;
+  PrimarySessionId: string;
+  EventDay: string;
+  Duration: string;
+  Location: string;
+  SessionSubject: string;
+  StartsAt: string;
+}
+
+export interface EventDetailsResponse {
+  success: boolean;
+  data: EventDetail[];
+  error: any;
+}

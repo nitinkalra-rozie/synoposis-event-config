@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import {
   ChangeEventStatusRequest,
   ChangeEventStatusResponse,
+  EventDetailsResponse,
   EventReportRequestData,
   EventReportResponse,
   UpdatePostInsightsRequest,
   UpdatePostInsightsResponse,
-} from 'src/app/editorial/data-service/editorial.data-model';
+} from 'src/app/editorial/data-services/editorial.data-model';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -46,8 +47,8 @@ export class EditorialDataService {
     );
   }
 
-  getEventDetails(): Observable<Object> {
-    return this._http.post(environment.getEventDetails, {
+  getEventDetails(): Observable<EventDetailsResponse> {
+    return this._http.post<EventDetailsResponse>(environment.getEventDetails, {
       event: this._backendApiService.getCurrentEventName(),
     });
   }

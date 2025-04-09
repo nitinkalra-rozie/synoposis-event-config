@@ -23,8 +23,8 @@ import { debounceTime } from 'rxjs/operators';
 import {
   RealtimeInsight,
   Session,
-} from 'src/app/editorial/data-service/editorial.data-model';
-import { EditorialDataService } from 'src/app/editorial/data-service/editorial.data-service';
+} from 'src/app/editorial/data-services/editorial.data-model';
+import { EditorialDataService } from 'src/app/editorial/data-services/editorial.data-service';
 import { LargeModalDialogComponent } from 'src/app/legacy-admin/@pages/content-generate/dialog/original-debrief-modal-dialog.component';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
@@ -148,7 +148,7 @@ export class EditorialComponent implements OnInit {
       { label: 'Elsa Events' },
       { label: 'Edit Report', active: true },
     ];
-    this._editorialDataService.getEventDetails().subscribe((data: any) => {
+    this._editorialDataService.getEventDetails().subscribe((data) => {
       this.getEventDetails();
     });
   }

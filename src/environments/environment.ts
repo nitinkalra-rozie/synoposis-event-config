@@ -10,7 +10,6 @@ export const environment = {
   getUploadFilePresignedUrl: '',
   publishContentPDFUrl: '',
   getPreSignedPDFUrl: '',
-  prompt_mangement_base_url: '',
   putTranscript: '',
   postData: '',
   getEventDetails: '',
