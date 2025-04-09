@@ -20,8 +20,8 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { GenerateRealtimeInsightsDialogComponent } from 'src/app/editorial/components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
-import { LargeModalDialogComponent } from 'src/app/legacy-admin/@pages/content-generate/dialog/original-debrief-modal-dialog.component';
+import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
+import { GenerateRealtimeInsightsDialogComponent } from 'src/app/insights-editor/components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
@@ -59,9 +59,9 @@ interface RealtimeInsight {
 }
 
 @Component({
-  selector: 'app-elsa-event-editorial',
-  templateUrl: './editorial.component.html',
-  styleUrls: ['./editorial.component.scss'],
+  selector: 'app-insights-editor',
+  templateUrl: './insights-editor.component.html',
+  styleUrls: ['./insights-editor.component.scss'],
   imports: [
     CommonModule,
     FormsModule,
@@ -83,9 +83,8 @@ interface RealtimeInsight {
     LayoutMainComponent,
   ],
 })
-export class EditorialComponent implements OnInit {
+export class InsightsEditorComponent implements OnInit {
   constructor(
-    private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
