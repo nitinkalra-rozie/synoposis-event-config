@@ -20,12 +20,12 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { GenerateRealtimeInsightsDialogComponent } from 'src/app/editorial/components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 import { LargeModalDialogComponent } from 'src/app/legacy-admin/@pages/content-generate/dialog/original-debrief-modal-dialog.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
-import { GenerateRealtimeInsightsDialogComponent } from './components/generate-realtime-insights-dialog/generate-realtime-insights-dialog.component';
 
 interface Application {
   value: string;
