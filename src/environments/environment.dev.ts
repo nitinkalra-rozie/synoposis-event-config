@@ -28,6 +28,7 @@ export const environment = {
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/generate-content',
   saveEditedVersionContentUrl:
     'https://uuyh16pmz0.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
+  analyticsApiEndpoint: 'https://dev.api.synopsis.rozie.ai/r4/admin-analytics',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',
   AUTH_API_END_POINT: 'https://cognito-idp.ca-central-1.amazonaws.com',

@@ -1,5 +1,9 @@
 import { CommonModule, IMAGE_CONFIG } from '@angular/common';
-import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import {
+  APP_INITIALIZER,
+  importProvidersFrom,
+  enableProdMode,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -12,6 +16,12 @@ import { environment } from './environments/environment';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './app/@interceptors/auth.interceptor';
 import { AuthService } from './app/services/auth.service';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import Chart from 'chart.js/auto';
+
+// Register the data labels plugin
+Chart.register(ChartDataLabels);
 
 const noSleep = new NoSleep();
 
@@ -20,6 +30,7 @@ if (environment.production) {
     window.console.debug = window.console.error = () => {};
   }
   console.debug = console.error = () => {};
+  enableProdMode();
 }
 
 bootstrapApplication(AppComponent, {
@@ -49,6 +60,7 @@ bootstrapApplication(AppComponent, {
       deps: [IconsService],
     },
     provideAnimationsAsync(),
+    provideCharts(withDefaultRegisterables()),
   ],
 }).catch((err) => console.log(err));
 

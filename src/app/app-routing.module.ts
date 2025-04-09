@@ -9,6 +9,7 @@ import { ContentGenerateComponent } from './@pages/content-generate/content-gene
 import { LoginPageComponent } from './components/login-page/login-page.component';
 import { OtpComponent } from './components/otp/otp.component';
 import { AuthGuard } from './auth.guard';
+import { AnalyticsDashboardComponent } from './@pages/analytics-dashboard/analytics-dashboard.component';
 const routes: Routes = [
   {
     path: '',
@@ -49,6 +50,11 @@ const routes: Routes = [
   {
     path: 'agenda',
     component: AgendaComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'analytics',
+    component: AnalyticsDashboardComponent,
     canActivate: [AuthGuard],
   },
   {

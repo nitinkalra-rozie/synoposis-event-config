@@ -53,6 +53,17 @@
         routerLinkActive="selected">
         <mat-icon style="color: rgb(255, 255, 255)">manage_search</mat-icon>
       </a>
+
+      <a
+        matTooltipClass="tooltip-text-only-300"
+        matTooltipPosition="after"
+        class="menu-item"
+        [matTooltip]="'Analytics Dashboard'"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/analytics"
+        routerLinkActive="selected">
+        <mat-icon style="color: rgb(255, 255, 255)">analytics</mat-icon>
+      </a>
       <!--ToDo: Enable Agenda Edit once the view is finalized -->
       <!--a
         matTooltipClass="tooltip-text-only-300"
