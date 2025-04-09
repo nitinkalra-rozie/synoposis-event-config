@@ -728,6 +728,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
 
     const postData: PostData = {};
+
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
