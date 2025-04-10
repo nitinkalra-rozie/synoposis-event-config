@@ -4,6 +4,102 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 
+export function resizeImage(
+  file: File,
+  maxWidth: number,
+  maxHeight: number
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target?.result as string;
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        reject(new Error('Canvas context not found'));
+        return;
+      }
+
+      // Set canvas to target size
+      canvas.width = maxWidth;
+      canvas.height = maxHeight;
+
+      // Calculate scale to fill the canvas
+      const scale = Math.max(maxWidth / img.width, maxHeight / img.height);
+
+      // Calculate new dimensions
+      const newWidth = img.width * scale;
+      const newHeight = img.height * scale;
+
+      // Calculate position to center and crop
+      const x = (maxWidth - newWidth) / 2;
+      const y = (maxHeight - newHeight) / 2;
+
+      // Draw image to fill canvas
+      ctx.drawImage(img, x, y, newWidth, newHeight);
+
+      // Convert to JPEG
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Canvas to Blob conversion failed'));
+            return;
+          }
+          resolve(
+            new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            })
+          );
+        },
+        'image/jpeg',
+        0.8 // Quality setting
+      );
+    };
+
+    img.onerror = reject;
+  });
+}
+
+export async function uploadSpeakerImage(
+  file: File,
+  backendApiService: BackendApiService
+): Promise<string> {
+  if (!file) return '';
+
+  const fileExtension = file.type.replace('image/', '');
+  const fileType = 'speaker_headshots';
+
+  try {
+    const uploadUrlResponse = await backendApiService
+      .getUploadPresignedUrl(fileType, fileExtension)
+      .toPromise();
+
+    if (uploadUrlResponse?.['success']) {
+      const preSignedUrl = uploadUrlResponse['data']['preSignedUrl'];
+      const s3Key = uploadUrlResponse['data']['key'];
+      await backendApiService
+        .uploadFileUsingPreSignedUrl(file, preSignedUrl)
+        .toPromise();
+      return s3Key;
+    }
+  } catch (error) {
+    console.error('Upload failed:', error);
+    this.displayErrorMessageFn.emit('Error uploading image. Please try again.');
+  }
+
+  return '';
+}
+
 @Component({
   selector: 'app-speaker-image-uploader',
   templateUrl: './upload-image.component.html',
@@ -22,36 +118,6 @@ export class UploadImageComponent {
     new EventEmitter<string>();
   private _backendApiService = inject(BackendApiService);
 
-  async uploadSpeakerImage(file: File): Promise<string> {
-    if (!file) return '';
-
-    const fileExtension = file.type.replace('image/', '');
-    const fileType = 'speaker_headshots';
-    const eventName = this.eventName;
-
-    try {
-      const uploadUrlResponse = await this._backendApiService
-        .getUploadPresignedUrl(eventName, fileType, fileExtension)
-        .toPromise();
-
-      if (uploadUrlResponse?.['success']) {
-        const preSignedUrl = uploadUrlResponse['data']['preSignedUrl'];
-        const s3Key = uploadUrlResponse['data']['key'];
-        await this._backendApiService
-          .uploadFileUsingPreSignedUrl(file, preSignedUrl)
-          .toPromise();
-        return s3Key;
-      }
-    } catch (error) {
-      console.error('Upload failed:', error);
-      this.displayErrorMessageFn.emit(
-        'Error uploading image. Please try again.'
-      );
-    }
-
-    return '';
-  }
-
   async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -60,8 +126,11 @@ export class UploadImageComponent {
       this.isUploading = true;
       try {
         // Resize the image before uploading
-        const resizedFile = await this.resizeImage(file, 500, 400);
-        const imageS3Key = await this.uploadSpeakerImage(resizedFile);
+        const resizedFile = await resizeImage(file, 400, 500);
+        const imageS3Key = await uploadSpeakerImage(
+          resizedFile,
+          this._backendApiService
+        );
 
         if (imageS3Key) {
           const reader = new FileReader();
@@ -90,72 +159,6 @@ export class UploadImageComponent {
   onRemoveImage(): void {
     this.speakerImage = '';
     this.updateSpeakerImage.emit('');
-  }
-
-  private resizeImage(
-    file: File,
-    maxWidth: number,
-    maxHeight: number
-  ): Promise<File> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        img.src = e.target?.result as string;
-      };
-
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        if (!ctx) {
-          reject(new Error('Canvas context not found'));
-          return;
-        }
-
-        // Set canvas to target size
-        canvas.width = maxWidth;
-        canvas.height = maxHeight;
-
-        // Calculate scale to fill the canvas
-        const scale = Math.max(maxWidth / img.width, maxHeight / img.height);
-
-        // Calculate new dimensions
-        const newWidth = img.width * scale;
-        const newHeight = img.height * scale;
-
-        // Calculate position to center and crop
-        const x = (maxWidth - newWidth) / 2;
-        const y = (maxHeight - newHeight) / 2;
-
-        // Draw image to fill canvas
-        ctx.drawImage(img, x, y, newWidth, newHeight);
-
-        // Convert to JPEG
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Canvas to Blob conversion failed'));
-              return;
-            }
-            resolve(
-              new File([blob], file.name, {
-                type: 'image/jpeg',
-                lastModified: Date.now(),
-              })
-            );
-          },
-          'image/jpeg',
-          0.8 // Quality setting
-        );
-      };
-
-      img.onerror = reject;
-    });
   }
 
   private validateImage(file: File): boolean {

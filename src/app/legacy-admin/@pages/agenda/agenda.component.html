@@ -61,7 +61,7 @@
                 <!-- Version Column -->
                 <ng-container matColumnDef="startDate">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Date
+                    Start Date (Local)
                   </th>
                   <td
                     *matCellDef="let row; let i = index"
@@ -69,19 +69,41 @@
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)"
                     style="min-width: 110px">
-                    {{ row.StartsAt | date: 'yyyy-MM-dd' : formattedTimezone }}
+                    {{
+                      row.StartsAt | date: 'yyyy-MM-dd' : formattedToLocalTime
+                    }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="startTime">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Time
+                    Start Time (Local)
                   </th>
                   <td
                     *matCellDef="let row; let i = index"
                     mat-cell
+                    matTooltip="Time at Event Location: {{
+                      row.StartsAt | date: 'HH:mm' : formattedTimezone
+                    }}"
+                    matTooltipPosition="above"
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)">
-                    {{ row.StartsAt | date: 'HH:mm' : formattedTimezone }}
+                    {{ row.StartsAt | date: 'HH:mm' : formattedToLocalTime }}
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="endTime">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    End Time (Local)
+                  </th>
+                  <td
+                    *matCellDef="let row; let i = index"
+                    mat-cell
+                    matTooltip="Time at Event Location: {{
+                      row.EndsAt | date: 'HH:mm' : formattedTimezone
+                    }}"
+                    matTooltipPosition="above"
+                    [class.selected]="selectedRowIndex === i"
+                    (click)="highlightRow(row, i)">
+                    {{ row.EndsAt | date: 'HH:mm' : formattedToLocalTime }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="title">
@@ -135,13 +157,13 @@
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)"
                           style="background-color: rgb(0, 161, 94)">
-                          In progress
+                          Live
                         </span>
                       } @else if (row.Status === 'NOT_AVAILABLE') {
                         <span
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)">
-                          Not Available
+                          Hidden
                         </span>
                       } @else if (
                         row.Status === 'UNDER_REVIEW' && !row.Editor

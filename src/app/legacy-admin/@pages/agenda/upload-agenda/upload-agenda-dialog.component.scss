@@ -57,6 +57,9 @@
   align-items: center;
   gap: 0.5rem;
   margin: 1rem 0;
+  mat-icon {
+    min-width: 25px !important;
+  }
 }
 
 .preview-section {
