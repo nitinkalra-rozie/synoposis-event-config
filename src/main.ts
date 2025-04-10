@@ -1,16 +1,21 @@
+import { enableProdMode } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import NoSleep from '@uriopass/nosleep.js';
+import { Chart } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { appConfig } from 'src/app/app.config';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 
 const noSleep = new NoSleep();
+Chart.register(ChartDataLabels);
 
 if (environment.production) {
   if (window) {
     window.console.debug = window.console.error = () => {};
   }
   console.debug = console.error = () => {};
+  enableProdMode();
 }
 
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.log(err));

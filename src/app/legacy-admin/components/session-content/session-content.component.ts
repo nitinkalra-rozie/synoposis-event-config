@@ -9,7 +9,7 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { BackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
 declare const Buffer;
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
@@ -79,7 +79,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
 
-  private readonly _backendApiService = inject(BackendApiService);
+  private readonly _backendApiService = inject(LegacyBackendApiService);
 
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;

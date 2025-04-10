@@ -4,7 +4,7 @@ import {
   inject,
   Signal,
   signal,
-  WritableSignal
+  WritableSignal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -13,16 +13,16 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
+  MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -224,7 +224,7 @@ export class UpdateSessionDialogComponent {
           speaker.Url = '';
           return speaker;
         });
-        sessionData.Duration = `${this.getDurationInMinutes(sessionData.EndsAt,sessionData.StartsAt)}`;
+        sessionData.Duration = `${this.getDurationInMinutes(sessionData.EndsAt, sessionData.StartsAt)}`;
         const formattedSessionDetails = this.updateSessionTimes([sessionData]);
 
         const updatedSessionDetails: Session[] =

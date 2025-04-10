@@ -10,8 +10,8 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 // TODO: Consider replacing microphone-stream with Web Audio API, Recorder.js or MediaRecorder API
 import { escape } from 'lodash-es';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-import { BackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { generateSHA256HashHex } from 'src/app/legacy-admin/@utils/generate-hash';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
@@ -37,7 +37,7 @@ export class AudioStreamerComponent {
   transcribeException = false;
   errorText: '';
   isStreaming = false;
-  constructor(private backendApiService: BackendApiService) {}
+  constructor(private backendApiService: LegacyBackendApiService) {}
   startRecording() {
     this.isStreaming = !this.isStreaming;
     console.log('recording');

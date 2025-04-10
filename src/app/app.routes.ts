@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { AnalyticsDashboardComponent } from 'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component';
 
 export const routes: Routes = [
   {
@@ -60,6 +61,11 @@ export const routes: Routes = [
       import('src/app/legacy-admin/@pages/agenda/agenda.component').then(
         (c) => c.AgendaComponent
       ),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'analytics',
+    component: AnalyticsDashboardComponent,
     canActivate: [AuthGuard],
   },
   {
