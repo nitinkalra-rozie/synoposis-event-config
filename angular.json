@@ -58,37 +58,32 @@
             "browser": "src/main.ts"
           },
           "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "6kb"
-                }
-              ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": false,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
-              "aot": true,
-              "extractLicenses": true
-            },
             "prod": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "8kb",
-                  "maximumError": "10kb"
+                  "maximumWarning": "20kb",
+                  "maximumError": "30kb"
+                },
+                {
+                  "type": "allScript",
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "all",
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyScript",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 }
               ],
               "fileReplacements": [
@@ -97,7 +92,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": false,
+              "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
@@ -108,13 +103,28 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "10mb",
-                  "maximumError": "20mb"
+                  "maximumWarning": "4mb",
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10mb",
-                  "maximumError": "20mb"
+                  "maximumWarning": "100kb",
+                  "maximumError": "200kb"
+                },
+                {
+                  "type": "allScript",
+                  "maximumWarning": "3mb",
+                  "maximumError": "6mb"
+                },
+                {
+                  "type": "all",
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyScript",
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
                 }
               ],
               "fileReplacements": [
@@ -125,33 +135,26 @@
               ],
               "optimization": false,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
+              "sourceMap": true,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true
-            },
-            "development": {}
+            }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "prod"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {},
           "configurations": {
-            "production": {
-              "buildTarget": "synopsis-admin-dashboard:build:production"
-            },
             "dev": {
               "buildTarget": "synopsis-admin-dashboard:build:dev"
             },
             "prod": {
               "buildTarget": "synopsis-admin-dashboard:build:prod"
-            },
-            "development": {
-              "buildTarget": "synopsis-admin-dashboard:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "prod"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
