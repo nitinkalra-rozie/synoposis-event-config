@@ -9,7 +9,7 @@ import { MatOptionModule } from '@angular/material/core';
 import {
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,14 +20,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { TIMEZONE_OPTIONS } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import {
   Session,
-  SpeakerDetails,
+  SpeakerDetails
 } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import * as XLSX from 'xlsx';
 import {
   resizeImage,
   UploadImageComponent,
-  uploadSpeakerImage,
+  uploadSpeakerImage
 } from '../upload-image-component/upload-image.component';
 
 @Component({
@@ -520,11 +520,11 @@ export class UploadAgendaDialogComponent {
         for (const session of this.sessions) {
           for (const speaker of session.SpeakersInfo) {
             speaker.S3FileKey = this._speakerImageMap?.[speaker.Url] ?? '';
+            speaker.Url = this._speakerImageMap?.[speaker.Url] ? speaker.Url: '';
           }
         }
         this.isLoading = false;
 
-        //this.errorMessage = '';
       } catch (error) {
         this.isLoading = false;
         console.error('Error processing Excel file:', error);
