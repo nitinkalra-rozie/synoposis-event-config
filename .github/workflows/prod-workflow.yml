@@ -3,8 +3,7 @@ name: elsa-at-event-admin-prod-deploy
 on:
   push:
     branches:
-      # - main
-      - release/v0.3.0
+      - main
 
 env:
   deployment: prod
