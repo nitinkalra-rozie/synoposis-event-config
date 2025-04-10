@@ -5,5 +5,6 @@ export const insightsEditorRoutes: Route[] = [
   {
     path: '',
     component: InsightsEditorComponent,
+    title: 'Rozie Synopsis - Insights Editor',
   },
 ];
