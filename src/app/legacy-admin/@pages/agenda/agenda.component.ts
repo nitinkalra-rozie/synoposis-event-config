@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -378,7 +378,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     };
     this._backendApiService.changeEventStatus(debrief).subscribe({
       next: (response) => {
-        console.log(response['data']);
         if (response['data'].status === 'SUCCESS') {
           this.isEditorMode = true;
         } else {
@@ -420,7 +419,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
           this._legacyBackendApiService.getCurrentTimezone();
         this.eventTimezone = this._legacyBackendApiService.getCurrentTimezone();
         if (response.data.length > 0) {
-          console.log('get events response', response.data);
           this.dataSource.data = response.data;
           this.dataSource._updateChangeSubscription();
           if (this.selected_day === '') {
@@ -503,7 +501,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       sessionObj.StartsAt = this.convertDate(sessionObj.StartsAt);
     }
     this.selected_session_details = sessionObj;
-    console.log('Selected session:', session);
   }
 
   getStatusClass(status: string): string {
@@ -746,7 +743,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result == 'SUCCESS') {
-        console.log('Dialog closed with:', result);
         this.getEventDetails();
       }
     });
@@ -784,7 +780,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result == 'SUCCESS') {
-        console.log('Dialog closed with:', result);
         this.getEventDetails();
       }
     });

@@ -4,7 +4,7 @@ import {
   inject,
   Signal,
   signal,
-  WritableSignal,
+  WritableSignal
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -13,7 +13,7 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators,
+  Validators
 } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +22,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -200,7 +200,6 @@ export class UpdateSessionDialogComponent {
     this.isLoading = true;
     if (this.sessionForm.valid) {
       const sessionData: Session = this.sessionForm.getRawValue();
-      console.log(sessionData);
       if (
         this.convertIsoToCustomFormat(sessionData.StartsAt) >
         this.convertIsoToCustomFormat(sessionData.EndsAt)

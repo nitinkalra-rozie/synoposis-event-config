@@ -9,7 +9,7 @@ import { MatOptionModule } from '@angular/material/core';
 import {
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,14 +20,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { TIMEZONE_OPTIONS } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import {
   Session,
-  SpeakerDetails
+  SpeakerDetails,
 } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import * as XLSX from 'xlsx';
 import {
   resizeImage,
   UploadImageComponent,
-  uploadSpeakerImage
+  uploadSpeakerImage,
 } from '../upload-image-component/upload-image.component';
 
 @Component({
@@ -265,7 +265,9 @@ export class UploadAgendaDialogComponent {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Failed to fetch image. Status: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch image. Status: ${response.status} ${response.statusText}`
+        );
       }
 
       const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'];
@@ -392,9 +394,9 @@ export class UploadAgendaDialogComponent {
               this._backendApiService
             );
             this._speakerImageMap[speaker.Url] = S3FileKey;
-          }else{
+          } else {
             this.errorMessage += `Error fetching Image: ${speaker.Url}<br>`;
-            speaker.Url = "";
+            speaker.Url = '';
           }
         }
       }
