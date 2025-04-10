@@ -30,7 +30,7 @@
       @if (errorMessage) {
         <div class="error-message">
           <mat-icon>error_outline</mat-icon>
-          <span>{{ errorMessage }}</span>
+          <span [innerHTML]="errorMessage"></span>
         </div>
       }
 

@@ -265,9 +265,7 @@ export class UploadAgendaDialogComponent {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(
-          `Failed to fetch image. Status: ${response.status} ${response.statusText}`
-        );
+        throw new Error(`Failed to fetch image. Status: ${response.status} ${response.statusText}`);
       }
 
       const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'];
@@ -387,13 +385,16 @@ export class UploadAgendaDialogComponent {
             speaker.Url,
             speaker.Name
           );
-          if(speakerImageFile){
+          if (speakerImageFile) {
             const resizedFile = await resizeImage(speakerImageFile, 400, 500);
             S3FileKey = await uploadSpeakerImage(
               resizedFile,
               this._backendApiService
             );
             this._speakerImageMap[speaker.Url] = S3FileKey;
+          }else{
+            this.errorMessage += `Error fetching Image: ${speaker.Url}<br>`;
+            speaker.Url = "";
           }
         }
       }
@@ -521,7 +522,7 @@ export class UploadAgendaDialogComponent {
         }
         this.isLoading = false;
 
-        this.errorMessage = '';
+        //this.errorMessage = '';
       } catch (error) {
         this.isLoading = false;
         console.error('Error processing Excel file:', error);
