@@ -1,29 +1,14 @@
-import { CommonModule, IMAGE_CONFIG } from '@angular/common';
-import {
-  APP_INITIALIZER,
-  importProvidersFrom,
-  enableProdMode,
-} from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { DashboardFiltersStateService, IconsService } from '@syn/services';
+import { enableProdMode } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
 import NoSleep from '@uriopass/nosleep.js';
-import { AppRoutingModule } from './app/app-routing.module';
-import { AppComponent } from './app/app.component';
-import { AuthApiService } from './app/services/auth-api.service';
-import { environment } from './environments/environment';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './app/@interceptors/auth.interceptor';
-import { AuthService } from './app/services/auth.service';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import Chart from 'chart.js/auto';
-
-// Register the data labels plugin
-Chart.register(ChartDataLabels);
+import { appConfig } from 'src/app/app.config';
+import { AppComponent } from './app/app.component';
+import { environment } from './environments/environment';
 
 const noSleep = new NoSleep();
+Chart.register(ChartDataLabels);
 
 if (environment.production) {
   if (window) {
@@ -33,37 +18,10 @@ if (environment.production) {
   enableProdMode();
 }
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    importProvidersFrom(
-      AppRoutingModule,
-      FormsModule,
-      CommonModule,
-      BrowserModule,
-      ReactiveFormsModule
-    ),
-    provideHttpClient(withInterceptors([authInterceptor])),
-    AuthApiService,
-    AuthService,
-    DashboardFiltersStateService,
-    {
-      provide: IMAGE_CONFIG,
-      useValue: {
-        disableImageSizeWarning: true,
-        disableImageLazyLoadWarning: true,
-      },
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: () => () => {},
-      multi: true,
-      deps: [IconsService],
-    },
-    provideAnimationsAsync(),
-    provideCharts(withDefaultRegisterables()),
-  ],
-}).catch((err) => console.log(err));
+bootstrapApplication(AppComponent, appConfig).catch((err) => console.log(err));
 
+// TODO:@later remove the following and use navigator.wakeLock.request('screen'); at the required places
+// TODO:@later and get rid of the dependency @uriopass/nosleep.js
 // Keep existing wake lock logic unchanged
 let wakeLockEnabled = false;
 const toggleEl = document.querySelector('#index-body');

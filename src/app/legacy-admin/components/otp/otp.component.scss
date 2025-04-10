@@ -1,0 +1,334 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+
+input[type='text']::-webkit-inner-spin-button,
+input[type='text']::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.error-message {
+  color: red;
+  max-width: 65%;
+}
+
+.otp-container {
+  display: flex;
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+}
+
+.left-space-5px {
+  margin-left: 5px;
+}
+
+.otp-left-side {
+  position: relative;
+  width: 45%;
+  background-image: url('../../../../assets/login/Frame.png');
+  background-position-y: center;
+  background-size: cover !important;
+  box-sizing: border-box;
+}
+
+.otp-left-side::before {
+  content: '';
+  position: absolute;
+  top: 25%;
+  left: 15%;
+  width: 55%;
+  height: 40%;
+  background-image: url('../../../../assets/login/side-interaction.svg');
+  background-size: 100% 100%;
+  border-radius: 0.7rem;
+  z-index: 1;
+}
+
+.otp-left-side::after {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 25%;
+  width: 55%;
+  height: 40%;
+  background-image: url('../../../../assets/login/login-card-synopsis.svg');
+  background-size: 100% 100%;
+  border-radius: 0.7rem;
+  z-index: 2;
+}
+
+.otp-right {
+  flex: 65%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.enter-otp {
+  text-align: left;
+  margin-bottom: 9rem;
+  margin-right: 24rem;
+  font-family: Lexend;
+  margin-left: 3rem;
+}
+
+.enter-otp h2 {
+  color: var(--background-variant-9000000, #000);
+
+  /* Headers/ H4 - Regular - 34|Auto */
+  font-family: Lexend;
+  font-size: 34px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.085px;
+  margin-top: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.enter-otp h3 {
+  color: var(--background-variant-6475258, #475258);
+  font-family: Lexend;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-top: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.enter-otp h4 {
+  color: var(--background-variant-4-adbdcc, #adbdcc);
+  font-family: Lexend;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-top: 3.5rem;
+  margin-bottom: 0.8rem;
+  margin-left: 0.1rem;
+}
+
+.otp-inputs {
+  display: flex;
+}
+
+.otp-inputs input[type='text'] {
+  appearance: textfield;
+  width: 30px;
+  height: 30px;
+  color: var(--background-variant-6475258, #475258);
+  text-align: center;
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.14px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--background-variant-3-bfccd-9, #bfccd9);
+}
+
+.otp-inputs input[type='text']::placeholder {
+  color: black;
+}
+
+.enter-otp button {
+  border: none;
+  height: 1.8rem;
+  width: 35%;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  margin-top: 2rem;
+  color: var(--background-primary-ffffff, #fff);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
+  background: #534ad8;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.otp-bg {
+  background-image: url('../../../../assets/login/rozie-synopsis-logo.svg');
+  width: 12.5rem;
+  height: 3.4rem;
+  margin-top: 6rem;
+  margin-bottom: 1rem;
+  background-size: cover;
+  margin-right: 35.3rem;
+}
+
+.otp-sub {
+  color: var(--background-variant-4-adbdcc, #adbdcc);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: -0.1px;
+  text-align: left;
+  margin-bottom: 0.1rem;
+  margin-right: 1.2rem;
+  font-family: Lexend;
+  width: 90%;
+  margin-left: 2rem;
+
+  /* margin-right: 3rem; */
+}
+
+.otp-resend-container {
+  display: flex;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.otp-resend-container h5 {
+  color: var(--background-variant-6475258, #475258);
+  font-family: Lexend;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
+}
+
+.otp-resend-container .otp-resend-link {
+  color: var(--primary-varient-2534-ad-8, #534ad8);
+  font-family: Lexend;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.14px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.otp-resend-container .otp-resend-link:hover {
+  color: darkblue;
+}
+
+.otp-footer {
+  display: none;
+}
+
+.social-media {
+  display: flex;
+  gap: 10px;
+}
+
+@media (width <= 768px) {
+  .otp-container {
+    flex-direction: column;
+  }
+
+  .enter-otp h4 {
+    margin-top: 0;
+  }
+
+  .otp-left-side {
+    height: 46%;
+    width: 100%;
+  }
+
+  .otp-left-side::before {
+    top: 53%;
+    left: 43%;
+    transform: translate(-50%, -50%);
+    margin-left: 1rem;
+    size: 1rem;
+    height: 20rem;
+    width: 19rem;
+  }
+
+  .otp-left-side::after {
+    content: none;
+  }
+
+  .otp-right {
+    /* height: 58%; */
+    width: 100%;
+    flex: 1;
+  }
+
+  .enter-otp {
+    margin-bottom: revert-layer;
+    margin-top: -1rem;
+    margin-right: 1rem;
+    margin-left: 2rem;
+  }
+
+  .enter-otp h2 {
+    color: var(--background-variant-9000000, #000);
+    font-family: Lexend;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  .otp-resend-container {
+    margin-top: 0;
+  }
+
+  .otp-resend-container h5 {
+    margin-right: 0;
+  }
+
+  .otp-bg {
+    margin: 2rem 11.3rem auto 5rem;
+  }
+
+  .otp-sub {
+    display: none;
+  }
+}
+
+@media (width >= 769px) and (width <= 1024px) {
+  .otp-left-side {
+    width: 50%;
+  }
+
+  .otp-right-side {
+    width: 50%;
+  }
+
+  .otp-left-side {
+    position: relative;
+    width: 50%;
+    background-image: url('../../../../assets/login/Frame.png');
+    background-position-y: center;
+    background-size: cover !important;
+    box-sizing: border-box;
+  }
+
+  .otp-left-side::before {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 55%;
+    height: 40%;
+    background-image: url('../../../../assets/login/login-card-synopsis.svg');
+    background-size: 100% 100%;
+    border-radius: 0.7rem;
+    z-index: 1;
+  }
+
+  .otp-left-side::after {
+    display: none;
+  }
+}

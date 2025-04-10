@@ -1,0 +1,38 @@
+<header class="layout-header-container">
+  <div class="product-logo-mark-wrapper">
+    <div class="product-logo-mark">
+      <img
+        alt="Rozie Synopsis Logo"
+        src="../../../../../assets/side-nav/rozie-synopsis-logo-mark.svg" />
+    </div>
+  </div>
+  <div class="header-content">
+    <div class="header-title">{{ title() }}</div>
+    <div class="header-icons">
+      <button mat-icon-button class="info-button" [matMenuTriggerFor]="menu">
+        <mat-icon svgIcon="syn:info_outlined" />
+      </button>
+      <button
+        mat-icon-button
+        class="person-button"
+        [matMenuTriggerFor]="headerListMenu">
+        <mat-icon>person_outline</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<mat-menu #menu="matMenu" class="info-menu">
+  <p (click)="$event.stopPropagation()">
+    Disclaimer: Rozie Synopsis tool generates real-time summaries and insights
+    from discussions using Large Language Models (LLMs). While it provides
+    valuable perspectives, it is intended to complement, not replace, the
+    expertise of domain professionals. Please consider these summaries as
+    indicative insights, and avoid relying on them as the sole basis for
+    critical decisions.
+  </p>
+</mat-menu>
+
+<mat-menu #headerListMenu="matMenu">
+  <button mat-menu-item (click)="logout()">Log out</button>
+</mat-menu>

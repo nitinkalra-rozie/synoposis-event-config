@@ -1,0 +1,58 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use 'functions' as f;
+@use '@angular/material' as mat;
+
+.layout-header-container {
+  width: 100%;
+  height: v.$top-bar-height;
+  @include m.d-flex-row;
+
+  .product-logo-mark-wrapper {
+    width: v.$left-sidebar-collapsed-width;
+    box-sizing: border-box;
+    padding: 1.25rem;
+    background: v.$purple-gradient;
+
+    .product-logo-mark {
+      width: 2rem;
+      height: 2rem;
+
+      @media (width <= v.$screen-medium) {
+        width: 2rem;
+        height: 2rem;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .header-content {
+    width: 100%;
+    @include m.d-flex-row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.75rem;
+    box-shadow: v.$elevation-6dp;
+
+    .header-title {
+      font-size: v.$font-size-xl;
+    }
+
+    .header-icons {
+      @include m.d-flex-row;
+      gap: 1rem;
+
+      .info-button {
+        scale: 0.8;
+        color: v.$primary-color-variant-2;
+        background-color: f.color-transparent(30%, v.$primary-color-variant-2);
+      }
+
+      .person-button {
+        scale: 0.8;
+        color: v.$text-color-white;
+        background-color: v.$primary-color-variant-2;
+      }
+    }
+  }
+}

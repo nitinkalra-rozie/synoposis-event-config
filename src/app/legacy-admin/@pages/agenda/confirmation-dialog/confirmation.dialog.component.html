@@ -1,0 +1,20 @@
+<div class="confirmation-dialog timezone-warning">
+  <h2 mat-dialog-title>
+    <mat-icon class="warning-icon">warning</mat-icon>
+    {{ data.title }}
+  </h2>
+  <mat-dialog-content>
+    <div class="message-container">
+      <p class="main-message">{{ data.message }}</p>
+      <p class="warning-message">{{ data.warning }}</p>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button class="cancel-button" (click)="onCancel()">
+      Cancel
+    </button>
+    <button mat-button class="confirm-button" (click)="onConfirm()">
+      Update Timezone
+    </button>
+  </mat-dialog-actions>
+</div>
