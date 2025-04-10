@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { BackendApiService } from '../services/backend-api.service';
+import { BackendApiService } from '../../services/backend-api.service';
 
 export interface AnalyticsData {
   executiveSummary: {
@@ -145,7 +145,7 @@ export interface AnalyticsRequest {
 @Injectable({
   providedIn: 'root',
 })
-export class AnalyticsService {
+export class AnalyticsDataService {
   private _backendApiService = inject(BackendApiService);
   private _http = inject(HttpClient);
   private _apiEndpoint = environment.analyticsApiEndpoint || '/api/analytics';

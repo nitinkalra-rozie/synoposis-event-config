@@ -1,13 +1,18 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
+  computed,
+  inject,
   OnDestroy,
   OnInit,
   signal,
-  computed,
-  inject,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -24,19 +29,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { BaseChartDirective } from 'ng2-charts';
-import { TopBarComponent } from 'src/app/components/shared/top-bar/top-bar.component';
+import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
   AnalyticsData,
-  AnalyticsService,
-} from 'src/app/@services/analytics.service';
-import { SidebarControlPanelComponent } from 'src/app/@components/sidebar-control-panel/sidebar-control-panel.component';
-import { FormControl, FormGroup } from '@angular/forms';
-import { BackendApiService } from 'src/app/services/backend-api.service';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
-import { DomSanitizer } from '@angular/platform-browser';
+  AnalyticsDataService,
+} from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
+import { BackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 
 interface DateRange {
   name: string;
@@ -71,7 +74,6 @@ interface DateRange {
     MatNativeDateModule,
     BaseChartDirective,
     TopBarComponent,
-    SidebarControlPanelComponent,
   ],
 })
 export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
@@ -470,7 +472,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   public lastUpdated = signal<Date>(new Date());
 
   // Services
-  private _analyticsService = inject(AnalyticsService);
+  private _analyticsService = inject(AnalyticsDataService);
   private _backendApiService = inject(BackendApiService);
   private _snackBar = inject(MatSnackBar);
   private _sanitizer = inject(DomSanitizer);
