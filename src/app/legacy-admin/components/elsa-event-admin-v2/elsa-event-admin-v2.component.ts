@@ -17,7 +17,7 @@ import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { EventControlsComponent } from 'src/app/legacy-admin/components/event-controls/event-controls.component';
 import { SessionContentComponent } from 'src/app/legacy-admin/components/session-content/session-content.component';
-import { BackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -74,7 +74,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   private _getDropdownOptionFromObjectPipe = inject(
     GetDropdownOptionFromObjectPipe
   );
-  private _backendApiService = inject(BackendApiService);
+  private _backendApiService = inject(LegacyBackendApiService);
   //#endregion
 
   private _shouldFetchEventDetails = computed(() =>

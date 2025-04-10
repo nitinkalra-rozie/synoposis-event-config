@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
-import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 

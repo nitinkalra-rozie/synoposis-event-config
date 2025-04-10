@@ -10,7 +10,7 @@ import {
   UpdatePostInsightsRequest,
   UpdatePostInsightsResponse,
 } from 'src/app/insights-editor/data-services/insights-editor.data-model';
-import { BackendApiService as LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({

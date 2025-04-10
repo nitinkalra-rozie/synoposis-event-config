@@ -39,7 +39,7 @@ import {
   AnalyticsData,
   AnalyticsDataService,
 } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
-import { BackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 
 interface DateRange {
   name: string;
@@ -473,7 +473,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
   // Services
   private _analyticsService = inject(AnalyticsDataService);
-  private _backendApiService = inject(BackendApiService);
+  private _backendApiService = inject(LegacyBackendApiService);
   private _snackBar = inject(MatSnackBar);
   private _sanitizer = inject(DomSanitizer);
   private _router = inject(Router);

@@ -12,7 +12,7 @@ import { PostData } from '../shared/types';
 
 @Injectable({ providedIn: 'root' })
 // TODO:@refactor this service to use defined types instead of objects
-export class BackendApiService {
+export class LegacyBackendApiService {
   constructor(
     private http: HttpClient,
     private _globalStateService: GlobalStateService
