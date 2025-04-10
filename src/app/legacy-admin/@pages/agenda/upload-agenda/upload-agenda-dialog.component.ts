@@ -7,9 +7,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import {
-  MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,11 +20,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { TIMEZONE_OPTIONS } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import {
   Session,
-  SpeakerDetails,
+  SpeakerDetails
 } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import * as XLSX from 'xlsx';
-import { UploadImageComponent } from '../upload-image-component/upload-image.component';
+import {
+  resizeImage,
+  UploadImageComponent,
+  uploadSpeakerImage
+} from '../upload-image-component/upload-image.component';
 
 @Component({
   selector: 'app-upload-agenda-dialog',
@@ -82,6 +86,7 @@ export class UploadAgendaDialogComponent {
     inject(TIMEZONE_OPTIONS);
   public isDragging = false;
   public filteredTrackOptions: Signal<string[]>;
+  private _speakerImageMap: Record<string, string> = { '': '' };
   private _backendApiService = inject(BackendApiService);
 
   getFilteredTrackOptions(input: string): string[] {
@@ -258,6 +263,32 @@ export class UploadAgendaDialogComponent {
     speaker.S3FileKey = speakerImage;
   }
 
+  async urlToFile(url: string, filename: string): Promise<File> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch image. Status: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'];
+      const mimeType = response.headers.get('Content-Type') || '';
+
+      if (!allowedTypes.includes(mimeType.toLowerCase())) {
+        throw new Error(
+          `Invalid MIME type: ${mimeType}. Allowed types are: ${allowedTypes.join(', ')}`
+        );
+      }
+      const blob = await response.blob();
+      console.log(blob);
+      return new File([blob], filename, { type: mimeType });
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      throw error;
+    }
+  }
+
   confirm(): void {
     if (this.validateSessions()) {
       if (!this.isSessionDatesValid(this.sessions)) {
@@ -322,11 +353,12 @@ export class UploadAgendaDialogComponent {
     }
     return true;
   }
-  private getSpeakersDetails(
+
+  private async getSpeakersDetails(
     speakerData: any[],
     speakers: string,
     moderators: string
-  ): SpeakerDetails[] {
+  ): Promise<SpeakerDetails[]> {
     if (!speakerData) speakerData = []; // Guard against undefined/null
 
     const speakerList = speakers
@@ -337,16 +369,41 @@ export class UploadAgendaDialogComponent {
       .trim()
       .split(',')
       .map((name) => name.trim());
-    const speakerInfo = [];
+    const speakerInfo: SpeakerDetails[] = [];
 
-    // Helper function to avoid duplicate code
-    const addSpeaker = (name: string, isModerator: boolean): void => {
-      if (name == '') {
+    // Helper async function to avoid duplicate code.
+    const addSpeaker = async (
+      name: string,
+      isModerator: boolean
+    ): Promise<void> => {
+      if (name === '') {
         return;
       }
       const speaker = speakerData.find((s) => s.Name === name) || {};
+      let S3FileKey = '';
+      if (speaker.Url) {
+        if (this._speakerImageMap && speaker.Url in this._speakerImageMap) {
+          console.log('image url', this._speakerImageMap[speaker.Url]);
+          S3FileKey = this._speakerImageMap[speaker.Url];
+        } else {
+          this._speakerImageMap[speaker.Url] = '';
+          const speakerImageFile = await this.urlToFile(
+            speaker.Url,
+            speaker.Name
+          );
+          const resizedFile = await resizeImage(speakerImageFile, 400, 500);
+          S3FileKey = await uploadSpeakerImage(
+            resizedFile,
+            this._backendApiService
+          );
+          console.log(S3FileKey);
+          this._speakerImageMap[speaker.Url] = S3FileKey;
+        }
+        console.log(this._speakerImageMap);
+      }
       speakerInfo.push({
         Title: speaker.Title || '',
+        S3FileKey: S3FileKey,
         Url: speaker.Url || '',
         SpeakerBio: speaker.bio || '',
         Name: speaker.Name || name,
@@ -355,16 +412,19 @@ export class UploadAgendaDialogComponent {
       });
     };
 
-    speakerList.forEach((name) => addSpeaker(name, false));
-    moderatorList.forEach((name) => addSpeaker(name, true));
+    const speakerPromises = speakerList.map((name) => addSpeaker(name, false));
+    const moderatorPromises = moderatorList.map((name) =>
+      addSpeaker(name, true)
+    );
 
+    await Promise.all([...speakerPromises, ...moderatorPromises]);
     return speakerInfo;
   }
 
   private handleFile(file: File): void {
     const reader: FileReader = new FileReader();
 
-    reader.onload = (e: any) => {
+    reader.onload = async (e: any) => {
       try {
         const bstr: string = e.target.result;
         const workbook: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
@@ -395,10 +455,16 @@ export class UploadAgendaDialogComponent {
           workbook.Sheets[speakerSheetName],
           { defval: '' }
         );
+        this.sessions = await Promise.all(
+          jsonData.map(async (row) => {
+            // Await the asynchronous getSpeakersDetails call
+            const speakersInfo = await this.getSpeakersDetails(
+              speakerJsonData,
+              row['Speakers'],
+              row['Moderator']
+            );
 
-        this.sessions = jsonData.map(
-          (row) =>
-            ({
+            const session: Session = {
               GenerateInsights: false,
               Event: this.eventName,
               Track: row['Track'] || 'General',
@@ -407,12 +473,7 @@ export class UploadAgendaDialogComponent {
                 row['SessionId'] ||
                 row['Session ID'] ||
                 this.getNextSessionId(),
-              SpeakersInfo:
-                this.getSpeakersDetails(
-                  speakerJsonData,
-                  row['Speakers'],
-                  row['Moderator']
-                ) || [],
+              SpeakersInfo: speakersInfo || [],
               SessionDescription:
                 row['Description'] || row['Session Description'] || '',
               Status: 'NOT_STARTED',
@@ -443,12 +504,24 @@ export class UploadAgendaDialogComponent {
                       this.convertExcelTimeToReadable(row['Start Time'])
                     )
                   : '',
-            }) as Session
+            };
+
+            return session;
+          })
         );
+
+        // Now map over the sessions to ensure PrimarySessionId is set from SessionId
         this.sessions = this.sessions.map((session) => ({
           ...session,
           PrimarySessionId: session.SessionId,
         }));
+
+        // Assign cache S3FileKey from the _speakerImageMap for multiple occarances of the same speaker
+        for (const session of this.sessions) {
+          for (const speaker of session.SpeakersInfo) {
+            speaker.S3FileKey = this._speakerImageMap?.[speaker.Url] ?? '';
+          }
+        }
 
         console.log('updated session', this.sessions);
 

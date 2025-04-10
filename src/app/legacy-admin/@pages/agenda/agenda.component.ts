@@ -24,6 +24,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
@@ -84,6 +85,51 @@ interface RealtimeInsight {
   Insights: Array<string>;
 }
 
+export function formatDateTime(
+  date: Date,
+  useUTC: boolean,
+  showTimezone: boolean,
+  timezoneSeparator: string = ''
+): string {
+  // Use appropriate getters based on flag.
+  const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
+  const month = (useUTC ? date.getUTCMonth() + 1 : date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0');
+  const day = (useUTC ? date.getUTCDate() : date.getDate())
+    .toString()
+    .padStart(2, '0');
+  const hours = (useUTC ? date.getUTCHours() : date.getHours())
+    .toString()
+    .padStart(2, '0');
+  const minutes = (useUTC ? date.getUTCMinutes() : date.getMinutes())
+    .toString()
+    .padStart(2, '0');
+  const seconds = (useUTC ? date.getUTCSeconds() : date.getSeconds())
+    .toString()
+    .padStart(2, '0');
+
+  let formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+  if (showTimezone) {
+    if (useUTC) {
+      formatted += timezoneSeparator === ':' ? '+00:00' : '+0000';
+    } else {
+      // Compute local timezone offset.
+      const offsetMinutes = -date.getTimezoneOffset();
+      const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+      const absOffset = Math.abs(offsetMinutes);
+      const offsetHours = Math.floor(absOffset / 60)
+        .toString()
+        .padStart(2, '0');
+      const offsetMins = (absOffset % 60).toString().padStart(2, '0');
+      formatted += `${offsetSign}${offsetHours}${timezoneSeparator}${offsetMins}`;
+    }
+  }
+
+  return formatted;
+}
+
 @Component({
   selector: 'app-elsa-event-agenda',
   templateUrl: './agenda.component.html',
@@ -106,6 +152,7 @@ interface RealtimeInsight {
     MatListModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
+    MatTooltipModule,
     MatSortModule,
     MatMenuModule,
     MatTableModule,
@@ -196,6 +243,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public displayedColumns: string[] = [
     'startDate',
     'startTime',
+    'endTime',
     'title',
     'sessionid',
     'Type',
@@ -408,9 +456,17 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     return newSessionId;
   };
 
+  getUTCFormattedTime(date: Date): string {
+    return formatDateTime(date, true, true, ':');
+  }
+
+  getCurrentFormattedLocalTime(): string {
+    const now = new Date();
+    return formatDateTime(now, false, true, '');
+  }
+
   public createNewSession = (): void => {
     const newSessionId = this.getNextSessionId();
-    console.log('new session id', newSessionId);
     const sessionData: Session = {
       GenerateInsights: true,
       Event: this.eventName,
@@ -432,16 +488,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     };
     this.openSessionDetailsModal(sessionData, 'NEW');
   };
-
-  getUTCFormattedTime(date: Date): string {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}+00:00`;
-  }
 
   highlightRow(row: Session, index: number): void {
     this.selectedRowIndex = index;
@@ -539,6 +585,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Error fetching data:', error);
+        this.displayErrorMessage('Server error updating event status.');
         this.isLoading = false;
       },
     });
@@ -595,12 +642,16 @@ export class AgendaComponent implements OnInit, AfterViewInit {
             },
             error: (error) => {
               console.error('Error fetching data:', error);
+              this.displayErrorMessage('Server error updating timezone');
               this.isLoading = false;
+              this.selectedTimezone = this.eventTimezone;
             },
           });
       },
       error: (error) => {
+        this.displayErrorMessage('Error updating timezone');
         this.isLoading = false;
+        this.selectedTimezone = this.eventTimezone;
       },
     });
   }
@@ -612,6 +663,17 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const hours = match[2].padStart(2, '0');
     const minutes = (match[3] || '00').padStart(2, '0');
     return `${sign}${hours}${minutes}`;
+  }
+
+  public get formattedToLocalTime(): string {
+    const offsetMinutes = -new Date().getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? '+' : '-';
+    const absOffset = Math.abs(offsetMinutes);
+    const hours = Math.floor(absOffset / 60)
+      .toString()
+      .padStart(2, '0');
+    const minutes = (absOffset % 60).toString().padStart(2, '0');
+    return `${sign}${hours}:${minutes}`;
   }
 
   adjustSessionTimes(sessions: Session[], hoursToAdjust: number): Session[] {
@@ -648,11 +710,15 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   openSessionDetailsModal(data: Session, type: string): void {
-    const timeDiff = this.getTimezoneDifference('+0:00', this.eventTimezone);
+    const timeDiff = this.getTimezoneDifference(
+      '+0:00',
+      this.formattedToLocalTime
+    );
     let adjustedSessionData = this.adjustSessionTimes(
       [data],
-      this.getTimezoneDifference(this.eventTimezone, '+0:00')
+      this.getTimezoneDifference(this.formattedToLocalTime, '+0:00')
     );
+
     adjustedSessionData = adjustedSessionData.map((s) => ({
       ...s,
       StartsAt: s.StartsAt.endsWith('+0000')

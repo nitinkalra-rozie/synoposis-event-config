@@ -20,9 +20,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -84,70 +84,8 @@ export class UpdateSessionDialogComponent {
     return this.sessionForm.get('Track') as FormControl;
   }
 
-  async uploadSpeakerImage(file: File): Promise<string> {
-    if (!file) return '';
-
-    const fileExtension = file.type.replace('image/', '');
-    const fileType = 'speaker_headshots';
-    const eventName = this.dialogData.data.Event;
-
-    try {
-      const uploadUrlResponse = await this._backendApiService
-        .getUploadPresignedUrl(eventName, fileType, fileExtension)
-        .toPromise();
-
-      if (uploadUrlResponse?.['success']) {
-        const preSignedUrl = uploadUrlResponse['data']['preSignedUrl'];
-        const s3Key = uploadUrlResponse['data']['key'];
-        await this._backendApiService
-          .uploadFileUsingPreSignedUrl(file, preSignedUrl)
-          .toPromise();
-        return s3Key;
-      }
-    } catch (error) {
-      console.error('Upload failed:', error);
-      this.dialogData.displayErrorMessageFn?.(
-        'Error uploading image. Please try again.'
-      );
-    }
-
-    return '';
-  }
-
   updateSpeakerImage(speakerImage: string, speaker: any): void {
     speaker.get('S3FileKey').setValue(speakerImage);
-  }
-
-  async onFileSelected(event: Event, speaker: any): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-
-    if (file && this.validateImage(file)) {
-      this.isUploading = true;
-      try {
-        const imageS3Key = await this.uploadSpeakerImage(file);
-        if (imageS3Key) {
-          speaker.get('S3FileKey').setValue(imageS3Key);
-          const reader = new FileReader();
-          reader.onload = (e: any) => {
-            speaker.get('Url').setValue(e.target.result);
-          };
-          reader.readAsDataURL(file);
-        } else {
-          this.dialogData.displayErrorMessageFn(
-            'Error uploading image. Please try again.'
-          );
-        }
-      } catch (error) {
-        console.error(error);
-        this.dialogData.displayErrorMessageFn(
-          'Error uploading image. Please try again.'
-        );
-      } finally {
-        this.isUploading = false;
-        input.value = ''; // Reset input
-      }
-    }
   }
 
   removeImage(speaker): void {
@@ -243,11 +181,30 @@ export class UpdateSessionDialogComponent {
     });
   }
 
+  convertIsoToCustomFormat(isoString: string): string {
+    const d = new Date(isoString);
+    const date = [
+      d.getFullYear(),
+      (d.getMonth() + 1).toString().padStart(2, '0'),
+      d.getDate().toString().padStart(2, '0'),
+    ].join('-');
+    const time = [
+      d.getHours().toString().padStart(2, '0'),
+      d.getMinutes().toString().padStart(2, '0'),
+      d.getSeconds().toString().padStart(2, '0'),
+    ].join(':');
+    return `${date} ${time}`;
+  }
+
   saveChanges(): void {
     this.isLoading = true;
     if (this.sessionForm.valid) {
       const sessionData: Session = this.sessionForm.getRawValue();
-      if (sessionData.StartsAt > sessionData.EndsAt) {
+      console.log(sessionData);
+      if (
+        this.convertIsoToCustomFormat(sessionData.StartsAt) >
+        this.convertIsoToCustomFormat(sessionData.EndsAt)
+      ) {
         this.dialogData.displayErrorMessageFn(
           'Error incorrect Start and End time. Please update.'
         );
@@ -272,6 +229,9 @@ export class UpdateSessionDialogComponent {
           error: (error) => {
             this.isLoading = false;
             console.error('Error fetching data:', error);
+            this.dialogData.displayErrorMessageFn(
+              'Error updating session data. Please try again.'
+            );
           },
         });
       }
