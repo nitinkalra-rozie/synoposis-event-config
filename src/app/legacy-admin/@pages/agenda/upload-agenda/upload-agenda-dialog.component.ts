@@ -128,7 +128,6 @@ export class UploadAgendaDialogComponent {
     const date = new Date(dateStr); // Creates a Date object from the date string
 
     const timeParts = timeStr.match(/(\d+):(\d+) (AM|PM)/i); // Extract hours, minutes, and period
-    console.log(' date : ', dateStr);
     if (!timeParts) {
       throw new Error('Invalid time format. Expected format: "HH:MM AM/PM"');
     }
@@ -155,7 +154,6 @@ export class UploadAgendaDialogComponent {
     const mins = String(date.getMinutes()).padStart(2, '0');
     const secs = String(date.getSeconds()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day} ${hours24}:${mins}:${secs}`;
-    console.log('Formatted date : ', formattedDate);
     // Create the final date string in the format "YYYY-MM-DD HH:MM:SS+00:00"
     return formattedDate;
   }
@@ -281,11 +279,10 @@ export class UploadAgendaDialogComponent {
         );
       }
       const blob = await response.blob();
-      console.log(blob);
       return new File([blob], filename, { type: mimeType });
     } catch (error) {
       console.error('Error fetching image:', error);
-      throw error;
+      return null;
     }
   }
 
@@ -383,7 +380,6 @@ export class UploadAgendaDialogComponent {
       let S3FileKey = '';
       if (speaker.Url) {
         if (this._speakerImageMap && speaker.Url in this._speakerImageMap) {
-          console.log('image url', this._speakerImageMap[speaker.Url]);
           S3FileKey = this._speakerImageMap[speaker.Url];
         } else {
           this._speakerImageMap[speaker.Url] = '';
@@ -391,15 +387,15 @@ export class UploadAgendaDialogComponent {
             speaker.Url,
             speaker.Name
           );
-          const resizedFile = await resizeImage(speakerImageFile, 400, 500);
-          S3FileKey = await uploadSpeakerImage(
-            resizedFile,
-            this._backendApiService
-          );
-          console.log(S3FileKey);
-          this._speakerImageMap[speaker.Url] = S3FileKey;
+          if(speakerImageFile){
+            const resizedFile = await resizeImage(speakerImageFile, 400, 500);
+            S3FileKey = await uploadSpeakerImage(
+              resizedFile,
+              this._backendApiService
+            );
+            this._speakerImageMap[speaker.Url] = S3FileKey;
+          }
         }
-        console.log(this._speakerImageMap);
       }
       speakerInfo.push({
         Title: speaker.Title || '',
@@ -426,6 +422,7 @@ export class UploadAgendaDialogComponent {
 
     reader.onload = async (e: any) => {
       try {
+        this.isLoading = true;
         const bstr: string = e.target.result;
         const workbook: XLSX.WorkBook = XLSX.read(bstr, { type: 'binary' });
         const sheetName = workbook.SheetNames.find(
@@ -522,11 +519,11 @@ export class UploadAgendaDialogComponent {
             speaker.S3FileKey = this._speakerImageMap?.[speaker.Url] ?? '';
           }
         }
-
-        console.log('updated session', this.sessions);
+        this.isLoading = false;
 
         this.errorMessage = '';
       } catch (error) {
+        this.isLoading = false;
         console.error('Error processing Excel file:', error);
         this.errorMessage = 'There was an error processing the file.';
       }
