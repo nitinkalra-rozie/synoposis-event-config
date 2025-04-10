@@ -6,8 +6,7 @@
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    // TODO: @refactor - Uncomment these once the project is refactored
+    // TODO:@refactor - Uncomment these once the project is refactored
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
     // "strict": true,
@@ -27,13 +26,13 @@
     "typeRoots": ["node_modules/@types"],
     "lib": ["ES2022", "dom"],
     "paths": {
-      "@syn/pipes": ["src/app/@pipes/index.ts"],
-      "@syn/utils": ["src/app/@utils/index.ts"],
-      "@syn/components": ["src/app/@components/index.ts"],
-      "@syn/models": ["src/app/@models/index.ts"],
-      "@syn/services": ["src/app/@services/index.ts"],
-      "@syn/directives": ["src/app/@directives/index.ts"],
-      "@syn/data-services": ["src/app/@data-services/index.ts"]
+      "@syn/pipes": ["src/app/legacy-admin/@pipes/index.ts"],
+      "@syn/utils": ["src/app/legacy-admin/@utils/index.ts"],
+      "@syn/components": ["src/app/legacy-admin/@components/index.ts"],
+      "@syn/models": ["src/app/legacy-admin/@models/index.ts"],
+      "@syn/services": ["src/app/legacy-admin/@services/index.ts"],
+      "@syn/directives": ["src/app/legacy-admin/@directives/index.ts"],
+      "@syn/data-services": ["src/app/legacy-admin/@data-services/index.ts"]
     }
   },
   "include": ["src/**/*.ts", "src/typings.d.ts"],

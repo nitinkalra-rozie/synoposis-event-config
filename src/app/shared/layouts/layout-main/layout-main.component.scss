@@ -1,0 +1,20 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use 'functions' as f;
+@use '@angular/material' as mat;
+
+.main-layout-container {
+  height: 100dvh;
+  width: 100dvw;
+  @include m.d-flex-column;
+  overflow-y: hidden;
+
+  .content-wrapper {
+    height: calc(100dvh - v.$top-bar-height);
+    @include m.d-flex-row;
+
+    .content-container {
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,62 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.btn-primary-default {
+  @include m.button-style(
+    v.$primary-color-variant-2,
+    v.$selection-variant-3,
+    v.$primary-bg-color
+  );
+  @include m.body-regular;
+  height: 32px;
+}
+
+.btn-primary-default-small {
+  @include m.button-style(
+    v.$primary-color-variant-2,
+    v.$selection-variant-3,
+    v.$primary-bg-color
+  );
+  @include m.caption-regular;
+  height: 25px;
+}
+
+.btn-primary-white-small {
+  @include m.button-style(
+    v.$primary-bg-color,
+    v.$primary-bg-color-variant-1,
+    v.$primary-bg-color-variant-6
+  );
+  @include m.caption-regular;
+  height: 25px;
+}
+
+.btn-secondary-default {
+  @include m.button-style(
+    v.$secondary-color-variant-2,
+    v.$selection-variant-4,
+    v.$primary-bg-color
+  );
+  @include m.body-regular;
+  height: 32px;
+}
+
+.btn-destructive-default {
+  @include m.button-style(
+    v.$selected-concept-icon-color,
+    v.$selection-variant-5,
+    v.$primary-bg-color
+  );
+  @include m.body-regular;
+  height: 32px;
+}
+
+.btn-text-default {
+  @include m.button-style(
+    v.$transparent,
+    v.$selection-variant-6,
+    v.$primary-bg-color-variant-8
+  );
+  @include m.caption-regular;
+  height: 32px;
+}

@@ -1,0 +1,129 @@
+@use 'mixins' as m;
+@use 'variables' as v;
+// @use '../../styles/material/mat-tooltip' as *;
+
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+.trigger-container {
+  @include m.d-flex-column-align-center;
+  align-items: flex-start;
+  width: 100%;
+
+  &.small {
+    flex-direction: unset;
+    width: 66px;
+  }
+
+  .trigger-label {
+    @include m.footnote-medium;
+    color: v.$primary-bg-color-variant-6;
+    margin-bottom: 8px;
+  }
+
+  .trigger-view {
+    .selected-label {
+      @include m.body-regular;
+      @include m.ellipsis;
+      color: v.$primary-bg-color-variant-6;
+    }
+
+    .selection-info {
+      @include m.d-flex-row-align-center;
+      width: calc(100% - 30px);
+    }
+
+    &.small {
+      height: 25px;
+      padding: 0 5px;
+      width: calc(100% - 10px);
+
+      .selection-info {
+        width: calc(100% - 18px);
+      }
+    }
+
+    &.active {
+      border-color: v.$primary-color-variant-2;
+    }
+
+    & {
+      @include m.d-flex-row-align-center;
+      justify-content: space-between;
+      padding: 0 10px;
+      border-radius: 4px;
+      border: 1px solid v.$primary-bg-color-variant-3;
+      background-color: v.$primary-bg-color;
+      height: 40px;
+      width: calc(100% - 20px);
+      cursor: pointer;
+    }
+  }
+}
+.plus {
+  @include m.flex-center;
+  padding-bottom: 2px;
+}
+
+.extra-selection-count {
+  &.double-digits {
+    width: 26px;
+    border-radius: 1000px;
+  }
+
+  & {
+    @include m.body-regular;
+    @include m.flex-center;
+    color: v.$primary-bg-color-variant-6;
+    width: 18px;
+    height: 18px;
+    box-shadow: v.$box-shadow-simple-drop-2;
+    border-radius: 100%;
+    margin-left: 8px;
+  }
+}
+
+.search-input {
+  @include m.base-input;
+  margin: 0 20px;
+  background-color: v.$primary-bg-color-variant-1;
+  width: calc(100% - 60px);
+}
+
+.options-list {
+  list-style-type: none;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  padding-inline-start: 0;
+  max-height: 240px;
+  overflow-y: scroll;
+  padding: 0 20px;
+  margin-top: 8px;
+  width: calc(100% - 40px);
+  scrollbar-gutter: stable;
+
+  li {
+    padding: 12px 0;
+  }
+}
+
+.dropdown-footer {
+  @include m.d-flex-row-align-center;
+  justify-content: flex-end;
+  padding: 12px;
+  width: calc(100% - 24px);
+}
+
+.btn-primary-default {
+  padding: 5px 13px;
+}
+
+.cancel-btn {
+  padding: 5px 13px;
+  background-color: v.$primary-bg-color-variant-1;
+  color: v.$primary-bg-color-variant-6;
+  margin-right: 8px;
+  @include m.callout-semi-bold;
+}

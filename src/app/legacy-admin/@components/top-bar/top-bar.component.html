@@ -1,0 +1,49 @@
+<div class="app-container">
+  <app-side-nav></app-side-nav>
+  <div class="top-bar">
+    <div class="bar-left-content">
+      <div class="title">
+        <p>Rozie Synopsis - Admin Dashboard</p>
+      </div>
+    </div>
+
+    <div class="bar-right-content">
+      <div
+        #menuTrigger="matMenuTrigger"
+        class="info-icon"
+        [matMenuTriggerFor]="menu">
+        <mat-icon svgIcon="syn:info_outlined"></mat-icon>
+      </div>
+      <div class="menu-icon">
+        <div class="icon">
+          <div
+            class="profile-icon-wrapper"
+            (click)="toggleDropdown()"
+            (outSideClick)="onOutsideClick()"
+            appOutSideClick>
+            <img
+              class="profile-icon"
+              alt="icon3"
+              src="../../../../../assets/profile-icon.svg" />
+            @if (showDropdown) {
+              <div class="dropdown">
+                <li (click)="logout()">Log out</li>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<mat-menu #menu="matMenu" class="info-menu">
+  <p (click)="$event.stopPropagation()">
+    Disclaimer: Rozie Synopsis tool generates real-time summaries and insights
+    from discussions using Large Language Models (LLMs). While it provides
+    valuable perspectives, it is intended to complement, not replace, the
+    expertise of domain professionals. Please consider these summaries as
+    indicative insights, and avoid relying on them as the sole basis for
+    critical decisions.
+  </p>
+</mat-menu>
