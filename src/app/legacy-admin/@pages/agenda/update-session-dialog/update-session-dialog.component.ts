@@ -108,7 +108,7 @@ export class UpdateSessionDialogComponent {
       Type: [session.Type, Validators.required],
       PrimarySessionId: [session.PrimarySessionId],
       EventDay: [session.EventDay],
-      Duration: [{ value: session.Duration, disabled: false }],
+      Duration: [{ value: session.Duration, disabled: true }],
       Location: [session.Location],
       SessionSubject: [session.SessionSubject],
       StartsAt: [session.StartsAt, Validators.required],
@@ -196,6 +196,15 @@ export class UpdateSessionDialogComponent {
     return `${date} ${time}`;
   }
 
+  getDurationInMinutes(t1: string, t2: string): number {
+    const date1 = new Date(t1);
+    const date2 = new Date(t2);
+    console.log(t1);
+    console.log(t2);
+    const diffMs = Math.abs(date1.getTime() - date2.getTime());
+    return diffMs / (1000 * 60);
+  }
+
   saveChanges(): void {
     this.isLoading = true;
     if (this.sessionForm.valid) {
@@ -215,6 +224,7 @@ export class UpdateSessionDialogComponent {
           speaker.Url = '';
           return speaker;
         });
+        sessionData.Duration = `${this.getDurationInMinutes(sessionData.EndsAt,sessionData.StartsAt)}`;
         const formattedSessionDetails = this.updateSessionTimes([sessionData]);
 
         const updatedSessionDetails: Session[] =

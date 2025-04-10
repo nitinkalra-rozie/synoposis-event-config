@@ -520,11 +520,12 @@ export class UploadAgendaDialogComponent {
         for (const session of this.sessions) {
           for (const speaker of session.SpeakersInfo) {
             speaker.S3FileKey = this._speakerImageMap?.[speaker.Url] ?? '';
+            speaker.Url = this._speakerImageMap?.[speaker.Url]
+              ? speaker.Url
+              : '';
           }
         }
         this.isLoading = false;
-
-        //this.errorMessage = '';
       } catch (error) {
         this.isLoading = false;
         console.error('Error processing Excel file:', error);
