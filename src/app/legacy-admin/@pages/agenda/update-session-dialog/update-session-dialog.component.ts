@@ -21,7 +21,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialogModule,
-  MatDialogRef, MAT_DIALOG_DATA
+  MatDialogRef,
+  MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +32,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { map, startWith } from 'rxjs/operators';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { Session, SpeakerDetails } from '../agenda.component';
-import { resizeImage, UploadImageComponent, uploadSpeakerImage, urlToFile } from '../upload-image-component/upload-image.component';
+import {
+  resizeImage,
+  UploadImageComponent,
+  uploadSpeakerImage,
+  urlToFile
+} from '../upload-image-component/upload-image.component';
 
 @Component({
   selector: 'app-update-session-dialog',
@@ -198,76 +204,74 @@ export class UpdateSessionDialogComponent {
   getDurationInMinutes(t1: string, t2: string): number {
     const date1 = new Date(t1);
     const date2 = new Date(t2);
-    console.log(t1);
-    console.log(t2);
     const diffMs = Math.abs(date1.getTime() - date2.getTime());
     return diffMs / (1000 * 60);
   }
 
-
-
-async saveChanges(): Promise<void> {
-  this.isLoading = true;
-  if (!this.sessionForm.valid) {
-    this.dialogData.displayErrorMessageFn(
-      'Session details not valid. Please update the session details and retry.'
-    );
-    this.isLoading = false;
-    return;
-  }
-
-  const sessionData: Session = this.sessionForm.getRawValue();
-
-  // Validate that the start time is before the end time
-  if (
-    this.convertIsoToCustomFormat(sessionData.StartsAt) >
-    this.convertIsoToCustomFormat(sessionData.EndsAt)
-  ) {
-    this.dialogData.displayErrorMessageFn(
-      'Error incorrect Start and End time. Please update.'
-    );
-    this.isLoading = false;
-    return;
-  }
-
-  if (this.dialogData.adjustSessionTimesFn) {
-    for (const speaker of sessionData.SpeakersInfo) {
-      if (speaker?.Url && !this.isPresignedUrl(speaker.Url)) {
-        try {
-          const speakerImageFile = await urlToFile(speaker.Url, speaker.Name);
-          if (speakerImageFile) {
-            const resizedFile = await resizeImage(speakerImageFile, 400, 400);
-            speaker.S3FileKey = await uploadSpeakerImage(
-              resizedFile,
-              this._backendApiService
-            );
-          }
-        } catch (error) {
-          console.error('Error processing speaker image:', error);
-        }
-      }
-      speaker.Url = '';
-    }
-    sessionData.Duration = `${this.getDurationInMinutes(
-      sessionData.EndsAt,
-      sessionData.StartsAt
-    )}`;
-    const formattedSessionDetails = this.updateSessionTimes([sessionData]);
-    const updatedSessionDetails: Session[] =
-      this.dialogData.adjustSessionTimesFn(formattedSessionDetails);
-
-    try {
-      await this._backendApiService.updateAgenda(updatedSessionDetails).toPromise();
-      this.dialogRef.close('SUCCESS');
-    } catch (error) {
+  async saveChanges(): Promise<void> {
+    this.isLoading = true;
+    if (!this.sessionForm.valid) {
       this.dialogData.displayErrorMessageFn(
-        'Error updating session data. Please try again.'
+        'Session details not valid. Please update the session details and retry.'
       );
+      this.isLoading = false;
+      return;
     }
-  }
 
-  this.isLoading = false;
-}
+    const sessionData: Session = this.sessionForm.getRawValue();
+
+    // Validate that the start time is before the end time
+    if (
+      this.convertIsoToCustomFormat(sessionData.StartsAt) >
+      this.convertIsoToCustomFormat(sessionData.EndsAt)
+    ) {
+      this.dialogData.displayErrorMessageFn(
+        'Error incorrect Start and End time. Please update.'
+      );
+      this.isLoading = false;
+      return;
+    }
+
+    if (this.dialogData.adjustSessionTimesFn) {
+      for (const speaker of sessionData.SpeakersInfo) {
+        if (speaker?.Url && !this.isPresignedUrl(speaker.Url)) {
+          try {
+            const speakerImageFile = await urlToFile(speaker.Url, speaker.Name);
+            if (speakerImageFile) {
+              const resizedFile = await resizeImage(speakerImageFile, 400, 400);
+              speaker.S3FileKey = await uploadSpeakerImage(
+                resizedFile,
+                this._backendApiService
+              );
+            }
+          } catch (error) {
+            console.error('Error processing speaker image:', error);
+          }
+        }
+        speaker.Url = '';
+      }
+      sessionData.Duration = `${this.getDurationInMinutes(
+        sessionData.EndsAt,
+        sessionData.StartsAt
+      )}`;
+      const formattedSessionDetails = this.updateSessionTimes([sessionData]);
+      const updatedSessionDetails: Session[] =
+        this.dialogData.adjustSessionTimesFn(formattedSessionDetails);
+
+      try {
+        await this._backendApiService
+          .updateAgenda(updatedSessionDetails)
+          .toPromise();
+        this.dialogRef.close('SUCCESS');
+      } catch (error) {
+        this.dialogData.displayErrorMessageFn(
+          'Error updating session data. Please try again.'
+        );
+      }
+    }
+
+    this.isLoading = false;
+  }
 
   private isPresignedUrl(url: string): boolean {
     try {

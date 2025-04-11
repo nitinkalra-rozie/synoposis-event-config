@@ -90,11 +90,9 @@ export async function urlToFile(url: string, filename: string): Promise<File> {
     const blob = await response.blob();
     return new File([blob], filename, { type: mimeType });
   } catch (error) {
-    console.error('Error fetching image:', error);
     return null;
   }
 }
-
 
 export async function uploadSpeakerImage(
   file: File,

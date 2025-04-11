@@ -5,7 +5,7 @@ import { switchMap, tap } from 'rxjs/operators';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import {
   getLocalStorageItem,
-  setLocalStorageItem
+  setLocalStorageItem,
 } from 'src/app/shared/utils/local-storage-util';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';

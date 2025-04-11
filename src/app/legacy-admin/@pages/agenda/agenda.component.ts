@@ -467,7 +467,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const newSessionId = this.getNextSessionId();
     const startTime = new Date();
     const duration = 20;
-    const endTime = new Date(startTime.getTime() + duration * 60 * 1000)
+    const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
     const sessionData: Session = {
       GenerateInsights: true,
       Event: this.eventName,
@@ -596,14 +596,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   openConfirmationDialog(selectedTimezone: string): void {
-    console.log("added timezone",this.eventTimezone)
     const timeDiff = this.getTimezoneDifference(
       this.eventTimezone,
       selectedTimezone
     );
-    console.log("added timezone",this.eventTimezone)
-    console.log("added timezone",selectedTimezone)
-    console.log("added timezone",timeDiff)
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Confirm Timezone Update',

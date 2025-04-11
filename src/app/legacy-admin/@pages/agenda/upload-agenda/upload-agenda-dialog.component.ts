@@ -9,7 +9,7 @@ import { MatOptionModule } from '@angular/material/core';
 import {
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA
+  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,13 +20,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { TIMEZONE_OPTIONS } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import {
   Session,
-  SpeakerDetails
+  SpeakerDetails,
 } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import * as XLSX from 'xlsx';
 import {
-  resizeImage, UploadImageComponent,
-  uploadSpeakerImage, urlToFile
+  resizeImage,
+  UploadImageComponent,
+  uploadSpeakerImage,
+  urlToFile,
 } from '../upload-image-component/upload-image.component';
 
 @Component({
@@ -260,7 +262,6 @@ export class UploadAgendaDialogComponent {
     speaker.S3FileKey = speakerImage;
   }
 
- 
   confirm(): void {
     if (this.validateSessions()) {
       if (!this.isSessionDatesValid(this.sessions)) {
@@ -311,7 +312,6 @@ export class UploadAgendaDialogComponent {
     return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
   }
 
-
   private validateSessions(): boolean {
     const invalidSessions = this.sessions.filter(
       (session) =>
@@ -359,10 +359,7 @@ export class UploadAgendaDialogComponent {
           S3FileKey = this._speakerImageMap[speaker.Url];
         } else {
           this._speakerImageMap[speaker.Url] = '';
-          const speakerImageFile = await urlToFile(
-            speaker.Url,
-            speaker.Name
-          );
+          const speakerImageFile = await urlToFile(speaker.Url, speaker.Name);
           if (speakerImageFile) {
             const resizedFile = await resizeImage(speakerImageFile, 400, 400);
             S3FileKey = await uploadSpeakerImage(
