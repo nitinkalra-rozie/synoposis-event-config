@@ -28,6 +28,7 @@ import {
   resizeImage,
   UploadImageComponent,
   uploadSpeakerImage,
+  urlToFile,
 } from '../upload-image-component/upload-image.component';
 
 @Component({
@@ -261,31 +262,6 @@ export class UploadAgendaDialogComponent {
     speaker.S3FileKey = speakerImage;
   }
 
-  async urlToFile(url: string, filename: string): Promise<File> {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch image. Status: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'];
-      const mimeType = response.headers.get('Content-Type') || '';
-
-      if (!allowedTypes.includes(mimeType.toLowerCase())) {
-        throw new Error(
-          `Invalid MIME type: ${mimeType}. Allowed types are: ${allowedTypes.join(', ')}`
-        );
-      }
-      const blob = await response.blob();
-      return new File([blob], filename, { type: mimeType });
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      return null;
-    }
-  }
-
   confirm(): void {
     if (this.validateSessions()) {
       if (!this.isSessionDatesValid(this.sessions)) {
@@ -383,12 +359,9 @@ export class UploadAgendaDialogComponent {
           S3FileKey = this._speakerImageMap[speaker.Url];
         } else {
           this._speakerImageMap[speaker.Url] = '';
-          const speakerImageFile = await this.urlToFile(
-            speaker.Url,
-            speaker.Name
-          );
+          const speakerImageFile = await urlToFile(speaker.Url, speaker.Name);
           if (speakerImageFile) {
-            const resizedFile = await resizeImage(speakerImageFile, 400, 500);
+            const resizedFile = await resizeImage(speakerImageFile, 400, 400);
             S3FileKey = await uploadSpeakerImage(
               resizedFile,
               this._backendApiService

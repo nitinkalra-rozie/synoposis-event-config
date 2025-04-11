@@ -31,7 +31,7 @@ export class LegacyBackendApiService {
           configResponse?.data?.Information?.EventDomain || '';
         setLocalStorageItem('EVENT_LLM_DOMAIN', this._currentEventDomain);
         this.setCurrentTimezone(
-          configResponse?.data?.Information?.Timezone || '+0.00'
+          configResponse?.data?.Information?.Timezone || '+0:00'
         );
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
         return this.http
