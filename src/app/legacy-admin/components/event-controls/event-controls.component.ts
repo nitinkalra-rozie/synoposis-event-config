@@ -2,6 +2,7 @@ import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
+  DestroyRef,
   EventEmitter,
   inject,
   Input,
@@ -9,16 +10,18 @@ import {
   Output,
   signal,
 } from '@angular/core';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { ActivatedRoute } from '@angular/router';
+import { filter, map, tap } from 'rxjs/operators';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
-import { GetMultiSelectOptionFromStringPipe } from 'src/app/legacy-admin/@pipes/get-multi-select-option-from-string.pipe';
-
+import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
+import { GetMultiSelectOptionFromStringPipe } from 'src/app/legacy-admin/@pipes/get-multi-select-option-from-string.pipe';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
+import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
@@ -31,8 +34,6 @@ import {
   TransitionTimesEnum,
 } from 'src/app/legacy-admin/shared/enums';
 import { PostData } from 'src/app/legacy-admin/shared/types';
-
-import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 
 @Component({
   selector: 'app-event-controls',
@@ -48,8 +49,11 @@ import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 })
 export class EventControlsComponent implements OnInit {
   //#region DI
-  private _filtersStateService = inject(DashboardFiltersStateService);
-  private _globalStateService = inject(GlobalStateService);
+  private readonly _route = inject(ActivatedRoute);
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _modalService = inject(ModalService);
+  private readonly _filtersStateService = inject(DashboardFiltersStateService);
+  private readonly _globalStateService = inject(GlobalStateService);
   //#endregion
 
   public PostDataEnum = PostDataEnum;
@@ -60,7 +64,6 @@ export class EventControlsComponent implements OnInit {
 
   protected selectedFilter = signal<'track' | 'location'>('track');
 
-  // @Input() eventNames: string[] = [];
   @Input() transcriptTimeOut: { label: string; value: number } = {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
@@ -73,11 +76,15 @@ export class EventControlsComponent implements OnInit {
   eventDays = computed(() => this._filtersStateService.eventDays());
   eventNames = computed(() => this._filtersStateService.eventNames());
   selectedEvent = computed(() => this._filtersStateService.selectedEvent());
+  selectedLocation = computed(() =>
+    this._filtersStateService.selectedLocation()
+  );
 
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
   );
   protected RightSidebarState = RightSidebarState;
+  protected showEventSelectionDropdown = signal(false);
 
   @Output() onUpdatePostData: EventEmitter<{
     key: PostDataEnum;
@@ -97,6 +104,15 @@ export class EventControlsComponent implements OnInit {
       parseInt(localStorage.getItem('postInsideInterval')) || 15;
     this.postInsideValue =
       localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
+
+    this._route.queryParamMap
+      .pipe(
+        map((params) => params.get('showEventSelection')),
+        filter((showEventSelection) => showEventSelection === '1'),
+        tap(() => this.showEventSelectionDropdown.set(true)),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
   }
 
   onPostInsideIntervalChange = (value: string) => {
@@ -186,4 +202,31 @@ export class EventControlsComponent implements OnInit {
   onEventSelect(event: DropdownOption) {
     this._filtersStateService.setSelectedEvent(event);
   }
+
+  onEventLocationSelect = (selectedOption: DropdownOption): void => {
+    if (
+      !selectedOption ||
+      selectedOption.label === this.selectedLocation()?.label
+    )
+      return;
+
+    this._modalService.open(
+      'Confirm Stage Selection',
+      'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
+      'yes_no',
+      () => {
+        const locationsCopy = this.eventLocations().map((location) => ({
+          ...location,
+          isSelected: location.label === selectedOption.label,
+        }));
+
+        this._filtersStateService.setEventLocations(locationsCopy);
+        this._filtersStateService.setSelectedLocation(selectedOption);
+        this._modalService.close();
+      },
+      () => {
+        this._modalService.close();
+      }
+    );
+  };
 }
