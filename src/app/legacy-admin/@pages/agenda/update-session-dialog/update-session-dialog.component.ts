@@ -4,7 +4,7 @@ import {
   inject,
   Signal,
   signal,
-  WritableSignal,
+  WritableSignal
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -13,16 +13,15 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators,
+  Validators
 } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MAT_DIALOG_DATA,
   MatDialogModule,
-  MatDialogRef,
+  MatDialogRef, MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,7 +31,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { map, startWith } from 'rxjs/operators';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { Session, SpeakerDetails } from '../agenda.component';
-import { UploadImageComponent } from '../upload-image-component/upload-image.component';
+import { resizeImage, UploadImageComponent, uploadSpeakerImage, urlToFile } from '../upload-image-component/upload-image.component';
 
 @Component({
   selector: 'app-update-session-dialog',
@@ -205,71 +204,84 @@ export class UpdateSessionDialogComponent {
     return diffMs / (1000 * 60);
   }
 
-  saveChanges(): void {
-    this.isLoading = true;
-    if (this.sessionForm.valid) {
-      const sessionData: Session = this.sessionForm.getRawValue();
-      if (
-        this.convertIsoToCustomFormat(sessionData.StartsAt) >
-        this.convertIsoToCustomFormat(sessionData.EndsAt)
-      ) {
-        this.dialogData.displayErrorMessageFn(
-          'Error incorrect Start and End time. Please update.'
-        );
-        this.isLoading = false;
-        return;
-      }
-      if (this.dialogData.adjustSessionTimesFn) {
-        sessionData.SpeakersInfo = sessionData.SpeakersInfo.map((speaker) => {
-          speaker.Url = '';
-          return speaker;
-        });
-        sessionData.Duration = `${this.getDurationInMinutes(sessionData.EndsAt, sessionData.StartsAt)}`;
-        const formattedSessionDetails = this.updateSessionTimes([sessionData]);
 
-        const updatedSessionDetails: Session[] =
-          this.dialogData.adjustSessionTimesFn(formattedSessionDetails);
 
-        this._backendApiService.updateAgenda(updatedSessionDetails).subscribe({
-          next: (response) => {
-            this.isLoading = false;
-            this.dialogRef.close('SUCCESS');
-          },
-          error: (error) => {
-            this.isLoading = false;
-            console.error('Error fetching data:', error);
-            this.dialogData.displayErrorMessageFn(
-              'Error updating session data. Please try again.'
+async saveChanges(): Promise<void> {
+  this.isLoading = true;
+  if (!this.sessionForm.valid) {
+    this.dialogData.displayErrorMessageFn(
+      'Session details not valid. Please update the session details and retry.'
+    );
+    this.isLoading = false;
+    return;
+  }
+
+  const sessionData: Session = this.sessionForm.getRawValue();
+
+  // Validate that the start time is before the end time
+  if (
+    this.convertIsoToCustomFormat(sessionData.StartsAt) >
+    this.convertIsoToCustomFormat(sessionData.EndsAt)
+  ) {
+    this.dialogData.displayErrorMessageFn(
+      'Error incorrect Start and End time. Please update.'
+    );
+    this.isLoading = false;
+    return;
+  }
+
+  if (this.dialogData.adjustSessionTimesFn) {
+    for (const speaker of sessionData.SpeakersInfo) {
+      if (speaker?.Url && !this.isPresignedUrl(speaker.Url)) {
+        try {
+          const speakerImageFile = await urlToFile(speaker.Url, speaker.Name);
+          if (speakerImageFile) {
+            const resizedFile = await resizeImage(speakerImageFile, 400, 400);
+            speaker.S3FileKey = await uploadSpeakerImage(
+              resizedFile,
+              this._backendApiService
             );
-          },
-        });
+          }
+        } catch (error) {
+          console.error('Error processing speaker image:', error);
+        }
       }
-    } else {
+      speaker.Url = '';
+    }
+    sessionData.Duration = `${this.getDurationInMinutes(
+      sessionData.EndsAt,
+      sessionData.StartsAt
+    )}`;
+    const formattedSessionDetails = this.updateSessionTimes([sessionData]);
+    const updatedSessionDetails: Session[] =
+      this.dialogData.adjustSessionTimesFn(formattedSessionDetails);
+
+    try {
+      await this._backendApiService.updateAgenda(updatedSessionDetails).toPromise();
+      this.dialogRef.close('SUCCESS');
+    } catch (error) {
       this.dialogData.displayErrorMessageFn(
-        'Session details not valid. Please update the session details and retry.'
+        'Error updating session data. Please try again.'
       );
     }
   }
 
-  private validateImage(file: File): boolean {
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  this.isLoading = false;
+}
 
-    if (!validTypes.includes(file.type)) {
-      this.dialogData.displayErrorMessageFn(
-        'Invalid file type. Please upload a JPEG, PNG or GIF.'
-      );
+  private isPresignedUrl(url: string): boolean {
+    try {
+      const parsedUrl = new URL(url);
+      let foundPresign = false;
+      parsedUrl.searchParams.forEach((value, key) => {
+        if (key.startsWith('X-Amz-')) {
+          foundPresign = true;
+        }
+      });
+      return foundPresign;
+    } catch (error) {
       return false;
     }
-
-    if (file.size > maxSize) {
-      this.dialogData.displayErrorMessageFn(
-        'File size too large. Max 5MB allowed.'
-      );
-      return false;
-    }
-
-    return true;
   }
 
   private _filter(value: string): string[] {

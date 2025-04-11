@@ -70,6 +70,32 @@ export function resizeImage(
   });
 }
 
+export async function urlToFile(url: string, filename: string): Promise<File> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch image. Status: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/gif'];
+    const mimeType = response.headers.get('Content-Type') || '';
+
+    if (!allowedTypes.includes(mimeType.toLowerCase())) {
+      throw new Error(
+        `Invalid MIME type: ${mimeType}. Allowed types are: ${allowedTypes.join(', ')}`
+      );
+    }
+    const blob = await response.blob();
+    return new File([blob], filename, { type: mimeType });
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    return null;
+  }
+}
+
+
 export async function uploadSpeakerImage(
   file: File,
   backendApiService: BackendApiService
@@ -126,7 +152,7 @@ export class UploadImageComponent {
       this.isUploading = true;
       try {
         // Resize the image before uploading
-        const resizedFile = await resizeImage(file, 400, 500);
+        const resizedFile = await resizeImage(file, 400, 400);
         const imageS3Key = await uploadSpeakerImage(
           resizedFile,
           this._backendApiService

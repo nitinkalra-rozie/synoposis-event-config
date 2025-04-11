@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -465,6 +465,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   public createNewSession = (): void => {
     const newSessionId = this.getNextSessionId();
+    const startTime = new Date();
+    const duration = 20;
+    const endTime = new Date(startTime.getTime() + duration * 60 * 1000)
     const sessionData: Session = {
       GenerateInsights: true,
       Event: this.eventName,
@@ -475,14 +478,14 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       SpeakersInfo: [],
       SessionDescription: '',
       Status: 'NOT_STARTED',
-      EndsAt: this.getUTCFormattedTime(new Date()),
+      EndsAt: this.getUTCFormattedTime(endTime),
       Type: 'presentation',
       PrimarySessionId: newSessionId,
       EventDay: 'Day 1',
-      Duration: '40',
+      Duration: `${duration}`,
       Location: '',
       SessionSubject: '',
-      StartsAt: this.getUTCFormattedTime(new Date()),
+      StartsAt: this.getUTCFormattedTime(startTime),
     };
     this.openSessionDetailsModal(sessionData, 'NEW');
   };
@@ -593,10 +596,14 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   openConfirmationDialog(selectedTimezone: string): void {
+    console.log("added timezone",this.eventTimezone)
     const timeDiff = this.getTimezoneDifference(
       this.eventTimezone,
       selectedTimezone
     );
+    console.log("added timezone",this.eventTimezone)
+    console.log("added timezone",selectedTimezone)
+    console.log("added timezone",timeDiff)
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
         title: 'Confirm Timezone Update',
