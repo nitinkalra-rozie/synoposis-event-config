@@ -20,6 +20,7 @@ export class DashboardFiltersStateService {
   constructor() {
     this.eventNames = this._eventNamesSignal.asReadonly();
     this.selectedEvent = this._selectedEventSignal.asReadonly();
+    this.selectedLocation = this._selectedLocationSignal.asReadonly();
     this.eventLocations = this._eventLocationsSignal.asReadonly();
     this.eventTracks = this._eventTracksSignal.asReadonly();
     this.eventDays = this._eventDaysSignal.asReadonly();
@@ -122,6 +123,7 @@ export class DashboardFiltersStateService {
   public readonly activeSession: Signal<DropdownOption | null>;
   public readonly eventNames: Signal<DropdownOption[]>;
   public readonly selectedEvent: Signal<DropdownOption | null>;
+  public readonly selectedLocation: Signal<DropdownOption | null>;
   public readonly eventLocations: Signal<DropdownOption[]>;
   public readonly eventTracks: Signal<DropdownOption[]>;
   public readonly eventDays: Signal<DropdownOption[]>;
@@ -162,6 +164,7 @@ export class DashboardFiltersStateService {
 
   private _eventNamesSignal = signal<DropdownOption[]>([]);
   private _selectedEventSignal = signal<DropdownOption | null>(null);
+  private _selectedLocationSignal = signal<DropdownOption | null>(null);
   private _eventTracksSignal = signal<DropdownOption[]>([]);
   private _eventDaysSignal = signal<DropdownOption[]>([]);
   private _eventLocationsSignal = signal<DropdownOption[]>([]);
@@ -218,6 +221,10 @@ export class DashboardFiltersStateService {
 
   setSelectedEvent(event: DropdownOption | null): void {
     this._selectedEventSignal.set(event);
+  }
+
+  setSelectedLocation(location: DropdownOption | null): void {
+    this._selectedLocationSignal.set(location);
   }
 
   setShouldFetchEventDetails(value: boolean): void {

@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
