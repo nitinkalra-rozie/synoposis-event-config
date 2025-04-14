@@ -20,7 +20,7 @@
           <mat-icon svgIcon="syn:space_dashboard_outlined" />
         </a>
       }
-      <!-- Use isAdminUser() if it's a signal -->
+
       @if (userRoleRank > 0) {
         <a
           matTooltip="Insights Editor"
@@ -43,21 +43,19 @@
           routerLinkActive="selected">
           <mat-icon>description</mat-icon>
         </a>
-        @if (isSuperAdmin()) {
-          <a
-            matTooltip="Agenda"
-            matTooltipClass="tooltip-text-only-300"
-            matTooltipPosition="after"
-            class="menu-item"
-            [routerLinkActiveOptions]="{ exact: true }"
-            routerLink="/agenda"
-            routerLinkActive="selected">
-            <mat-icon>event</mat-icon>
-          </a>
-        }
       }
     }
     @if (isSuperAdmin || isEventOrganizer) {
+      <a
+        matTooltip="Agenda Tool"
+        matTooltipClass="tooltip-text-only-300"
+        matTooltipPosition="after"
+        class="menu-item"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLink="/agenda"
+        routerLinkActive="selected">
+        <mat-icon>event</mat-icon>
+      </a>
       <a
         matTooltip="Analytics Dashboard"
         matTooltipClass="tooltip-text-only-300"
