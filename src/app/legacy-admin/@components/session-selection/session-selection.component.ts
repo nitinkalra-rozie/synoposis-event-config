@@ -138,6 +138,9 @@ export class SessionSelectionComponent {
   );
   protected RightSidebarState = RightSidebarState;
 
+  protected selectedStage = computed(() =>
+    this._dashboardFiltersStateService.selectedLocation()
+  );
   private _liveEvent = computed(() =>
     this._dashboardFiltersStateService.liveEvent()
   );

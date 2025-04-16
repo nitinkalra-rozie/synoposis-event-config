@@ -243,6 +243,7 @@ export class EventControlsComponent implements OnInit {
         this._filtersStateService.setEventLocations(locationsCopy);
         this._filtersStateService.setSelectedLocation(selectedOption);
         this.stageChanged.emit(selectedOption.label);
+        localStorage.setItem('selectedStage', selectedOption.label);
         this._modalService.close();
       },
       () => {

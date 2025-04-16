@@ -12,8 +12,8 @@
     </div>
 
     <app-syn-single-select
-      [class.disabled]="autoAvEnabled"
-      [disabled]="autoAvEnabled"
+      [class.disabled]="autoAvEnabled || !selectedStage()"
+      [disabled]="autoAvEnabled || !selectedStage()"
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
       [uiConfig]="{
