@@ -46,6 +46,7 @@ export class SynSingleSelectComponent implements OnInit, AfterViewInit {
   public selectedOption = input.required<DropdownOption | null>();
   public uiConfig = input<SingleSelectUiConfig>();
   public size = input<'small' | 'default'>('default');
+  public disabled = input<boolean>(false);
 
   public optionSelected = output<DropdownOption>();
   public dropdownOpened = output<void>();

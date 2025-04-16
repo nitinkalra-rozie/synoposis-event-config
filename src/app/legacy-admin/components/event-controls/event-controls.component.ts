@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {
   Component,
   computed,
@@ -35,6 +35,14 @@ import {
 } from 'src/app/legacy-admin/shared/enums';
 import { PostData } from 'src/app/legacy-admin/shared/types';
 
+import {
+  MatSlideToggleChange,
+  MatSlideToggleModule,
+} from '@angular/material/slide-toggle';
+import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
+import { AutoAvSetupService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.service';
+import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
+
 @Component({
   selector: 'app-event-controls',
   templateUrl: './event-controls.component.html',
@@ -45,6 +53,8 @@ import { PostData } from 'src/app/legacy-admin/shared/types';
     FormsModule,
     MatButtonToggleModule,
     SynSingleSelectComponent,
+    MatSlideToggleModule,
+    CommonModule,
   ],
 })
 export class EventControlsComponent implements OnInit {
@@ -54,6 +64,8 @@ export class EventControlsComponent implements OnInit {
   private readonly _modalService = inject(ModalService);
   private readonly _filtersStateService = inject(DashboardFiltersStateService);
   private readonly _globalStateService = inject(GlobalStateService);
+  private readonly _autoAvSetupService = inject(AutoAvSetupService);
+  private readonly _eventWebsocketService = inject(EventWebsocketService);
   //#endregion
 
   public PostDataEnum = PostDataEnum;
@@ -63,6 +75,14 @@ export class EventControlsComponent implements OnInit {
   postInsideValue: string = TransitionTimesEnum.Seconds15;
 
   protected selectedFilter = signal<'track' | 'location'>('track');
+
+  // This signal controls the toggle state
+  autoAvChecked = signal(false);
+  // Ensure the @Input() is properly handled
+  @Input() autoAvEnabled: boolean = false;
+
+  @Output() autoAvChanged = new EventEmitter<boolean>();
+  @Output() stageChanged = new EventEmitter<string>();
 
   @Input() transcriptTimeOut: { label: string; value: number } = {
     label: TimeWindowsEnum.Seconds60,
@@ -222,6 +242,8 @@ export class EventControlsComponent implements OnInit {
 
         this._filtersStateService.setEventLocations(locationsCopy);
         this._filtersStateService.setSelectedLocation(selectedOption);
+        this.stageChanged.emit(selectedOption.label);
+        localStorage.setItem('selectedStage', selectedOption.label);
         this._modalService.close();
       },
       () => {
@@ -229,4 +251,43 @@ export class EventControlsComponent implements OnInit {
       }
     );
   };
+
+  onToggleChange(event: MatSlideToggleChange): void {
+    const checked = event.checked;
+    const selectedEvent = this.selectedEvent();
+    const selectedLocation = this.selectedLocation();
+
+    if (!selectedEvent || !selectedLocation) {
+      console.error('Event or Location is not selected.');
+      return;
+    }
+
+    const payload: AutoAvSetupRequest = {
+      action: 'setAutoAvSetup',
+      eventName: selectedEvent.label,
+      stage: selectedLocation.label,
+      autoAv: checked,
+    };
+
+    this._autoAvSetupService.setAutoAvSetup(payload).subscribe({
+      next: (res) => {
+        this.autoAvChecked.set(checked);
+        this.autoAvChanged.emit(checked);
+        console.log('AutoAV setup updated successfully:', res);
+        this._eventWebsocketService.setAutoAvToggle(checked);
+        if (checked) {
+          this._eventWebsocketService.initializeWebSocket(
+            selectedLocation.label
+          );
+          console.log('WebSocket connection .');
+        } else {
+          this._eventWebsocketService.closeWebSocket();
+          console.log('WebSocket connection closed.');
+        }
+      },
+      error: (err) => {
+        console.error('Error updating AutoAV setup:', err);
+      },
+    });
+  }
 }

@@ -25,6 +25,8 @@ import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { escape } from 'lodash-es';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-panel/control-panel.component';
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
 import { SessionSelectionComponent } from 'src/app/legacy-admin/@components/session-selection/session-selection.component';
@@ -34,6 +36,7 @@ import {
   SessionDetails,
   SessionStatus,
 } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
 import {
   ControlPanelState,
   DashboardTabs,
@@ -78,6 +81,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
+  @Input() autoAvEnabled: boolean = false;
 
   private readonly _backendApiService = inject(LegacyBackendApiService);
 
@@ -110,6 +114,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   transcriptTimeOut = 60;
   lastFiveWords = '';
   startListeningClicked = false;
+  selectedLocation = '';
 
   /*   */
   title = 'AngularTranscribe';
@@ -130,7 +135,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     [EventCardType.ThankYou]: '',
     [EventCardType.Info]: '',
   };
-
+  isAutoAvEnabled: boolean = false;
   protected selectedDashboardTab = computed(() =>
     this._globalStateService.selectedDashboardTab()
   );
@@ -149,6 +154,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected selectedEventName = computed(() =>
     this._dashboardFiltersStateService.selectedEvent()
   );
+  protected selectedLocationName = computed(() =>
+    this._dashboardFiltersStateService.selectedLocation()
+  );
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
   );
@@ -161,13 +169,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected DashboardTabs = DashboardTabs;
 
   private _isTranscriptParaBreak: boolean = false;
+  private _destroy$ = new Subject<void>();
 
   constructor(
     private modalService: ModalService,
     private micService: MicrophoneService,
     private _globalStateService: GlobalStateService,
     private _dashboardFiltersStateService: DashboardFiltersStateService,
-    private _projectionStateService: ProjectionStateService
+    private _projectionStateService: ProjectionStateService,
+    private _eventWebsocketService: EventWebsocketService
   ) {
     effect(() => {
       if (
@@ -199,12 +209,36 @@ export class SessionContentComponent implements OnInit, OnChanges {
         }
       }
     });
+
+    this._eventWebsocketService.sessionEnd$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((data) => {
+        console.log('SESSION_END received:', data);
+
+        // Extract session ID from the WebSocket message
+        const sessionId = data?.sessionId;
+        console.log('Session ID from WebSocket:', sessionId);
+
+        const activeSession = this.activeSession()?.metadata['originalContent'];
+
+        if (activeSession && activeSession.SessionId === sessionId) {
+          console.log('Session ID matches the active session. Ending session.');
+          this.stopTranscriptionForAutoAv();
+
+          console.log('Listening session stopped due to SESSION_END.');
+        } else {
+          console.log(
+            'Session ID does not match the active session. No action taken.'
+          );
+        }
+      });
   }
 
   private _destroyRef = inject(DestroyRef);
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
+    this.selectedLocation = localStorage.getItem('selectedLocation') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle =
       localStorage.getItem('currentSessionTitle') || '';
@@ -406,6 +440,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.action = 'welcome';
     postData.eventName = this.selectedEvent;
     postData.day = this.eventDay[EventCardType.Welcome];
+    postData.stage = this.selectedLocationName().label;
 
     this.postData(
       postData,
@@ -413,6 +448,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'Welcome message screen sent successfully!',
       'Failed to send welcome message.'
     );
+    console.log('Post Data in showWelcomeMessageBanner:', postData);
   }
 
   showThankYouScreen(screenIdentifier: string): void {
@@ -421,12 +457,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
+
     this.postData(
       postData,
       screenIdentifier,
       'Thank you message sent successfully!',
       'Failed to send thank you message.'
     );
+    console.log('Post Data in showThankYouScreen:', postData);
   }
 
   //it is qr screen
@@ -436,6 +475,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
+
     this.postData(
       postData,
       screenIdentifier,
@@ -466,6 +507,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Backup message sent successfully!');
@@ -483,6 +525,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('End event message sent successfully!');
@@ -686,6 +729,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    // postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('End event message sent successfully!');
@@ -825,6 +869,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionIds = this.sessionIds;
+      postData.stage = this.selectedLocation;
       this.postData(
         postData,
         screenIdentifier,
@@ -850,6 +895,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
+      postData.stage = this.selectedLocation;
       postData.sessionId = '';
       postData.screenTimeout = 60;
       postData.debriefType = 'DAILY';
@@ -1302,6 +1348,23 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.showDailySummary(data.identifier, data.selectedDays);
         return;
       }
+    }
+  }
+  private stopTranscriptionForAutoAv(): void {
+    if (this.isSessionInProgress) {
+      console.log('Stopping transcription for Auto AV feature.');
+      this.closeSocket(); // Stop the WebSocket connection
+      this.clearSessionData(); // Clear session-related data
+      this.isSessionInProgress = false; // Update the session state
+    }
+  }
+
+  onAutoAvChanged(state: boolean): void {
+    this.isAutoAvEnabled = state; // Update the state
+    console.log('AutoAV Enabled State in Parent:', this.isAutoAvEnabled); // Debugging
+    if (!state) {
+      console.log('Auto AV disabled. Stopping transcription.');
+      this.stopTranscriptionForAutoAv();
     }
   }
 }

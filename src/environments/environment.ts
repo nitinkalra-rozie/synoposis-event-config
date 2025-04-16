@@ -23,4 +23,6 @@ export const environment = {
   X_API_KEY: '',
   analyticsApiEndpoint: '',
   postDebriefData: '',
+  setAutoAvSetupUrl: '',
+  wsUrl: '',
 };
