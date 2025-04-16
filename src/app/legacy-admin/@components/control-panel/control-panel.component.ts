@@ -1,8 +1,9 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, output } from '@angular/core';
+import { Component, computed, inject, Input, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { EllipsisDirective } from 'src/app/legacy-admin/@directives/ellipsis.directive';
 import {
   ControlPanelState,
   DashboardTabs,
@@ -12,7 +13,6 @@ import {
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { SoundAnimationComponent } from '../sound-animation/sound-animation.component';
-import { EllipsisDirective } from 'src/app/legacy-admin/@directives/ellipsis.directive';
 
 @Component({
   selector: 'app-control-panel',
@@ -28,6 +28,7 @@ import { EllipsisDirective } from 'src/app/legacy-admin/@directives/ellipsis.dir
   styleUrl: './control-panel.component.scss',
 })
 export class ControlPanelComponent {
+  @Input() public isAutoAvEnabled: boolean = false;
   public streamStarted = output();
   public streamPaused = output();
   public streamStopped = output();

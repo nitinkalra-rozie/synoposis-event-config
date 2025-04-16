@@ -51,10 +51,17 @@
           See Details
         </p>
       </div>
-      <div class="view-all-sessions-container" (click)="onViewAllClick()">
+      <!-- <div class="view-all-sessions-container" (click)="onViewAllClick()">
         <p class="text">View All Live Sessions</p>
         <mat-icon>keyboard_arrow_right</mat-icon>
-      </div>
+      </div> -->
+      <ng-container
+        [ngTemplateOutlet]="actionButtons"
+        [ngTemplateOutletContext]="{
+          icon: 'closed_caption',
+          label: 'View Transcript',
+          type: 'view-transcript',
+        }"></ng-container>
     </div>
     <div
       class="controls"
@@ -80,6 +87,7 @@
               : 'Pause Listening',
           type:
             liveEventState() === LiveSessionState.Paused ? 'resume' : 'pause',
+          disabled: isAutoAvEnabled,
         }"></ng-container>
       <ng-container
         [ngTemplateOutlet]="actionButtons"
@@ -87,17 +95,11 @@
           icon: 'close',
           label: 'End Session',
           type: 'stop',
+          disabled: isAutoAvEnabled,
         }"></ng-container>
       <div class="voice-animation-container">
         <app-sound-animation></app-sound-animation>
       </div>
-      <ng-container
-        [ngTemplateOutlet]="actionButtons"
-        [ngTemplateOutletContext]="{
-          icon: 'closed_caption',
-          label: 'View Transcript',
-          type: 'view-transcript',
-        }"></ng-container>
     </div>
     <div
       class="contain-animation"
@@ -114,6 +116,7 @@
     ) {
       <button
         class="widget-collapse-button"
+        [disabled]="isAutoAvEnabled"
         (click)="onCollapseButtonClick($event)">
         <mat-icon>close</mat-icon>
       </button>
@@ -164,10 +167,16 @@
   </div>
 </ng-template>
 
-<ng-template #actionButtons let-icon="icon" let-label="label" let-type="type">
+<ng-template
+  #actionButtons
+  let-disabled="disabled"
+  let-icon="icon"
+  let-label="label"
+  let-type="type">
   <div class="action-button-container">
     <button
       class="btn-destructive-default"
+      [disabled]="disabled && type !== 'view-transcript'"
       [ngClass]="type"
       (click)="onActionButtionClick(type)">
       @if (type === 'pause' || type === 'resume') {

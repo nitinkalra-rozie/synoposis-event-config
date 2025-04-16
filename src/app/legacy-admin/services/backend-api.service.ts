@@ -99,6 +99,7 @@ export class LegacyBackendApiService {
       sessionDescription: data.sessionDescription,
       debriefType: data.debriefType ?? null,
       debriefFilter: data.debriefFilter ?? null,
+      stage: data.stage,
     };
     if (data.action === 'realTimeInsights') {
       body.keyNoteData = {};

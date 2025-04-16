@@ -75,4 +75,19 @@
       (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
       dropdownTitle="Select Theme"></app-main-drop-down> -->
   </div>
+  <div class="auto-av-status-wrapper">
+    @if (autoAvChecked()) {
+      <div class="auto-av-status">
+        {{ 'autoav is running' | uppercase }}
+      </div>
+    }
+  </div>
+  <div class="toggle-wrapper">
+    <label class="toggle-label">AutoAV</label>
+    <mat-slide-toggle
+      [checked]="autoAvChecked()"
+      [disabled]="!selectedEvent()"
+      (change)="onToggleChange($event)">
+    </mat-slide-toggle>
+  </div>
 </div>
