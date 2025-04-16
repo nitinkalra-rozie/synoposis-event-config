@@ -8,14 +8,16 @@
       [postData]="postData"
       [themeOptions]="themeOptions"
       [transcriptTimeOut]="transcriptTimeOut"
+      (autoAvChanged)="onAutoAvChanged($event)"
       (onReset)="handleReset()"
       (onUpdatePostData)="updatePostData($event)" />
     <div class="session-wrapper">
       <app-session-content
+        [autoAvEnabled]="isAutoAvEnabled"
         [eventControls]="postData"
         [selectedEventProp]="postData.eventName"
         [selectedThemeProp]="postData.theme"
-        [transcriptTimeOutProp]="postData.screenTimeout" />
+        [transcriptTimeOutProp]="postData.screenTimeout"></app-session-content>
     </div>
   </div>
   <div></div>

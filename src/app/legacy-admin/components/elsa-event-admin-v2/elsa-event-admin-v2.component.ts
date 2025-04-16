@@ -65,6 +65,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
+  isAutoAvEnabled: boolean = false;
 
   //#region DI
   private _filtersStateService = inject(DashboardFiltersStateService);
@@ -99,6 +100,14 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initializeData();
+  }
+
+  onAutoAvChanged(state: boolean): void {
+    this.isAutoAvEnabled = state;
+    console.log(
+      'AutoAV Enabled State in ElsaEventAdminV2Component:',
+      this.isAutoAvEnabled
+    );
   }
 
   ngAfterViewInit(): void {
@@ -324,4 +333,8 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
       value: TimeWindows['60 Seconds'],
     };
   };
+
+  handleAutoAvChange(enabled: boolean) {
+    this.isAutoAvEnabled = enabled;
+  }
 }
