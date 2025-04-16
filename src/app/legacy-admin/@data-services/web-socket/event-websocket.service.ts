@@ -15,10 +15,9 @@ export class EventWebsocketService implements OnDestroy {
   public readonly sessionLiveListening$ =
     this._sessionLiveListeningSubject.asObservable();
   public readonly sessionEnd$ = this._sessionEndSubject.asObservable();
-  private readonly _backendApiService = inject(LegacyBackendApiService);
-
-  private readonly _autoAvToggle = new BehaviorSubject<boolean>(false);
+  public readonly _autoAvToggle = new BehaviorSubject<boolean>(false);
   public readonly autoAvToggle$ = this._autoAvToggle.asObservable();
+  private readonly _backendApiService = inject(LegacyBackendApiService);
 
   private _socket!: WebSocket;
   private _eventName: string;
