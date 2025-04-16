@@ -145,6 +145,22 @@ export class SessionSelectionComponent {
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
     this.isProjectOnPhysicalScreen.set(true);
+
+    const sessionId =
+      selectedOption.metadata['originalContent'].PrimarySessionId;
+    this._updateBrowserWindowUrl(sessionId);
+  }
+
+  private _updateBrowserWindowUrl(sessionId: string): void {
+    const currentWindow = this._windowService.getCurrentWindow();
+    if (currentWindow) {
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      currentWindow.location.replace(newUrl);
+      console.log(
+        'Updated browser window URL for manual session change:',
+        newUrl
+      );
+    }
   }
 
   protected openSessionInNewWindow(): boolean {

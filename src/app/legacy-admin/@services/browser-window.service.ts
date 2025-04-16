@@ -88,4 +88,8 @@ export class BrowserWindowService {
   private _isWindowValid(): boolean {
     return Boolean(this._window && !this._window.closed);
   }
+
+  getCurrentWindow(): Window | null {
+    return this._isWindowValid() ? this._window : null;
+  }
 }

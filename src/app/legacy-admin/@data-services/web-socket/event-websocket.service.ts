@@ -1,5 +1,7 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
+import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -18,6 +20,7 @@ export class EventWebsocketService implements OnDestroy {
   public readonly _autoAvToggle = new BehaviorSubject<boolean>(false);
   public readonly autoAvToggle$ = this._autoAvToggle.asObservable();
   private readonly _backendApiService = inject(LegacyBackendApiService);
+  private readonly _browserWindowService = inject(BrowserWindowService);
 
   private _socket!: WebSocket;
   private _eventName: string;
@@ -100,11 +103,23 @@ export class EventWebsocketService implements OnDestroy {
 
       if (eventType === 'SESSION_LIVE_LISTENING') {
         this._sessionLiveListeningSubject.next(parsedMessage);
+        this._updateBrowserWindowUrl(parsedMessage.sessionId);
       } else if (eventType === 'SESSION_END') {
         this._sessionEndSubject.next(parsedMessage);
+      } else if (eventType === 'SESSION_SPEAKERS_BIOS') {
+        this._updateBrowserWindowUrl(parsedMessage.sessionId);
       }
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
+    }
+  }
+
+  private _updateBrowserWindowUrl(sessionId: string): void {
+    const currentWindow = this._browserWindowService.getCurrentWindow();
+    if (currentWindow) {
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      currentWindow.location.replace(newUrl);
+      console.log('Updated browser window URL:', newUrl);
     }
   }
 }
