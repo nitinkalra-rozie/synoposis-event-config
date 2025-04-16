@@ -151,7 +151,7 @@ export class SessionSelectionComponent {
     this._updateBrowserWindowUrl(sessionId);
   }
 
-  private _updateBrowserWindowUrl(sessionId: string): void {
+  protected _updateBrowserWindowUrl(sessionId: string): void {
     const currentWindow = this._windowService.getCurrentWindow();
     if (currentWindow) {
       const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
