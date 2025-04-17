@@ -299,7 +299,6 @@ export class EventControlsComponent implements OnInit {
 
     this._autoAvSetupService.setAutoAvSetup(payload).subscribe({
       next: (res) => {
-        // this.autoAvChecked.set(checked);
         this.autoAvChecked.next(checked);
         localStorage.setItem('autoAvEnabled', JSON.stringify(checked));
         this.autoAvChanged.emit(checked);
