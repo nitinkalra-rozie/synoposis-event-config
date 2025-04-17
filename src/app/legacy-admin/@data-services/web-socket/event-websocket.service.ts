@@ -26,8 +26,10 @@ export class EventWebsocketService implements OnDestroy {
   private _eventName: string;
   private _webSocketUrl: string;
   private _selectedLocation: string = '';
-  private _reconnectDelay = 5000; // Delay between reconnection attempts (in ms)
-  private _isReconnecting = false; // Prevent multiple reconnection attempts
+  private _reconnectDelay = 5000;
+  private _isReconnecting = false;
+  private _pingInterval: any;
+  private _pingIntervalTime = 30000;
 
   initializeWebSocket(selectedLocation: string): void {
     if (!selectedLocation) {
@@ -47,6 +49,9 @@ export class EventWebsocketService implements OnDestroy {
       });
       console.log('WebSocket connection established.');
       this._isReconnecting = false;
+
+      // Start ping interval when connection is established
+      this._startPing();
     };
 
     this._socket.onmessage = (event) => {
@@ -60,9 +65,12 @@ export class EventWebsocketService implements OnDestroy {
 
     this._socket.onclose = (event) => {
       console.log('WebSocket connection closed:', event);
+      // Clear ping interval when connection closes
+      this._clearPing();
+
       if (this._autoAvToggle.value && !this._isReconnecting) {
         console.log('AutoAV is enabled. Attempting to reconnect...');
-        this._isReconnecting = true; // Prevent multiple reconnection attempts
+        this._isReconnecting = true;
         setTimeout(
           () => this.initializeWebSocket(this._selectedLocation),
           this._reconnectDelay
@@ -72,6 +80,7 @@ export class EventWebsocketService implements OnDestroy {
   }
 
   closeWebSocket(): void {
+    this._clearPing();
     if (this._socket) {
       this._socket.close();
     }
@@ -83,6 +92,7 @@ export class EventWebsocketService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this._clearPing();
     this.closeWebSocket();
   }
 
@@ -120,6 +130,35 @@ export class EventWebsocketService implements OnDestroy {
       const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
       currentWindow.location.replace(newUrl);
       console.log('Updated browser window URL:', newUrl);
+    }
+  }
+
+  private _startPing(): void {
+    // Clear any existing ping interval
+    this._clearPing();
+
+    // Start new ping interval
+    this._pingInterval = setInterval(() => {
+      this._sendPing();
+    }, this._pingIntervalTime);
+  }
+
+  private _clearPing(): void {
+    if (this._pingInterval) {
+      clearInterval(this._pingInterval);
+      this._pingInterval = null;
+    }
+  }
+
+  private _sendPing(): void {
+    if (this._socket?.readyState === WebSocket.OPEN) {
+      this._sendMessage({
+        eventName: this._eventName,
+        client: true,
+        event: 'ping',
+        stage: this._selectedLocation,
+      });
+      console.log('Ping sent to keep WebSocket alive');
     }
   }
 }
