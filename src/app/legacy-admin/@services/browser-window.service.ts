@@ -42,6 +42,10 @@ export class BrowserWindowService {
     }
   }
 
+  getCurrentWindow(): Window | null {
+    return this._isWindowValid() ? this._window : null;
+  }
+
   private _getWindowFeatures(features: WindowFeatures = {}): string {
     const defaultFeatures: WindowFeatures = {
       toolbar: 0,

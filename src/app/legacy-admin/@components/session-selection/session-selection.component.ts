@@ -113,7 +113,37 @@ export class SessionSelectionComponent {
   public screenProjected = output<ProjectionData>();
 
   protected get getSessionUrl(): string {
-    return `${getInsightsDomainUrl()}/session/${this.activeSession()?.metadata['originalContent'].PrimarySessionId}?isPrimaryScreen=true`;
+    const activeSession = this.activeSession();
+    let sessionToUse = activeSession;
+
+    if (!sessionToUse) {
+      const now = new Date().getTime();
+      sessionToUse = this.availableSessions()
+        .filter((session) => {
+          const sessionStartTime = new Date(
+            session.metadata['originalContent'].StartTime
+          ).getTime();
+          return sessionStartTime > now;
+        })
+        .reduce((nearestSession, currentSession) => {
+          const nearestTime = new Date(
+            nearestSession.metadata['originalContent'].StartTime
+          ).getTime();
+          const currentTime = new Date(
+            currentSession.metadata['originalContent'].StartTime
+          ).getTime();
+          return Math.abs(currentTime - now) < Math.abs(nearestTime - now)
+            ? currentSession
+            : nearestSession;
+        }, this.availableSessions()[0]);
+    }
+
+    if (!sessionToUse) {
+      console.warn('No sessions available to generate the session URL.');
+      return '';
+    }
+
+    return `${getInsightsDomainUrl()}/session/${sessionToUse.metadata['originalContent'].PrimarySessionId}?isPrimaryScreen=true`;
   }
 
   protected isProjectOnPhysicalScreen = signal(false);
@@ -138,6 +168,9 @@ export class SessionSelectionComponent {
   );
   protected RightSidebarState = RightSidebarState;
 
+  protected selectedStage = computed(() =>
+    this._dashboardFiltersStateService.selectedLocation()
+  );
   private _liveEvent = computed(() =>
     this._dashboardFiltersStateService.liveEvent()
   );
@@ -145,6 +178,22 @@ export class SessionSelectionComponent {
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
     this.isProjectOnPhysicalScreen.set(true);
+
+    const sessionId =
+      selectedOption.metadata['originalContent'].PrimarySessionId;
+    this._updateBrowserWindowUrl(sessionId);
+  }
+
+  protected _updateBrowserWindowUrl(sessionId: string): void {
+    const currentWindow = this._windowService.getCurrentWindow();
+    if (currentWindow) {
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      currentWindow.location.replace(newUrl);
+      console.log(
+        'Updated browser window URL for manual session change:',
+        newUrl
+      );
+    }
   }
 
   protected openSessionInNewWindow(): boolean {

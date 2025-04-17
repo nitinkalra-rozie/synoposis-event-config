@@ -39,6 +39,7 @@ import {
   MatSlideToggleChange,
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
+import { BehaviorSubject } from 'rxjs';
 import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { AutoAvSetupService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.service';
 import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
@@ -73,12 +74,10 @@ export class EventControlsComponent implements OnInit {
   transitionTimes;
   postInsideInterval: number = TransitionTimes['15 Seconds'];
   postInsideValue: string = TransitionTimesEnum.Seconds15;
+  autoAvChecked = new BehaviorSubject<boolean>(false); // Default to false
 
   protected selectedFilter = signal<'track' | 'location'>('track');
 
-  // This signal controls the toggle state
-  autoAvChecked = signal(false);
-  // Ensure the @Input() is properly handled
   @Input() autoAvEnabled: boolean = false;
 
   @Output() autoAvChanged = new EventEmitter<boolean>();
@@ -124,7 +123,36 @@ export class EventControlsComponent implements OnInit {
       parseInt(localStorage.getItem('postInsideInterval')) || 15;
     this.postInsideValue =
       localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
+    // Restore the AutoAV toggle state from localStorage
 
+    const savedStage = localStorage.getItem('selectedStage');
+    if (savedStage) {
+      const selectedOption: DropdownOption = JSON.parse(savedStage);
+      this._filtersStateService.setSelectedLocation(selectedOption);
+
+      const locationsCopy = this.eventLocations().map((location) => ({
+        ...location,
+        isSelected: location.label === selectedOption.label,
+      }));
+
+      this._filtersStateService.setEventLocations(locationsCopy);
+    }
+
+    const savedAutoAvChecked = localStorage.getItem('autoAvChecked');
+    if (savedAutoAvChecked !== null) {
+      const isAutoAvChecked = JSON.parse(savedAutoAvChecked);
+      this.autoAvChecked.next(isAutoAvChecked);
+      if (isAutoAvChecked) {
+        const selectedLocation = this.selectedLocation()?.label;
+        if (selectedLocation) {
+          this._eventWebsocketService.initializeWebSocket(selectedLocation);
+        } else {
+          console.warn(
+            'No selected location found. WebSocket not initialized.'
+          );
+        }
+      }
+    }
     this._route.queryParamMap
       .pipe(
         map((params) => params.get('showEventSelection')),
@@ -243,6 +271,7 @@ export class EventControlsComponent implements OnInit {
         this._filtersStateService.setEventLocations(locationsCopy);
         this._filtersStateService.setSelectedLocation(selectedOption);
         this.stageChanged.emit(selectedOption.label);
+        localStorage.setItem('selectedStage', JSON.stringify(selectedOption));
         this._modalService.close();
       },
       () => {
@@ -270,9 +299,12 @@ export class EventControlsComponent implements OnInit {
 
     this._autoAvSetupService.setAutoAvSetup(payload).subscribe({
       next: (res) => {
-        this.autoAvChecked.set(checked);
+        // this.autoAvChecked.set(checked);
+        this.autoAvChecked.next(checked);
+        localStorage.setItem('autoAvChecked', JSON.stringify(checked));
         this.autoAvChanged.emit(checked);
         console.log('AutoAV setup updated successfully:', res);
+        localStorage.setItem('autoAvChecked', JSON.stringify(checked));
         this._eventWebsocketService.setAutoAvToggle(checked);
         if (checked) {
           this._eventWebsocketService.initializeWebSocket(

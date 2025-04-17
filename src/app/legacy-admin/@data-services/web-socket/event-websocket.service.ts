@@ -1,5 +1,7 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
+import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -18,13 +20,16 @@ export class EventWebsocketService implements OnDestroy {
   public readonly _autoAvToggle = new BehaviorSubject<boolean>(false);
   public readonly autoAvToggle$ = this._autoAvToggle.asObservable();
   private readonly _backendApiService = inject(LegacyBackendApiService);
+  private readonly _browserWindowService = inject(BrowserWindowService);
 
   private _socket!: WebSocket;
   private _eventName: string;
   private _webSocketUrl: string;
   private _selectedLocation: string = '';
-  private _reconnectDelay = 5000; // Delay between reconnection attempts (in ms)
-  private _isReconnecting = false; // Prevent multiple reconnection attempts
+  private _reconnectDelay = 5000;
+  private _isReconnecting = false;
+  private _pingInterval: any;
+  private _pingIntervalTime = 30000;
 
   initializeWebSocket(selectedLocation: string): void {
     if (!selectedLocation) {
@@ -44,6 +49,9 @@ export class EventWebsocketService implements OnDestroy {
       });
       console.log('WebSocket connection established.');
       this._isReconnecting = false;
+
+      // Start ping interval when connection is established
+      this._startPing();
     };
 
     this._socket.onmessage = (event) => {
@@ -57,9 +65,12 @@ export class EventWebsocketService implements OnDestroy {
 
     this._socket.onclose = (event) => {
       console.log('WebSocket connection closed:', event);
+      // Clear ping interval when connection closes
+      this._clearPing();
+
       if (this._autoAvToggle.value && !this._isReconnecting) {
         console.log('AutoAV is enabled. Attempting to reconnect...');
-        this._isReconnecting = true; // Prevent multiple reconnection attempts
+        this._isReconnecting = true;
         setTimeout(
           () => this.initializeWebSocket(this._selectedLocation),
           this._reconnectDelay
@@ -69,6 +80,7 @@ export class EventWebsocketService implements OnDestroy {
   }
 
   closeWebSocket(): void {
+    this._clearPing();
     if (this._socket) {
       this._socket.close();
     }
@@ -80,6 +92,7 @@ export class EventWebsocketService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this._clearPing();
     this.closeWebSocket();
   }
 
@@ -100,11 +113,52 @@ export class EventWebsocketService implements OnDestroy {
 
       if (eventType === 'SESSION_LIVE_LISTENING') {
         this._sessionLiveListeningSubject.next(parsedMessage);
+        this._updateBrowserWindowUrl(parsedMessage.sessionId);
       } else if (eventType === 'SESSION_END') {
         this._sessionEndSubject.next(parsedMessage);
+      } else if (eventType === 'SESSION_SPEAKERS_BIOS') {
+        this._updateBrowserWindowUrl(parsedMessage.sessionId);
       }
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
+    }
+  }
+
+  private _updateBrowserWindowUrl(sessionId: string): void {
+    const currentWindow = this._browserWindowService.getCurrentWindow();
+    if (currentWindow) {
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      currentWindow.location.replace(newUrl);
+      console.log('Updated browser window URL:', newUrl);
+    }
+  }
+
+  private _startPing(): void {
+    // Clear any existing ping interval
+    this._clearPing();
+
+    // Start new ping interval
+    this._pingInterval = setInterval(() => {
+      this._sendPing();
+    }, this._pingIntervalTime);
+  }
+
+  private _clearPing(): void {
+    if (this._pingInterval) {
+      clearInterval(this._pingInterval);
+      this._pingInterval = null;
+    }
+  }
+
+  private _sendPing(): void {
+    if (this._socket?.readyState === WebSocket.OPEN) {
+      this._sendMessage({
+        eventName: this._eventName,
+        client: true,
+        event: 'ping',
+        stage: this._selectedLocation,
+      });
+      console.log('Ping sent to keep WebSocket alive');
     }
   }
 }
