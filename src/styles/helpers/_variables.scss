@@ -65,6 +65,9 @@ $gradient-purple: #834c9d;
 $gradient-green: #21f075;
 $gradient-orange-1: #ef6c00;
 $gradient-orange-2: #ff9800;
+$gradient-orange-3: #f77823;
+
+$gradient-pink-1: #ff0a8b;
 
 $secondary-color: #54ecd0;
 $secondary-color-variant-1: #3cd0b6;
@@ -163,6 +166,12 @@ $orange-gradient: linear-gradient(
   $gradient-degrees-180,
   $gradient-orange-1 14.58%,
   $gradient-orange-2 100%
+);
+
+$orange-gradient-2: linear-gradient(
+  $gradient-degrees-180,
+  $gradient-orange-3 0%,
+  $gradient-pink-1 100%
 );
 
 $red-gradient: linear-gradient(

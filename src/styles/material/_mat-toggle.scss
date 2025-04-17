@@ -1,0 +1,11 @@
+@use 'variables' as v;
+
+.toggle-wrapper {
+  .mdc-switch__track::after {
+    background: v.$orange-gradient-2 !important;
+  }
+
+  .mdc-switch__icons {
+    display: none !important;
+  }
+}
