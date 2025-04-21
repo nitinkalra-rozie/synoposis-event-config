@@ -237,6 +237,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   private _destroyRef = inject(DestroyRef);
 
   ngOnInit() {
+    const autoAvState = localStorage.getItem('autoAvEnabled');
+    this.autoAvEnabled = autoAvState ? JSON.parse(autoAvState) : false;
+
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
     this.selectedLocation = localStorage.getItem('selectedLocation') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
