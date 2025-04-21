@@ -123,7 +123,6 @@ export class EventControlsComponent implements OnInit {
       parseInt(localStorage.getItem('postInsideInterval')) || 15;
     this.postInsideValue =
       localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
-    // Restore the AutoAV toggle state from localStorage
 
     const savedStage = localStorage.getItem('selectedStage');
     if (savedStage) {
