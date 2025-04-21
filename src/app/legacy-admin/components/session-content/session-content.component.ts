@@ -239,9 +239,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
         }
       });
 
-    // Create a minimal silent audio chunk (100ms of silence)
+    // Create a minimal silent audio chunk (100ms of silence) to maintain the WebSocket connection during periods of inactivity.
+    // This is used to send silent audio data to the server to prevent the connection from being closed due to inactivity.
     const sampleRate = 44100;
-    const silentBuffer = new Float32Array(sampleRate / 10); // 100ms of silence
+    const silentBuffer = new Float32Array(sampleRate / 10);
     this.silentAudioChunk = Buffer.from(silentBuffer.buffer);
   }
 
@@ -1392,13 +1393,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
     }
   }
 
+  // This function is called to start silence detection to ensure the WebSocket connection remains active.
+  // It periodically checks if there has been a prolonged period of silence (no transcripts received).
+  // If the silence exceeds the defined threshold, a silent audio message is sent to the server to keep the connection alive.
   private startSilenceDetection() {
-    // Clear any existing interval
     if (this.silenceIntervalId) {
       clearInterval(this.silenceIntervalId);
     }
 
-    // Check for silence every 5 seconds
     this.silenceIntervalId = setInterval(() => {
       const timeSinceLastTranscript = Date.now() - this.lastTranscriptTimestamp;
 
@@ -1406,7 +1408,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
         timeSinceLastTranscript >= this.TRANSCRIPT_SILENCE_THRESHOLD &&
         this.socket?.OPEN
       ) {
-        // Send a silent audio chunk
         const silentMessage = this.getAudioEventMessage(this.silentAudioChunk);
         // @ts-ignore
         const silentBinary = eventStreamMarshaller.marshall(silentMessage);
