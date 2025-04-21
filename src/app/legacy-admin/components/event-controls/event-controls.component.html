@@ -86,7 +86,7 @@
     <label class="toggle-label">AutoAV</label>
     <mat-slide-toggle
       [checked]="autoAvChecked | async"
-      [disabled]="!selectedEvent()"
+      [disabled]="!selectedEvent() || !selectedLocation()"
       (change)="onToggleChange($event)">
     </mat-slide-toggle>
   </div>
