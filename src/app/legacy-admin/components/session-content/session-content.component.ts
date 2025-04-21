@@ -171,6 +171,12 @@ export class SessionContentComponent implements OnInit, OnChanges {
   private _isTranscriptParaBreak: boolean = false;
   private _destroy$ = new Subject<void>();
 
+  private readonly TRANSCRIPT_CHECK_INTERVAL = 5000;
+  private readonly TRANSCRIPT_SILENCE_THRESHOLD = 10000;
+  private lastTranscriptTimestamp: number = Date.now();
+  private silenceIntervalId: any;
+  private silentAudioChunk: typeof Buffer;
+
   constructor(
     private modalService: ModalService,
     private micService: MicrophoneService,
@@ -232,6 +238,12 @@ export class SessionContentComponent implements OnInit, OnChanges {
           );
         }
       });
+
+    // Create a minimal silent audio chunk (100ms of silence) to maintain the WebSocket connection during periods of inactivity.
+    // This is used to send silent audio data to the server to prevent the connection from being closed due to inactivity.
+    const sampleRate = 44100;
+    const silentBuffer = new Float32Array(sampleRate / 10);
+    this.silentAudioChunk = Buffer.from(silentBuffer.buffer);
   }
 
   private _destroyRef = inject(DestroyRef);
@@ -1039,6 +1051,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
+
+    this.micStream.on('data', (rawAudioChunk) => {
+      // Normal audio processing - always send real audio
+      const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+      if (binary && this.socket?.OPEN) {
+        this.socket.send(binary);
+      }
+    });
+
+    // Start silence detection in a separate interval
+    this.startSilenceDetection();
   };
 
   openWebsocketAndStartStream(preSignedUrl: any) {
@@ -1048,18 +1071,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.socket.binaryType = 'arraybuffer';
     console.log('start streamAudioToWebSocket44444');
     // when we get audio data from the mic, send it to the WebSocket if possible
-    this.socket.onopen = () => {
-      this.micStream.on('data', (rawAudioChunk) => {
-        // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
-        const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-
-        if (this.isSessionInProgress && this.socket.OPEN) {
-          this.socket.send(binary);
-        }
-      });
-    };
-    console.log('start streamAudioToWebSocket5555');
-    // handle messages, errors, and close events
     this.wireSocketEvents();
   }
   createPresignedUrlNew = async () => {
@@ -1140,6 +1151,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._dashboardFiltersStateService.setLiveSessionState(
       LiveSessionState.Paused
     );
+
+    this.lastTranscriptTimestamp = Date.now(); // Reset timestamp
+
+    // Clear silence detection interval
+    if (this.silenceIntervalId) {
+      clearInterval(this.silenceIntervalId);
+      this.silenceIntervalId = null;
+    }
   };
 
   clearSessionData = () => {
@@ -1167,6 +1186,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
       JSON.stringify(messageJson)
     );
     if (results.length > 0) {
+      // Update timestamp when we get any transcript (partial or final)
+      this.lastTranscriptTimestamp = Date.now();
+
       if (results[0].Alternatives.length > 0) {
         let transcript = results[0].Alternatives[0].Transcript;
 
@@ -1369,5 +1391,29 @@ export class SessionContentComponent implements OnInit, OnChanges {
       console.log('Auto AV disabled. Stopping transcription.');
       this.stopTranscriptionForAutoAv();
     }
+  }
+
+  // This function is called to start silence detection to ensure the WebSocket connection remains active.
+  // It periodically checks if there has been a prolonged period of silence (no transcripts received).
+  // If the silence exceeds the defined threshold, a silent audio message is sent to the server to keep the connection alive.
+  private startSilenceDetection() {
+    if (this.silenceIntervalId) {
+      clearInterval(this.silenceIntervalId);
+    }
+
+    this.silenceIntervalId = setInterval(() => {
+      const timeSinceLastTranscript = Date.now() - this.lastTranscriptTimestamp;
+
+      if (
+        timeSinceLastTranscript >= this.TRANSCRIPT_SILENCE_THRESHOLD &&
+        this.socket?.OPEN
+      ) {
+        const silentMessage = this.getAudioEventMessage(this.silentAudioChunk);
+        // @ts-ignore
+        const silentBinary = eventStreamMarshaller.marshall(silentMessage);
+        this.socket.send(silentBinary);
+        console.log('Sending silent audio to keep connection alive');
+      }
+    }, this.TRANSCRIPT_CHECK_INTERVAL);
   }
 }
