@@ -3,9 +3,11 @@ import {
   Component,
   computed,
   inject,
-  Input,
+  input,
+  OnChanges,
   output,
   signal,
+  SimpleChanges,
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -41,7 +43,7 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',
 })
-export class SessionSelectionComponent {
+export class SessionSelectionComponent implements OnChanges {
   constructor() {
     this.isProjectOnPhysicalScreen.set(
       this._backendApiService.getCurrentEventName() === 'ITC'
@@ -97,6 +99,38 @@ export class SessionSelectionComponent {
       });
   }
 
+  public readonly autoAvEnabled = input(false);
+
+  public readonly streamStarted = output();
+  public readonly streamStopped = output();
+  public readonly screenProjected = output<ProjectionData>();
+
+  protected readonly availableSessions = computed(() =>
+    filter(
+      orderBy(
+        this._dashboardFiltersStateService.availableSessions(),
+        (session) => session.metadata['isIndicatorActive'],
+        'desc'
+      ),
+      ({ metadata }) =>
+        metadata['originalContent'].Status !== 'REVIEW_COMPLETE' &&
+        metadata['originalContent'].Status !== 'UNDER_REVIEW'
+    )
+  );
+  protected readonly activeSession = computed(() =>
+    this._dashboardFiltersStateService.activeSession()
+  );
+  protected readonly rightSidebarState = computed(() =>
+    this._globalState.rightSidebarState()
+  );
+  protected readonly RightSidebarState = RightSidebarState;
+  protected readonly selectedStage = computed(() =>
+    this._dashboardFiltersStateService.selectedLocation()
+  );
+  private readonly _liveEvent = computed(() =>
+    this._dashboardFiltersStateService.liveEvent()
+  );
+
   private readonly _destroy$ = new Subject<void>();
   private readonly _backendApiService = inject(LegacyBackendApiService);
   private readonly _dashboardFiltersStateService = inject(
@@ -107,10 +141,13 @@ export class SessionSelectionComponent {
   private readonly _modalService = inject(ModalService);
   private readonly _eventWebsocketService = inject(EventWebsocketService);
 
-  @Input() public autoAvEnabled: boolean = false;
-  public streamStarted = output();
-  public streamStopped = output();
-  public screenProjected = output<ProjectionData>();
+  protected isProjectOnPhysicalScreen = signal(false);
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['autoAvEnabled'].currentValue) {
+      this.isProjectOnPhysicalScreen.set(false);
+    }
+  }
 
   protected get getSessionUrl(): string {
     const activeSession = this.activeSession();
@@ -145,35 +182,6 @@ export class SessionSelectionComponent {
 
     return `${getInsightsDomainUrl()}/session/${sessionToUse.metadata['originalContent'].PrimarySessionId}?isPrimaryScreen=true`;
   }
-
-  protected isProjectOnPhysicalScreen = signal(false);
-
-  protected availableSessions = computed(() =>
-    filter(
-      orderBy(
-        this._dashboardFiltersStateService.availableSessions(),
-        (session) => session.metadata['isIndicatorActive'],
-        'desc'
-      ),
-      ({ metadata }) =>
-        metadata['originalContent'].Status !== 'REVIEW_COMPLETE' &&
-        metadata['originalContent'].Status !== 'UNDER_REVIEW'
-    )
-  );
-  protected activeSession = computed(() =>
-    this._dashboardFiltersStateService.activeSession()
-  );
-  protected rightSidebarState = computed(() =>
-    this._globalState.rightSidebarState()
-  );
-  protected RightSidebarState = RightSidebarState;
-
-  protected selectedStage = computed(() =>
-    this._dashboardFiltersStateService.selectedLocation()
-  );
-  private _liveEvent = computed(() =>
-    this._dashboardFiltersStateService.liveEvent()
-  );
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);

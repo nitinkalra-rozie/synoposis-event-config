@@ -10,7 +10,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class AutoAvSetupService {
+export class AutoAvSetupDataService {
   private readonly _http = inject(HttpClient);
 
   setAutoAvSetup(

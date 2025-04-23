@@ -7,7 +7,7 @@ interface ModalState {
   message?: string;
   onConfirm?: () => void;
   onCancel?: () => void;
-  buttonType?: 'yes_no' | 'ok'; // 'yes_no' for Yes/No buttons, 'ok' for an OK button
+  buttonType?: 'yes_no' | 'ok' | 'no_yes'; // 'yes_no' for Yes/No buttons, 'ok' for an OK button, 'no_yes' for No/Yes buttons
 }
 
 @Injectable({
@@ -24,7 +24,7 @@ export class ModalService {
   open(
     title: string,
     message: string,
-    buttonType: 'yes_no' | 'ok' = 'yes_no',
+    buttonType: 'yes_no' | 'ok' | 'no_yes' = 'yes_no',
     onConfirm?: () => void,
     onCancel?: () => void
   ): void {

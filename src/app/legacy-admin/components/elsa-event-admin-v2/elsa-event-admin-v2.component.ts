@@ -6,6 +6,7 @@ import {
   ElementRef,
   inject,
   OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
@@ -65,7 +66,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     label: TimeWindowsEnum.Seconds60,
     value: TimeWindows['60 Seconds'],
   };
-  isAutoAvEnabled: boolean = false;
+  isAutoAvEnabled = signal<boolean>(false);
 
   //#region DI
   private _filtersStateService = inject(DashboardFiltersStateService);
@@ -100,10 +101,13 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.initializeData();
+
+    const autoAvState = localStorage.getItem('IS_AUTO_AV_ENABLED');
+    this.isAutoAvEnabled.set(autoAvState ? JSON.parse(autoAvState) : false);
   }
 
   onAutoAvChanged(state: boolean): void {
-    this.isAutoAvEnabled = state;
+    this.isAutoAvEnabled.set(state);
     console.log(
       'AutoAV Enabled State in ElsaEventAdminV2Component:',
       this.isAutoAvEnabled
@@ -333,8 +337,4 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
       value: TimeWindows['60 Seconds'],
     };
   };
-
-  handleAutoAvChange(enabled: boolean) {
-    this.isAutoAvEnabled = enabled;
-  }
 }

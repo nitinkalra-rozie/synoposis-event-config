@@ -14,7 +14,7 @@ export class PopUpWindowComponent implements OnInit, OnDestroy {
   protected title = '';
   protected message = '';
   protected isVisible = false;
-  protected buttonType: 'yes_no' | 'ok' = 'yes_no';
+  protected buttonType: 'yes_no' | 'ok' | 'no_yes' = 'yes_no';
 
   protected onConfirm: () => void;
   protected onCancel: () => void;
