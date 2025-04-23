@@ -55,13 +55,6 @@
         <p class="text">View All Live Sessions</p>
         <mat-icon>keyboard_arrow_right</mat-icon>
       </div> -->
-      <ng-container
-        [ngTemplateOutlet]="actionButtons"
-        [ngTemplateOutletContext]="{
-          icon: 'closed_caption',
-          label: 'View Transcript',
-          type: 'view-transcript',
-        }"></ng-container>
     </div>
     <div
       class="controls"
@@ -100,6 +93,13 @@
       <div class="voice-animation-container">
         <app-sound-animation></app-sound-animation>
       </div>
+      <ng-container
+        [ngTemplateOutlet]="actionButtons"
+        [ngTemplateOutletContext]="{
+          icon: 'closed_caption',
+          label: 'View Transcript',
+          type: 'view-transcript',
+        }"></ng-container>
     </div>
     <div
       class="contain-animation"

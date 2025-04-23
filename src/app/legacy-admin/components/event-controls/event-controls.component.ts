@@ -1,4 +1,4 @@
-import { CommonModule, NgClass } from '@angular/common';
+import { NgClass, UpperCasePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -39,9 +39,9 @@ import {
   MatSlideToggleChange,
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
-import { BehaviorSubject } from 'rxjs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
-import { AutoAvSetupService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.service';
+import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
 
 @Component({
@@ -51,11 +51,12 @@ import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-s
   providers: [GetMultiSelectOptionFromStringPipe],
   imports: [
     NgClass,
+    UpperCasePipe,
     FormsModule,
     MatButtonToggleModule,
-    SynSingleSelectComponent,
     MatSlideToggleModule,
-    CommonModule,
+    MatTooltipModule,
+    SynSingleSelectComponent,
   ],
 })
 export class EventControlsComponent implements OnInit {
@@ -65,7 +66,7 @@ export class EventControlsComponent implements OnInit {
   private readonly _modalService = inject(ModalService);
   private readonly _filtersStateService = inject(DashboardFiltersStateService);
   private readonly _globalStateService = inject(GlobalStateService);
-  private readonly _autoAvSetupService = inject(AutoAvSetupService);
+  private readonly _autoAvSetupService = inject(AutoAvSetupDataService);
   private readonly _eventWebsocketService = inject(EventWebsocketService);
   //#endregion
 
@@ -74,11 +75,9 @@ export class EventControlsComponent implements OnInit {
   transitionTimes;
   postInsideInterval: number = TransitionTimes['15 Seconds'];
   postInsideValue: string = TransitionTimesEnum.Seconds15;
-  autoAvChecked = new BehaviorSubject<boolean>(false); // Default to false
 
   protected selectedFilter = signal<'track' | 'location'>('track');
-
-  @Input() autoAvEnabled: boolean = false;
+  protected autoAvChecked = signal<boolean>(false);
 
   @Output() autoAvChanged = new EventEmitter<boolean>();
   @Output() stageChanged = new EventEmitter<string>();
@@ -137,10 +136,10 @@ export class EventControlsComponent implements OnInit {
       this._filtersStateService.setEventLocations(locationsCopy);
     }
 
-    const savedAutoAvChecked = localStorage.getItem('autoAvChecked');
+    const savedAutoAvChecked = localStorage.getItem('IS_AUTO_AV_ENABLED');
     if (savedAutoAvChecked !== null) {
       const isAutoAvChecked = JSON.parse(savedAutoAvChecked);
-      this.autoAvChecked.next(isAutoAvChecked);
+      this.autoAvChecked.set(isAutoAvChecked);
       if (isAutoAvChecked) {
         const selectedLocation = this.selectedLocation()?.label;
         if (selectedLocation) {
@@ -254,13 +253,27 @@ export class EventControlsComponent implements OnInit {
     if (
       !selectedOption ||
       selectedOption.label === this.selectedLocation()?.label
-    )
+    ) {
       return;
+    }
+
+    if (this.autoAvChecked()) {
+      this._modalService.open(
+        'Warning',
+        'Auto AV is enabled right now. Changing the stage while Auto AV is enabled could cause issues. Please disable Auto AV before changing the stage.',
+        'ok',
+        () => {},
+        () => {
+          this._modalService.close();
+        }
+      );
+      return;
+    }
 
     this._modalService.open(
       'Confirm Stage Selection',
       'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
-      'yes_no',
+      'no_yes',
       () => {
         const locationsCopy = this.eventLocations().map((location) => ({
           ...location,
@@ -279,8 +292,10 @@ export class EventControlsComponent implements OnInit {
     );
   };
 
-  onToggleChange(event: MatSlideToggleChange): void {
-    const checked = event.checked;
+  onAutoAVToggleChange(event: MatSlideToggleChange): void {
+    event.source.checked = this.autoAvChecked();
+
+    const desiredState = !this.autoAvChecked();
     const selectedEvent = this.selectedEvent();
     const selectedLocation = this.selectedLocation();
 
@@ -289,34 +304,51 @@ export class EventControlsComponent implements OnInit {
       return;
     }
 
-    const payload: AutoAvSetupRequest = {
-      action: 'setAutoAvSetup',
-      eventName: selectedEvent.label,
-      stage: selectedLocation.label,
-      autoAv: checked,
-    };
+    this._modalService.open(
+      'Confirm Auto AV Setup Change',
+      `You are about to ${desiredState ? 'enable' : 'disable'} Auto AV.
+      ${desiredState ? '' : 'If there is an ongoing session you might lose out on capturing the audio.'}
+       Would you like to proceed?`,
+      'yes_no',
+      () => {
+        const payload: AutoAvSetupRequest = {
+          action: 'setAutoAvSetup',
+          eventName: selectedEvent.label,
+          stage: selectedLocation.label,
+          autoAv: desiredState,
+        };
 
-    this._autoAvSetupService.setAutoAvSetup(payload).subscribe({
-      next: (res) => {
-        this.autoAvChecked.next(checked);
-        localStorage.setItem('autoAvEnabled', JSON.stringify(checked));
-        this.autoAvChanged.emit(checked);
-        console.log('AutoAV setup updated successfully:', res);
-        localStorage.setItem('autoAvChecked', JSON.stringify(checked));
-        this._eventWebsocketService.setAutoAvToggle(checked);
-        if (checked) {
-          this._eventWebsocketService.initializeWebSocket(
-            selectedLocation.label
-          );
-          console.log('WebSocket connection .');
-        } else {
-          this._eventWebsocketService.closeWebSocket();
-          console.log('WebSocket connection closed.');
-        }
+        this._autoAvSetupService.setAutoAvSetup(payload).subscribe({
+          next: (res) => {
+            this.autoAvChecked.set(desiredState);
+            localStorage.setItem(
+              'IS_AUTO_AV_ENABLED',
+              JSON.stringify(desiredState)
+            );
+            this.autoAvChanged.emit(desiredState);
+            console.log('AutoAV setup updated successfully:', res);
+            this._eventWebsocketService.setAutoAvToggle(desiredState);
+
+            if (desiredState) {
+              this._eventWebsocketService.initializeWebSocket(
+                selectedLocation.label
+              );
+              console.log('WebSocket connection initialized.');
+            } else {
+              this._eventWebsocketService.closeWebSocket();
+              console.log('WebSocket connection closed.');
+            }
+            this._modalService.close();
+          },
+          error: (err) => {
+            console.error('Error updating AutoAV setup:', err);
+            this._modalService.close();
+          },
+        });
       },
-      error: (err) => {
-        console.error('Error updating AutoAV setup:', err);
-      },
-    });
+      () => {
+        this._modalService.close();
+      }
+    );
   }
 }
