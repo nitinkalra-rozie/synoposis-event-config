@@ -307,7 +307,7 @@ export class EventControlsComponent implements OnInit {
     this._modalService.open(
       'Confirm Auto AV Setup Change',
       `You are about to ${desiredState ? 'enable' : 'disable'} Auto AV.
-      ${desiredState ? '' : 'If there is an ongoing session you might lose out on capturing the audio.'}
+      ${desiredState ? '' : 'If you confirm, Auto AV will be disabled for the selected stage.'}
        Would you like to proceed?`,
       'yes_no',
       () => {
