@@ -43,7 +43,10 @@ export class DashboardFiltersStateService {
           ) &&
           this._selectedLocationsSetSignal().has(
             aSession.metadata['originalContent'].Location
-          )
+          ) &&
+          !!this._selectedLocationSignal()?.label &&
+          aSession.metadata['originalContent'].Location ===
+            this._selectedLocationSignal()?.label
       );
 
       // #region only when you want to show the session names
@@ -140,8 +143,8 @@ export class DashboardFiltersStateService {
     () =>
       new Set(
         this.eventLocations()
-          .filter((aTrack) => aTrack.isSelected)
-          .map((aTrack) => aTrack.label)
+          .filter((aLocation) => aLocation.isSelected)
+          .map((aLocation) => aLocation.label)
       )
   );
 
@@ -157,8 +160,8 @@ export class DashboardFiltersStateService {
     () =>
       new Set(
         this.eventDays()
-          .filter((aTrack) => aTrack.isSelected)
-          .map((aTrack) => aTrack.label)
+          .filter((aDay) => aDay.isSelected)
+          .map((aDay) => aDay.label)
       )
   );
 

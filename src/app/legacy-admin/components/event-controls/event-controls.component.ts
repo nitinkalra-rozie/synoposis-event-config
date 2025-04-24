@@ -123,7 +123,7 @@ export class EventControlsComponent implements OnInit {
     this.postInsideValue =
       localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
 
-    const savedStage = localStorage.getItem('selectedStage');
+    const savedStage = localStorage.getItem('SELECTED_LOCATION');
     if (savedStage) {
       const selectedOption: DropdownOption = JSON.parse(savedStage);
       this._filtersStateService.setSelectedLocation(selectedOption);
@@ -281,9 +281,15 @@ export class EventControlsComponent implements OnInit {
         }));
 
         this._filtersStateService.setEventLocations(locationsCopy);
+
+        selectedOption.isSelected = true;
         this._filtersStateService.setSelectedLocation(selectedOption);
         this.stageChanged.emit(selectedOption.label);
-        localStorage.setItem('selectedStage', JSON.stringify(selectedOption));
+        localStorage.setItem(
+          'SELECTED_LOCATION',
+          JSON.stringify(selectedOption)
+        );
+
         this._modalService.close();
       },
       () => {
