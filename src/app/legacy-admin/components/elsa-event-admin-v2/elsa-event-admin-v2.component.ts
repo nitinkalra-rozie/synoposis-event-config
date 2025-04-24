@@ -156,6 +156,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     this._backendApiService.getEventDetails().subscribe((data: any) => {
       this.eventDetails = data.data;
       this.populateEventNames();
+      this.setSelectedLocationFromStorage();
       this._filtersStateService.setAllSessions(
         this._getDropdownOptionFromObjectPipe.transform<any>(
           this.eventDetails,
@@ -197,6 +198,15 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
       value: this.eventNames[0],
     });
   };
+
+  setSelectedLocationFromStorage() {
+    const selectedLocation: DropdownOption = JSON.parse(
+      localStorage.getItem('SELECTED_LOCATION')
+    );
+    if (selectedLocation) {
+      this._filtersStateService.setSelectedLocation(selectedLocation);
+    }
+  }
 
   populateSessionTitles() {
     const filteredByDay = this.eventDetails.filter(
