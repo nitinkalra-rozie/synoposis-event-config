@@ -5,20 +5,28 @@
       'sidebar-expanded': rightSidebarState() === RightSidebarState.Expanded,
       'sidebar-collapsed': rightSidebarState() === RightSidebarState.Collapsed,
     }">
-    <!-- <app-main-drop-down
-      [dropdownContent]="eventNames"
-      [selectedValue]="[postData?.eventName]"
-      (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.EventName)"
-      dropdownTitle="Select Event"></app-main-drop-down> -->
+    @if (showEventSelectionDropdown()) {
+      <app-syn-single-select
+        [options]="eventNames()"
+        [selectedOption]="selectedEvent()"
+        [uiConfig]="{
+          label: 'Select Event',
+          isTriggerIconEnabled: true,
+          searchFilerType: 'minimal',
+        }"
+        (optionSelected)="onEventSelect($event)"></app-syn-single-select>
+    }
+
     <app-syn-single-select
-      [options]="eventNames()"
-      [selectedOption]="selectedEvent()"
+      [options]="eventLocations()"
+      [selectedOption]="selectedLocation()"
       [uiConfig]="{
-        label: 'Select Event',
+        label: 'Select Stage',
         isTriggerIconEnabled: true,
         searchFilerType: 'minimal',
+        placeholder: 'Select a stage',
       }"
-      (optionSelected)="onEventSelect($event)"></app-syn-single-select>
+      (optionSelected)="onEventLocationSelect($event)" />
 
     <!-- TODO: @after:clarion, itchartford uncomment this -->
     <!-- <app-syn-multi-select
@@ -67,4 +75,26 @@
       (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
       dropdownTitle="Select Theme"></app-main-drop-down> -->
   </div>
+  <!-- TODO:@later show Auto AV only for the events that we enable Auto AV for -->
+  <!-- Why this is done now? Other functions related to Auto AV is not implemented keeping this in mind hence things could break. - saiyaff -->
+  @if (true) {
+    <div class="auto-av-status-wrapper">
+      @if (autoAvChecked()) {
+        <div class="auto-av-status">
+          {{ 'autoav is running' | uppercase }}
+        </div>
+      }
+    </div>
+    <div class="toggle-wrapper">
+      <label class="toggle-label">AutoAV</label>
+      <mat-slide-toggle
+        [checked]="autoAvChecked()"
+        [disabled]="!selectedEvent() || !selectedLocation()"
+        [matTooltip]="
+          !selectedLocation() ? 'Please select a stage to enable AutoAV' : ''
+        "
+        (change)="onAutoAVToggleChange($event)">
+      </mat-slide-toggle>
+    </div>
+  }
 </div>

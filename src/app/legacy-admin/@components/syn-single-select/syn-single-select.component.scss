@@ -1,7 +1,5 @@
 @use 'mixins' as m;
 @use 'variables' as v;
-// @use '../../styles/material/mat-tooltip' as *;
-// @use '../../styles/material/mat-menu' as *;
 
 p {
   margin-block-start: 0;
@@ -61,6 +59,12 @@ p {
 }
 
 .dropdown-label {
+  @include m.body-regular;
+  color: v.$primary-bg-color-variant-5;
+  padding: 0 16px;
+}
+
+.dropdown-placeholder {
   @include m.body-regular;
   color: v.$primary-bg-color-variant-5;
   padding: 0 16px;

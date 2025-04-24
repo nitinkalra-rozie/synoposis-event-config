@@ -20,6 +20,9 @@
         @if (buttonType === 'yes_no') {
           <div class="yes-button" (click)="onConfirm()">Yes</div>
           <div class="no-button" (click)="onCancel()">No</div>
+        } @else if (buttonType === 'no_yes') {
+          <div class="yes-button" (click)="onCancel()">No</div>
+          <div class="no-button" (click)="onConfirm()">Yes</div>
         } @else {
           <div class="yes-button" (click)="cancelAction()">OK</div>
         }

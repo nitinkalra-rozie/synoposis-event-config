@@ -1,7 +1,6 @@
 import {
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   Input,
@@ -25,6 +24,8 @@ import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { escape } from 'lodash-es';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-panel/control-panel.component';
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
 import { SessionSelectionComponent } from 'src/app/legacy-admin/@components/session-selection/session-selection.component';
@@ -34,6 +35,7 @@ import {
   SessionDetails,
   SessionStatus,
 } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
 import {
   ControlPanelState,
   DashboardTabs,
@@ -78,6 +80,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
+  @Input() autoAvEnabled: boolean = false;
 
   private readonly _backendApiService = inject(LegacyBackendApiService);
 
@@ -110,6 +113,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   transcriptTimeOut = 60;
   lastFiveWords = '';
   startListeningClicked = false;
+  selectedLocation = '';
 
   /*   */
   title = 'AngularTranscribe';
@@ -130,7 +134,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     [EventCardType.ThankYou]: '',
     [EventCardType.Info]: '',
   };
-
+  isAutoAvEnabled: boolean = false;
   protected selectedDashboardTab = computed(() =>
     this._globalStateService.selectedDashboardTab()
   );
@@ -149,6 +153,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected selectedEventName = computed(() =>
     this._dashboardFiltersStateService.selectedEvent()
   );
+  protected selectedLocationName = computed(() =>
+    this._dashboardFiltersStateService.selectedLocation()
+  );
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
   );
@@ -161,13 +168,21 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected DashboardTabs = DashboardTabs;
 
   private _isTranscriptParaBreak: boolean = false;
+  private _destroy$ = new Subject<void>();
+
+  private readonly TRANSCRIPT_CHECK_INTERVAL = 5000;
+  private readonly TRANSCRIPT_SILENCE_THRESHOLD = 10000;
+  private lastTranscriptTimestamp: number = Date.now();
+  private silenceIntervalId: any;
+  private silentAudioChunk: typeof Buffer;
 
   constructor(
     private modalService: ModalService,
     private micService: MicrophoneService,
     private _globalStateService: GlobalStateService,
     private _dashboardFiltersStateService: DashboardFiltersStateService,
-    private _projectionStateService: ProjectionStateService
+    private _projectionStateService: ProjectionStateService,
+    private _eventWebsocketService: EventWebsocketService
   ) {
     effect(() => {
       if (
@@ -199,12 +214,40 @@ export class SessionContentComponent implements OnInit, OnChanges {
         }
       }
     });
-  }
 
-  private _destroyRef = inject(DestroyRef);
+    this._eventWebsocketService.sessionEnd$
+      .pipe(takeUntil(this._destroy$))
+      .subscribe((data) => {
+        console.log('SESSION_END received:', data);
+
+        // Extract session ID from the WebSocket message
+        const sessionId = data?.sessionId;
+        console.log('Session ID from WebSocket:', sessionId);
+
+        const activeSession = this.activeSession()?.metadata['originalContent'];
+
+        if (activeSession && activeSession.SessionId === sessionId) {
+          console.log('Session ID matches the active session. Ending session.');
+          this.stopTranscriptionForAutoAv();
+
+          console.log('Listening session stopped due to SESSION_END.');
+        } else {
+          console.log(
+            'Session ID does not match the active session. No action taken.'
+          );
+        }
+      });
+
+    // Create a minimal silent audio chunk (100ms of silence) to maintain the WebSocket connection during periods of inactivity.
+    // This is used to send silent audio data to the server to prevent the connection from being closed due to inactivity.
+    const sampleRate = 44100;
+    const silentBuffer = new Float32Array(sampleRate / 10);
+    this.silentAudioChunk = Buffer.from(silentBuffer.buffer);
+  }
 
   ngOnInit() {
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
+    this.selectedLocation = localStorage.getItem('selectedLocation') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
     this.selectedSessionTitle =
       localStorage.getItem('currentSessionTitle') || '';
@@ -406,6 +449,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.action = 'welcome';
     postData.eventName = this.selectedEvent;
     postData.day = this.eventDay[EventCardType.Welcome];
+    postData.stage = this.selectedLocationName().label;
 
     this.postData(
       postData,
@@ -413,6 +457,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'Welcome message screen sent successfully!',
       'Failed to send welcome message.'
     );
+    console.log('Post Data in showWelcomeMessageBanner:', postData);
   }
 
   showThankYouScreen(screenIdentifier: string): void {
@@ -421,12 +466,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.eventDay[EventCardType.ThankYou];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
+
     this.postData(
       postData,
       screenIdentifier,
       'Thank you message sent successfully!',
       'Failed to send thank you message.'
     );
+    console.log('Post Data in showThankYouScreen:', postData);
   }
 
   //it is qr screen
@@ -436,6 +484,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.eventDay[EventCardType.Info];
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
+
     this.postData(
       postData,
       screenIdentifier,
@@ -466,6 +516,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = this.selectedDay;
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('Backup message sent successfully!');
@@ -483,6 +534,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('End event message sent successfully!');
@@ -686,6 +738,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
+    // postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this.showSuccessMessage('End event message sent successfully!');
@@ -825,6 +878,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionIds = this.sessionIds;
+      postData.stage = this.selectedLocation;
       this.postData(
         postData,
         screenIdentifier,
@@ -850,6 +904,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
+      postData.stage = this.selectedLocation;
       postData.sessionId = '';
       postData.screenTimeout = 60;
       postData.debriefType = 'DAILY';
@@ -990,6 +1045,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
+
+    this.micStream.on('data', (rawAudioChunk) => {
+      // Normal audio processing - always send real audio
+      const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+      if (binary && this.socket?.OPEN) {
+        this.socket.send(binary);
+      }
+    });
+
+    // Start silence detection in a separate interval
+    this.startSilenceDetection();
   };
 
   openWebsocketAndStartStream(preSignedUrl: any) {
@@ -999,18 +1065,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.socket.binaryType = 'arraybuffer';
     console.log('start streamAudioToWebSocket44444');
     // when we get audio data from the mic, send it to the WebSocket if possible
-    this.socket.onopen = () => {
-      this.micStream.on('data', (rawAudioChunk) => {
-        // the audio stream is raw audio bytes. Transcribe expects PCM with additional metadata, encoded as binary
-        const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-
-        if (this.isSessionInProgress && this.socket.OPEN) {
-          this.socket.send(binary);
-        }
-      });
-    };
-    console.log('start streamAudioToWebSocket5555');
-    // handle messages, errors, and close events
     this.wireSocketEvents();
   }
   createPresignedUrlNew = async () => {
@@ -1091,6 +1145,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._dashboardFiltersStateService.setLiveSessionState(
       LiveSessionState.Paused
     );
+
+    this.lastTranscriptTimestamp = Date.now(); // Reset timestamp
+
+    // Clear silence detection interval
+    if (this.silenceIntervalId) {
+      clearInterval(this.silenceIntervalId);
+      this.silenceIntervalId = null;
+    }
   };
 
   clearSessionData = () => {
@@ -1118,6 +1180,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
       JSON.stringify(messageJson)
     );
     if (results.length > 0) {
+      // Update timestamp when we get any transcript (partial or final)
+      this.lastTranscriptTimestamp = Date.now();
+
       if (results[0].Alternatives.length > 0) {
         let transcript = results[0].Alternatives[0].Transcript;
 
@@ -1303,5 +1368,46 @@ export class SessionContentComponent implements OnInit, OnChanges {
         return;
       }
     }
+  }
+  private stopTranscriptionForAutoAv(): void {
+    if (this.isSessionInProgress) {
+      console.log('Stopping transcription for Auto AV feature.');
+      this.closeSocket(); // Stop the WebSocket connection
+      this.clearSessionData(); // Clear session-related data
+      this.isSessionInProgress = false; // Update the session state
+    }
+  }
+
+  onAutoAvChanged(state: boolean): void {
+    this.isAutoAvEnabled = state; // Update the state
+    console.log('AutoAV Enabled State in Parent:', this.isAutoAvEnabled); // Debugging
+    if (!state) {
+      console.log('Auto AV disabled. Stopping transcription.');
+      this.stopTranscriptionForAutoAv();
+    }
+  }
+
+  // This function is called to start silence detection to ensure the WebSocket connection remains active.
+  // It periodically checks if there has been a prolonged period of silence (no transcripts received).
+  // If the silence exceeds the defined threshold, a silent audio message is sent to the server to keep the connection alive.
+  private startSilenceDetection() {
+    if (this.silenceIntervalId) {
+      clearInterval(this.silenceIntervalId);
+    }
+
+    this.silenceIntervalId = setInterval(() => {
+      const timeSinceLastTranscript = Date.now() - this.lastTranscriptTimestamp;
+
+      if (
+        timeSinceLastTranscript >= this.TRANSCRIPT_SILENCE_THRESHOLD &&
+        this.socket?.OPEN
+      ) {
+        const silentMessage = this.getAudioEventMessage(this.silentAudioChunk);
+        // @ts-ignore
+        const silentBinary = eventStreamMarshaller.marshall(silentMessage);
+        this.socket.send(silentBinary);
+        console.log('Sending silent audio to keep connection alive');
+      }
+    }, this.TRANSCRIPT_CHECK_INTERVAL);
   }
 }

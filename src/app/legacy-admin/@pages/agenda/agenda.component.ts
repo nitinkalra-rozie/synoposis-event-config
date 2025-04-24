@@ -465,6 +465,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   public createNewSession = (): void => {
     const newSessionId = this.getNextSessionId();
+    const startTime = new Date();
+    const duration = 20;
+    const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
     const sessionData: Session = {
       GenerateInsights: true,
       Event: this.eventName,
@@ -475,14 +478,14 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       SpeakersInfo: [],
       SessionDescription: '',
       Status: 'NOT_STARTED',
-      EndsAt: this.getUTCFormattedTime(new Date()),
+      EndsAt: this.getUTCFormattedTime(endTime),
       Type: 'presentation',
       PrimarySessionId: newSessionId,
       EventDay: 'Day 1',
-      Duration: '40',
+      Duration: `${duration}`,
       Location: '',
       SessionSubject: '',
-      StartsAt: this.getUTCFormattedTime(new Date()),
+      StartsAt: this.getUTCFormattedTime(startTime),
     };
     this.openSessionDetailsModal(sessionData, 'NEW');
   };
