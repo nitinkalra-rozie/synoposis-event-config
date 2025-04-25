@@ -11,20 +11,16 @@
               <mat-icon class="timezone-icon">schedule</mat-icon>
               <div>
                 <span class="timezone-label">Event Timezone:</span>
-                <select
-                  class="timezone-select"
-                  [(ngModel)]="selectedTimezone"
-                  (change)="updateTimezone()">
-                  @for (tz of availableTimezones; track tz.value) {
-                    <option [value]="tz.value">
-                      {{ tz.label }}
-                    </option>
-                  }
-                </select>
+                <span class="timezone-value">{{
+                  formatTimezone(eventTimezone)
+                }}</span>
               </div>
             </div>
 
             <div class="action-buttons">
+              <button class="refresh-button" (click)="refreshAgenda()">
+                <mat-icon>refresh</mat-icon>
+              </button>
               <button
                 class="upload-agenda-button"
                 (click)="openUploadAgendaDialog()">
@@ -33,9 +29,18 @@
               <button class="add-session-button" (click)="createNewSession()">
                 Add New Session
               </button>
-              <button class="refresh-button" (click)="refreshAgenda()">
-                <mat-icon>refresh</mat-icon>
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="timezoneMenu"
+                aria-label="Actions menu">
+                <mat-icon>more_vert</mat-icon>
               </button>
+              <mat-menu #timezoneMenu="matMenu">
+                <button mat-menu-item (click)="updateTimezone()">
+                  <mat-icon>schedule</mat-icon>
+                  <span>Update Timezone</span>
+                </button>
+              </mat-menu>
             </div>
           </div>
 
@@ -61,7 +66,7 @@
                 <!-- Version Column -->
                 <ng-container matColumnDef="startDate">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Date (Local)
+                    Start Date
                   </th>
                   <td
                     *matCellDef="let row; let i = index"
@@ -69,41 +74,33 @@
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)"
                     style="min-width: 110px">
-                    {{
-                      row.StartsAt | date: 'yyyy-MM-dd' : formattedToLocalTime
-                    }}
+                    {{ row.StartsAt | date: 'yyyy-MM-dd' : formattedTimezone }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="startTime">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    Start Time (Local)
+                    Start Time
                   </th>
                   <td
                     *matCellDef="let row; let i = index"
                     mat-cell
-                    matTooltip="Time at Event Location: {{
-                      row.StartsAt | date: 'HH:mm' : formattedTimezone
-                    }}"
                     matTooltipPosition="above"
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)">
-                    {{ row.StartsAt | date: 'HH:mm' : formattedToLocalTime }}
+                    {{ row.StartsAt | date: 'HH:mm' : formattedTimezone }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="endTime">
                   <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                    End Time (Local)
+                    End Time
                   </th>
                   <td
                     *matCellDef="let row; let i = index"
                     mat-cell
-                    matTooltip="Time at Event Location: {{
-                      row.EndsAt | date: 'HH:mm' : formattedTimezone
-                    }}"
                     matTooltipPosition="above"
                     [class.selected]="selectedRowIndex === i"
                     (click)="highlightRow(row, i)">
-                    {{ row.EndsAt | date: 'HH:mm' : formattedToLocalTime }}
+                    {{ row.EndsAt | date: 'HH:mm' : formattedTimezone }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="title">
