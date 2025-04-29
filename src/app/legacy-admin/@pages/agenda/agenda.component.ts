@@ -31,7 +31,10 @@ import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
-import { TIMEZONE_OPTIONS } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
+import {
+  findTimeZoneByOffset,
+  TIMEZONE_OPTIONS,
+} from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
@@ -304,7 +307,11 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   updateTimezone(): void {
-    this.openConfirmationDialog(this.selectedTimezone);
+    this.openConfirmationDialog();
+  }
+
+  formatTimezone(utcOffset: string): string {
+    return findTimeZoneByOffset(utcOffset, new Date(), this.availableTimezones);
   }
 
   showError(): void {
@@ -595,24 +602,24 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     this.getEventDetails();
   }
 
-  openConfirmationDialog(selectedTimezone: string): void {
-    const timeDiff = this.getTimezoneDifference(
-      this.eventTimezone,
-      selectedTimezone
-    );
+  openConfirmationDialog(): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
+        eventTimezone: this.eventTimezone,
+        updateEventTimezone: (selectedTimezone) =>
+          this.updateEventTimezone(selectedTimezone, this.eventTimezone),
+        getTimezoneDifferenceFn: (selectedTimezone) =>
+          this.getTimezoneDifference(this.eventTimezone, selectedTimezone),
+        availableTimezones: this.availableTimezones,
         title: 'Confirm Timezone Update',
         message:
           'Are you sure you want to update the event timezone? This will change the start and end times of all sessions relative to UTC.',
-        warning: `Warning: Session UTC times will be adjusted by ${timeDiff} hour from their previous values.`,
+        warning: `Warning: Session UTC times will be adjusted by 0 hour from their previous values.`,
       },
     });
 
     dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        this.updateEventTimezone(selectedTimezone, timeDiff);
-      } else {
+      if (!confirmed) {
         this.selectedTimezone = this.eventTimezone;
       }
     });
@@ -625,7 +632,11 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
-  updateEventTimezone(selectedTimezone, timeDiff): void {
+  updateEventTimezone(selectedTimezone, eventTimezone): void {
+    const timeDiff = this.getTimezoneDifference(
+      eventTimezone,
+      selectedTimezone
+    );
     this.isLoading = true;
     this._backendApiService.getEventDetails().subscribe({
       next: (response: any) => {

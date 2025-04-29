@@ -29,32 +29,6 @@
   margin-bottom: 16px;
 }
 
-.timezone-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.timezone-icon {
-  color: #666;
-  font-size: 20px;
-  margin-top: 4px;
-}
-
-.timezone-label {
-  font-size: 14px;
-  color: #666;
-  margin-right: 8px;
-}
-
-.timezone-select {
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background: white;
-  cursor: pointer;
-}
-
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -88,6 +62,9 @@
   }
   .timezone-section {
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   .timezone-select {
@@ -112,6 +89,13 @@
   .event-timezone-label {
     font-size: 1rem;
     color: #262626;
+  }
+  .timezone-icon {
+    margin-right: 10px;
+  }
+
+  .timezone-value {
+    margin-left: 10px;
   }
 }
 
