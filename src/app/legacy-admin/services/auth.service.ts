@@ -2,14 +2,14 @@ import { DestroyRef, Injectable, inject } from '@angular/core';
 // TODO: update to use Amplify v6. means aws-amplify@6.*.*
 // Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   CognitoUserPool,
   CognitoUserSession,
 } from 'amazon-cognito-identity-js';
 import { jwtDecode } from 'jwt-decode';
 import { interval } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { RoleRank } from '../shared/constants';
 import { UserRole } from '../shared/enums';
@@ -19,7 +19,7 @@ import { AuthResponse } from '../shared/types';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private router: Router) {
+  constructor() {
     this._userPool = new CognitoUserPool({
       UserPoolId: environment.USER_POOL_ID,
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
@@ -27,6 +27,9 @@ export class AuthService {
 
     this.startTokenCheck();
   }
+
+  private readonly _router = inject(Router);
+  private readonly _route = inject(ActivatedRoute);
 
   private readonly _tokenKey = 'auth_token';
   private readonly _tokenCheckIntervalMs = 60000;
@@ -62,7 +65,7 @@ export class AuthService {
 
     this.removeToken();
 
-    this.router.navigate(['/login']);
+    this._router.navigate(['/login']);
   };
 
   public isAuthenticated = (): boolean => {
@@ -200,6 +203,12 @@ export class AuthService {
   private startTokenCheck(): void {
     interval(this._tokenCheckIntervalMs)
       .pipe(
+        filter(
+          () =>
+            !this._route.snapshot.children?.[0]?.routeConfig?.path.includes(
+              'otp'
+            )
+        ),
         takeUntilDestroyed(this._destroyRef),
         tap(() => this.runTokenCheck())
       )
