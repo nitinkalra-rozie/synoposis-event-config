@@ -17,7 +17,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { isUndefined } from 'lodash-es';
+import { clone, cloneDeep, isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
@@ -67,24 +67,29 @@ export class InsightsEditorComponent implements OnInit {
       this.domSanitizer.bypassSecurityTrustResourceUrl('assets/mdi.svg')
     );
 
-    this._keyTakeawayUpdate
+    this._keyTakeawayUpdate$
       .pipe(debounceTime(300))
       .subscribe(({ text, index }) => {
-        this.keytakeaways[index] = text;
+        this._keyTakeawaysData[index] = text;
       });
 
-    this._insightUpdate.pipe(debounceTime(300)).subscribe(({ text, index }) => {
-      this.insights[index] = text;
+    this._insightUpdate$
+      .pipe(debounceTime(300))
+      .subscribe(({ text, index }) => {
+        this._insightsData[index] = text;
+      });
+
+    this._topicUpdate$.pipe(debounceTime(300)).subscribe(({ text, index }) => {
+      this._topicsData[index] = text;
     });
 
-    this._topicUpdate.pipe(debounceTime(300)).subscribe(({ text, index }) => {
-      this.topics[index] = text;
-    });
-
-    this._speakerUpdate.pipe(debounceTime(300)).subscribe(({ text, index }) => {
-      this.speakers[index] = text;
-    });
+    this._realtimeInsightUpdate$
+      .pipe(debounceTime(300))
+      .subscribe(({ text, indexI, indexJ }) => {
+        this._realTimeInsightsData[indexI].Insights[indexJ] = text;
+      });
   }
+
   private readonly _authService = inject(AuthService);
   private readonly _editorialDataService = inject(InsightsEditorDataService);
 
@@ -132,14 +137,18 @@ export class InsightsEditorComponent implements OnInit {
   public uniqueDays: string[] = [];
   public availableTracks: string[] = [];
 
-  private _keyTakeawayUpdate = new Subject<{ text: string; index: number }>();
-  private _realtimeInsightUpdate = new Subject<{
+  private _keyTakeawayUpdate$ = new Subject<{ text: string; index: number }>();
+  private _keyTakeawaysData: Array<string> = [];
+  private _realtimeInsightUpdate$ = new Subject<{
     text: string;
-    index: number;
+    indexI: number;
+    indexJ: number;
   }>();
-  private _insightUpdate = new Subject<{ text: string; index: number }>();
-  private _topicUpdate = new Subject<{ text: string; index: number }>();
-  private _speakerUpdate = new Subject<{ text: string; index: number }>();
+  private _realTimeInsightsData: Array<RealtimeInsight> = [];
+  private _insightUpdate$ = new Subject<{ text: string; index: number }>();
+  private _insightsData: Array<string> = [];
+  private _topicUpdate$ = new Subject<{ text: string; index: number }>();
+  private _topicsData: Array<string> = [];
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -202,8 +211,11 @@ export class InsightsEditorComponent implements OnInit {
           const data = JSON.parse(responseData.snapshotData);
           this.summary = data['data']['summary'];
           this.insights = data['data']['insights'];
+          this._insightsData = clone(this.insights);
           this.topics = data['data']['topics'];
+          this._topicsData = clone(this.topics);
           this.keytakeaways = data['data']['key_takeaways'];
+          this._keyTakeawaysData = clone(this.keytakeaways);
           this.dataLoaded = true;
           this.title = data['data']['title'];
           this.postInsightTimestamp = responseData['postInsightTimestamp'];
@@ -225,6 +237,7 @@ export class InsightsEditorComponent implements OnInit {
               Insights: dataItem.data.insights,
             });
           }
+          this._realTimeInsightsData = cloneDeep(this.realtimeinsights);
           console.log(this.realtimeinsights);
         }
         this.isLoading = false;
@@ -326,12 +339,12 @@ export class InsightsEditorComponent implements OnInit {
       action: 'updatePostInsights',
       sessionId: this.selected_session,
       updatedData: {
-        realtimeinsights: this.realtimeinsights,
+        realtimeinsights: this._realTimeInsightsData,
         summary: this.summary,
-        keytakeaways: this.keytakeaways,
-        insights: this.insights,
+        keytakeaways: this._keyTakeawaysData,
+        insights: this._insightsData,
         status: this.selected_session_details.Status,
-        topics: this.topics,
+        topics: this._topicsData,
         trends: this.trends,
         postInsightTimestamp: this.postInsightTimestamp,
         trendsTimestamp: this.trendsTimestamp,
@@ -347,6 +360,7 @@ export class InsightsEditorComponent implements OnInit {
           this.selected_session_details.Editor = '';
           this.getEventDetails();
         }
+        this._updateParallelData();
         this.isLoading = false;
       },
       error: (error) => {
@@ -425,55 +439,57 @@ export class InsightsEditorComponent implements OnInit {
 
   removeKeytakeaway(index: number): void {
     this.keytakeaways.splice(index, 1);
+    this._keyTakeawaysData.splice(index, 1);
   }
 
   addNewKeytakeaway(): void {
     this.keytakeaways.push('');
+    this._keyTakeawaysData.push('');
   }
 
   removeInsight(index: number): void {
     this.insights.splice(index, 1);
+    this._insightsData.splice(index, 1);
   }
 
   removeTopic(index: number): void {
     this.topics.splice(index, 1);
+    this._topicsData.splice(index, 1);
   }
 
   addNewInsight(): void {
     this.insights.push('');
+    this._insightsData.push('');
   }
 
   addNewTopic(): void {
     this.topics.push('');
+    this._topicsData.push('');
   }
 
   onKeyTakeawayChange(value: string, index: number): void {
-    this._keyTakeawayUpdate.next({ text: value, index });
+    this._keyTakeawayUpdate$.next({ text: value, index });
   }
 
   onInsightChange(value: string, index: number): void {
-    this._insightUpdate.next({ text: value, index });
+    this._insightUpdate$.next({ text: value, index });
   }
 
-  onRealtimeInsightChange(value: string, index: number): void {
-    this._realtimeInsightUpdate.next({ text: value, index });
+  onRealtimeInsightChange(value: string, indexI: number, indexJ: number): void {
+    this._realtimeInsightUpdate$.next({ text: value, indexI, indexJ });
   }
 
   onTopicChange(value: string, index: number): void {
-    this._topicUpdate.next({ text: value, index });
-  }
-
-  onSpeakerChange(value: string, index: number): void {
-    this._speakerUpdate.next({ text: value, index });
+    this._topicUpdate$.next({ text: value, index });
   }
 
   openLargeModal(): void {
     const data = {
       type: 'debrief',
-      keytakeaways: this.keytakeaways,
+      keytakeaways: this._keyTakeawaysData,
       summary: this.summary,
-      insights: this.insights,
-      topics: this.topics,
+      insights: this._insightsData,
+      topics: this._topicsData,
     };
     this.dialog.open(LargeModalDialogComponent, {
       width: '1200px', // Makes the modal large
@@ -492,5 +508,13 @@ export class InsightsEditorComponent implements OnInit {
       data: data,
       panelClass: 'custom-dialog-container', // Custom CSS class for further styling
     });
+  }
+
+  // Please be mindful that this is a shittiest code so don't rely on this for the new changes
+  private _updateParallelData(): void {
+    this.keytakeaways = clone(this._keyTakeawaysData);
+    this.insights = clone(this._insightsData);
+    this.topics = clone(this._topicsData);
+    this.realtimeinsights = cloneDeep(this._realTimeInsightsData);
   }
 }
