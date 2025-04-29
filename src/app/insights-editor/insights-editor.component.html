@@ -253,13 +253,13 @@
                     <!-- Key Takeaways -->
                     <div class="section">
                       <h3>Key Takeaways</h3>
-                      @for (item of keytakeaways; track item; let i = $index) {
+                      @for (item of keytakeaways; track i; let i = $index) {
                         <div class="item-row">
                           <mat-form-field class="flex-grow" appearance="fill">
                             <textarea
                               matInput
                               [disabled]="!isEditorMode"
-                              [ngModel]="keytakeaways[i]"
+                              [ngModel]="item"
                               (ngModelChange)="onKeyTakeawayChange($event, i)"
                               rows="2"></textarea>
                           </mat-form-field>
@@ -419,7 +419,10 @@
                                   matInput
                                   id="speakers-input-{{ i }}-{{ j }}"
                                   [disabled]="!isEditorMode"
-                                  [(ngModel)]="item.Insights[j]"
+                                  [ngModel]="item.Insights[j]"
+                                  (ngModelChange)="
+                                    onRealtimeInsightChange($event, i, j)
+                                  "
                                   type="text"></textarea>
                               </mat-form-field>
                             </div>
