@@ -39,7 +39,7 @@ import {
   AnalyticsData,
   AnalyticsDataService,
 } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
 interface DateRange {
   name: string;

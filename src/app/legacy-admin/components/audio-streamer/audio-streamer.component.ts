@@ -11,7 +11,7 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 import { escape } from 'lodash-es';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { generateSHA256HashHex } from 'src/app/legacy-admin/@utils/generate-hash';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
 // our converter between binary event streams messages and JSON
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
