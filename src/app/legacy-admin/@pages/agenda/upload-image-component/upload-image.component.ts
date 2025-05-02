@@ -186,7 +186,7 @@ export class UploadImageComponent {
   }
 
   private validateImage(file: File): boolean {
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 10 * 1024 * 1024; // 5MB
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 
     if (!validTypes.includes(file.type)) {
@@ -197,7 +197,7 @@ export class UploadImageComponent {
     }
 
     if (file.size > maxSize) {
-      this.displayErrorMessageFn.emit('File size too large. Max 5MB allowed.');
+      this.displayErrorMessageFn.emit('File size too large. Max 10MB allowed.');
       return false;
     }
 
