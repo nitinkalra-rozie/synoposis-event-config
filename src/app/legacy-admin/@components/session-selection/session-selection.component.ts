@@ -26,7 +26,7 @@ import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-win
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 
 @Component({

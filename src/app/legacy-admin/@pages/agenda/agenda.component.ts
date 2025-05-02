@@ -37,7 +37,7 @@ import {
 } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation.dialog.component';
 import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
 import { UploadAgendaDialogComponent } from './upload-agenda/upload-agenda-dialog.component';
