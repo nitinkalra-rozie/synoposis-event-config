@@ -8,7 +8,7 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
 declare const Buffer;
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.

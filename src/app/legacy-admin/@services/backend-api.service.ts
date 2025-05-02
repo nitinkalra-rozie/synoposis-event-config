@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 
@@ -22,10 +22,6 @@ export class BackendApiService {
   constructor(private http: HttpClient) {}
 
   private _backendApiService = inject(LegacyBackendApiService);
-
-  getTranscriberPreSignedUrl(body: any): Observable<Object> {
-    return this.http.post(environment.getTranscriberPreSignedUrl, body);
-  }
 
   getUploadPresignedUrl(
     fileType: string,
@@ -48,40 +44,6 @@ export class BackendApiService {
     return this.http.put(preSignedUrl, file, {
       responseType: 'text',
     });
-  }
-
-  putTranscript(transcript: any): Observable<Object> {
-    const body = {
-      sessionId: localStorage.getItem('currentSessionId'),
-      primarySessionId: localStorage.getItem('currentPrimarySessionId'),
-      transcript: transcript,
-      eventName: localStorage.getItem('selectedEvent'),
-      domain: localStorage.getItem('domain'),
-    };
-    return this.http.post(environment.putTranscript, body);
-  }
-
-  postData(data: PostData): Observable<Object> {
-    const body = {
-      action: data.action,
-      sessionId: data.sessionId || localStorage.getItem('currentSessionId'),
-      eventName: data.eventName || localStorage.getItem('selectedEvent'),
-      domain: data.domain || localStorage.getItem('domain'),
-      day: data.day || localStorage.getItem('currentDay'),
-      keyNoteData: data.keyNoteData || {},
-      screenTimeout: parseInt(localStorage.getItem('postInsideInterval')) || 15,
-      sessionTitle: data.sessionTitle || '',
-      theme: data.theme,
-      transcript: data.transcript,
-      sessionDescription: data.sessionDescription,
-      debriefType: data.debriefType ?? null,
-      debriefFilter: data.debriefFilter ?? null,
-    };
-    if (data.action === 'realTimeInsights') {
-      body.keyNoteData = {};
-      body.transcript = data.transcript;
-    }
-    return this.http.post(environment.postData, body);
   }
 
   updateAgenda(data: Session[], timezone: string = ''): Observable<Object> {
@@ -227,20 +189,5 @@ export class BackendApiService {
     return this.http.post(environment.getEventDetails, {
       event: this._backendApiService.getCurrentEventName(),
     });
-  }
-  postCurrentSessionId(
-    sessionId: string,
-    eventName: string,
-    domain: string,
-    primarySessionId: string
-  ): Observable<Object> {
-    console.log('Inside postCurrent', sessionId);
-    const body = {
-      sessionId: sessionId,
-      eventName: eventName,
-      domain: domain,
-      primarySessionId: primarySessionId,
-    };
-    return this.http.post(environment.postCurrentSessionId, body);
   }
 }

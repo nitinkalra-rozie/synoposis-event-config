@@ -2,7 +2,7 @@ import { inject, Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/backend-api.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
