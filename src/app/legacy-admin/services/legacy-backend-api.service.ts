@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import {
   getLocalStorageItem,
-  setLocalStorageItem,
+  setLocalStorageItem
 } from 'src/app/shared/utils/local-storage-util';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
@@ -33,20 +33,11 @@ export class LegacyBackendApiService {
         this.setCurrentTimezone(
           configResponse?.data?.Information?.Timezone || '+0:00'
         );
+        this._currentEventName = eventIdentifier;
+        setLocalStorageItem('SELECTED_EVENT_NAME', eventIdentifier);
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
         return this.http
           .post(environment.getEventDetails, { event: eventIdentifier })
-          .pipe(
-            tap((response: any) => {
-              if (response?.data?.length > 0) {
-                this._currentEventName = response.data[0].Event;
-                setLocalStorageItem(
-                  'SELECTED_EVENT_NAME',
-                  response.data[0].Event
-                );
-              }
-            })
-          );
       })
     );
   }
