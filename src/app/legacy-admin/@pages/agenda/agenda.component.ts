@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -33,7 +33,7 @@ import { debounceTime } from 'rxjs/operators';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
   findTimeZoneByOffset,
-  TIMEZONE_OPTIONS
+  TIMEZONE_OPTIONS,
 } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
@@ -721,10 +721,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   openSessionDetailsModal(data: Session, type: string): void {
-    const timeDiff = this.getTimezoneDifference(
-      '+0:00',
-      this.eventTimezone
-    );
+    const timeDiff = this.getTimezoneDifference('+0:00', this.eventTimezone);
     let adjustedSessionData = this.adjustSessionTimes(
       [data],
       this.getTimezoneDifference(this.eventTimezone, '+0:00')
