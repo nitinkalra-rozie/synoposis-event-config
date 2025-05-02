@@ -721,13 +721,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   openSessionDetailsModal(data: Session, type: string): void {
-    const timeDiff = this.getTimezoneDifference(
-      '+0:00',
-      this.formattedToLocalTime
-    );
+    const timeDiff = this.getTimezoneDifference('+0:00', this.eventTimezone);
     let adjustedSessionData = this.adjustSessionTimes(
       [data],
-      this.getTimezoneDifference(this.formattedToLocalTime, '+0:00')
+      this.getTimezoneDifference(this.eventTimezone, '+0:00')
     );
 
     adjustedSessionData = adjustedSessionData.map((s) => ({
