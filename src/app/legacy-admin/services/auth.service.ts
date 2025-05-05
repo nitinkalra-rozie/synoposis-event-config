@@ -184,17 +184,7 @@ export class AuthService {
       const decodedToken: any = jwtDecode(accessToken);
       const expirationTime = decodedToken.exp * 1000;
       const currentTime = Date.now();
-
-      const isExpired = currentTime >= expirationTime;
-      console.log('🔍 Token expiration check:', {
-        expiresAt: new Date(expirationTime),
-        currentTime: new Date(currentTime),
-        isExpired,
-        timeLeft:
-          Math.round((expirationTime - currentTime) / 1000) + ' seconds',
-      });
-
-      return isExpired;
+      return currentTime >= expirationTime;
     } catch (error) {
       return true;
     }

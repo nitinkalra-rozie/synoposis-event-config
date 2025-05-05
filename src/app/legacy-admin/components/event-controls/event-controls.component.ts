@@ -10,11 +10,11 @@ import {
   Output,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map, take, tap } from 'rxjs/operators';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
@@ -113,6 +113,7 @@ export class EventControlsComponent implements OnInit {
   constructor() {
     this.onUpdatePostData = new EventEmitter();
     this.onReset = new EventEmitter();
+    this._setupAutoLocationSelection();
   }
 
   ngOnInit() {
@@ -126,14 +127,7 @@ export class EventControlsComponent implements OnInit {
     const savedStage = localStorage.getItem('SELECTED_LOCATION');
     if (savedStage) {
       const selectedOption: DropdownOption = JSON.parse(savedStage);
-      this._filtersStateService.setSelectedLocation(selectedOption);
-
-      const locationsCopy = this.eventLocations().map((location) => ({
-        ...location,
-        isSelected: location.label === selectedOption.label,
-      }));
-
-      this._filtersStateService.setEventLocations(locationsCopy);
+      this._selectLocationOption(selectedOption);
     }
 
     const savedAutoAvChecked = localStorage.getItem('IS_AUTO_AV_ENABLED');
@@ -275,21 +269,8 @@ export class EventControlsComponent implements OnInit {
       'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
       'no_yes',
       () => {
-        const locationsCopy = this.eventLocations().map((location) => ({
-          ...location,
-          isSelected: location.label === selectedOption.label,
-        }));
-
-        this._filtersStateService.setEventLocations(locationsCopy);
-
-        selectedOption.isSelected = true;
-        this._filtersStateService.setSelectedLocation(selectedOption);
+        this._selectLocationOption(selectedOption);
         this.stageChanged.emit(selectedOption.label);
-        localStorage.setItem(
-          'SELECTED_LOCATION',
-          JSON.stringify(selectedOption)
-        );
-
         this._modalService.close();
       },
       () => {
@@ -356,5 +337,30 @@ export class EventControlsComponent implements OnInit {
         this._modalService.close();
       }
     );
+  }
+
+  private _setupAutoLocationSelection(): void {
+    toObservable(this.eventLocations)
+      .pipe(
+        filter((locations) => locations.length > 0),
+        take(1),
+        tap((locations) => {
+          if (locations.length === 1) {
+            this._selectLocationOption(locations[0]);
+          }
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe();
+  }
+
+  private _selectLocationOption(option: DropdownOption): void {
+    this._filtersStateService.setSelectedLocation(option);
+    localStorage.setItem('SELECTED_LOCATION', JSON.stringify(option));
+    const locationsCopy = this.eventLocations().map((location) => ({
+      ...location,
+      isSelected: location.label === option.label,
+    }));
+    this._filtersStateService.setEventLocations(locationsCopy);
   }
 }
