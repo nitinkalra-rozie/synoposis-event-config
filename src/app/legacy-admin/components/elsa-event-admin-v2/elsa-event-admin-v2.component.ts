@@ -110,7 +110,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     this.isAutoAvEnabled.set(state);
     console.log(
       'AutoAV Enabled State in ElsaEventAdminV2Component:',
-      this.isAutoAvEnabled
+      this.isAutoAvEnabled()
     );
   }
 

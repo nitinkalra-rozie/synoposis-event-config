@@ -5,7 +5,9 @@ import {
   DestroyRef,
   EventEmitter,
   inject,
+  Injector,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   signal,
@@ -14,7 +16,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ActivatedRoute } from '@angular/router';
-import { filter, map, take, tap } from 'rxjs/operators';
+import { catchError, filter, map, retry, take, tap } from 'rxjs/operators';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
@@ -25,13 +27,11 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 import {
   INITIAL_POST_DATA,
   TimeWindows,
-  TransitionTimes,
 } from 'src/app/legacy-admin/shared/constants';
 import {
   PostDataEnum,
   ThemeOptions,
   TimeWindowsEnum,
-  TransitionTimesEnum,
 } from 'src/app/legacy-admin/shared/enums';
 import { PostData } from 'src/app/legacy-admin/shared/types';
 
@@ -42,7 +42,13 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
-import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
+import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
+import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from 'src/app/shared/utils/local-storage-util';
+import { filterEquals } from 'src/app/shared/utils/rxjs';
 
 @Component({
   selector: 'app-event-controls',
@@ -59,25 +65,31 @@ import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-s
     SynSingleSelectComponent,
   ],
 })
-export class EventControlsComponent implements OnInit {
-  //#region DI
+export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _injector = inject(Injector);
   private readonly _modalService = inject(ModalService);
   private readonly _filtersStateService = inject(DashboardFiltersStateService);
   private readonly _globalStateService = inject(GlobalStateService);
   private readonly _autoAvSetupService = inject(AutoAvSetupDataService);
-  private readonly _eventWebsocketService = inject(EventWebsocketService);
-  //#endregion
+  private readonly _eventStageWebsocketDataService = inject(
+    EventStageWebsocketDataService
+  );
+  private readonly _eventStageWebSocketState = inject(
+    EventStageWebSocketStateService
+  );
 
   public PostDataEnum = PostDataEnum;
-  timeWindows;
-  transitionTimes;
-  postInsideInterval: number = TransitionTimes['15 Seconds'];
-  postInsideValue: string = TransitionTimesEnum.Seconds15;
+  // #region old version
+  // timeWindows;
+  // transitionTimes;
+  // postInsideInterval: number = TransitionTimes['15 Seconds'];
+  // postInsideValue: string = TransitionTimesEnum.Seconds15;
+  // #endregion
 
   protected selectedFilter = signal<'track' | 'location'>('track');
-  protected autoAvChecked = signal<boolean>(false);
+  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
 
   @Output() autoAvChanged = new EventEmitter<boolean>();
   @Output() stageChanged = new EventEmitter<string>();
@@ -116,35 +128,23 @@ export class EventControlsComponent implements OnInit {
     this._setupAutoLocationSelection();
   }
 
-  ngOnInit() {
-    this.timeWindows = Object.keys(TimeWindows);
-    this.transitionTimes = Object.keys(TransitionTimes);
-    this.postInsideInterval =
-      parseInt(localStorage.getItem('postInsideInterval')) || 15;
-    this.postInsideValue =
-      localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
+  ngOnInit(): void {
+    // #region old version
+    // this.timeWindows = Object.keys(TimeWindows);
+    // this.transitionTimes = Object.keys(TransitionTimes);
+    // this.postInsideInterval =
+    //   parseInt(localStorage.getItem('postInsideInterval')) || 15;
+    // this.postInsideValue =
+    //   localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
+    // #endregion
 
-    const savedStage = localStorage.getItem('SELECTED_LOCATION');
-    if (savedStage) {
-      const selectedOption: DropdownOption = JSON.parse(savedStage);
-      this._selectLocationOption(selectedOption);
+    const savedLocation: DropdownOption =
+      getLocalStorageItem<DropdownOption>('SELECTED_LOCATION');
+    if (savedLocation) {
+      this._selectLocationOption(savedLocation);
+      this._checkAndConnectWithWebSocket(savedLocation?.label);
     }
 
-    const savedAutoAvChecked = localStorage.getItem('IS_AUTO_AV_ENABLED');
-    if (savedAutoAvChecked !== null) {
-      const isAutoAvChecked = JSON.parse(savedAutoAvChecked);
-      this.autoAvChecked.set(isAutoAvChecked);
-      if (isAutoAvChecked) {
-        const selectedLocation = this.selectedLocation()?.label;
-        if (selectedLocation) {
-          this._eventWebsocketService.initializeWebSocket(selectedLocation);
-        } else {
-          console.warn(
-            'No selected location found. WebSocket not initialized.'
-          );
-        }
-      }
-    }
     this._route.queryParamMap
       .pipe(
         map((params) => params.get('showEventSelection')),
@@ -155,32 +155,33 @@ export class EventControlsComponent implements OnInit {
       .subscribe();
   }
 
-  onPostInsideIntervalChange = (value: string) => {
-    // This function will be triggered whenever the value of postInsideInterval changes
-    this.postInsideInterval = TransitionTimes[value];
-    this.postInsideValue = TransitionTimesEnum[value];
-    console.log('postInsideInterval changed to:', this.postInsideInterval);
-    localStorage.setItem(
-      'postInsideInterval',
-      this.postInsideInterval.toString()
-    );
-    localStorage.setItem('postInsideValue', this.postInsideValue.toString());
-    // You can call any other functions or perform any other actions here
-  };
+  ngOnDestroy(): void {
+    this._eventStageWebsocketDataService.disconnect();
+    this._eventStageWebSocketState.resetState();
+  }
 
-  handleDropdownSelect = (value: string, key: PostDataEnum | string) => {
-    if ((key as string) === 'TransitionTimes') {
-      this.onPostInsideIntervalChange(value);
-    } else {
-      this.onUpdatePostData.emit({ key: key as PostDataEnum, value });
-    }
-  };
+  // #region old version
+  // onPostInsideIntervalChange = (value: string) => {
+  //   // This function will be triggered whenever the value of postInsideInterval changes
+  //   this.postInsideInterval = TransitionTimes[value];
+  //   this.postInsideValue = TransitionTimesEnum[value];
+  //   console.log('postInsideInterval changed to:', this.postInsideInterval);
+  //   localStorage.setItem(
+  //     'postInsideInterval',
+  //     this.postInsideInterval.toString()
+  //   );
+  //   localStorage.setItem('postInsideValue', this.postInsideValue.toString());
+  //   // You can call any other functions or perform any other actions here
+  // };
 
-  handleResetClick = () => {
-    this.postInsideInterval = TransitionTimes['15 Seconds'];
-    this.postInsideValue = TransitionTimesEnum.Seconds15;
-    this.onReset.emit();
-  };
+  // handleDropdownSelect = (value: string, key: PostDataEnum | string) => {
+  //   if ((key as string) === 'TransitionTimes') {
+  //     this.onPostInsideIntervalChange(value);
+  //   } else {
+  //     this.onUpdatePostData.emit({ key: key as PostDataEnum, value });
+  //   }
+  // };
+  // #endregion
 
   onEventLocationsSelect = (selectedOptions: DropdownOption[]) => {
     const locationsCopy = [...this.eventLocations()];
@@ -251,7 +252,7 @@ export class EventControlsComponent implements OnInit {
       return;
     }
 
-    if (this.autoAvChecked()) {
+    if (this.isAutoAvChecked()) {
       this._modalService.open(
         'Warning',
         'Auto AV is enabled right now. Changing the stage while Auto AV is enabled could cause issues. Please disable Auto AV before changing the stage.',
@@ -280,9 +281,9 @@ export class EventControlsComponent implements OnInit {
   };
 
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
-    event.source.checked = this.autoAvChecked();
+    event.source.checked = this.isAutoAvChecked();
 
-    const desiredState = !this.autoAvChecked();
+    const desiredState = !this.isAutoAvChecked();
     const selectedEvent = this.selectedEvent();
     const selectedLocation = this.selectedLocation();
 
@@ -305,33 +306,33 @@ export class EventControlsComponent implements OnInit {
           autoAv: desiredState,
         };
 
-        this._autoAvSetupService.setAutoAvSetup(payload).subscribe({
-          next: (res) => {
-            this.autoAvChecked.set(desiredState);
-            localStorage.setItem(
-              'IS_AUTO_AV_ENABLED',
-              JSON.stringify(desiredState)
-            );
-            this.autoAvChanged.emit(desiredState);
-            console.log('AutoAV setup updated successfully:', res);
-            this._eventWebsocketService.setAutoAvToggle(desiredState);
-
-            if (desiredState) {
-              this._eventWebsocketService.initializeWebSocket(
-                selectedLocation.label
-              );
-              console.log('WebSocket connection initialized.');
-            } else {
-              this._eventWebsocketService.closeWebSocket();
-              console.log('WebSocket connection closed.');
-            }
-            this._modalService.close();
-          },
-          error: (err) => {
-            console.error('Error updating AutoAV setup:', err);
-            this._modalService.close();
-          },
-        });
+        this._autoAvSetupService
+          .setAutoAvSetup(payload)
+          .pipe(
+            take(1),
+            tap(() => {
+              this._eventStageWebSocketState.setAutoAvEnabled(desiredState);
+              setLocalStorageItem('IS_AUTO_AV_ENABLED', desiredState);
+              this.autoAvChanged.emit(desiredState);
+            }),
+            map((res) => {
+              console.log('AutoAV setup updated successfully:', res);
+              if (desiredState) {
+                this._checkAndConnectWithWebSocket(selectedLocation.label);
+                console.log('WebSocket connection initialized.');
+              } else {
+                this._eventStageWebsocketDataService.disconnect();
+                console.log('WebSocket connection closed.');
+              }
+              this._modalService.close();
+            }),
+            catchError((error) => {
+              console.error('Error updating AutoAV setup:', error);
+              this._modalService.close();
+              throw error;
+            })
+          )
+          .subscribe();
       },
       () => {
         this._modalService.close();
@@ -362,5 +363,48 @@ export class EventControlsComponent implements OnInit {
       isSelected: location.label === option.label,
     }));
     this._filtersStateService.setEventLocations(locationsCopy);
+  }
+
+  private _checkAndConnectWithWebSocket(location: string | undefined): void {
+    const savedAutoAvChecked =
+      getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED');
+    this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvChecked);
+    if (!savedAutoAvChecked) {
+      this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvChecked);
+      return;
+    }
+
+    if (
+      this._eventStageWebSocketState.$isConnected() ||
+      this._eventStageWebSocketState.$isConnecting()
+    ) {
+      return;
+    }
+
+    toObservable(this._eventStageWebSocketState.$isConnected, {
+      injector: this._injector,
+    })
+      .pipe(
+        filterEquals(false),
+        filter(() => this._eventStageWebSocketState.$autoAvEnabled()),
+        map(() => this._establishConnectionWithWebSocket(location)),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  private _establishConnectionWithWebSocket(location: string): void {
+    this._eventStageWebsocketDataService
+      .connect(location)
+      .pipe(
+        tap(() => console.log('WebSocket _wsSubscription')),
+        catchError((error) => {
+          console.error('WebSocket error:', error);
+          throw error;
+        }),
+        retry({ delay: 5000 }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
   }
 }
