@@ -16,7 +16,15 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ActivatedRoute } from '@angular/router';
-import { catchError, filter, map, retry, take, tap } from 'rxjs/operators';
+import {
+  catchError,
+  filter,
+  finalize,
+  map,
+  retry,
+  take,
+  tap,
+} from 'rxjs/operators';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
@@ -326,11 +334,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
               }
               this._modalService.close();
             }),
-            catchError((error) => {
-              console.error('Error updating AutoAV setup:', error);
-              this._modalService.close();
-              throw error;
-            })
+            finalize(() => this._modalService.close())
           )
           .subscribe();
       },
