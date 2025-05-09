@@ -34,7 +34,7 @@ jobs:
             # 'siso2025',
             'bhr2025',
             'itw2025',
-            'afa2025'
+            'afa2025',
           ]
     steps:
       - name: Set event environment variable
