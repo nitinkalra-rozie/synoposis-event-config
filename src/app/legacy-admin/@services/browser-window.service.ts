@@ -1,5 +1,4 @@
-import { inject, Injectable } from '@angular/core';
-import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
+import { Injectable } from '@angular/core';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 
 interface WindowFeatures {
@@ -20,7 +19,6 @@ interface WindowFeatures {
 })
 export class BrowserWindowService {
   private _window: Window | null = null;
-  private _filtersStateService = inject(DashboardFiltersStateService);
 
   openInsightsSessionWindow(url: string): void {
     if (!this._isWindowValid()) {
@@ -30,9 +28,7 @@ export class BrowserWindowService {
     }
   }
 
-  showInsightsProjectedWindow(): void {
-    const selectedLocation =
-      this._filtersStateService.selectedLocation()?.label;
+  showInsightsProjectedWindow(selectedLocation: string): void {
     const projectedUrl = `${getInsightsDomainUrl()}/primary-screen?stage=${selectedLocation}`;
 
     if (!this._isWindowValid()) {
@@ -40,10 +36,6 @@ export class BrowserWindowService {
     } else {
       this._updateWindowUrl(projectedUrl);
     }
-  }
-
-  getCurrentWindow(): Window | null {
-    return this._isWindowValid() ? this._window : null;
   }
 
   private _getWindowFeatures(features: WindowFeatures = {}): string {
