@@ -79,8 +79,9 @@
   </div>
   <!-- TODO:@later show Auto AV only for the events that we enable Auto AV for -->
   <!-- Why this is done now? Other functions related to Auto AV is not implemented keeping this in mind hence things could break. - saiyaff -->
+  <!-- TODO: @later move these to event based configurations -->
   @if (
-    selectedEvent()?.label === 'BHR2025' || selectedEvent()?.label === 'ITW2025'
+    selectedEvent()?.label === 'BHR2025' || selectedEvent()?.label === 'AFA2025'
   ) {
     <div class="auto-av-status-wrapper">
       @if (isAutoAvChecked()) {
