@@ -9,22 +9,22 @@ import {
   signal,
   SimpleChanges,
 } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter, orderBy } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
-import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
+import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
 import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
+import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
@@ -49,9 +49,9 @@ export class SessionSelectionComponent implements OnChanges {
       this._backendApiService.getCurrentEventName() === 'ITC'
     );
 
-    this._eventWebsocketService.sessionLiveListening$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((data) => {
+    toObservable(this._eventStageWebSocketState.$sessionLiveListening)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
         const sessionId = data?.sessionId;
         if (sessionId) {
           const activeSession =
@@ -80,9 +80,10 @@ export class SessionSelectionComponent implements OnChanges {
           }
         }
       });
-    this._eventWebsocketService.sessionEnd$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((data) => {
+
+    toObservable(this._eventStageWebSocketState.$sessionEnd)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
         const sessionId = data?.sessionId;
         const activeSession = this.activeSession()?.metadata['originalContent'];
 
@@ -131,7 +132,6 @@ export class SessionSelectionComponent implements OnChanges {
     this._dashboardFiltersStateService.liveEvent()
   );
 
-  private readonly _destroy$ = new Subject<void>();
   private readonly _backendApiService = inject(LegacyBackendApiService);
   private readonly _dashboardFiltersStateService = inject(
     DashboardFiltersStateService
@@ -139,7 +139,9 @@ export class SessionSelectionComponent implements OnChanges {
   private readonly _windowService = inject(BrowserWindowService);
   private readonly _globalState = inject(GlobalStateService);
   private readonly _modalService = inject(ModalService);
-  private readonly _eventWebsocketService = inject(EventWebsocketService);
+  private readonly _eventStageWebSocketState = inject(
+    EventStageWebSocketStateService
+  );
 
   protected isProjectOnPhysicalScreen = signal(false);
 
@@ -187,20 +189,11 @@ export class SessionSelectionComponent implements OnChanges {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
     this.isProjectOnPhysicalScreen.set(true);
 
-    const sessionId =
-      selectedOption.metadata['originalContent'].PrimarySessionId;
-    this._updateBrowserWindowUrl(sessionId);
-  }
-
-  protected _updateBrowserWindowUrl(sessionId: string): void {
-    const currentWindow = this._windowService.getCurrentWindow();
-    if (currentWindow) {
+    if (this._eventStageWebSocketState.$autoAvEnabled()) {
+      const sessionId =
+        selectedOption.metadata['originalContent'].PrimarySessionId;
       const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-      currentWindow.location.replace(newUrl);
-      console.log(
-        'Updated browser window URL for manual session change:',
-        newUrl
-      );
+      this._windowService.openInsightsSessionWindow(newUrl);
     }
   }
 

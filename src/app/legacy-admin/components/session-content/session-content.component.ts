@@ -21,11 +21,10 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 import { NgClass } from '@angular/common';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { escape } from 'lodash-es';
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-panel/control-panel.component';
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
 import { SessionSelectionComponent } from 'src/app/legacy-admin/@components/session-selection/session-selection.component';
@@ -35,7 +34,7 @@ import {
   SessionDetails,
   SessionStatus,
 } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
-import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
+import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import {
   ControlPanelState,
   DashboardTabs,
@@ -45,6 +44,7 @@ import { AudioRecorderService } from 'src/app/legacy-admin/@services/audio-recor
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { ProjectionStateService } from 'src/app/legacy-admin/@services/projection-state.service';
+import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { generateSHA256HashHex } from 'src/app/legacy-admin/@utils/generate-hash';
 import { generateUniqueId } from 'src/app/legacy-admin/@utils/generate-uuid';
 import { MicrophoneService } from 'src/app/legacy-admin/services/microphone.service';
@@ -84,6 +84,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() autoAvEnabled: boolean = false;
 
   private readonly _backendApiService = inject(LegacyBackendApiService);
+  private readonly _eventStageWebsocketState = inject(
+    EventStageWebSocketStateService
+  );
 
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;
@@ -169,7 +172,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected DashboardTabs = DashboardTabs;
 
   private _isTranscriptParaBreak: boolean = false;
-  private _destroy$ = new Subject<void>();
 
   private readonly TRANSCRIPT_CHECK_INTERVAL = 5000;
   private readonly TRANSCRIPT_SILENCE_THRESHOLD = 10000;
@@ -183,7 +185,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     private _globalStateService: GlobalStateService,
     private _dashboardFiltersStateService: DashboardFiltersStateService,
     private _projectionStateService: ProjectionStateService,
-    private _eventWebsocketService: EventWebsocketService,
     private _audioRecorderService: AudioRecorderService
   ) {
     effect(() => {
@@ -217,9 +218,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
       }
     });
 
-    this._eventWebsocketService.sessionEnd$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((data) => {
+    toObservable(this._eventStageWebsocketState.$sessionEnd)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
         console.log('SESSION_END received:', data);
 
         // Extract session ID from the WebSocket message
