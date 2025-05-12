@@ -26,6 +26,7 @@ const isPrivateEndpoint = (url: string): boolean => {
     'r6/config',
     'r5/postEventDetails',
     'r2/stage',
+    'r2/postAudioChunk',
   ];
   return authEndpoints.some((endpoint) => url.includes(endpoint));
 };

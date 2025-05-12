@@ -67,3 +67,10 @@ export interface CustomChallengeResponse {
   __type?: string;
   Session?: string;
 }
+
+export interface SessionAudioChunk {
+  eventName: string;
+  sessionId: string;
+  chunkBase64: string;
+  timestamp: number;
+}

@@ -41,6 +41,7 @@ import {
   DashboardTabs,
   RightSidebarState,
 } from 'src/app/legacy-admin/@models/global-state';
+import { AudioRecorderService } from 'src/app/legacy-admin/@services/audio-recorder.service';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { ProjectionStateService } from 'src/app/legacy-admin/@services/projection-state.service';
@@ -182,7 +183,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     private _globalStateService: GlobalStateService,
     private _dashboardFiltersStateService: DashboardFiltersStateService,
     private _projectionStateService: ProjectionStateService,
-    private _eventWebsocketService: EventWebsocketService
+    private _eventWebsocketService: EventWebsocketService,
+    private _audioRecorderService: AudioRecorderService
   ) {
     effect(() => {
       if (
@@ -596,7 +598,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         localStorage.setItem('isSessionInProgress', '1');
 
         this.isSessionInProgress = true;
-
+        this._audioRecorderService.init(session.Event, session.SessionId);
         this.startRecording();
 
         this._backendApiService
@@ -1045,10 +1047,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
+    this._audioRecorderService.init(
+      localStorage.getItem('selectedEvent'),
+      localStorage.getItem('currentSessionId')
+    );
 
     this.micStream.on('data', (rawAudioChunk) => {
       // Normal audio processing - always send real audio
       const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
+      this._audioRecorderService.handleRawChunk(rawAudioChunk);
       if (binary && this.socket?.OPEN) {
         this.socket.send(binary);
       }
@@ -1127,6 +1134,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.modalService.close();
     localStorage.setItem('isSessionInProgress', '0');
     this.isSessionInProgress = false;
+    this._audioRecorderService.flushAndClose();
     if (this.socket.OPEN) {
       this.micStream.stop();
 
@@ -1175,10 +1183,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'originalContent'
     ] as SessionDetails;
     const results = messageJson.Transcript.Results;
-    console.log(
-      'messageJSON got from the transcribe',
-      JSON.stringify(messageJson)
-    );
+    // console.log(
+    //   'messageJSON got from the transcribe',
+    //   JSON.stringify(messageJson)
+    // );
     if (results.length > 0) {
       // Update timestamp when we get any transcript (partial or final)
       this.lastTranscriptTimestamp = Date.now();

@@ -4,13 +4,23 @@ import { Observable } from 'rxjs';
 import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
-import { PostData } from '../shared/types';
+import { PostData, SessionAudioChunk } from '../shared/types';
 
 interface EventReportResponse {
   data?: {
     data?: Array<{
       snapshotData?: any; // Replace 'any' with a more specific type if possible
     }>;
+  };
+}
+
+interface AudioRecorderResponse {
+  data?: {
+    status: string;
+    data: {
+      message?: string;
+      error?: string;
+    };
   };
 }
 
@@ -189,5 +199,15 @@ export class BackendApiService {
     return this.http.post(environment.getEventDetails, {
       event: this._backendApiService.getCurrentEventName(),
     });
+  }
+
+  uploadAudioChunk(data: SessionAudioChunk): Observable<AudioRecorderResponse> {
+    const body = {
+      sessionId: data.sessionId,
+      eventName: data.eventName,
+      chunkBase64: data.chunkBase64,
+      timestamp: data.timestamp,
+    };
+    return this.http.post(environment.audioRecorderUrl, body);
   }
 }

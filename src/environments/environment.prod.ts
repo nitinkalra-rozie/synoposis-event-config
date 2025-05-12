@@ -35,4 +35,5 @@ export const environment = {
   X_API_KEY: 'zpVl7dR3Cf3l56RsfpfDp4aEvfMFMHFL6ualSok5',
   setAutoAvSetupUrl: 'https://api.synopsis.rozie.ai/r2/stage',
   wsUrl: 'wss://admin-ws.api.synopsis.rozie.ai/',
+  audioRecorderUrl: 'https://api.synopsis.rozie.ai/r2/postAudioChunk',
 };
