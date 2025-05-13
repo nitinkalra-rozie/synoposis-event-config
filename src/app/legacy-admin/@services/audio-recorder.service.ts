@@ -159,7 +159,7 @@ export class AudioRecorderService implements OnDestroy {
     });
 
     return of(null).pipe(
-      switchMap(() => this.backend.uploadAudioChunk(makePayload()).toPromise()),
+      switchMap(() => from(this.backend.uploadAudioChunk(makePayload()))),
       retryWhen((errors) =>
         errors.pipe(
           concatMap((err, i) =>
