@@ -74,3 +74,13 @@ export interface SessionAudioChunk {
   chunkBase64: string;
   timestamp: number;
 }
+
+export interface AudioRecorderResponse {
+  data?: {
+    status: string;
+    data: {
+      message?: string;
+      error?: string;
+    };
+  };
+}

@@ -4,23 +4,17 @@ import { Observable } from 'rxjs';
 import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
-import { PostData, SessionAudioChunk } from '../shared/types';
+import {
+  AudioRecorderResponse,
+  PostData,
+  SessionAudioChunk,
+} from '../shared/types';
 
 interface EventReportResponse {
   data?: {
     data?: Array<{
       snapshotData?: any; // Replace 'any' with a more specific type if possible
     }>;
-  };
-}
-
-interface AudioRecorderResponse {
-  data?: {
-    status: string;
-    data: {
-      message?: string;
-      error?: string;
-    };
   };
 }
 

@@ -18,9 +18,11 @@ import {
   takeUntil,
 } from 'rxjs/operators';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { SessionAudioChunk } from 'src/app/legacy-admin/shared/types';
+import {
+  AudioRecorderResponse,
+  SessionAudioChunk,
+} from 'src/app/legacy-admin/shared/types';
 import { downsampleBuffer, pcmEncode } from '../helpers/audioUtils';
-
 @Injectable({ providedIn: 'root' })
 export class AudioRecorderService implements OnDestroy {
   constructor(
@@ -52,7 +54,6 @@ export class AudioRecorderService implements OnDestroy {
   }
 
   handleRawChunk(data: any): void {
-    console.log('Audio chunk received:');
     const raw = data && MicrophoneStream.toRaw(data);
     if (!raw) {
       return;
@@ -135,11 +136,21 @@ export class AudioRecorderService implements OnDestroy {
     }
 
     return from(slices).pipe(
-      concatMap((slice) => this.uploadSliceWithRetry(slice))
+      concatMap((slice) =>
+        this.uploadSliceWithRetry(slice).pipe(
+          catchError((err) => {
+            console.error('Error uploading slice:', err);
+            return of(void 0);
+          }),
+          switchMap(() => of(void 0))
+        )
+      )
     );
   }
 
-  private uploadSliceWithRetry(slice: Uint8Array): Observable<void> {
+  private uploadSliceWithRetry(
+    slice: Uint8Array
+  ): Observable<void | AudioRecorderResponse> {
     const makePayload = (): SessionAudioChunk => ({
       eventName: this.eventName,
       sessionId: this.sessionId,
