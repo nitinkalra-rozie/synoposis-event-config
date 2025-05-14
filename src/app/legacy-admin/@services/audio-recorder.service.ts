@@ -28,9 +28,7 @@ export class AudioRecorderService implements OnDestroy {
   constructor(
     private backend: BackendApiService,
     private ngZone: NgZone
-  ) {
-    this.ngZone.runOutsideAngular(() => this.setupBufferPipeline());
-  }
+  ) {}
 
   private readonly _maxBatchBytes = 512 * 1024;
   private readonly _flushPollMs = 5000;
@@ -46,10 +44,17 @@ export class AudioRecorderService implements OnDestroy {
   private _chunk$ = new Subject<Uint8Array>();
   private _destroy$ = new Subject<void>();
   private _subs = new Subscription();
+  private _pipelineReady = false;
 
   init(eventName: string, sessionId: string): void {
+    this.flushAndClose();
+
     this.eventName = eventName;
     this.sessionId = sessionId;
+    this.ngZone.runOutsideAngular(() => {
+      this.setupBufferPipeline();
+      this._pipelineReady = true;
+    });
     console.log('AudioRecorderService initialized with event name:', eventName);
   }
 
@@ -58,6 +63,13 @@ export class AudioRecorderService implements OnDestroy {
     if (!raw) {
       return;
     }
+    if (!this._pipelineReady) {
+      console.warn('Audio pipeline not ready—auto-initializing');
+      this.ngZone.runOutsideAngular(() => {
+        this.setupBufferPipeline();
+        this._pipelineReady = true;
+      });
+    }
 
     const down = downsampleBuffer(raw, 16000);
     const pcm = pcmEncode(down);
@@ -65,10 +77,9 @@ export class AudioRecorderService implements OnDestroy {
   }
 
   async flushAndClose(): Promise<void> {
-    this._destroy$.next();
-    this._destroy$.complete();
-    this._chunk$.complete();
-    this._subs.unsubscribe();
+    this._destroy$?.next();
+    this._subs?.unsubscribe();
+    this._pipelineReady = false;
 
     const leftover = this.drainBuffer();
     if (leftover.length > 0) {
@@ -83,6 +94,8 @@ export class AudioRecorderService implements OnDestroy {
   }
 
   private setupBufferPipeline(): void {
+    this._subs?.unsubscribe();
+    this._subs = new Subscription();
     const collectSub = this._chunk$
       .pipe(takeUntil(this._destroy$))
       .subscribe((chunk) => {

@@ -599,7 +599,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
         localStorage.setItem('isSessionInProgress', '1');
 
         this.isSessionInProgress = true;
-        this._audioRecorderService.init(session.Event, session.SessionId);
         this.startRecording();
 
         this._backendApiService
@@ -1184,10 +1183,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
       'originalContent'
     ] as SessionDetails;
     const results = messageJson.Transcript.Results;
-    // console.log(
-    //   'messageJSON got from the transcribe',
-    //   JSON.stringify(messageJson)
-    // );
+    console.log(
+      'messageJSON got from the transcribe',
+      JSON.stringify(messageJson)
+    );
     if (results.length > 0) {
       // Update timestamp when we get any transcript (partial or final)
       this.lastTranscriptTimestamp = Date.now();
