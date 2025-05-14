@@ -1,6 +1,6 @@
 <div class="layout-side-nav-container">
   <div class="side-nav-items">
-    @if (userRoleRank() > 1) {
+    @if (showTab('admin')) {
       <a
         matTooltip="Admin Dashboard"
         matTooltipClass="tooltip-text-only-300"
@@ -12,8 +12,8 @@
         <mat-icon svgIcon="syn:space_dashboard_outlined" />
       </a>
     }
-    <!-- TODO:@later Use isAdminUser() as the necessity arises -->
-    @if (userRoleRank() > 0) {
+
+    @if (showTab('insights-editor')) {
       <a
         matTooltip="Insights Editor"
         matTooltipClass="tooltip-text-only-300"
@@ -24,7 +24,9 @@
         routerLinkActive="selected">
         <mat-icon>dashboard</mat-icon>
       </a>
+    }
 
+    @if (showTab('content-editor')) {
       <a
         matTooltip="Content Editor"
         matTooltipClass="tooltip-text-only-300"
@@ -36,7 +38,8 @@
         <mat-icon>description</mat-icon>
       </a>
     }
-    @if (isSuperAdmin || isEventOrganizer) {
+
+    @if (showTab('agenda')) {
       <a
         matTooltip="Agenda"
         matTooltipClass="tooltip-text-only-300"
@@ -47,6 +50,9 @@
         routerLinkActive="selected">
         <mat-icon>event</mat-icon>
       </a>
+    }
+
+    @if (showTab('analytics')) {
       <a
         matTooltip="Analytics Dashboard"
         matTooltipClass="tooltip-text-only-300"

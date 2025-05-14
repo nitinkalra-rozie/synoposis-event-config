@@ -157,6 +157,8 @@ export class AuthService {
         return RoleRank.SUPER_ADMIN;
       case UserRole.ADMIN:
         return RoleRank.ADMIN;
+      case UserRole.EVENTORGANIZER:
+        return RoleRank.EVENT_ORGANIZER;
       default:
         return RoleRank.EDITOR;
     }

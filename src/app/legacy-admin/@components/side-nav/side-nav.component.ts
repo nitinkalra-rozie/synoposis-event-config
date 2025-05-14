@@ -6,6 +6,15 @@ import { jwtDecode } from 'jwt-decode';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { UserRole } from 'src/app/legacy-admin/shared/enums';
 
+interface TabConfig {
+  id: string;
+  label: string;
+  icon: string;
+  isSvg?: boolean;
+  route: string;
+  roles: UserRole[];
+}
+
 @Component({
   selector: 'app-side-nav',
   templateUrl: './side-nav.component.html',
@@ -13,54 +22,66 @@ import { UserRole } from 'src/app/legacy-admin/shared/enums';
   imports: [RouterModule, MatTooltipModule, MatIconModule],
 })
 export class SideNavComponent implements OnInit {
-  public userRoleRank = 2;
-  public isEventOrganizer = computed(() => {
-    const userRole = this._authService.getUserRole();
-    if (!userRole) return false;
-    if (userRole === UserRole.EVENTORGANIZER) {
-      return true;
-    } else {
-      return false;
-    }
+  public readonly userRole = signal<UserRole | null>(null);
+  public readonly visibleTabs = computed(() => {
+    const role = this.userRole();
+    return this._tabs.filter((tab) => tab.roles.includes(role!));
   });
 
-  public isSuperAdmin = computed(() => {
-    const userRole = this._authService.getUserRole();
-    if (!userRole) return false;
-    if (userRole === UserRole.SUPERADMIN) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-
-  private _authService = inject(AuthService);
-  private _isAdminUser = signal<boolean>(false);
+  private readonly _authService = inject(AuthService);
+  private readonly _tabs: TabConfig[] = [
+    {
+      id: 'admin',
+      label: 'Admin Dashboard',
+      icon: 'syn:space_dashboard_outlined',
+      isSvg: true,
+      route: '/admin',
+      roles: [UserRole.SUPERADMIN, UserRole.ADMIN],
+    },
+    {
+      id: 'insights-editor',
+      label: 'Insights Editor',
+      icon: 'dashboard',
+      route: '/insights-editor',
+      roles: [UserRole.SUPERADMIN, UserRole.EDITOR],
+    },
+    {
+      id: 'content-editor',
+      label: 'Content Editor',
+      icon: 'description',
+      route: '/content-editor',
+      roles: [UserRole.SUPERADMIN, UserRole.EDITOR],
+    },
+    {
+      id: 'agenda',
+      label: 'Agenda Tool',
+      icon: 'event',
+      route: '/agenda',
+      roles: [UserRole.SUPERADMIN, UserRole.EVENTORGANIZER],
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics Dashboard',
+      icon: 'analytics',
+      route: '/analytics',
+      roles: [UserRole.SUPERADMIN, UserRole.EVENTORGANIZER],
+    },
+  ];
 
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
-    this.checkIsAdminUser(token);
-    this.userRoleRank = this._authService.getUserRoleRank();
+    this.userRole.set(this._authService.getUserRole());
+    this._checkIsAdminUser(token);
   }
 
-  checkIsAdminUser(token: string): any | null {
-    if (!token) return null;
-
+  private _checkIsAdminUser(token: string | null): void {
+    if (!token) return;
     try {
       const decoded: any = jwtDecode(token);
-      if (decoded?.username) {
-        const normalizedEmail = decoded.username.toLowerCase().trim();
-        if (normalizedEmail.endsWith('@rozie.ai')) {
-          this._isAdminUser.set(true);
-        } else {
-          this._isAdminUser.set(false);
-        }
-      }
-
-      return decoded;
+      const normalizedEmail = decoded?.username?.toLowerCase().trim();
+      const isAdmin = normalizedEmail?.endsWith('@rozie.ai');
     } catch (error) {
       console.error('Invalid token:', error);
-      return null;
     }
   }
 }

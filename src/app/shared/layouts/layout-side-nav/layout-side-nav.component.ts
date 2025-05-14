@@ -29,36 +29,42 @@ const ADMIN_EMAIL_DOMAIN = '@rozie.ai';
   imports: [RouterLinkActive, RouterLink, MatTooltipModule, MatIconModule],
 })
 export class LayoutSideNavComponent implements OnInit {
-  protected readonly isEventOrganizer = computed(() => {
-    const userRole = this._authService.getUserRole();
-    if (!userRole) return false;
-    if (userRole === UserRole.EVENTORGANIZER) {
-      return true;
-    } else {
-      return false;
+  protected readonly _authService = inject(AuthService);
+  protected readonly isAdminUser = signal<boolean>(false);
+  protected readonly visibleTabs = computed(() => {
+    const role = this.userRole();
+
+    switch (role) {
+      case UserRole.SUPERADMIN:
+        return [
+          'admin',
+          'insights-editor',
+          'content-editor',
+          'agenda',
+          'analytics',
+        ];
+      case UserRole.ADMIN:
+        return ['admin'];
+      case UserRole.EVENTORGANIZER:
+        return ['agenda', 'analytics'];
+      case UserRole.EDITOR:
+        return ['insights-editor', 'content-editor'];
+      default:
+        return [];
     }
   });
 
-  protected readonly isSuperAdmin = computed(() => {
-    const userRole = this._authService.getUserRole();
-    if (!userRole) return false;
-    if (userRole === UserRole.SUPERADMIN) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-
-  private readonly _authService = inject(AuthService);
-
-  protected userRoleRank = signal<number>(2);
-  // TODO:@later use isAdminUser in the template as the necessity arises
-  protected isAdminUser = signal<boolean>(false);
+  protected userRole = signal<UserRole | null>(null);
 
   ngOnInit(): void {
+    this.userRole.set(this._authService.getUserRole());
+
     const token = localStorage.getItem('accessToken');
     this._checkIsAdminUser(token);
-    this.userRoleRank.set(this._authService.getUserRoleRank());
+  }
+
+  protected showTab(tab: string): boolean {
+    return this.visibleTabs().includes(tab);
   }
 
   private _checkIsAdminUser(token: string | null): DecodedToken | null {
@@ -66,14 +72,10 @@ export class LayoutSideNavComponent implements OnInit {
 
     try {
       const decoded: DecodedToken = jwtDecode(token);
-
-      if (decoded?.username) {
-        const normalizedEmail = decoded.username.toLowerCase().trim();
-        this.isAdminUser.set(normalizedEmail.endsWith(ADMIN_EMAIL_DOMAIN));
-      } else {
-        this.isAdminUser.set(false);
-      }
-
+      const normalizedEmail = decoded?.username?.toLowerCase().trim();
+      this.isAdminUser.set(
+        normalizedEmail?.endsWith(ADMIN_EMAIL_DOMAIN) ?? false
+      );
       return decoded;
     } catch (error) {
       console.error('Invalid token:', error);

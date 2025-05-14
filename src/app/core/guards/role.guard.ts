@@ -6,15 +6,27 @@ export const RoleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const userRole = authService.getUserRole();
+  const currentPath = route.routeConfig?.path;
 
-  const allowedRoutes = ['analytics', 'agenda'];
+  const allowedRoutesMap = {
+    [UserRole.ADMIN]: ['admin'],
+    [UserRole.SUPERADMIN]: [
+      'admin',
+      'insights-editor',
+      'content-editor',
+      'agenda',
+      'analytics',
+    ],
+    [UserRole.EVENTORGANIZER]: ['agenda', 'analytics'],
+    [UserRole.EDITOR]: ['insights-editor', 'content-editor'],
+  };
 
-  if (userRole === UserRole.EVENTORGANIZER) {
-    const currentPath = route.routeConfig?.path;
-    if (!allowedRoutes.includes(currentPath || '')) {
-      router.navigate(['/analytics']);
-      return false;
-    }
+  const allowedRoutes = allowedRoutesMap[userRole] || [];
+
+  const isAllowed = allowedRoutes.some((path) => currentPath?.startsWith(path));
+  if (!isAllowed) {
+    router.navigate(['/']);
+    return false;
   }
 
   return true;

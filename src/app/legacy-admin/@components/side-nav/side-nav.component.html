@@ -6,65 +6,22 @@
         src="../../../../../assets/side-nav/rozie-synopsis-logo-mark.svg" />
     </div>
   </div>
+
   <div class="nav-items">
-    @if (!isEventOrganizer()) {
-      @if (userRoleRank > 1) {
-        <a
-          matTooltip="Admin Dashboard"
-          matTooltipClass="tooltip-text-only-300"
-          matTooltipPosition="after"
-          class="menu-item"
-          [routerLinkActiveOptions]="{ exact: true }"
-          routerLink="/admin"
-          routerLinkActive="selected">
-          <mat-icon svgIcon="syn:space_dashboard_outlined" />
-        </a>
-      }
-
-      @if (userRoleRank > 0) {
-        <a
-          matTooltip="Insights Editor"
-          matTooltipClass="tooltip-text-only-300"
-          matTooltipPosition="after"
-          class="menu-item"
-          [routerLinkActiveOptions]="{ exact: true }"
-          routerLink="/insights-editor"
-          routerLinkActive="selected">
-          <mat-icon>dashboard</mat-icon>
-        </a>
-
-        <a
-          matTooltip="Content Editor"
-          matTooltipClass="tooltip-text-only-300"
-          matTooltipPosition="after"
-          class="menu-item"
-          [routerLinkActiveOptions]="{ exact: true }"
-          routerLink="/content-editor"
-          routerLinkActive="selected">
-          <mat-icon>description</mat-icon>
-        </a>
-      }
-    }
-    @if (isSuperAdmin || isEventOrganizer) {
+    @for (tab of visibleTabs(); track tab.id) {
       <a
-        matTooltip="Agenda Tool"
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
+        [matTooltip]="tab.label"
+        [routerLink]="tab.route"
         [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/agenda"
         routerLinkActive="selected">
-        <mat-icon>event</mat-icon>
-      </a>
-      <a
-        matTooltip="Analytics Dashboard"
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/analytics"
-        routerLinkActive="selected">
-        <mat-icon>analytics</mat-icon>
+        @if (tab.isSvg) {
+          <mat-icon [svgIcon]="tab.icon"></mat-icon>
+        } @else {
+          <mat-icon>{{ tab.icon }}</mat-icon>
+        }
       </a>
     }
   </div>

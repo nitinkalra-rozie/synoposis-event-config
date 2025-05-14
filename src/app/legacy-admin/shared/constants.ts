@@ -30,4 +30,5 @@ export const RoleRank = {
   EDITOR: 1,
   ADMIN: 2,
   SUPER_ADMIN: 3,
+  EVENT_ORGANIZER: 4,
 };

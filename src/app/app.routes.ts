@@ -62,12 +62,12 @@ export const routes: Routes = [
       import('src/app/legacy-admin/@pages/agenda/agenda.component').then(
         (c) => c.AgendaComponent
       ),
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
   },
   {
     path: 'analytics',
     component: AnalyticsDashboardComponent,
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
   },
   {
     path: '**',
