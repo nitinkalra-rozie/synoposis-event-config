@@ -58,7 +58,7 @@ export class AudioRecorderService {
     this._chunk$.next(new Uint8Array(pcm));
   }
 
-  async flushAndClose(): Promise<void> {
+  flushAndClose(): void {
     this._shutdown$.next();
   }
 
