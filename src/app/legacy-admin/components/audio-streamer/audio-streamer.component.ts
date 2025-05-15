@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
+import {
+  downsampleBuffer,
+  pcmEncode,
+} from 'src/app/legacy-admin/helpers/audioUtils';
 declare const Buffer;
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec

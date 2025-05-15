@@ -56,6 +56,7 @@ import {
   ThemeOptions,
 } from 'src/app/legacy-admin/shared/enums';
 import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
+import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -1048,7 +1049,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
     this._audioRecorderService.init(
-      localStorage.getItem('selectedEvent'),
+      getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
       localStorage.getItem('currentSessionId')
     );
 

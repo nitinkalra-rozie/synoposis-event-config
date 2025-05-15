@@ -1,75 +1,57 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { DestroyRef, Injectable, NgZone, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import MicrophoneStream from 'microphone-stream';
+import { EMPTY, Observable, Subject, from, of, timer } from 'rxjs';
 import {
-  from,
-  Observable,
-  of,
-  Subject,
-  Subscription,
-  throwError,
-  timer,
-} from 'rxjs';
-import {
+  bufferTime,
   catchError,
-  concatMap,
-  filter,
-  retryWhen,
-  switchMap,
+  finalize,
+  map,
+  mergeMap,
+  retry,
   takeUntil,
 } from 'rxjs/operators';
-import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import {
   AudioRecorderResponse,
   SessionAudioChunk,
-} from 'src/app/legacy-admin/shared/types';
-import { downsampleBuffer, pcmEncode } from '../helpers/audioUtils';
-@Injectable({ providedIn: 'root' })
-export class AudioRecorderService implements OnDestroy {
-  constructor(
-    private backend: BackendApiService,
-    private ngZone: NgZone
-  ) {}
+} from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-service';
+import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
+import {
+  downsampleBuffer,
+  pcmEncode,
+} from 'src/app/legacy-admin/helpers/audioUtils';
 
-  private readonly _maxBatchBytes = 512 * 1024;
-  private readonly _flushPollMs = 5000;
+@Injectable({ providedIn: 'root' })
+export class AudioRecorderService {
+  private readonly _backendApiService = inject(BackendApiService);
+  private readonly _ngZone = inject(NgZone);
+  private readonly _destroyRef = inject(DestroyRef);
+
+  private readonly _maxBatchPayloadBytes = 600 * 1024;
   private readonly _apiRetryCount = 2;
   private readonly _apiRetryDelayMs = 1000;
-
-  public eventName!: string;
-  public sessionId!: string;
-
-  private _buffer: Uint8Array[] = [];
-  private _bufferBytes = 0;
+  private readonly _pollingIntervalMs = 3000;
 
   private _chunk$ = new Subject<Uint8Array>();
-  private _destroy$ = new Subject<void>();
-  private _subs = new Subscription();
-  private _pipelineReady = false;
+  private _shutdown$ = new Subject<void>();
+
+  private _eventName: string;
+  private _sessionId: string;
 
   init(eventName: string, sessionId: string): void {
-    this.flushAndClose();
+    this._shutdown$.next();
+    this._shutdown$ = new Subject<void>();
 
-    this.eventName = eventName;
-    this.sessionId = sessionId;
-    this.ngZone.runOutsideAngular(() => {
-      this.setupBufferPipeline();
-      this._pipelineReady = true;
-    });
-    console.log('AudioRecorderService initialized with event name:', eventName);
+    this._eventName = eventName;
+    this._sessionId = sessionId;
+    console.log(`Initialized for ${eventName} ${sessionId}`);
+
+    this._ngZone.runOutsideAngular(() => this.buildPipeline());
   }
 
   handleRawChunk(data: any): void {
     const raw = data && MicrophoneStream.toRaw(data);
-    if (!raw) {
-      return;
-    }
-    if (!this._pipelineReady) {
-      console.warn('Audio pipeline not ready—auto-initializing');
-      this.ngZone.runOutsideAngular(() => {
-        this.setupBufferPipeline();
-        this._pipelineReady = true;
-      });
-    }
+    if (!raw) return;
 
     const down = downsampleBuffer(raw, 16000);
     const pcm = pcmEncode(down);
@@ -77,66 +59,40 @@ export class AudioRecorderService implements OnDestroy {
   }
 
   async flushAndClose(): Promise<void> {
-    this._destroy$?.next();
-    this._subs?.unsubscribe();
-    this._pipelineReady = false;
-
-    const leftover = this.drainBuffer();
-    if (leftover.length > 0) {
-      await this.uploadMergedBatches(leftover).toPromise();
-    }
+    this._shutdown$.next();
   }
 
-  ngOnDestroy(): void {
-    this.flushAndClose()?.finally(() => {
-      console.debug('AudioRecorderService destroyed cleanly.');
-    });
-  }
-
-  private setupBufferPipeline(): void {
-    this._subs?.unsubscribe();
-    this._subs = new Subscription();
-    const collectSub = this._chunk$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((chunk) => {
-        this._buffer.push(chunk);
-        this._bufferBytes += chunk.byteLength;
-      });
-
-    const pollSub = timer(0, this._flushPollMs)
+  private buildPipeline(): void {
+    this._chunk$
       .pipe(
-        takeUntil(this._destroy$),
-        filter(() => this._bufferBytes >= this._maxBatchBytes),
-        switchMap(() => {
-          const toUpload = this.drainBuffer();
-          return this.uploadMergedBatches(toUpload);
+        bufferTime(this._pollingIntervalMs),
+        takeUntil(this._shutdown$),
+        takeUntilDestroyed(this._destroyRef),
+        mergeMap((buffer) => {
+          if (buffer.length === 0) return EMPTY;
+
+          return this.uploadMergedBatches(buffer).pipe(
+            catchError((err) => {
+              console.error('Upload batch error, continuing', err);
+              return EMPTY;
+            })
+          );
+        }),
+        finalize(() => {
+          console.log('Audio pipeline stopped');
         })
       )
-      .subscribe({
-        error: (err) => console.error('Buffer pipeline error:', err),
-      });
-
-    this._subs.add(collectSub);
-    this._subs.add(pollSub);
-  }
-
-  private drainBuffer(): Uint8Array[] {
-    const drained = this._buffer;
-    this._buffer = [];
-    this._bufferBytes = 0;
-    return drained;
+      .subscribe();
   }
 
   private uploadMergedBatches(chunks: Uint8Array[]): Observable<void> {
-    if (!this.eventName || !this.sessionId || chunks.length === 0) {
-      console.warn('No event name or session ID set, skipping upload.');
+    if (!this._eventName || !this._sessionId) {
+      console.warn('Skipping upload—missing event/session');
       return of(void 0);
     }
 
-    console.log('Uploading merged batches:', chunks.length);
-
-    const totalLen = chunks.reduce((sum, b) => sum + b.byteLength, 0);
-    const merged = new Uint8Array(totalLen);
+    const total = chunks.reduce((sum, c) => sum + c.byteLength, 0);
+    const merged = new Uint8Array(total);
     let offset = 0;
     for (const c of chunks) {
       merged.set(c, offset);
@@ -144,47 +100,38 @@ export class AudioRecorderService implements OnDestroy {
     }
 
     const slices: Uint8Array[] = [];
-    for (let i = 0; i < merged.byteLength; i += this._maxBatchBytes) {
-      slices.push(merged.subarray(i, i + this._maxBatchBytes));
+    for (let i = 0; i < merged.byteLength; i += this._maxBatchPayloadBytes) {
+      slices.push(merged.subarray(i, i + this._maxBatchPayloadBytes));
     }
 
     return from(slices).pipe(
-      concatMap((slice) =>
-        this.uploadSliceWithRetry(slice).pipe(
-          catchError((err) => {
-            console.error('Error uploading slice:', err);
-            return of(void 0);
-          }),
-          switchMap(() => of(void 0))
-        )
-      )
+      mergeMap((slice) => this.uploadSliceWithRetry(slice), 1),
+      map(() => void 0)
     );
   }
 
   private uploadSliceWithRetry(
     slice: Uint8Array
-  ): Observable<void | AudioRecorderResponse> {
+  ): Observable<AudioRecorderResponse | void> {
     const makePayload = (): SessionAudioChunk => ({
-      eventName: this.eventName,
-      sessionId: this.sessionId,
+      eventName: this._eventName,
+      sessionId: this._sessionId,
       chunkBase64: this.encodeBase64(slice),
       timestamp: Date.now(),
     });
 
     return of(null).pipe(
-      switchMap(() => from(this.backend.uploadAudioChunk(makePayload()))),
-      retryWhen((errors) =>
-        errors.pipe(
-          concatMap((err, i) =>
-            i < this._apiRetryCount
-              ? timer(this._apiRetryDelayMs * Math.pow(2, i))
-              : throwError(err)
-          )
-        )
+      mergeMap(() =>
+        from(this._backendApiService.uploadAudioChunk(makePayload()))
       ),
+      retry({
+        count: this._apiRetryCount,
+        delay: (error, retryAttempt) =>
+          timer(this._apiRetryDelayMs * Math.pow(2, retryAttempt)),
+      }),
       catchError((err) => {
         console.error('Slice upload failed after retries:', err);
-        return of(void 0); // swallow and continue
+        return of(void 0);
       })
     );
   }
