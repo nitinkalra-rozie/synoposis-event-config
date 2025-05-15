@@ -1,4 +1,5 @@
 import {
+  inject as angularInject,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -10,8 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
+import { UserRole } from 'src/app/core/enum/auth-roles.enum';
+import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
-import { UserRole } from 'src/app/legacy-admin/shared/enums';
 
 interface DecodedToken {
   [key: string]: any;
@@ -30,41 +32,21 @@ const ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 })
 export class LayoutSideNavComponent implements OnInit {
   protected readonly _authService = inject(AuthService);
+  protected readonly _menuItems = angularInject(NAVIGATION_MENU);
+
   protected readonly isAdminUser = signal<boolean>(false);
-  protected readonly visibleTabs = computed(() => {
+  protected readonly userRole = signal<UserRole | null>(null);
+
+  protected readonly filteredMenuItems = computed(() => {
     const role = this.userRole();
-
-    switch (role) {
-      case UserRole.SUPERADMIN:
-        return [
-          'admin',
-          'insights-editor',
-          'content-editor',
-          'agenda',
-          'analytics',
-        ];
-      case UserRole.ADMIN:
-        return ['admin'];
-      case UserRole.EVENTORGANIZER:
-        return ['agenda', 'analytics'];
-      case UserRole.EDITOR:
-        return ['insights-editor', 'content-editor'];
-      default:
-        return [];
-    }
+    if (!role) return [];
+    return this._menuItems.filter((item) => role && item.roles.includes(role));
   });
-
-  protected userRole = signal<UserRole | null>(null);
 
   ngOnInit(): void {
     this.userRole.set(this._authService.getUserRole());
-
     const token = localStorage.getItem('accessToken');
     this._checkIsAdminUser(token);
-  }
-
-  protected showTab(tab: string): boolean {
-    return this.visibleTabs().includes(tab);
   }
 
   private _checkIsAdminUser(token: string | null): DecodedToken | null {

@@ -1,67 +1,19 @@
 <div class="layout-side-nav-container">
   <div class="side-nav-items">
-    @if (showTab('admin')) {
+    @for (item of filteredMenuItems(); track item.id) {
       <a
-        matTooltip="Admin Dashboard"
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
+        [matTooltip]="item.label"
+        [routerLink]="item.route"
         [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/admin"
         routerLinkActive="selected">
-        <mat-icon svgIcon="syn:space_dashboard_outlined" />
-      </a>
-    }
-
-    @if (showTab('insights-editor')) {
-      <a
-        matTooltip="Insights Editor"
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/insights-editor"
-        routerLinkActive="selected">
-        <mat-icon>dashboard</mat-icon>
-      </a>
-    }
-
-    @if (showTab('content-editor')) {
-      <a
-        matTooltip="Content Editor"
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/content-editor"
-        routerLinkActive="selected">
-        <mat-icon>description</mat-icon>
-      </a>
-    }
-
-    @if (showTab('agenda')) {
-      <a
-        matTooltip="Agenda"
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/agenda"
-        routerLinkActive="selected">
-        <mat-icon>event</mat-icon>
-      </a>
-    }
-
-    @if (showTab('analytics')) {
-      <a
-        matTooltip="Analytics Dashboard"
-        matTooltipClass="tooltip-text-only-300"
-        matTooltipPosition="after"
-        class="menu-item"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLink="/analytics"
-        routerLinkActive="selected">
-        <mat-icon>analytics</mat-icon>
+        @if (item.isSvg) {
+          <mat-icon [svgIcon]="item.icon"></mat-icon>
+        } @else {
+          <mat-icon>{{ item.icon }}</mat-icon>
+        }
       </a>
     }
   </div>

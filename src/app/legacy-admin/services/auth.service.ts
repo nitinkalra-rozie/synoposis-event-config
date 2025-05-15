@@ -10,9 +10,9 @@ import {
 import { jwtDecode } from 'jwt-decode';
 import { interval } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
+import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { environment } from 'src/environments/environment';
 import { RoleRank } from '../shared/constants';
-import { UserRole } from '../shared/enums';
 import { AuthResponse } from '../shared/types';
 
 @Injectable({

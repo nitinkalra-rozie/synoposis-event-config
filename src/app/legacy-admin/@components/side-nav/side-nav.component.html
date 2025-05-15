@@ -8,19 +8,19 @@
   </div>
 
   <div class="nav-items">
-    @for (tab of visibleTabs(); track tab.id) {
+    @for (item of visibleMenuItems(); track item.id) {
       <a
         matTooltipClass="tooltip-text-only-300"
         matTooltipPosition="after"
         class="menu-item"
-        [matTooltip]="tab.label"
-        [routerLink]="tab.route"
+        [matTooltip]="item.label"
+        [routerLink]="item.route"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="selected">
-        @if (tab.isSvg) {
-          <mat-icon [svgIcon]="tab.icon"></mat-icon>
+        @if (item.isSvg) {
+          <mat-icon [svgIcon]="item.icon"></mat-icon>
         } @else {
-          <mat-icon>{{ tab.icon }}</mat-icon>
+          <mat-icon>{{ item.icon }}</mat-icon>
         }
       </a>
     }
