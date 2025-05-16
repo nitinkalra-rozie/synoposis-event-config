@@ -5,6 +5,8 @@ import {
 
 const inputSampleRate = AUDIO_HIGH_QUALITY_SAMPLE_RATE;
 
+// TODO: @later Type the input parameter
+// TODO: @later Consider handling empty inputs or input validation
 export function pcmEncode(input): ArrayBuffer {
   let offset = 0;
   const buffer = new ArrayBuffer(input.length * 2);
