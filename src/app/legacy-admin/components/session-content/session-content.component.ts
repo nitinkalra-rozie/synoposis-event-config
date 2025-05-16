@@ -1061,7 +1061,11 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this._audioRecorderService.handleRawChunk(rawAudioChunkBuffer);
 
       const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-      if (binary && this.socket?.OPEN) {
+      if (
+        binary &&
+        this.socket?.OPEN &&
+        this.socket?.readyState === WebSocket.OPEN
+      ) {
         this.socket.send(binary);
       }
     });
