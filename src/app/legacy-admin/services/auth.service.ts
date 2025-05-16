@@ -80,6 +80,21 @@ export class AuthService {
     }
   };
 
+  isUserAdmin(): boolean {
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
+    }
+    try {
+      const decoded: any = jwtDecode(token);
+      const normalizedEmail = decoded?.username?.toLowerCase().trim();
+      return normalizedEmail?.endsWith('@rozie.ai') ?? false;
+    } catch (error) {
+      console.error('Invalid token:', error);
+      return false;
+    }
+  }
+
   public getUserEmail = (): string | null => localStorage.getItem('userEmail');
 
   public getAccessToken = (): string | null =>

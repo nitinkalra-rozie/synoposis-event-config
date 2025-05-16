@@ -1,7 +1,7 @@
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
-export function getAllowedPaths(role: UserRole): string[] {
-  switch (role) {
+export function getPathsByUserRole(userRole: UserRole): string[] {
+  switch (userRole) {
     case UserRole.SUPERADMIN:
       return [
         'admin',
@@ -21,14 +21,19 @@ export function getAllowedPaths(role: UserRole): string[] {
   }
 }
 
-export function isAllowed(url: string, allowedPaths: string[]): boolean {
-  const normalized = url.startsWith('/') ? url.slice(1) : url;
-  const firstSegment = normalized.split('/')[0] || '';
-  return allowedPaths.includes(firstSegment);
+export function isPathPermitted(
+  currentUrl: string,
+  permittedPaths: string[]
+): boolean {
+  const trimmedUrl = currentUrl.startsWith('/')
+    ? currentUrl.slice(1)
+    : currentUrl;
+  const topLevelPath = trimmedUrl.split('/')[0] || '';
+  return permittedPaths.includes(topLevelPath);
 }
 
-export function getRedirectUrl(role: UserRole): string {
-  switch (role) {
+export function getDefaultRedirectForRole(userRole: UserRole): string {
+  switch (userRole) {
     case UserRole.EVENTORGANIZER:
       return '/analytics';
     case UserRole.EDITOR:
@@ -41,33 +46,40 @@ export function getRedirectUrl(role: UserRole): string {
   }
 }
 
-/**
- * Extracts extra permissions from token (e.g., custom Cognito claims).
- */
-export function getExtraPathsFromToken(token: string): string[] {
+export function extractCustomPermissionsFromToken(token: string): string[] {
   try {
-    const decoded: any = JSON.parse(atob(token.split('.')[1]));
-    return decoded['custom:permissions'] ?? [];
-  } catch {
+    const decodedPayload: any = JSON.parse(atob(token.split('.')[1]));
+    const permissions = decodedPayload['custom:permissions'];
+    if (
+      Array.isArray(permissions) &&
+      permissions.every((item) => typeof item === 'string')
+    ) {
+      return permissions;
+    }
+    return [];
+  } catch (error) {
+    console.error('Error decoding token or extracting permissions:', error);
     return [];
   }
 }
 
-export function authorizeAccess(
-  token: string | null,
-  url: string,
-  getRole: () => UserRole,
-  extra: string[] = []
+export function validateUserAccess(
+  authToken: string | null,
+  currentUrl: string,
+  resolveUserRole: () => UserRole,
+  additionalPaths: string[] = []
 ): boolean | string {
-  if (!token) return '/login';
+  if (!authToken) return '/login';
 
-  let role: UserRole;
+  let userRole: UserRole;
   try {
-    role = getRole();
+    userRole = resolveUserRole();
   } catch {
     return '/login';
   }
 
-  const allowedPaths = [...getAllowedPaths(role), ...extra];
-  return isAllowed(url, allowedPaths) ? true : getRedirectUrl(role);
+  const permittedPaths = [...getPathsByUserRole(userRole), ...additionalPaths];
+  return isPathPermitted(currentUrl, permittedPaths)
+    ? true
+    : getDefaultRedirectForRole(userRole);
 }

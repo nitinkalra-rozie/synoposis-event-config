@@ -9,7 +9,6 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
@@ -44,24 +43,6 @@ export class LayoutSideNavComponent implements OnInit {
 
   ngOnInit(): void {
     this.userRole.set(this._authService.getUserRole());
-    const token = localStorage.getItem('accessToken');
-    this._checkIsAdminUser(token);
-  }
-
-  private _checkIsAdminUser(token: string | null): DecodedToken | null {
-    if (!token) return null;
-
-    try {
-      const decoded: DecodedToken = jwtDecode(token);
-      const normalizedEmail = decoded?.username?.toLowerCase().trim();
-      this.isAdminUser.set(
-        normalizedEmail?.endsWith(ADMIN_EMAIL_DOMAIN) ?? false
-      );
-      return decoded;
-    } catch (error) {
-      console.error('Invalid token:', error);
-      this.isAdminUser.set(false);
-      return null;
-    }
+    this.isAdminUser.set(this._authService.isUserAdmin());
   }
 }

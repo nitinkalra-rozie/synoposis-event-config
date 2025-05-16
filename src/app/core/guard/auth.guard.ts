@@ -7,8 +7,8 @@ import {
   UrlTree,
 } from '@angular/router';
 import {
-  authorizeAccess,
-  getExtraPathsFromToken,
+  extractCustomPermissionsFromToken,
+  validateUserAccess,
 } from 'src/app/legacy-admin/@utils/auth-utils';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
@@ -21,43 +21,47 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree {
-    let token: string | null;
+    const redirectToLogin = this._router.parseUrl('/login');
+
+    let accessToken: string | null;
     try {
-      token = this._authService.getAccessToken();
-    } catch (err) {
-      console.error('Error retrieving token:', err);
-      return this._router.parseUrl('/login');
+      accessToken = this._authService.getAccessToken();
+    } catch (error) {
+      console.error('Failed to retrieve access token:', error);
+      return redirectToLogin;
     }
 
-    if (!token || this._authService.isTokenExpired()) {
-      console.warn('Token is missing or expired');
-      return this._router.parseUrl('/login');
+    if (!accessToken || this._authService.isTokenExpired()) {
+      console.warn('Access token is either missing or expired');
+      return redirectToLogin;
     }
 
-    const targetUrl = state.url;
+    const currentUrl = state.url;
+    let customPermissions: string[] = [];
 
-    let additionalPaths: string[] = [];
     try {
-      additionalPaths = getExtraPathsFromToken(token) || [];
-    } catch (err) {
-      console.warn('Error extracting extra paths from token:', err);
+      customPermissions = extractCustomPermissionsFromToken(accessToken);
+    } catch (error) {
+      console.warn('Failed to extract custom permissions from token:', error);
     }
 
-    let isAuthorizedOrRedirect: boolean | string;
+    let accessResult: boolean | string;
     try {
-      isAuthorizedOrRedirect = authorizeAccess(
-        token,
-        targetUrl,
-        this._authService.getUserRole,
-        additionalPaths
+      accessResult = validateUserAccess(
+        accessToken,
+        currentUrl,
+        () => this._authService.getUserRole(),
+        customPermissions
       );
-    } catch (err) {
-      console.error('Error during authorization check:', err);
-      return this._router.parseUrl('/login');
+    } catch (error) {
+      console.error('Authorization check failed:', error);
+      return redirectToLogin;
     }
 
-    return typeof isAuthorizedOrRedirect === 'string'
-      ? this._router.parseUrl(isAuthorizedOrRedirect)
-      : isAuthorizedOrRedirect;
+    if (typeof accessResult === 'string') {
+      return this._router.parseUrl(accessResult);
+    }
+
+    return accessResult ? true : redirectToLogin;
   }
 }

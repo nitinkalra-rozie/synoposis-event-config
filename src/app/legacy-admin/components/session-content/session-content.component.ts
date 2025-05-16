@@ -1050,7 +1050,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.micStream.on('data', (rawAudioChunk) => {
       // Normal audio processing - always send real audio
       const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-      if (binary && this.socket?.OPEN) {
+
+      if (binary && this.socket?.readyState === WebSocket.OPEN) {
         this.socket.send(binary);
       }
     });
