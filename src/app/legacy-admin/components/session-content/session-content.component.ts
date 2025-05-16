@@ -9,7 +9,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
-import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
+import { downSampleBuffer, pcmEncode } from '../../helpers/audioUtils';
 declare const Buffer;
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
@@ -24,6 +24,7 @@ import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { escape } from 'lodash-es';
+// TODO: Update MicrophoneStream to use the latest version and es6 imports
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
 import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-panel/control-panel.component';
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
@@ -1056,8 +1057,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
     this.micStream.on('data', (rawAudioChunk) => {
       // Normal audio processing - always send real audio
+      const rawAudioChunkBuffer = MicrophoneStream.toRaw(rawAudioChunk);
+      this._audioRecorderService.handleRawChunk(rawAudioChunkBuffer);
+
       const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-      this._audioRecorderService.handleRawChunk(rawAudioChunk);
       if (binary && this.socket?.OPEN) {
         this.socket.send(binary);
       }
@@ -1116,9 +1119,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
     if (raw == null) return null;
 
-    // downsample and convert the raw audio bytes to PCM
-    const downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
-    const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    // down sample and convert the raw audio bytes to PCM
+    const downSampledBuffer = downSampleBuffer(raw, this.sampleRate);
+    const pcmEncodedBuffer = pcmEncode(downSampledBuffer);
 
     // add the right JSON headers and structure to the message
     const audioEventMessage = this.getAudioEventMessage(

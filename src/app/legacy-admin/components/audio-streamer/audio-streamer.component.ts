@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {
-  downsampleBuffer,
+  downSampleBuffer,
   pcmEncode,
 } from 'src/app/legacy-admin/helpers/audioUtils';
 declare const Buffer;
@@ -160,9 +160,9 @@ export class AudioStreamerComponent {
 
     if (raw === null) return null;
 
-    // downsample and convert the raw audio bytes to PCM
-    const downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
-    const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    // down sample and convert the raw audio bytes to PCM
+    const downSampledBuffer = downSampleBuffer(raw, this.sampleRate);
+    const pcmEncodedBuffer = pcmEncode(downSampledBuffer);
 
     // add the right JSON headers and structure to the message
     const audioEventMessage = this.getAudioEventMessage(
