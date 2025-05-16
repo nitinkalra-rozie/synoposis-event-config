@@ -27,6 +27,12 @@ const isPrivateEndpoint = (url: string): boolean => {
     'r5/postEventDetails',
     'r2/stage',
     'r2/postAudioChunk',
+    '/get-content-versions',
+    '/get-version-content',
+    '/generate-content-pdf',
+    '/publish-pdf-content',
+    '/get-content-pdf',
+    '/manual-edit-generated-content',
   ];
   return authEndpoints.some((endpoint) => url.includes(endpoint));
 };
