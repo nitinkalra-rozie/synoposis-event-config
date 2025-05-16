@@ -61,6 +61,7 @@ export class AudioRecorderService {
 
   flushAndClose(): void {
     this._shutdown$.next();
+    this._shutdown$.complete();
   }
 
   private buildPipeline(): void {
