@@ -1,5 +1,4 @@
 import {
-  inject as angularInject,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -32,7 +31,7 @@ const ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 })
 export class LayoutSideNavComponent implements OnInit {
   protected readonly _authService = inject(AuthService);
-  protected readonly _menuItems = angularInject(NAVIGATION_MENU);
+  protected readonly _menuItems = inject(NAVIGATION_MENU);
 
   protected readonly isAdminUser = signal<boolean>(false);
   protected readonly userRole = signal<UserRole | null>(null);

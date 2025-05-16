@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  computed,
-  inject,
-  inject as injectFn,
-  signal,
-} from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
@@ -32,7 +25,7 @@ export class SideNavComponent implements OnInit {
   });
 
   private readonly _authService = inject(AuthService);
-  private readonly _menuItems = injectFn(NAVIGATION_MENU);
+  private readonly _menuItems = inject(NAVIGATION_MENU);
 
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
