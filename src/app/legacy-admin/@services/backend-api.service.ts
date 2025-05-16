@@ -1,10 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import {
-  AudioRecorderResponse,
-  SessionAudioChunk,
-} from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-model';
 import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
@@ -193,15 +189,5 @@ export class BackendApiService {
     return this.http.post(environment.getEventDetails, {
       event: this._backendApiService.getCurrentEventName(),
     });
-  }
-
-  uploadAudioChunk(data: SessionAudioChunk): Observable<AudioRecorderResponse> {
-    const body: SessionAudioChunk = {
-      sessionId: data.sessionId,
-      eventName: data.eventName,
-      chunkBase64: data.chunkBase64,
-      timestamp: data.timestamp,
-    };
-    return this.http.post(environment.audioRecorderUrl, body);
   }
 }

@@ -11,11 +11,12 @@ import {
   retry,
   takeUntil,
 } from 'rxjs/operators';
+import { AUDIO_SAMPLE_RATE } from 'src/app/legacy-admin/@constants/audio-constants';
 import {
   AudioRecorderResponse,
   SessionAudioChunk,
 } from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-model';
-import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
+import { AudioRecorderDataService } from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-service';
 import {
   downsampleBuffer,
   pcmEncode,
@@ -23,7 +24,7 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class AudioRecorderService {
-  private readonly _backendApiService = inject(BackendApiService);
+  private readonly _audioRecorderDataService = inject(AudioRecorderDataService);
   private readonly _ngZone = inject(NgZone);
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -49,11 +50,11 @@ export class AudioRecorderService {
     this._ngZone.runOutsideAngular(() => this.buildPipeline());
   }
 
-  handleRawChunk(data: any): void {
+  handleRawChunk(data: Buffer): void {
     const raw = data && MicrophoneStream.toRaw(data);
     if (!raw) return;
 
-    const down = downsampleBuffer(raw, 16000);
+    const down = downsampleBuffer(raw, AUDIO_SAMPLE_RATE);
     const pcm = pcmEncode(down);
     this._chunk$.next(new Uint8Array(pcm));
   }
@@ -121,7 +122,9 @@ export class AudioRecorderService {
       timestamp: Date.now(),
     });
 
-    return from(this._backendApiService.uploadAudioChunk(makePayload())).pipe(
+    return from(
+      this._audioRecorderDataService.uploadAudioChunk(makePayload())
+    ).pipe(
       retry({
         count: this._apiRetryCount,
         delay: (error, retryAttempt) =>

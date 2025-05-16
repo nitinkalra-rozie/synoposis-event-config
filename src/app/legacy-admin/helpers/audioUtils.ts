@@ -1,4 +1,9 @@
-const inputSampleRate = 44100;
+import {
+  AUDIO_HIGH_QUALITY_SAMPLE_RATE,
+  AUDIO_SAMPLE_RATE,
+} from 'src/app/legacy-admin/@constants/audio-constants';
+
+const inputSampleRate = AUDIO_HIGH_QUALITY_SAMPLE_RATE;
 
 export function pcmEncode(input): ArrayBuffer {
   let offset = 0;
@@ -13,7 +18,7 @@ export function pcmEncode(input): ArrayBuffer {
 
 export function downsampleBuffer(
   buffer,
-  outputSampleRate = 16000
+  outputSampleRate = AUDIO_SAMPLE_RATE
 ): Float32Array {
   if (outputSampleRate === inputSampleRate) {
     return buffer;
