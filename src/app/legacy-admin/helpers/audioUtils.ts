@@ -18,6 +18,9 @@ export function pcmEncode(input): ArrayBuffer {
   return buffer;
 }
 
+// TODO: @later type the buffer parameter
+// TODO: @later add warnings for large downsampling ratios and handle the cases. Keywords to search - consider anti-aliasing filters for production
+// TODO: @later validate the input. ex - check non-zero and positive rates
 export function downsampleBuffer(
   buffer,
   outputSampleRate = AUDIO_SAMPLE_RATE
