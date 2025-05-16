@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import {
   AudioRecorderResponse,
   SessionAudioChunk,
-} from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-service';
+} from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-model';
 import { Session } from 'src/app/legacy-admin/@pages/agenda/agenda.component';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
@@ -196,7 +196,7 @@ export class BackendApiService {
   }
 
   uploadAudioChunk(data: SessionAudioChunk): Observable<AudioRecorderResponse> {
-    const body = {
+    const body: SessionAudioChunk = {
       sessionId: data.sessionId,
       eventName: data.eventName,
       chunkBase64: data.chunkBase64,

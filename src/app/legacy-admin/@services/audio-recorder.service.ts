@@ -1,12 +1,12 @@
 import { DestroyRef, Injectable, NgZone, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+// TODO: Update MicrophoneStream to use the latest version
 import MicrophoneStream from 'microphone-stream';
-import { EMPTY, Observable, Subject, from, of, timer } from 'rxjs';
+import { EMPTY, Observable, Subject, from, throwError, timer } from 'rxjs';
 import {
   bufferTime,
   catchError,
   finalize,
-  map,
   mergeMap,
   retry,
   takeUntil,
@@ -14,7 +14,7 @@ import {
 import {
   AudioRecorderResponse,
   SessionAudioChunk,
-} from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-service';
+} from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-model';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import {
   downsampleBuffer,
@@ -85,10 +85,12 @@ export class AudioRecorderService {
       .subscribe();
   }
 
-  private uploadMergedBatches(chunks: Uint8Array[]): Observable<void> {
+  private uploadMergedBatches(
+    chunks: Uint8Array[]
+  ): Observable<void | AudioRecorderResponse> {
     if (!this._eventName || !this._sessionId) {
       console.warn('Skipping upload—missing event/session');
-      return of(void 0);
+      return EMPTY;
     }
 
     const total = chunks.reduce((sum, c) => sum + c.byteLength, 0);
@@ -105,8 +107,7 @@ export class AudioRecorderService {
     }
 
     return from(slices).pipe(
-      mergeMap((slice) => this.uploadSliceWithRetry(slice), 1),
-      map(() => void 0)
+      mergeMap((slice) => this.uploadSliceWithRetry(slice), 1)
     );
   }
 
@@ -120,10 +121,7 @@ export class AudioRecorderService {
       timestamp: Date.now(),
     });
 
-    return of(null).pipe(
-      mergeMap(() =>
-        from(this._backendApiService.uploadAudioChunk(makePayload()))
-      ),
+    return from(this._backendApiService.uploadAudioChunk(makePayload())).pipe(
       retry({
         count: this._apiRetryCount,
         delay: (error, retryAttempt) =>
@@ -131,7 +129,7 @@ export class AudioRecorderService {
       }),
       catchError((err) => {
         console.error('Slice upload failed after retries:', err);
-        return of(void 0);
+        return throwError(() => err);
       })
     );
   }

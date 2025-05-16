@@ -250,6 +250,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    // TODO: Update localStorage to use getLocalStorageItem and setLocalStorageItem
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
     this.selectedLocation = localStorage.getItem('selectedLocation') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
