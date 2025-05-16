@@ -1,7 +1,5 @@
 import { DestroyRef, Injectable, NgZone, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-// TODO: Update MicrophoneStream to use the latest version
-import MicrophoneStream from 'microphone-stream';
 import { EMPTY, Observable, Subject, from, throwError, timer } from 'rxjs';
 import {
   bufferTime,
@@ -9,7 +7,6 @@ import {
   finalize,
   mergeMap,
   retry,
-  takeUntil,
 } from 'rxjs/operators';
 import { AUDIO_SAMPLE_RATE } from 'src/app/legacy-admin/@constants/audio-constants';
 import {
@@ -18,7 +15,7 @@ import {
 } from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-model';
 import { AudioRecorderDataService } from 'src/app/legacy-admin/@data-services/audio-recorder/audio-recorder.data-service';
 import {
-  downsampleBuffer,
+  downSampleBuffer,
   pcmEncode,
 } from 'src/app/legacy-admin/helpers/audioUtils';
 
@@ -34,14 +31,12 @@ export class AudioRecorderService {
   private readonly _pollingIntervalMs = 3000;
 
   private _chunk$ = new Subject<Uint8Array>();
-  private _shutdown$ = new Subject<void>();
 
   private _eventName: string;
   private _sessionId: string;
 
   init(eventName: string, sessionId: string): void {
-    this._shutdown$.next();
-    this._shutdown$ = new Subject<void>();
+    this._chunk$ = new Subject<Uint8Array>();
 
     this._eventName = eventName;
     this._sessionId = sessionId;
@@ -50,25 +45,24 @@ export class AudioRecorderService {
     this._ngZone.runOutsideAngular(() => this.buildPipeline());
   }
 
-  handleRawChunk(data: Buffer): void {
-    const raw = data && MicrophoneStream.toRaw(data);
-    if (!raw) return;
+  handleRawChunk(rawAudioChunkBuffer: Float32Array): void {
+    if (!rawAudioChunkBuffer?.length) {
+      return;
+    }
 
-    const down = downsampleBuffer(raw, AUDIO_SAMPLE_RATE);
+    const down = downSampleBuffer(rawAudioChunkBuffer, AUDIO_SAMPLE_RATE);
     const pcm = pcmEncode(down);
     this._chunk$.next(new Uint8Array(pcm));
   }
 
   flushAndClose(): void {
-    this._shutdown$.next();
-    this._shutdown$.complete();
+    this._chunk$.complete();
   }
 
   private buildPipeline(): void {
     this._chunk$
       .pipe(
         bufferTime(this._pollingIntervalMs),
-        takeUntil(this._shutdown$),
         takeUntilDestroyed(this._destroyRef),
         mergeMap((buffer) => {
           if (buffer.length === 0) return EMPTY;
