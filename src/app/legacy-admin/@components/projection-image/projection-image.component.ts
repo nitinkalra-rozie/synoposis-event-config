@@ -141,6 +141,8 @@ export class ProjectionImageComponent {
     setTimeout(() => {
       this._projectionStateService.toggleProjectingState(payload.identifier);
     });
-    this._windowService.showInsightsProjectedWindow();
+    const selectedLocation =
+      this._filtersStateService.selectedLocation()?.label;
+    this._windowService.showInsightsProjectedWindow(selectedLocation);
   };
 }

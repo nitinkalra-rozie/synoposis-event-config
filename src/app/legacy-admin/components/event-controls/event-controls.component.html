@@ -63,6 +63,7 @@
         label="Select Track" />
     } -->
 
+    <!-- #region old version -->
     <!-- <app-main-drop-down
       [disabled]="false"
       [dropdownContent]="eventDays()"
@@ -74,12 +75,18 @@
       [selectedValue]="[postData?.theme]"
       (onDropdownSelect)="handleDropdownSelect($event, PostDataEnum.Theme)"
       dropdownTitle="Select Theme"></app-main-drop-down> -->
+    <!-- #endregion old version -->
   </div>
   <!-- TODO:@later show Auto AV only for the events that we enable Auto AV for -->
   <!-- Why this is done now? Other functions related to Auto AV is not implemented keeping this in mind hence things could break. - saiyaff -->
-  @if (selectedEvent()?.label === 'BHR2025') {
+  <!-- TODO: @later move these to event based configurations -->
+  @if (
+    selectedEvent()?.label === 'BHR2025' ||
+    selectedEvent()?.label === 'AFA2025' ||
+    selectedEvent()?.label === 'ITW2025'
+  ) {
     <div class="auto-av-status-wrapper">
-      @if (autoAvChecked()) {
+      @if (isAutoAvChecked()) {
         <div class="auto-av-status">
           {{ 'autoav is running' | uppercase }}
         </div>
@@ -88,7 +95,7 @@
     <div class="toggle-wrapper">
       <label class="toggle-label">AutoAV</label>
       <mat-slide-toggle
-        [checked]="autoAvChecked()"
+        [checked]="isAutoAvChecked()"
         [disabled]="!selectedEvent() || !selectedLocation()"
         [matTooltip]="
           !selectedLocation() ? 'Please select a stage to enable AutoAV' : ''

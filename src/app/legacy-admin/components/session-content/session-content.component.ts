@@ -9,7 +9,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
-import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
+import { downSampleBuffer, pcmEncode } from '../../helpers/audioUtils';
 declare const Buffer;
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
@@ -21,11 +21,11 @@ import * as util_utf8_node from '@aws-sdk/util-utf8-node'; // utilities for enco
 import { NgClass } from '@angular/common';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { escape } from 'lodash-es';
+// TODO: Update MicrophoneStream to use the latest version and es6 imports
 import MicrophoneStream from 'microphone-stream'; // collect microphone input as a stream of raw bytes
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-panel/control-panel.component';
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
 import { SessionSelectionComponent } from 'src/app/legacy-admin/@components/session-selection/session-selection.component';
@@ -35,15 +35,17 @@ import {
   SessionDetails,
   SessionStatus,
 } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
-import { EventWebsocketService } from 'src/app/legacy-admin/@data-services/web-socket/event-websocket.service';
+import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import {
   ControlPanelState,
   DashboardTabs,
   RightSidebarState,
 } from 'src/app/legacy-admin/@models/global-state';
+import { AudioRecorderService } from 'src/app/legacy-admin/@services/audio-recorder.service';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { ProjectionStateService } from 'src/app/legacy-admin/@services/projection-state.service';
+import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { generateSHA256HashHex } from 'src/app/legacy-admin/@utils/generate-hash';
 import { generateUniqueId } from 'src/app/legacy-admin/@utils/generate-uuid';
 import { MicrophoneService } from 'src/app/legacy-admin/services/microphone.service';
@@ -55,6 +57,7 @@ import {
   ThemeOptions,
 } from 'src/app/legacy-admin/shared/enums';
 import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
+import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   util_utf8_node.toUtf8,
@@ -83,6 +86,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
   @Input() autoAvEnabled: boolean = false;
 
   private readonly _backendApiService = inject(LegacyBackendApiService);
+  private readonly _eventStageWebsocketState = inject(
+    EventStageWebSocketStateService
+  );
 
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;
@@ -168,7 +174,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
   protected DashboardTabs = DashboardTabs;
 
   private _isTranscriptParaBreak: boolean = false;
-  private _destroy$ = new Subject<void>();
 
   private readonly TRANSCRIPT_CHECK_INTERVAL = 5000;
   private readonly TRANSCRIPT_SILENCE_THRESHOLD = 10000;
@@ -182,7 +187,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     private _globalStateService: GlobalStateService,
     private _dashboardFiltersStateService: DashboardFiltersStateService,
     private _projectionStateService: ProjectionStateService,
-    private _eventWebsocketService: EventWebsocketService
+    private _audioRecorderService: AudioRecorderService
   ) {
     effect(() => {
       if (
@@ -215,9 +220,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
       }
     });
 
-    this._eventWebsocketService.sessionEnd$
-      .pipe(takeUntil(this._destroy$))
-      .subscribe((data) => {
+    toObservable(this._eventStageWebsocketState.$sessionEnd)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
         console.log('SESSION_END received:', data);
 
         // Extract session ID from the WebSocket message
@@ -246,6 +251,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    // TODO: Update localStorage to use getLocalStorageItem and setLocalStorageItem
     this.selectedEvent = localStorage.getItem('selectedEvent') || '';
     this.selectedLocation = localStorage.getItem('selectedLocation') || '';
     this.selectedDay = localStorage.getItem('currentDay') || '';
@@ -596,7 +602,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
         localStorage.setItem('isSessionInProgress', '1');
 
         this.isSessionInProgress = true;
-
         this.startRecording();
 
         this._backendApiService
@@ -1045,11 +1050,22 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // via Query Parameters. Learn more: https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html
     this.createPresignedUrlNew();
     console.log('start streamAudioToWebSocket333333');
+    this._audioRecorderService.init(
+      getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      localStorage.getItem('currentSessionId')
+    );
 
     this.micStream.on('data', (rawAudioChunk) => {
       // Normal audio processing - always send real audio
+      const rawAudioChunkBuffer = MicrophoneStream.toRaw(rawAudioChunk);
+      this._audioRecorderService.handleRawChunk(rawAudioChunkBuffer);
+
       const binary = this.convertAudioToBinaryMessage(rawAudioChunk);
-      if (binary && this.socket?.OPEN) {
+      if (
+        binary &&
+        this.socket?.OPEN &&
+        this.socket?.readyState === WebSocket.OPEN
+      ) {
         this.socket.send(binary);
       }
     });
@@ -1107,9 +1123,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
     if (raw == null) return null;
 
-    // downsample and convert the raw audio bytes to PCM
-    const downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
-    const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    // down sample and convert the raw audio bytes to PCM
+    const downSampledBuffer = downSampleBuffer(raw, this.sampleRate);
+    const pcmEncodedBuffer = pcmEncode(downSampledBuffer);
 
     // add the right JSON headers and structure to the message
     const audioEventMessage = this.getAudioEventMessage(
@@ -1127,6 +1143,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.modalService.close();
     localStorage.setItem('isSessionInProgress', '0');
     this.isSessionInProgress = false;
+    this._audioRecorderService.flushAndClose();
     if (this.socket.OPEN) {
       this.micStream.stop();
 
