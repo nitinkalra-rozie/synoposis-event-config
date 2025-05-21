@@ -9,7 +9,7 @@ export interface MenuItem {
   id: string;
   label: string;
   icon: string;
-  isSvg?: boolean;
-  route: string;
+  routerLink: string;
   roles: UserRole[];
+  isSvg?: boolean;
 }
