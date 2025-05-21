@@ -1,6 +1,6 @@
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
-export function getPathsByUserRole(userRole: UserRole): string[] {
+function getPathsByUserRole(userRole: UserRole): string[] {
   switch (userRole) {
     case UserRole.SUPERADMIN:
       return [
@@ -21,7 +21,7 @@ export function getPathsByUserRole(userRole: UserRole): string[] {
   }
 }
 
-export function isPathPermitted(
+function isPathPermitted(
   currentUrl: string,
   permittedPaths: string[]
 ): boolean {
@@ -32,7 +32,7 @@ export function isPathPermitted(
   return permittedPaths.includes(topLevelPath);
 }
 
-export function getDefaultRedirectForRole(userRole: UserRole): string {
+function getDefaultRedirectForRole(userRole: UserRole): string {
   switch (userRole) {
     case UserRole.EVENTORGANIZER:
       return '/analytics';
@@ -69,17 +69,10 @@ export function extractCustomPermissionsFromToken(token: string): string[] {
 export function validateUserAccess(
   authToken: string | null,
   currentUrl: string,
-  resolveUserRole: () => UserRole,
+  userRole: UserRole,
   additionalPaths: string[] = []
 ): boolean | string {
   if (!authToken) return '/login';
-
-  let userRole: UserRole;
-  try {
-    userRole = resolveUserRole();
-  } catch {
-    return '/login';
-  }
 
   const permittedPaths = [...getPathsByUserRole(userRole), ...additionalPaths];
   return isPathPermitted(currentUrl, permittedPaths)

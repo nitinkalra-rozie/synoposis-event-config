@@ -47,10 +47,11 @@ export class AuthGuard implements CanActivate {
 
     let accessResult: boolean | string;
     try {
+      const userRole = this._authService.getUserRole();
       accessResult = validateUserAccess(
         accessToken,
         currentUrl,
-        () => this._authService.getUserRole(),
+        userRole,
         customPermissions
       );
     } catch (error) {
