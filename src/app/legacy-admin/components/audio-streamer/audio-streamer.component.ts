@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { downsampleBuffer, pcmEncode } from '../../helpers/audioUtils';
+import {
+  downSampleBuffer,
+  pcmEncode,
+} from 'src/app/legacy-admin/helpers/audioUtils';
 declare const Buffer;
 // TODO: use @smithy/eventstream-codec instead of @aws-sdk/eventstream-marshaller.
 // Check - https://www.npmjs.com/package/@aws-sdk/eventstream-marshaller and https://www.npmjs.com/package/@aws-sdk/eventstream-codec
@@ -157,9 +160,9 @@ export class AudioStreamerComponent {
 
     if (raw === null) return null;
 
-    // downsample and convert the raw audio bytes to PCM
-    const downsampledBuffer = downsampleBuffer(raw, this.sampleRate);
-    const pcmEncodedBuffer = pcmEncode(downsampledBuffer);
+    // down sample and convert the raw audio bytes to PCM
+    const downSampledBuffer = downSampleBuffer(raw, this.sampleRate);
+    const pcmEncodedBuffer = pcmEncode(downSampledBuffer);
 
     // add the right JSON headers and structure to the message
     const audioEventMessage = this.getAudioEventMessage(

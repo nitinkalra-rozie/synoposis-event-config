@@ -1,0 +1,2 @@
+export const AUDIO_SAMPLE_RATE = 16000;
+export const AUDIO_HIGH_QUALITY_SAMPLE_RATE = 44000;

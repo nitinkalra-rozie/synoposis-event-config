@@ -25,4 +25,5 @@ export const environment = {
   postDebriefData: '',
   setAutoAvSetupUrl: '',
   wsUrl: '',
+  audioRecorderUrl: '',
 };
