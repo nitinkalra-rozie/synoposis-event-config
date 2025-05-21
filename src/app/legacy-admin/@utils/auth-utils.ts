@@ -48,7 +48,10 @@ export function getDefaultRedirectForRole(userRole: UserRole): string {
 
 export function extractCustomPermissionsFromToken(token: string): string[] {
   try {
-    const decodedPayload: any = JSON.parse(atob(token.split('.')[1]));
+    const base64Url = token.split('.')[1];
+    const decodedPayload: { 'custom:permissions'?: string[] } = JSON.parse(
+      atob(base64Url)
+    );
     const permissions = decodedPayload['custom:permissions'];
     if (
       Array.isArray(permissions) &&
