@@ -6,10 +6,7 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import {
-  extractCustomPermissionsFromToken,
-  validateUserAccess,
-} from 'src/app/legacy-admin/@utils/auth-utils';
+import { validateUserAccess } from 'src/app/legacy-admin/@utils/auth-utils';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -37,23 +34,11 @@ export class AuthGuard implements CanActivate {
     }
 
     const currentUrl = state.url;
-    let customPermissions: string[] = [];
-
-    try {
-      customPermissions = extractCustomPermissionsFromToken(accessToken);
-    } catch (error) {
-      console.warn('Failed to extract custom permissions from token:', error);
-    }
 
     let accessResult: boolean | string;
     try {
       const userRole = this._authService.getUserRole();
-      accessResult = validateUserAccess(
-        accessToken,
-        currentUrl,
-        userRole,
-        customPermissions
-      );
+      accessResult = validateUserAccess(accessToken, currentUrl, userRole);
     } catch (error) {
       console.error('Authorization check failed:', error);
       return redirectToLogin;

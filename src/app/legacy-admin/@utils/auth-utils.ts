@@ -46,7 +46,7 @@ function getDefaultRedirectForRole(userRole: UserRole): string {
   }
 }
 
-export function extractCustomPermissionsFromToken(token: string): string[] {
+function extractCustomPermissionsFromToken(token: string): string[] {
   try {
     const base64Url = token.split('.')[1];
     const decodedPayload: { 'custom:permissions'?: string[] } = JSON.parse(
@@ -67,14 +67,24 @@ export function extractCustomPermissionsFromToken(token: string): string[] {
 }
 
 export function validateUserAccess(
-  authToken: string | null,
+  accessToken: string | null,
   currentUrl: string,
-  userRole: UserRole,
-  additionalPaths: string[] = []
+  userRole: UserRole
 ): boolean | string {
-  if (!authToken) return '/login';
+  if (!accessToken) return '/login';
 
-  const permittedPaths = [...getPathsByUserRole(userRole), ...additionalPaths];
+  let customPermissions: string[] = [];
+
+  try {
+    customPermissions = extractCustomPermissionsFromToken(accessToken);
+  } catch (error) {
+    console.warn('Failed to extract custom permissions from token:', error);
+  }
+
+  const permittedPaths = [
+    ...getPathsByUserRole(userRole),
+    ...customPermissions,
+  ];
   return isPathPermitted(currentUrl, permittedPaths)
     ? true
     : getDefaultRedirectForRole(userRole);

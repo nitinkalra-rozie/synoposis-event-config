@@ -94,10 +94,11 @@ export class AuthService {
     }
   }
 
-  public getUserEmail = (): string | null => localStorage.getItem('userEmail');
+  getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
+  }
 
-  public getAccessToken = (): string | null =>
-    localStorage.getItem('accessToken');
+  public getUserEmail = (): string | null => localStorage.getItem('userEmail');
 
   public getIdToken = (): string | null => localStorage.getItem('idToken');
 
