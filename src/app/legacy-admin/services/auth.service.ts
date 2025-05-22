@@ -10,9 +10,8 @@ import {
 import { jwtDecode } from 'jwt-decode';
 import { interval } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
+import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { environment } from 'src/environments/environment';
-import { RoleRank } from '../shared/constants';
-import { UserRole } from '../shared/enums';
 import { AuthResponse } from '../shared/types';
 
 @Injectable({
@@ -80,10 +79,26 @@ export class AuthService {
     }
   };
 
-  public getUserEmail = (): string | null => localStorage.getItem('userEmail');
+  isUserAdmin(): boolean {
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
+    }
+    try {
+      const decoded: any = jwtDecode(token);
+      const normalizedEmail = decoded?.username?.toLowerCase().trim();
+      return normalizedEmail?.endsWith('@rozie.ai') ?? false;
+    } catch (error) {
+      console.error('Invalid token:', error);
+      return false;
+    }
+  }
 
-  public getAccessToken = (): string | null =>
-    localStorage.getItem('accessToken');
+  getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
+  }
+
+  public getUserEmail = (): string | null => localStorage.getItem('userEmail');
 
   public getIdToken = (): string | null => localStorage.getItem('idToken');
 
@@ -126,7 +141,7 @@ export class AuthService {
     }
   };
 
-  public getUserRole = (): UserRole => {
+  getUserRole(): UserRole {
     try {
       const accessToken = this.getAccessToken();
       const decodedToken: any = jwtDecode(accessToken);
@@ -146,26 +161,16 @@ export class AuthService {
       }
     } catch (error) {
       console.error('Error decoding access token:', error);
+      // TODO: @later this can be handled better with a non logged in state
       return UserRole.EDITOR;
     }
-  };
-
-  public getUserRoleRank = (): number => {
-    const role = this.getUserRole();
-    switch (role) {
-      case UserRole.SUPERADMIN:
-        return RoleRank.SUPER_ADMIN;
-      case UserRole.ADMIN:
-        return RoleRank.ADMIN;
-      default:
-        return RoleRank.EDITOR;
-    }
-  };
+  }
 
   getToken(): string | null {
     return localStorage.getItem(this._tokenKey);
   }
 
+  // TODO: remove as it's not used
   setToken(token: string): void {
     localStorage.setItem(this._tokenKey, token);
   }

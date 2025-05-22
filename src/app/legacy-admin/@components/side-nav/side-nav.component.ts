@@ -1,10 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
+
+import { UserRole } from 'src/app/core/enum/auth-roles.enum';
+import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 import { AuthService } from 'src/app/legacy-admin/services/auth.service';
-import { UserRole } from 'src/app/legacy-admin/shared/enums';
 
 @Component({
   selector: 'app-side-nav',
@@ -13,54 +14,19 @@ import { UserRole } from 'src/app/legacy-admin/shared/enums';
   imports: [RouterModule, MatTooltipModule, MatIconModule],
 })
 export class SideNavComponent implements OnInit {
-  public userRoleRank = 2;
-  public isEventOrganizer = computed(() => {
-    const userRole = this._authService.getUserRole();
-    if (!userRole) return false;
-    if (userRole === UserRole.EVENTORGANIZER) {
-      return true;
-    } else {
-      return false;
-    }
+  public readonly userRole = signal<UserRole | null>(null);
+  public readonly isAdminUser = signal(false);
+  public readonly visibleMenuItems = computed(() => {
+    const role = this.userRole();
+    return this._menuItems.filter((item) => item.roles.includes(role));
   });
 
-  public isSuperAdmin = computed(() => {
-    const userRole = this._authService.getUserRole();
-    if (!userRole) return false;
-    if (userRole === UserRole.SUPERADMIN) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-
-  private _authService = inject(AuthService);
-  private _isAdminUser = signal<boolean>(false);
+  private readonly _authService = inject(AuthService);
+  private readonly _menuItems = inject(NAVIGATION_MENU);
 
   ngOnInit(): void {
     const token = localStorage.getItem('accessToken');
-    this.checkIsAdminUser(token);
-    this.userRoleRank = this._authService.getUserRoleRank();
-  }
-
-  checkIsAdminUser(token: string): any | null {
-    if (!token) return null;
-
-    try {
-      const decoded: any = jwtDecode(token);
-      if (decoded?.username) {
-        const normalizedEmail = decoded.username.toLowerCase().trim();
-        if (normalizedEmail.endsWith('@rozie.ai')) {
-          this._isAdminUser.set(true);
-        } else {
-          this._isAdminUser.set(false);
-        }
-      }
-
-      return decoded;
-    } catch (error) {
-      console.error('Invalid token:', error);
-      return null;
-    }
+    this.userRole.set(this._authService.getUserRole());
+    this.isAdminUser.set(this._authService.isUserAdmin());
   }
 }

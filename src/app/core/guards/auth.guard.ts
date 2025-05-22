@@ -1,41 +1,53 @@
-import { Injectable } from '@angular/core';
-import { Router, RouterStateSnapshot } from '@angular/router';
-import { AuthService } from '../../legacy-admin/services/auth.service';
-import { RoleRank } from '../../legacy-admin/shared/constants';
+import { Injectable, inject } from '@angular/core';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
+import { validateUserAccess } from 'src/app/legacy-admin/@utils/auth-utils';
+import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
-@Injectable({
-  providedIn: 'root',
-})
-// TODO:@now refactor this guard to use the new angular approach
-export class AuthGuard {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+  private readonly _authService = inject(AuthService);
+  private readonly _router = inject(Router);
 
-  canActivate(state: RouterStateSnapshot): boolean {
-    // This is a temporary implementation of checking if the user is authenticated. Check TODO below
-    if (this.authService.getAccessToken()) {
-      if (!this.authService.getAccessToken()) {
-        this.router.navigate(['/']);
-        return false;
-      }
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): boolean | UrlTree {
+    const redirectToLogin = this._router.parseUrl('/login');
 
-      // Get the user's role rank
-      const userRoleRank = this.authService.getUserRoleRank();
-      const isAdminRoute = state.root.children.some((child) =>
-        child.routeConfig?.path?.includes('admin')
-      );
-
-      if (isAdminRoute && userRoleRank < RoleRank.ADMIN) {
-        this.router.navigate(['/insights-editor']);
-        return false;
-      }
-
-      return true;
-    } else {
-      this.router.navigate(['/']);
-      return false;
+    let accessToken: string | null;
+    try {
+      accessToken = this._authService.getAccessToken();
+    } catch (error) {
+      console.error('Failed to retrieve access token:', error);
+      return redirectToLogin;
     }
+
+    if (!accessToken || this._authService.isTokenExpired()) {
+      console.warn('Access token is either missing or expired');
+      return redirectToLogin;
+    }
+
+    const currentUrl = state.url;
+
+    let accessResult: boolean | string;
+    try {
+      const userRole = this._authService.getUserRole();
+      accessResult = validateUserAccess(accessToken, currentUrl, userRole);
+    } catch (error) {
+      console.error('Authorization check failed:', error);
+      return redirectToLogin;
+    }
+
+    if (typeof accessResult === 'string') {
+      return this._router.parseUrl(accessResult);
+    }
+
+    return accessResult ? true : redirectToLogin;
   }
 }

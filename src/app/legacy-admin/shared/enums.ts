@@ -46,11 +46,3 @@ export enum TransitionTimesEnum {
   Seconds30 = '30 Seconds',
   Seconds45 = '45 Seconds',
 }
-
-// TODO:@now move this to /core
-export enum UserRole {
-  SUPERADMIN = 'SUPERADMIN',
-  ADMIN = 'ADMIN',
-  EDITOR = 'EDITOR',
-  EVENTORGANIZER = 'EVENTORGANIZER',
-}
