@@ -1,6 +1,9 @@
-// src/app/services/login.service.ts
-
 import { Injectable } from '@angular/core';
+import { Amplify } from 'aws-amplify';
+import { signUp } from 'aws-amplify/auth';
+import { Observable, from, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { environment } from 'src/environments/environment';
 import {
   AuthResponse,
@@ -9,21 +12,6 @@ import {
 } from '../shared/types';
 import { AuthApiService } from './auth-api.service';
 import { AuthService } from './auth.service';
-// TODO: update to use Amplify v6. means aws-amplify@6.*.*
-// Check - https://www.npmjs.com/package/amazon-cognito-identity-js
-import {
-  CognitoUserAttribute,
-  CognitoUserPool,
-} from 'amazon-cognito-identity-js';
-import { Observable, from, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-
-const poolData = {
-  UserPoolId: environment.USER_POOL_ID, // Your user pool id here
-  ClientId: environment.USER_POOL_WEB_CLIENT_ID, // Your client id here
-};
-
-const userPool = new CognitoUserPool(poolData);
 
 @Injectable({
   providedIn: 'root',
@@ -32,70 +20,48 @@ export class LoginService {
   constructor(
     private authApiService: AuthApiService,
     private authService: AuthService
-  ) {}
+  ) {
+    if (!Amplify.getConfig().Auth?.Cognito) {
+      Amplify.configure(amplifyConfig);
+    }
+  }
 
   signUp(email: string): Observable<any> {
-    const attributeList: CognitoUserAttribute[] = [];
-    const dataEmail = {
-      Name: 'email',
-      Value: email,
-    };
-    const attributeEmail = new CognitoUserAttribute(dataEmail);
-    const dataDomain = {
-      Name: 'custom:domain',
-      Value: window.location.hostname,
-    };
-    const attributeDomain = new CognitoUserAttribute(dataDomain);
-
-    attributeList.push(attributeEmail);
-    attributeList.push(attributeDomain);
-
     const clientMetadata = {
       domain: window.location.hostname,
     };
 
-    return new Observable((observer) => {
-      userPool.signUp(
-        email,
-        'TempPassword123!',
-        attributeList,
-        [],
-        async (err, result) => {
-          if (err) {
-            const error = err as CognitoError;
-            if (error.code === 'UsernameExistsException') {
-              try {
-                const challengeResult =
-                  await this.callCustomChallengeAPI(email).toPromise();
-                observer.next(challengeResult);
-                observer.complete();
-              } catch (challengeErr) {
-                observer.error(challengeErr);
-              }
-            } else {
-              console.error('Error signing up user:', err);
-              observer.error(err);
-            }
-          } else {
-            const cognitoUser = result.user;
-            console.log('User name is ' + cognitoUser.getUsername());
-
-            try {
-              const challengeResult =
-                await this.callCustomChallengeAPI(email).toPromise();
-              observer.next(challengeResult);
-              observer.complete();
-            } catch (challengeErr) {
-              observer.error(challengeErr);
-            }
-          }
+    return from(
+      signUp({
+        username: email,
+        password: 'TempPassword123!',
+        options: {
+          userAttributes: {
+            email: email,
+            'custom:domain': window.location.hostname,
+          },
+          clientMetadata: clientMetadata,
         },
-        clientMetadata
-      );
-    }).pipe(
-      catchError((error) => {
-        console.error('Error in signUp:', error);
-        return from(Promise.reject(error));
+      })
+    ).pipe(
+      switchMap(async (result) => {
+        console.log('User signed up:', result.userId);
+        return await this.callCustomChallengeAPI(email).toPromise();
+      }),
+      catchError(async (error) => {
+        console.log('SignUp error:', error);
+        if (error.name === 'UsernameExistsException') {
+          try {
+            const challengeResult =
+              await this.callCustomChallengeAPI(email).toPromise();
+            return challengeResult;
+          } catch (challengeErr) {
+            throw challengeErr;
+          }
+        } else {
+          console.error('Error signing up user:', error);
+          throw error;
+        }
       })
     );
   }
@@ -109,6 +75,7 @@ export class LoginService {
       AuthFlow: 'CUSTOM_AUTH',
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
     };
+
     this.authApiService.updateBaseUrl(environment.AUTH_API_END_POINT || '');
     this.authApiService.updateHeaders({
       'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
@@ -126,12 +93,12 @@ export class LoginService {
           return {
             success: true,
             message: '',
-          } as CustomChallengeResponse; // Type assertion
+          } as CustomChallengeResponse;
         } else {
           return {
             success: false,
             message: `Sorry, seems like we don't have your email address in our database`,
-          } as CustomChallengeResponse; // Type assertion
+          } as CustomChallengeResponse;
         }
       }),
       catchError((error) => {
@@ -143,7 +110,7 @@ export class LoginService {
             message:
               'This email is not enabled. Please connect with us at hello@rozie.ai to get the access.',
           } as CustomChallengeResponse)
-        ); // Type assertion
+        );
       })
     );
   }
@@ -159,6 +126,7 @@ export class LoginService {
       ClientId: environment.USER_POOL_WEB_CLIENT_ID,
       Session: localStorage.getItem('sessionToken'),
     };
+
     this.authApiService.updateBaseUrl(environment.AUTH_API_END_POINT || '');
     this.authApiService.updateHeaders({
       'X-Amz-Target':
