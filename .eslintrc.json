@@ -14,6 +14,8 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        // temporarily disabled (or off) until the issue is resolved here https://github.com/angular-eslint/angular-eslint/issues/2497
+        "@angular-eslint/component-class-suffix": "off",
         "@angular-eslint/component-selector": [
           "error",
           {
