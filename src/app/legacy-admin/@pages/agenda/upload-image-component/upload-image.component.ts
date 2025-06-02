@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -129,7 +128,7 @@ export async function uploadSpeakerImage(
   templateUrl: './upload-image.component.html',
   styleUrls: ['./upload-image.component.scss'],
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule],
 })
 export class UploadImageComponent {
   @Input() public speakerImage!: string;
