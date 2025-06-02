@@ -109,6 +109,22 @@
           <mat-icon>settings</mat-icon>
         </button>
 
+        <!-- Add export button after settings icon -->
+        <div class="header-actions">
+          <!-- ... existing settings icon ... -->
+          <button
+            mat-icon-button
+            matTooltip="Export Report"
+            class="export-btn"
+            [disabled]="isExporting"
+            (click)="exportReport()">
+            <mat-icon *ngIf="!isExporting">download</mat-icon>
+            <mat-icon *ngIf="isExporting" class="spinning"
+              >hourglass_empty</mat-icon
+            >
+          </button>
+        </div>
+
         <mat-menu #settingsMenu="matMenu" class="settings-menu">
           <div class="settings-menu-content">
             <h3>Dashboard Settings</h3>
@@ -173,6 +189,14 @@
           </div>
         </mat-menu>
       </div>
+    </div>
+
+    <!-- Progress bar in top right corner -->
+    <div *ngIf="isExporting" class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="exportProgress"></div>
+      </div>
+      <span class="progress-text">{{ exportProgress }}%</span>
     </div>
 
     <!-- Dashboard Content -->

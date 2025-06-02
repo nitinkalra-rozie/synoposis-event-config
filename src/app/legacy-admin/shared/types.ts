@@ -67,3 +67,11 @@ export interface CustomChallengeResponse {
   __type?: string;
   Session?: string;
 }
+
+export enum AlertTypes {
+  Error,
+  Info,
+  Success,
+  Processing,
+  Warning,
+}

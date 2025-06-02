@@ -46,3 +46,11 @@ export enum TransitionTimesEnum {
   Seconds30 = '30 Seconds',
   Seconds45 = '45 Seconds',
 }
+
+export enum AlertTypes {
+  Success = 'SUCCESS',
+  Error = 'ERROR',
+  Warning = 'WARNING',
+  Info = 'INFO',
+  Processing = 'Processing',
+}

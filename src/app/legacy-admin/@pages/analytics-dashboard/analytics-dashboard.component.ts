@@ -35,10 +35,9 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import { BaseChartDirective } from 'ng2-charts';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
-import {
-  AnalyticsData,
-  AnalyticsDataService,
-} from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
+import { AnalyticsData } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.model';
+import { AnalyticsDataService } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
+import { NotificationService } from 'src/app/legacy-admin/@data-services/notification.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
 interface DateRange {
@@ -77,7 +76,10 @@ interface DateRange {
   ],
 })
 export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
-  constructor() {}
+  constructor(
+    private notificationService: NotificationService,
+    private analyticsDataService: AnalyticsDataService
+  ) {}
 
   // App logo and branding
   public logoPath = '../../../assets/login/rozie-synopsis-logo.svg';
@@ -470,6 +472,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
   // Last updated timestamp
   public lastUpdated = signal<Date>(new Date());
+
+  // Export state
+  public isExporting = false;
+  public exportProgress = 0;
 
   // Services
   private _analyticsService = inject(AnalyticsDataService);
@@ -1015,5 +1021,75 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   // Toggle showing all browser data or collapsed
   toggleAllBrowsers(): void {
     this.showAllBrowsers.update((current) => !current);
+  }
+
+  exportReport(): void {
+    if (!this.dateRange.value.start || !this.dateRange.value.end) {
+      this.notificationService.error(
+        'Error',
+        'Please select start and end dates'
+      );
+      return;
+    }
+
+    this.isExporting = true;
+    this.exportProgress = 0;
+
+    // Show processing notification with purple color
+    this.notificationService.processing(
+      'Export Started',
+      'Report download in progress...',
+      5000
+    );
+
+    const progressInterval = setInterval(() => {
+      this.exportProgress += 10;
+      if (this.exportProgress >= 90) {
+        clearInterval(progressInterval);
+      }
+    }, 200);
+
+    const startDateStr = this.formatDateForAPI(this.dateRange.value.start);
+    const endDateStr = this.formatDateForAPI(this.dateRange.value.end);
+
+    this.analyticsDataService.exportReport(startDateStr, endDateStr).subscribe({
+      next: (blob: Blob) => {
+        clearInterval(progressInterval);
+        this.exportProgress = 100;
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `sessions-report-${startDateStr}-to-${endDateStr}.xlsx`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+
+        // Show success notification with green color
+        this.notificationService.success(
+          'Download Complete',
+          'Report downloaded successfully!'
+        );
+        this.isExporting = false;
+        this.exportProgress = 0;
+      },
+      error: (error) => {
+        clearInterval(progressInterval);
+        console.error('Export failed:', error);
+
+        // Show error notification with red color
+        this.notificationService.error(
+          'Export Failed',
+          'Please try again later'
+        );
+        this.isExporting = false;
+        this.exportProgress = 0;
+      },
+    });
+  }
+
+  private formatDateForAPI(date: Date): string {
+    // Format date as YYYY-MM-DD for the API
+    return date.toISOString().split('T')[0];
   }
 }

@@ -16,3 +16,14 @@ export const getDropdownOptionsFromString = (
       : defaultSelection,
   }));
 };
+
+export function getDefaultStartDate(daysAgo: number = 30): string {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  return date.toISOString().split('T')[0] + 'T00:00:00Z';
+}
+
+export function getDefaultEndDate(): string {
+  const date = new Date();
+  return date.toISOString().split('T')[0] + 'T23:59:59Z';
+}
