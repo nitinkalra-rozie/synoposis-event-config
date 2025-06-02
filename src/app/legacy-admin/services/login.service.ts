@@ -44,20 +44,14 @@ export class LoginService {
         },
       })
     ).pipe(
-      switchMap(async (result) => {
+      switchMap((result) => {
         console.log('User signed up:', result.userId);
-        return await this.callCustomChallengeAPI(email).toPromise();
+        return this.callCustomChallengeAPI(email);
       }),
-      catchError(async (error) => {
+      catchError((error) => {
         console.log('SignUp error:', error);
         if (error.name === 'UsernameExistsException') {
-          try {
-            const challengeResult =
-              await this.callCustomChallengeAPI(email).toPromise();
-            return challengeResult;
-          } catch (challengeErr) {
-            throw challengeErr;
-          }
+          return this.callCustomChallengeAPI(email);
         } else {
           console.error('Error signing up user:', error);
           throw error;
