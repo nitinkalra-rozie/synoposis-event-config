@@ -1,17 +1,13 @@
 import { DestroyRef, Injectable, inject } from '@angular/core';
-// TODO: update to use Amplify v6. means aws-amplify@6.*.*
-// Check - https://www.npmjs.com/package/amazon-cognito-identity-js
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  CognitoUserPool,
-  CognitoUserSession,
-} from 'amazon-cognito-identity-js';
+import { Amplify } from 'aws-amplify';
+import { fetchAuthSession, getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
 import { interval } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
+import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
-import { environment } from 'src/environments/environment';
 import { AuthResponse } from '../shared/types';
 
 @Injectable({
@@ -19,11 +15,7 @@ import { AuthResponse } from '../shared/types';
 })
 export class AuthService {
   constructor() {
-    this._userPool = new CognitoUserPool({
-      UserPoolId: environment.USER_POOL_ID,
-      ClientId: environment.USER_POOL_WEB_CLIENT_ID,
-    });
-
+    Amplify.configure(amplifyConfig);
     this.startTokenCheck();
   }
 
@@ -33,7 +25,6 @@ export class AuthService {
   private readonly _tokenKey = 'auth_token';
   private readonly _tokenCheckIntervalMs = 60000;
 
-  private _userPool: CognitoUserPool;
   private _destroyRef = inject(DestroyRef);
   private _navigateFunction: ((path: string) => void) | null = null;
   private _tokenCheckInterval: any;
@@ -51,12 +42,12 @@ export class AuthService {
     localStorage.setItem('refreshToken', RefreshToken);
   };
 
-  public logout = (): void => {
-    const cognitoUser = this._userPool.getCurrentUser();
-    if (cognitoUser) {
-      cognitoUser.signOut();
+  public logout = async (): Promise<void> => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
-
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
@@ -105,23 +96,19 @@ export class AuthService {
   public getRefreshToken = (): string | null =>
     localStorage.getItem('refreshToken');
 
-  public checkSession = (): Promise<void> =>
-    new Promise((resolve, reject) => {
-      const cognitoUser = this._userPool.getCurrentUser();
-      if (cognitoUser) {
-        cognitoUser.getSession((err: any, session: CognitoUserSession) => {
-          if (err) {
-            this.logout();
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      } else {
-        this.logout();
-        reject(new Error('No user session available'));
+  public checkSession = async (): Promise<void> => {
+    try {
+      await getCurrentUser();
+      const session = await fetchAuthSession();
+      if (!session.tokens) {
+        throw new Error('No valid session');
       }
-    });
+    } catch (error) {
+      console.error('Session check failed:', error);
+      await this.logout();
+      throw error;
+    }
+  };
 
   public getUserGroups = (): string[] | null => {
     const accessToken = this.getAccessToken();
