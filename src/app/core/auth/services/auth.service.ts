@@ -231,7 +231,7 @@ export class AuthService {
   private startTokenCheck(): void {
     interval(this._tokenCheckIntervalMs)
       .pipe(
-        filter(() => !this._isLoggingOut()), 
+        filter(() => !this._isLoggingOut()),
         filter(
           () =>
             !this._route.snapshot.children?.[0]?.routeConfig?.path?.includes(

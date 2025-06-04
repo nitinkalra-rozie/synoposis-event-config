@@ -92,7 +92,7 @@ export class InsightsEditorComponent implements OnInit {
         this._realTimeInsightsData[indexI].Insights[indexJ] = text;
       });
   }
-
+  public readonly EventStatus = EventStatus;
   private readonly _authService = inject(AuthService);
   private readonly _editorialDataService = inject(InsightsEditorDataService);
 
@@ -131,9 +131,9 @@ export class InsightsEditorComponent implements OnInit {
   };
 
   public statuses = [
-    { label: EventStatus.NOT_STARTED_LABEL, class: 'status-not-started' },
-    { label: EventStatus.IN_REVIEW_LABEL, class: 'status-in-progress' },
-    { label: EventStatus.COMPLETE_LABEL, class: 'status-complete' },
+    { label: EventStatus.NotStartedLabel, class: 'status-not-started' },
+    { label: EventStatus.InReviewLabel, class: 'status-in-progress' },
+    { label: EventStatus.CompleteLabel, class: 'status-complete' },
   ];
 
   public filtered_sessions: Session[] = [];
@@ -152,9 +152,6 @@ export class InsightsEditorComponent implements OnInit {
   private _insightsData: Array<string> = [];
   private _topicUpdate$ = new Subject<{ text: string; index: number }>();
   private _topicsData: Array<string> = [];
-
-  // Add this property to make the enum available in the template
-  public readonly EventStatus = EventStatus;
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -286,7 +283,7 @@ export class InsightsEditorComponent implements OnInit {
       );
       const sessionID = this.filtered_sessions[0];
       this.selected_session =
-        sessionID && sessionID['Status'] != EventStatus.NOT_STARTED
+        sessionID && sessionID['Status'] != EventStatus.NotStarted
           ? sessionID['SessionId']
           : '';
       this.dataLoaded = false;
@@ -425,8 +422,8 @@ export class InsightsEditorComponent implements OnInit {
 
   async selectSession(session: any): Promise<void> {
     if (
-      session['Status'] === EventStatus.NOT_STARTED ||
-      session['Status'] === EventStatus.IN_PROGRESS
+      session['Status'] === EventStatus.NotStarted ||
+      session['Status'] === EventStatus.InProgress
     ) {
       this.showError();
     } else {
@@ -452,13 +449,13 @@ export class InsightsEditorComponent implements OnInit {
   // Method to dynamically assign a class based on the session's status
   getStatusClass(status: string): string {
     switch (status) {
-      case EventStatus.NOT_STARTED:
+      case EventStatus.NotStarted:
         return 'status-not-started';
-      case EventStatus.UNDER_REVIEW:
+      case EventStatus.UnderReview:
         return 'status-in-review';
-      case EventStatus.COMPLETED:
+      case EventStatus.Completed:
         return 'status-completed';
-      case EventStatus.REVIEW_COMPLETE:
+      case EventStatus.ReviewComplete:
         return 'status-completed';
       default:
         return '';
@@ -549,16 +546,16 @@ export class InsightsEditorComponent implements OnInit {
   private convertStringToEventStatus(status: string): EventStatus {
     switch (status) {
       case 'NOT_STARTED':
-        return EventStatus.NOT_STARTED;
+        return EventStatus.NotStarted;
       case 'IN_PROGRESS':
-        return EventStatus.IN_PROGRESS;
+        return EventStatus.InProgress;
       case 'UNDER_REVIEW':
-        return EventStatus.UNDER_REVIEW;
+        return EventStatus.UnderReview;
       case 'Completed':
-        return EventStatus.COMPLETED;
+        return EventStatus.Completed;
       default:
         console.warn(`Unknown status: ${status}`);
-        return EventStatus.NOT_STARTED; 
+        return EventStatus.NotStarted;
     }
   }
 }

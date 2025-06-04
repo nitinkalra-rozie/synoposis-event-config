@@ -120,13 +120,12 @@ export interface EventDetailsResponse {
 }
 
 export enum EventStatus {
-  NOT_STARTED = 'NOT_STARTED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  UNDER_REVIEW = 'UNDER_REVIEW',
-  COMPLETED = 'Completed',
-  REVIEW_COMPLETE = 'REVIEW_COMPLETE',
-  // For the statuses array display labels
-  NOT_STARTED_LABEL = 'Not started',
-  IN_REVIEW_LABEL = 'In review',
-  COMPLETE_LABEL = 'Complete',
+  NotStarted = 'NOT_STARTED',
+  InProgress = 'IN_PROGRESS',
+  UnderReview = 'UNDER_REVIEW',
+  Completed = 'Completed',
+  ReviewComplete = 'REVIEW_COMPLETE',
+  NotStartedLabel = 'Not started',
+  InReviewLabel = 'In review',
+  CompleteLabel = 'Complete',
 }
