@@ -68,10 +68,8 @@ export interface CustomChallengeResponse {
   Session?: string;
 }
 
-export enum AlertTypes {
-  Error,
-  Info,
-  Success,
-  Processing,
-  Warning,
+export interface SnackbarData {
+  message: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  action?: string;
 }

@@ -1,0 +1,26 @@
+<div class="custom-snackbar" [ngClass]="'snackbar-' + data.type">
+  <div class="snackbar-content">
+    <mat-icon
+      class="snackbar-icon"
+      [attr.aria-hidden]="false"
+      [attr.aria-label]="data.type">
+      {{ getIcon() }}
+    </mat-icon>
+    <span
+      class="snackbar-message"
+      [attr.aria-live]="'polite'"
+      [attr.role]="'status'">
+      {{ data.message }}
+    </span>
+  </div>
+  @if (data.action) {
+    <button
+      mat-button
+      class="snackbar-action"
+      [attr.aria-label]="'Dismiss notification: ' + data.action"
+      (click)="dismiss()"
+      type="button">
+      {{ data.action }}
+    </button>
+  }
+</div>

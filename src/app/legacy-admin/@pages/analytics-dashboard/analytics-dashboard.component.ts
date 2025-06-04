@@ -25,7 +25,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -37,7 +36,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { AnalyticsData } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.model';
 import { AnalyticsDataService } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
-import { NotificationService } from 'src/app/legacy-admin/@data-services/notification.service';
+import { SnackbarService } from 'src/app/legacy-admin/@services/snackbar.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
 interface DateRange {
@@ -77,8 +76,8 @@ interface DateRange {
 })
 export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   constructor(
-    private notificationService: NotificationService,
-    private analyticsDataService: AnalyticsDataService
+    private analyticsDataService: AnalyticsDataService,
+    private snackbarService: SnackbarService
   ) {}
 
   // App logo and branding
@@ -480,7 +479,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   // Services
   private _analyticsService = inject(AnalyticsDataService);
   private _backendApiService = inject(LegacyBackendApiService);
-  private _snackBar = inject(MatSnackBar);
   private _sanitizer = inject(DomSanitizer);
   private _router = inject(Router);
   private _route = inject(ActivatedRoute);
@@ -514,12 +512,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const currentEventName = this._backendApiService.getCurrentEventName();
 
     if (!currentEventName) {
-      this._snackBar.open(
+      this.snackbarService.warning(
         'No event selected. Redirecting to admin page.',
-        'Dismiss',
-        {
-          duration: 3000,
-        }
+        'Dismiss'
       );
       this._router.navigate(['/admin']);
       return;
@@ -786,7 +781,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const content = document.getElementById('dashboard-content');
     if (!content) return;
 
-    this._snackBar.open('Generating PDF...', 'Dismiss', { duration: 3000 });
+    this.snackbarService.info('Generating PDF...', 'Dismiss');
 
     // Configure PDF options for higher quality
     const pdfOptions = {
@@ -878,9 +873,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
       pdf.save(pdfOptions.filename);
 
-      this._snackBar.open('PDF downloaded successfully', 'Dismiss', {
-        duration: 3000,
-      });
+      this.snackbarService.success('PDF downloaded successfully', 'Dismiss');
     });
   }
 
@@ -891,7 +884,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const endDate = this.dateRange.value.end;
 
     if (!startDate || !endDate) {
-      this.error.set('Please select a valid date range');
+      this.snackbarService.error('Please select a valid date range', 'Dismiss');
       this.isLoading.set(false);
       return;
     }
@@ -923,13 +916,17 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
 
-          this._snackBar.open('CSV downloaded successfully', 'Dismiss', {
-            duration: 3000,
-          });
+          this.snackbarService.success(
+            'CSV downloaded successfully',
+            'Dismiss'
+          );
         },
         error: (err) => {
           console.error('Error exporting analytics data:', err);
-          this.error.set(`Export error: ${err.message || 'Unknown error'}`);
+          this.snackbarService.error(
+            `Export error: ${err.message || 'Unknown error'}`,
+            'Dismiss'
+          );
           this.isLoading.set(false);
         },
       });
@@ -942,9 +939,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
   showUserDetails(userId: string): void {
     // Would navigate to user details if available
-    this._snackBar.open('User details feature coming soon', 'Dismiss', {
-      duration: 3000,
-    });
+    this.snackbarService.info('User details feature coming soon', 'Dismiss');
   }
 
   // Sort sessions by the selected field
@@ -1025,9 +1020,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
   exportReport(): void {
     if (!this.dateRange.value.start || !this.dateRange.value.end) {
-      this.notificationService.error(
-        'Error',
-        'Please select start and end dates'
+      this.snackbarService.error(
+        'Please select start and end dates',
+        'Dismiss'
       );
       return;
     }
@@ -1035,10 +1030,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     this.isExporting = true;
     this.exportProgress = 0;
 
-    // Show processing notification with purple color
-    this.notificationService.processing(
-      'Export Started',
-      'Report download in progress...',
+    // Use snackbarService for processing notification
+    this.snackbarService.info(
+      'Export Started - Report download in progress...',
+      'Dismiss',
       5000
     );
 
@@ -1051,36 +1046,49 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
     const startDateStr = this.formatDateForAPI(this.dateRange.value.start);
     const endDateStr = this.formatDateForAPI(this.dateRange.value.end);
-
     this.analyticsDataService.exportReport(startDateStr, endDateStr).subscribe({
-      next: (blob: Blob) => {
+      next: (rawBlob: Blob) => {
         clearInterval(progressInterval);
         this.exportProgress = 100;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Text = reader.result as string; // e.g. "UEsDBAoAAAAIAEIow1oL..."
+          const binaryString = window.atob(base64Text);
+          // ─── Build Uint8Array ───
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          // ─── Create XLSX Blob ───
+          const xlsxBlob = new Blob([bytes.buffer], {
+            type: 'application/vnd.openxmlformats-officedocument-spreadsheetml.sheet',
+          });
+          // ─── Trigger browser download ───
+          const url = window.URL.createObjectURL(xlsxBlob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `sessions-report-${startDateStr}-to-${endDateStr}.xlsx`;
+          link.click();
+          window.URL.revokeObjectURL(url);
 
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `sessions-report-${startDateStr}-to-${endDateStr}.xlsx`;
-        link.click();
-        window.URL.revokeObjectURL(url);
-
-        // Show success notification with green color
-        this.notificationService.success(
-          'Download Complete',
-          'Report downloaded successfully!'
-        );
-        this.isExporting = false;
-        this.exportProgress = 0;
+          // Use snackbarService instead of notificationService
+          this.snackbarService.success(
+            'Report downloaded successfully!',
+            'Dismiss'
+          );
+          this.isExporting = false;
+          this.exportProgress = 0;
+        };
+        reader.readAsText(rawBlob);
       },
       error: (error) => {
         clearInterval(progressInterval);
         console.error('Export failed:', error);
-
-        // Show error notification with red color
-        this.notificationService.error(
-          'Export Failed',
-          'Please try again later'
+        // Use snackbarService instead of notificationService
+        this.snackbarService.error(
+          'Export Failed - Please try again later',
+          'Dismiss'
         );
         this.isExporting = false;
         this.exportProgress = 0;

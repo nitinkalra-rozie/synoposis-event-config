@@ -1,0 +1,50 @@
+.custom-snackbar-container {
+  .mat-mdc-snack-bar-container {
+    --mdc-snackbar-container-color: transparent !important;
+    --mat-snack-bar-button-color: inherit !important;
+    --mat-mdc-snack-bar-button-color: inherit !important;
+
+    .mat-mdc-snack-bar-surface {
+      background: transparent !important;
+      color: inherit !important;
+      padding: 0 !important;
+      min-height: auto !important;
+    }
+
+    .mat-mdc-snack-bar-label {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+  }
+}
+
+.mat-icon {
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-block !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+.custom-snackbar .mat-icon {
+  font-family: 'Material Icons' !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  -moz-font-feature-settings: 'liga' !important;
+  font-feature-settings: 'liga' !important;
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/materialicons/v139/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2)
+    format('woff2');
+}
