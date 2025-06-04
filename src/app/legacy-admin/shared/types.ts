@@ -48,22 +48,16 @@ export interface PostData {
   sessionIds?: string[];
   stage?: string;
 }
+
 export interface AuthResponse {
-  data: any;
   AuthenticationResult: {
     AccessToken: string;
-    ExpiresIn: number;
     IdToken: string;
     RefreshToken: string;
-    TokenType: string;
   };
-  ChallengeParameters: {};
-}
-export interface CognitoError extends Error {
-  code: string;
 }
 
 export interface CustomChallengeResponse {
-  __type?: string;
-  Session?: string;
+  success: boolean;
+  message: string;
 }

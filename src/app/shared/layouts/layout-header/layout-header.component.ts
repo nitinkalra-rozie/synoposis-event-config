@@ -7,7 +7,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 
 @Component({

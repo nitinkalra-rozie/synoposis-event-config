@@ -18,15 +18,16 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { clone, cloneDeep, isUndefined } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
+import { catchError, debounceTime, switchMap } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
+import { AuthService } from 'src/app/core/auth/services/auth.service';
 import {
+  ChangeEventStatusRequest,
   RealtimeInsight,
   Session,
 } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { InsightsEditorDataService } from 'src/app/insights-editor/data-services/insights-editor.data-service';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
@@ -292,45 +293,59 @@ export class InsightsEditorComponent implements OnInit {
     }
   }
 
-  enableEditMode(): void {
-    this.changeEventStatus(this.selected_session_details.Status);
+  async enableEditMode(): Promise<void> {
+    await this.changeEventStatus(this.selected_session_details.Status);
   }
 
   saveEdits(): void {
     this.postEditedDebrief();
   }
 
-  changeEventStatus(status): void {
+  changeEventStatus(status: string): void {
     this.isLoading = true;
-    const debrief = {
-      action: 'changeEventStatus',
-      sessionId: this.selected_session,
-      status: status,
-      changeEditMode: true,
-      editor: this._authService.getUserEmail(),
-    };
-    this._editorialDataService.changeEventStatus(debrief).subscribe({
-      next: (response) => {
-        if (response['data'].status == 'SUCCESS') {
-          this.isEditorMode = true;
-        } else {
-          this.snackBar.open(
-            'Another editor already editing this session!',
-            'Close',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
-            }
-          );
-        }
-        this.getEventDetails();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+
+    this._authService
+      .getUserEmail()
+      .pipe(
+        switchMap((userEmail: string) => {
+          const debrief: ChangeEventStatusRequest = {
+            action: 'changeEventStatus',
+            sessionId: this.selected_session,
+            status: status,
+            changeEditMode: true,
+            editor: userEmail || '',
+          };
+
+          return this._editorialDataService.changeEventStatus(debrief);
+        }),
+        catchError((error) => {
+          console.error('Error getting user email:', error);
+          this.isLoading = false;
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response && response['data']?.status === 'SUCCESS') {
+            this.isEditorMode = true;
+          } else if (response) {
+            this.snackBar.open(
+              'Another editor already editing this session!',
+              'Close',
+              {
+                duration: 5000,
+                panelClass: ['error-snackbar'],
+              }
+            );
+          }
+          this.getEventDetails();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+          this.isLoading = false;
+        },
+      });
   }
 
   postEditedDebrief(): void {
@@ -370,11 +385,11 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
 
-  checkSessionLocked(data, session_id): boolean {
+  async checkSessionLocked(data, session_id): Promise<boolean> {
+    const userEmail = await this._authService.getUserEmail();
     const exist = data.find(
       (session) =>
-        session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail()
+        session.SessionId === session_id && session.Editing === userEmail
     );
     return isUndefined(exist);
   }
@@ -400,7 +415,7 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
 
-  selectSession(session: any): void {
+  async selectSession(session: any): Promise<void> {
     if (
       session['Status'] == 'NOT_STARTED' ||
       session['Status'] == 'IN_PROGRESS'
@@ -412,7 +427,10 @@ export class InsightsEditorComponent implements OnInit {
       if (sessionObj.StartsAt) {
         sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
       }
-      if (sessionObj.Editor == this._authService.getUserEmail()) {
+
+      // Await the user email
+      const userEmail = await this._authService.getUserEmail();
+      if (sessionObj.Editor == userEmail) {
         this.isEditorMode = true;
       } else {
         this.isEditorMode = false;

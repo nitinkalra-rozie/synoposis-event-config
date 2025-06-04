@@ -1,11 +1,20 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
+import { combineLatest } from 'rxjs';
 
+import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
 @Component({
   selector: 'app-side-nav',
@@ -16,17 +25,41 @@ import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 export class SideNavComponent implements OnInit {
   public readonly userRole = signal<UserRole | null>(null);
   public readonly isAdminUser = signal(false);
+  public readonly isLoading = signal(true);
   public readonly visibleMenuItems = computed(() => {
     const role = this.userRole();
+    if (!role) return [];
     return this._menuItems.filter((item) => item.roles.includes(role));
   });
 
   private readonly _authService = inject(AuthService);
   private readonly _menuItems = inject(NAVIGATION_MENU);
+  private readonly _destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    const token = localStorage.getItem('accessToken');
-    this.userRole.set(this._authService.getUserRole());
-    this.isAdminUser.set(this._authService.isUserAdmin());
+    this.loadNavigationPermissions();
+  }
+
+  private loadNavigationPermissions(): void {
+    combineLatest([
+      this._authService.getUserRole$(),
+      this._authService.isUserAdmin(),
+    ])
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+        next: ([userRole, isAdmin]) => {
+          console.log('🔑 Navigation user role:', userRole);
+
+          this.userRole.set(userRole);
+          this.isAdminUser.set(isAdmin);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('❌ Error loading navigation permissions:', error);
+          this.userRole.set(UserRole.EDITOR);
+          this.isAdminUser.set(false);
+          this.isLoading.set(false);
+        },
+      });
   }
 }

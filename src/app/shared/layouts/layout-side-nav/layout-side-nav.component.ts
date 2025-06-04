@@ -2,16 +2,19 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { combineLatest } from 'rxjs';
+import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 
 interface DecodedToken {
   [key: string]: any;
@@ -34,6 +37,7 @@ export class LayoutSideNavComponent implements OnInit {
 
   protected readonly isAdminUser = signal<boolean>(false);
   protected readonly userRole = signal<UserRole | null>(null);
+  protected readonly isLoading = signal<boolean>(true);
 
   protected readonly filteredMenuItems = computed(() => {
     const role = this.userRole();
@@ -41,8 +45,33 @@ export class LayoutSideNavComponent implements OnInit {
     return this._menuItems.filter((item) => role && item.roles.includes(role));
   });
 
+  private readonly _destroyRef = inject(DestroyRef);
+
   ngOnInit(): void {
-    this.userRole.set(this._authService.getUserRole());
-    this.isAdminUser.set(this._authService.isUserAdmin());
+    this.loadUserPermissions();
+  }
+
+  private loadUserPermissions(): void {
+    combineLatest([
+      this._authService.getUserRole$(),
+      this._authService.isUserAdmin(),
+    ])
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+        next: ([userRole, isAdmin]) => {
+          console.log('🔑 User role loaded:', userRole);
+          console.log('👑 Admin status:', isAdmin);
+
+          this.userRole.set(userRole);
+          this.isAdminUser.set(isAdmin);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('❌ Error loading user permissions:', error);
+          this.userRole.set(UserRole.EDITOR);
+          this.isAdminUser.set(false);
+          this.isLoading.set(false);
+        },
+      });
   }
 }

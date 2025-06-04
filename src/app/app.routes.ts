@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { AuthGuard } from 'src/app/core/auth/guards/auth.guard';
 import { AnalyticsDashboardComponent } from 'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component';
 
 export const routes: Routes = [
