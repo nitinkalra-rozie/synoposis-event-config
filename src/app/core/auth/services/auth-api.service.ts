@@ -112,12 +112,13 @@ export class AuthApiService {
           message: 'Unexpected authentication flow',
         } as CustomChallengeResponse;
       }),
-      catchError(() =>
-        of({
+      catchError((error) => {
+        console.error('Error during signUp:', error);
+        return of({
           success: false,
           message: 'Authentication failed. Please try again.',
-        } as CustomChallengeResponse)
-      )
+        } as CustomChallengeResponse);
+      })
     );
   }
 

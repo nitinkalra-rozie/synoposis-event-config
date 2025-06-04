@@ -24,6 +24,7 @@ import { LargeModalDialogComponent } from 'src/app/content-editor/components/dia
 import { AuthService } from 'src/app/core/auth/services/auth.service';
 import {
   ChangeEventStatusRequest,
+  EventStatus,
   RealtimeInsight,
   Session,
 } from 'src/app/insights-editor/data-services/insights-editor.data-model';
@@ -31,6 +32,7 @@ import { InsightsEditorDataService } from 'src/app/insights-editor/data-services
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
+
 @Component({
   selector: 'app-insights-editor',
   templateUrl: './insights-editor.component.html',
@@ -129,9 +131,9 @@ export class InsightsEditorComponent implements OnInit {
   };
 
   public statuses = [
-    { label: 'Not started', class: 'status-not-started' },
-    { label: 'In review', class: 'status-in-progress' },
-    { label: 'Complete', class: 'status-complete' },
+    { label: EventStatus.NOT_STARTED_LABEL, class: 'status-not-started' },
+    { label: EventStatus.IN_REVIEW_LABEL, class: 'status-in-progress' },
+    { label: EventStatus.COMPLETE_LABEL, class: 'status-complete' },
   ];
 
   public filtered_sessions: Session[] = [];
@@ -150,6 +152,9 @@ export class InsightsEditorComponent implements OnInit {
   private _insightsData: Array<string> = [];
   private _topicUpdate$ = new Subject<{ text: string; index: number }>();
   private _topicsData: Array<string> = [];
+
+  // Add this property to make the enum available in the template
+  public readonly EventStatus = EventStatus;
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -281,7 +286,7 @@ export class InsightsEditorComponent implements OnInit {
       );
       const sessionID = this.filtered_sessions[0];
       this.selected_session =
-        sessionID && sessionID['Status'] != 'NOT_STARTED'
+        sessionID && sessionID['Status'] != EventStatus.NOT_STARTED
           ? sessionID['SessionId']
           : '';
       this.dataLoaded = false;
@@ -294,14 +299,17 @@ export class InsightsEditorComponent implements OnInit {
   }
 
   async enableEditMode(): Promise<void> {
-    await this.changeEventStatus(this.selected_session_details.Status);
+    const status = this.convertStringToEventStatus(
+      this.selected_session_details.Status
+    );
+    await this.changeEventStatus(status);
   }
 
   saveEdits(): void {
     this.postEditedDebrief();
   }
 
-  changeEventStatus(status: string): void {
+  changeEventStatus(status: EventStatus): void {
     this.isLoading = true;
 
     this._authService
@@ -417,8 +425,8 @@ export class InsightsEditorComponent implements OnInit {
 
   async selectSession(session: any): Promise<void> {
     if (
-      session['Status'] == 'NOT_STARTED' ||
-      session['Status'] == 'IN_PROGRESS'
+      session['Status'] === EventStatus.NOT_STARTED ||
+      session['Status'] === EventStatus.IN_PROGRESS
     ) {
       this.showError();
     } else {
@@ -444,11 +452,13 @@ export class InsightsEditorComponent implements OnInit {
   // Method to dynamically assign a class based on the session's status
   getStatusClass(status: string): string {
     switch (status) {
-      case 'NOT_STARTED':
+      case EventStatus.NOT_STARTED:
         return 'status-not-started';
-      case 'UNDER_REVIEW':
+      case EventStatus.UNDER_REVIEW:
         return 'status-in-review';
-      case 'Completed':
+      case EventStatus.COMPLETED:
+        return 'status-completed';
+      case EventStatus.REVIEW_COMPLETE:
         return 'status-completed';
       default:
         return '';
@@ -534,5 +544,21 @@ export class InsightsEditorComponent implements OnInit {
     this.insights = clone(this._insightsData);
     this.topics = clone(this._topicsData);
     this.realtimeinsights = cloneDeep(this._realTimeInsightsData);
+  }
+
+  private convertStringToEventStatus(status: string): EventStatus {
+    switch (status) {
+      case 'NOT_STARTED':
+        return EventStatus.NOT_STARTED;
+      case 'IN_PROGRESS':
+        return EventStatus.IN_PROGRESS;
+      case 'UNDER_REVIEW':
+        return EventStatus.UNDER_REVIEW;
+      case 'Completed':
+        return EventStatus.COMPLETED;
+      default:
+        console.warn(`Unknown status: ${status}`);
+        return EventStatus.NOT_STARTED; 
+    }
   }
 }

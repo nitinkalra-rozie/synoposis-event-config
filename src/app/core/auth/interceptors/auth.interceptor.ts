@@ -5,7 +5,7 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { from, Observable } from 'rxjs';
+import { from, Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { environment } from 'src/environments/environment';
@@ -83,6 +83,19 @@ export const authInterceptor: HttpInterceptorFn = (
     }),
     catchError((err) => {
       console.error('❌ Error retrieving token:', err);
+
+      if (isPrivateEndpoint(req.url)) {
+        console.error(
+          '❌ Token retrieval failed for a private endpoint. Request aborted.'
+        );
+        return throwError(
+          () =>
+            new Error(
+              'Authentication failed: Token is required for private endpoints.'
+            )
+        );
+      }
+
       const fallbackReq = req.clone({
         setHeaders: {
           'X-Api-Key': environment.X_API_KEY,
