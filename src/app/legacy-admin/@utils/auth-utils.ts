@@ -5,6 +5,7 @@ function getPathsByUserRole(userRole: UserRole): string[] {
     case UserRole.SUPERADMIN:
       return [
         'admin',
+        'av-workspace',
         'insights-editor',
         'content-editor',
         'agenda',

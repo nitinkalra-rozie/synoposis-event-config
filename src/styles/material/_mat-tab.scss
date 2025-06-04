@@ -46,3 +46,15 @@
     height: 100%;
   }
 }
+
+.av-workspace-container {
+  .av-workspace-nav {
+    .mat-mdc-tab-link {
+      .mdc-tab-indicator {
+        .mdc-tab-indicator__content--underline {
+          max-width: calc(100% - 1.5rem);
+        }
+      }
+    }
+  }
+}

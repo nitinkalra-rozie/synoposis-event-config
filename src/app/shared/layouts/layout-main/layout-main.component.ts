@@ -20,4 +20,5 @@ import { LayoutSideNavComponent } from '../layout-side-nav/layout-side-nav.compo
 })
 export class LayoutMainComponent {
   public readonly title = input.required<string>();
+  public readonly showBoxShadow = input<boolean>(true);
 }

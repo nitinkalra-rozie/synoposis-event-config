@@ -19,6 +19,7 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 })
 export class LayoutHeaderComponent {
   public readonly title = input.required<string>();
+  public readonly showBoxShadow = input.required<boolean>();
 
   private readonly _authService = inject(AuthService);
   private readonly _modalService = inject(ModalService);

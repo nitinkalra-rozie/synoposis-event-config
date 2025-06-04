@@ -32,6 +32,14 @@ export const routes: Routes = [
       ).then((c) => c.LoginPageComponent),
   },
   {
+    path: 'av-workspace',
+    loadChildren: () =>
+      import('src/app/av-workspace/av-workspace.routes').then(
+        (r) => r.avWorkspaceRoutes
+      ),
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'admin',
     loadComponent: () =>
       import(
