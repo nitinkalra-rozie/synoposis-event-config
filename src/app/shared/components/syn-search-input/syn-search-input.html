@@ -1,0 +1,18 @@
+<div class="syn-input-container">
+  <mat-form-field
+    class="syn-input-form-field"
+    [appearance]="appearance()"
+    subscriptSizing="dynamic">
+    <mat-icon matPrefix>{{ searchIcon() }}</mat-icon>
+    <input
+      matInput
+      [disabled]="disabled()"
+      [ngModel]="searchValue()"
+      [placeholder]="placeholder()"
+      [type]="type()"
+      (blur)="onBlur()"
+      (focus)="onFocus()"
+      (keydown)="onKeyDown($event)"
+      (ngModelChange)="onSearchChange($event)" />
+  </mat-form-field>
+</div>
