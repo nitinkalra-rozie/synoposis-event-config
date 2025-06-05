@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { finalize } from 'rxjs';
-import { SideNavComponent } from 'src/app/legacy-admin/@components/side-nav/side-nav.component';
-
 import { AuthService } from 'src/app/core/auth/services/auth.service';
+import { SideNavComponent } from 'src/app/legacy-admin/@components/side-nav/side-nav.component';
+import { OutsideClickDirective } from 'src/app/legacy-admin/directives/outside-click.directive';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
-import { OutsideClickDirective } from '../../../legacy-admin/directives/outside-click.directive';
 
 @Component({
   selector: 'app-top-bar',
@@ -20,18 +20,18 @@ import { OutsideClickDirective } from '../../../legacy-admin/directives/outside-
   ],
 })
 export class TopBarComponent {
+  public readonly showDropdown = signal(false);
   private readonly _authService = inject(AuthService);
   private readonly _modalService = inject(ModalService);
-
-  protected showDropdown = false;
-  protected isLoggingOut = false;
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _isLoggingOut = signal(false);
 
   protected toggleDropdown(): void {
-    this.showDropdown = !this.showDropdown;
+    this.showDropdown.set(!this.showDropdown());
   }
 
   protected onOutsideClick(): void {
-    this.showDropdown = false;
+    this.showDropdown.set(false);
   }
 
   protected logout(): void {
@@ -48,19 +48,20 @@ export class TopBarComponent {
   };
 
   private performLogout(): void {
-    if (this.isLoggingOut) {
+    if (this._isLoggingOut()) {
       return;
     }
 
-    this.isLoggingOut = true;
-    this.showDropdown = false;
+    this._isLoggingOut.set(true);
+    this.showDropdown.set(false);
 
     this._authService
       .logout()
       .pipe(
         finalize(() => {
-          this.isLoggingOut = false;
-        })
+          this._isLoggingOut.set(false);
+        }),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe({
         next: () => {

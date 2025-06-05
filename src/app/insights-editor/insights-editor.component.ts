@@ -18,8 +18,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { clone, cloneDeep, isUndefined } from 'lodash-es';
-import { of, Subject } from 'rxjs';
-import { catchError, debounceTime, switchMap } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  finalize,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
 import { AuthService } from 'src/app/core/auth/services/auth.service';
 import {
@@ -323,14 +329,7 @@ export class InsightsEditorComponent implements OnInit {
 
           return this._editorialDataService.changeEventStatus(debrief);
         }),
-        catchError((error) => {
-          console.error('Error getting user email:', error);
-          this.isLoading = false;
-          return of(null);
-        })
-      )
-      .subscribe({
-        next: (response) => {
+        tap((response) => {
           if (response && response['data']?.status === 'SUCCESS') {
             this.isEditorMode = true;
           } else if (response) {
@@ -343,14 +342,17 @@ export class InsightsEditorComponent implements OnInit {
               }
             );
           }
-          this.getEventDetails();
+        }),
+        tap(() => this.getEventDetails()),
+        finalize(() => {
           this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-          this.isLoading = false;
-        },
-      });
+        }),
+        catchError((error) => {
+          console.error('Error in changeEventStatus:', error);
+          return throwError(() => error);
+        })
+      )
+      .subscribe();
   }
 
   postEditedDebrief(): void {

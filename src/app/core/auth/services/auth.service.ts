@@ -36,7 +36,6 @@ export class AuthService {
     }
 
     this._isLoggingOut.set(true);
-
     localStorage.removeItem('accessToken');
     localStorage.removeItem('idToken');
     localStorage.removeItem('refreshToken');
@@ -61,15 +60,12 @@ export class AuthService {
     return from(fetchAuthSession()).pipe(
       map((session) => {
         const accessToken = session.tokens?.accessToken?.toString();
-
         if (!accessToken) {
           return false;
         }
-
         const decoded: any = jwtDecode(accessToken);
         const normalizedEmail = decoded?.username?.toLowerCase().trim();
         const isAdmin = normalizedEmail?.endsWith('@rozie.ai') ?? false;
-
         return isAdmin;
       })
     );
@@ -110,7 +106,6 @@ export class AuthService {
             if (!session.tokens) {
               throw new Error('No valid session tokens');
             }
-
             this.logAllTokens(session.tokens);
             return true;
           })
@@ -128,7 +123,6 @@ export class AuthService {
         if (!accessToken) {
           return of(null);
         }
-
         const decodedToken: any = jwtDecode(accessToken);
         const userGroups = decodedToken['cognito:groups'] || [];
         return of(userGroups);
@@ -142,10 +136,8 @@ export class AuthService {
         if (!accessToken) {
           return of(UserRole.EDITOR);
         }
-
         const decodedToken: any = jwtDecode(accessToken);
         const email = decodedToken.email || decodedToken.username;
-
         if (email && email.endsWith('@rozie.ai')) {
           return of(UserRole.SUPERADMIN);
         }
@@ -153,7 +145,6 @@ export class AuthService {
         return this.getUserGroups$().pipe(
           map((groups) => {
             let role = UserRole.EDITOR;
-
             if (groups?.some((group) => group.includes('SUPER_ADMIN'))) {
               role = UserRole.SUPERADMIN;
             } else if (groups?.some((group) => group.includes('ADMIN'))) {
@@ -163,7 +154,6 @@ export class AuthService {
             ) {
               role = UserRole.EVENTORGANIZER;
             }
-
             return role;
           })
         );
@@ -175,11 +165,9 @@ export class AuthService {
     return from(fetchAuthSession()).pipe(
       map((session) => {
         const accessToken = session.tokens?.accessToken;
-
         if (!accessToken) {
           return true;
         }
-
         const decodedToken: any = jwtDecode(accessToken.toString());
         const expirationTime = decodedToken.exp * 1000;
         const currentTime = Date.now();
@@ -194,11 +182,9 @@ export class AuthService {
     return from(fetchAuthSession()).pipe(
       map((session) => {
         const isAuthenticated = !!session.tokens?.accessToken;
-
         if (isAuthenticated) {
           this.logAllTokens(session.tokens);
         }
-
         return isAuthenticated;
       }),
       catchError((error) => {

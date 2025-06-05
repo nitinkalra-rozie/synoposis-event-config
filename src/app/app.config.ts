@@ -10,7 +10,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter } from '@angular/router';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { routes } from 'src/app/app.routes';
-import { authInterceptor } from 'src/app/core/auth/interceptors/auth.interceptor';
+import { authInterceptor } from 'src/app/core/auth/interceptors/auth-interceptor';
 import { appIconsInitializer } from 'src/app/core/config/app-icons.init';
 
 export const appConfig: ApplicationConfig = {

@@ -45,11 +45,9 @@ const isPrivateEndpoint = (url: string): boolean => {
     '/reset-password',
     '/public/',
   ];
-
   if (publicEndpoints.some((endpoint) => url.includes(endpoint))) {
     return false;
   }
-
   return (
     privateEndpoints.some((endpoint) => url.includes(endpoint)) ||
     url.includes('/api/')
@@ -61,29 +59,24 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
-
   if (!isPrivateEndpoint(req.url)) {
     return next(req);
   }
-
   return from(authService.getAccessToken()).pipe(
     switchMap((token) => {
       const headers: Record<string, string> = {
         'X-Api-Key': environment.X_API_KEY,
       };
-
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       } else {
         console.warn('⚠️ Token missing — only X-Api-Key will be used');
       }
-
       const authReq = req.clone({ setHeaders: headers });
       return next(authReq);
     }),
     catchError((err) => {
       console.error('❌ Error retrieving token:', err);
-
       if (isPrivateEndpoint(req.url)) {
         console.error(
           '❌ Token retrieval failed for a private endpoint. Request aborted.'

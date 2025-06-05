@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/core/auth/guards/auth.guard';
+import { authGuard } from 'src/app/core/auth/guards/auth-guard';
 import { AnalyticsDashboardComponent } from 'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component';
 
 export const routes: Routes = [
@@ -37,7 +37,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/elsa-event-admin-v2/elsa-event-admin-v2.component'
       ).then((c) => c.ElsaEventAdminV2Component),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'insights-editor',
@@ -45,7 +45,7 @@ export const routes: Routes = [
       import('./insights-editor/insights-editor.routes').then(
         (r) => r.insightsEditorRoutes
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'content-editor',
@@ -53,7 +53,7 @@ export const routes: Routes = [
       import('src/app/content-editor/content-editor.routes').then(
         (r) => r.contentEditorRoutes
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'agenda',
@@ -61,12 +61,12 @@ export const routes: Routes = [
       import('src/app/legacy-admin/@pages/agenda/agenda.component').then(
         (c) => c.AgendaComponent
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'analytics',
     component: AnalyticsDashboardComponent,
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: '**',
