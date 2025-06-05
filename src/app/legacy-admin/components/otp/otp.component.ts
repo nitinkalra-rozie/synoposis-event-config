@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, finalize, of, switchMap } from 'rxjs';
 
-import { AuthApiService } from 'src/app/core/auth/services/auth-api.service';
+import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
 import { AuthService } from 'src/app/core/auth/services/auth.service';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
