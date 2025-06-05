@@ -20,7 +20,7 @@
           "error",
           {
             "type": "element",
-            "prefix": "app",
+            "prefix": ["app", "syn"],
             "style": "kebab-case"
           }
         ],
