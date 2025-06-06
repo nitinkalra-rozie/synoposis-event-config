@@ -13,10 +13,11 @@
     @include m.align-items-center();
     justify-content: space-between;
     padding: 0.5rem;
-    border: none;
+    border: 1px solid transparent;
     border-radius: v.$button-border-radius;
     background-color: v.$primary-bg-color;
     box-shadow: v.$box-shadow-simple-drop-2;
+    box-sizing: border-box;
     cursor: pointer;
     outline: none;
     text-align: left;
@@ -26,13 +27,13 @@
 
     &.theme-transparent {
       background-color: transparent;
-      border: none;
+      border-color: transparent;
       box-shadow: none;
     }
 
     &.menu-multi-select-panel-open,
     &:focus {
-      border: 1px solid v.$primary-color-variant-2;
+      border-color: v.$primary-color-variant-2;
     }
 
     &:hover:not(:disabled) {
