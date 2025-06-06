@@ -34,10 +34,10 @@
         @include m.d-flex-row;
         gap: 1.25rem;
 
-        // TODO:SYN-644: Uncomment this when the full layout is implemented
-        // @media (max-width: v.$screen-expanded-cdk-breakpoint) {
-        //   width: auto;
-        // }
+        // TODO:SYN-644: Modify or adjust this when the full layout is implemented
+        @media (max-width: v.$screen-expanded-cdk-breakpoint) {
+          width: auto;
+        }
 
         .search-input {
           width: 100%;
