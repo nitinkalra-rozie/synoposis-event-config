@@ -1,0 +1,22 @@
+@use 'variables' as v;
+
+.mat-pseudo-checkbox {
+  &.mat-pseudo-checkbox-full {
+    border-width: 1px;
+    border-radius: 0.25rem;
+  }
+}
+
+.mdc-checkbox {
+  .mdc-checkbox__background {
+    border-width: 1px;
+    border-radius: 0.25rem;
+    .mdc-checkbox__checkmark {
+      padding: 0.125rem;
+      width: auto;
+    }
+    .mdc-checkbox__mixedmark {
+      width: 60%;
+    }
+  }
+}

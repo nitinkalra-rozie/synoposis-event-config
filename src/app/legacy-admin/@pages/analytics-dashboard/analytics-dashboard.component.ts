@@ -515,7 +515,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           duration: 3000,
         }
       );
-      this._router.navigate(['/admin']);
+      this._router.navigate(['/av-workspace']);
       return;
     }
 

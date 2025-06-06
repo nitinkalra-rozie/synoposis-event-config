@@ -1,0 +1,46 @@
+<div class="centralized-view-container">
+  <!-- Header Section -->
+  <div class="stage-info-container">
+    <div class="header-section">
+      <div class="header-title">
+        <mat-icon class="info-icon" svgIcon="syn:podium_outlined" />
+        <span class="header-title">Stage information</span>
+      </div>
+      <div class="header-actions">
+        <syn-search-input
+          class="search-input"
+          [(searchValue)]="productSearchTerm"
+          (enterPressed)="executeSearch($event)"
+          (searchChange)="onSearch($event)"
+          appearance="fill"
+          placeholder="Search"
+          searchIcon="search">
+        </syn-search-input>
+
+        <!-- TODO:SYN-644: bind the locations from the backend -->
+        <syn-multi-select
+          [options]="[
+            { label: 'Hall 01', value: 'hall01' },
+            { label: 'Hall 02', value: 'hall02' },
+            { label: 'Hall 03', value: 'hall03' },
+            { label: 'Hall 04', value: 'hall04' },
+            { label: 'Hall 05', value: 'hall05' },
+            { label: 'Hall 06', value: 'hall06' },
+            { label: 'Hall 07', value: 'hall07' },
+            { label: 'Hall 08', value: 'hall08' },
+            { label: 'Hall 09', value: 'hall09' },
+            { label: 'Hall 10', value: 'hall10' },
+          ]"
+          [uiConfig]="{
+            labelPosition: 'before',
+            labelSearch: 'Filter by location',
+            applyFilterButtonText: 'Apply filter'
+           }"
+          labelIcon="filter_list"
+          labelText="Filter" />
+      </div>
+    </div>
+
+    <!-- TODO:SYN-644: implement the table using the data from backend -->
+  </div>
+</div>

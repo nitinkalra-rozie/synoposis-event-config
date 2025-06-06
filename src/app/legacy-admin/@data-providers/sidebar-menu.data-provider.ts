@@ -6,11 +6,11 @@ export const NAVIGATION_MENU = new InjectionToken<MenuItem[]>(
   {
     factory: () => [
       {
-        id: 'admin',
-        label: 'Admin Dashboard',
+        id: 'av-workspace',
+        label: 'AV Workspace',
         icon: 'syn:space_dashboard_outlined',
         isSvg: true,
-        routerLink: '/admin',
+        routerLink: '/av-workspace',
         roles: [UserRole.SUPERADMIN, UserRole.ADMIN],
       },
       {
