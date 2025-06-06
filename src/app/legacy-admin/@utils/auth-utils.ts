@@ -4,7 +4,6 @@ function getPathsByUserRole(userRole: UserRole): string[] {
   switch (userRole) {
     case UserRole.SUPERADMIN:
       return [
-        'admin',
         'av-workspace',
         'insights-editor',
         'content-editor',
@@ -12,7 +11,7 @@ function getPathsByUserRole(userRole: UserRole): string[] {
         'analytics',
       ];
     case UserRole.ADMIN:
-      return ['admin'];
+      return ['av-workspace'];
     case UserRole.EVENTORGANIZER:
       return ['agenda', 'analytics'];
     case UserRole.EDITOR:

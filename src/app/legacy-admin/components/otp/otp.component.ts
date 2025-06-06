@@ -106,7 +106,7 @@ export class OtpComponent implements OnInit {
           responseData.AuthenticationResult &&
           responseData.AuthenticationResult.AccessToken
         ) {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/av-workspace']);
         } else {
           this.errorMessage = 'Wrong otp!';
           console.error('OTP verification failed or no token received');
