@@ -1,0 +1,219 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.syn-menu-multi-select-container {
+  color: v.$primary-bg-color-variant-8;
+  @include m.body-regular;
+
+  .menu-multi-select-trigger-button {
+    min-width: 10rem;
+    width: 100%;
+    height: 2.5rem;
+    @include m.d-flex();
+    @include m.align-items-center();
+    justify-content: space-between;
+    padding: 0.5rem;
+    border: none;
+    border-radius: v.$button-border-radius;
+    background-color: v.$primary-bg-color;
+    box-shadow: v.$box-shadow-simple-drop-2;
+    cursor: pointer;
+    outline: none;
+    text-align: left;
+    @include m.body-regular;
+    color: v.$primary-bg-color-variant-8;
+    transition: border-color 0.2s ease;
+
+    &.theme-transparent {
+      background-color: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    &.menu-multi-select-panel-open,
+    &:focus {
+      border: 1px solid v.$primary-color-variant-2;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: v.$primary-bg-hover-color;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      background-color: v.$primary-bg-color-variant-1;
+    }
+
+    .trigger-left-section {
+      @include m.d-flex();
+      @include m.align-items-center();
+      gap: 0.125rem;
+      flex-shrink: 0;
+
+      .label-text {
+        @include m.body-regular;
+
+        @media (max-width: v.$screen-compact) {
+          font-size: v.$font-size-sm;
+        }
+      }
+
+      .label-icon {
+        width: 1rem;
+        height: 1rem;
+        font-size: v.$font-size-base;
+      }
+    }
+
+    .trigger-right-section {
+      @include m.d-flex();
+      @include m.align-items-center();
+      gap: 0.125rem;
+      color: v.$primary-bg-color-variant-6;
+
+      .select-display-value {
+        max-width: 4rem;
+        @include m.body-regular;
+        @include m.ellipsis();
+      }
+
+      .select-display-count-wrapper {
+        @include m.d-flex();
+        @include m.align-items-center();
+        gap: 0.25rem;
+
+        .display-count-icon {
+          width: 0.875rem;
+          height: 0.875rem;
+          font-size: v.$font-size-sm;
+        }
+
+        .display-count {
+          width: 0.875rem;
+          height: 0.875rem;
+          @include m.d-flex();
+          @include m.align-items-center();
+          @include m.justify-content-center();
+          padding: 0.125rem;
+          border-radius: 50%;
+          box-shadow: v.$box-shadow-simple-drop-2;
+          font-size: v.$font-size-xxs;
+          background-color: v.$primary-bg-color;
+        }
+      }
+
+      .label-icon {
+        width: 1rem;
+        height: 1rem;
+        font-size: v.$font-size-base;
+      }
+    }
+  }
+}
+
+// #region Component-specific panel styles. Also check .syn-menu-multi-select-panel in _mat-menu.scss
+.syn-menu-multi-select-panel-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+
+  .panel-search {
+    @include m.d-flex-column();
+    gap: 0.5rem;
+    color: v.$primary-bg-color-variant-5;
+    padding: 1rem 1rem 0.5rem 1rem;
+    position: sticky;
+    top: 0;
+    background-color: v.$primary-bg-color;
+    z-index: 1;
+
+    .panel-search-label {
+      @include m.body-regular;
+    }
+
+    .search-input-container {
+      @include m.d-flex-row();
+      @include m.align-items-center();
+      gap: 0.5rem;
+      border: 1px solid v.$primary-bg-color-variant-2;
+      height: 2.5rem;
+      box-sizing: border-box;
+      border-radius: v.$button-border-radius;
+      padding: 0.5rem 1.25rem;
+      background-color: v.$primary-bg-color;
+
+      &:focus-within {
+        border-color: v.$primary-color-variant-2;
+      }
+
+      mat-icon {
+        font-size: v.$font-size-xl;
+        width: 1.25rem;
+        height: 1.25rem;
+        line-height: 1.25rem;
+        color: v.$primary-bg-color-variant-5;
+      }
+
+      .panel-search-input {
+        border: none;
+        outline: none;
+        @include m.body-regular;
+        background-color: v.$transparent;
+        width: 100%;
+        color: v.$primary-bg-color-variant-8;
+      }
+    }
+  }
+
+  .options-list {
+    padding: 0;
+    margin: 0;
+  }
+
+  .menu-multi-select-option {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: v.$primary-bg-color-variant-6;
+    @include m.d-flex();
+    @include m.align-items-center();
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: v.$primary-bg-color-variant-1;
+    }
+
+    &.select-all-option {
+      border-bottom: 1px solid v.$primary-bg-color-variant-2;
+      margin-bottom: 0.25rem;
+      font-weight: v.$font-weight-medium;
+    }
+  }
+
+  .panel-no-options {
+    @include m.d-flex-column();
+    @include m.align-items-center();
+    @include m.justify-content-center();
+    gap: 0.5rem;
+    margin: 2rem 1rem;
+    color: v.$primary-bg-color-variant-5;
+    font-size: 0.875rem;
+    text-align: center;
+    font-style: italic;
+  }
+}
+
+.syn-menu-multi-select-panel-footer {
+  @include m.d-flex-row();
+  @include m.align-items-center();
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  margin-left: auto;
+  border-top: 1px solid v.$secondary-bg-color;
+  background-color: v.$primary-bg-color;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}
+// #endregion
