@@ -8,11 +8,11 @@
     "
     subscriptSizing="dynamic">
     <div class="select-display-label">
-      @if (uiConfig().labelPosition === 'before') {
+      @if (labelPosition() === 'before') {
       <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
       }
       <span class="label-text">{{ labelText() }}</span>
-      @if ( uiConfig().labelPosition === 'after' && (!selectFormCtrl.value ||
+      @if ( labelPosition() === 'after' && (!selectFormCtrl.value ||
       selectFormCtrl.value?.length === 0) ) {
       <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
       }
@@ -35,8 +35,8 @@
             selectFormCtrl.value.length }}
           </span>
         </span>
-        } @if ( uiConfig().labelPosition === 'after' &&
-        selectFormCtrl.value?.length > 0 ) {
+        } @if ( labelPosition() === 'after' && selectFormCtrl.value?.length > 0
+        ) {
         <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
         }
       </mat-select-trigger>
@@ -45,7 +45,7 @@
         <!-- https://github.com/angular/components/issues/5697 -->
         <!-- https://stackblitz.com/edit/angular-mat-select-multi-with-formcontrol-x2tbvo?file=app%2Fselect-search-dropdown.component.html -->
         <div class="panel-search">
-          <div class="panel-search-label">{{ uiConfig().labelSearch }}</div>
+          <div class="panel-search-label">{{ searchLabel() }}</div>
 
           <!-- TODO: @later bind the syn-search-input component -->
           <div class="search-input-container">
@@ -75,7 +75,7 @@
           class="multi-select-option"
           [value]="option"
           (onSelectionChange)="toggleOptionChange(optionElement, $event)">
-          {{ displayOption(option) }}
+          {{ optionDisplayMap().get(option) }}
         </mat-option>
         } } @else {
         <div class="panel-no-options">No options matches the search term</div>
@@ -84,7 +84,7 @@
 
       <div class="syn-multi-select-panel-footer">
         <button class="btn-primary-default" (click)="applySelection()">
-          {{ uiConfig().applyFilterButtonText }}
+          {{ applyFilterButtonText() }}
         </button>
       </div>
     </mat-select>
