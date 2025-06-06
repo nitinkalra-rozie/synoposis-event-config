@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { combineLatest } from 'rxjs';
 
-import { AuthService } from 'src/app/core/auth/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth-data-service';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 
@@ -46,20 +46,10 @@ export class SideNavComponent implements OnInit {
       this._authService.isUserAdmin(),
     ])
       .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe({
-        next: ([userRole, isAdmin]) => {
-          console.log('🔑 Navigation user role:', userRole);
-
-          this.userRole.set(userRole);
-          this.isAdminUser.set(isAdmin);
-          this.isLoading.set(false);
-        },
-        error: (error) => {
-          console.error('❌ Error loading navigation permissions:', error);
-          this.userRole.set(UserRole.EDITOR);
-          this.isAdminUser.set(false);
-          this.isLoading.set(false);
-        },
+      .subscribe(([userRole, isAdmin]) => {
+        this.userRole.set(userRole);
+        this.isAdminUser.set(isAdmin);
+        this.isLoading.set(false);
       });
   }
 }

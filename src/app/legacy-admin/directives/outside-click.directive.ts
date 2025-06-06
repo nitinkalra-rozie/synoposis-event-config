@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   Renderer2,
+  inject,
 } from '@angular/core';
 
 @Directive({
@@ -13,35 +14,30 @@ import {
   standalone: true,
 })
 export class OutsideClickDirective implements OnInit, OnDestroy {
-  constructor(
-    private element: ElementRef,
-    private renderer: Renderer2
-  ) {}
+  private readonly _element = inject(ElementRef<HTMLElement>);
+  private readonly _renderer = inject(Renderer2);
 
-  @Output() public outSideClick = new EventEmitter<void>();
+  @Output() public readonly outSideClick = new EventEmitter<void>();
 
-  private _listener: (() => void) | undefined;
+  private _unlisten?: () => void;
 
-  // Execute this function when click outside of the dropdown-container
-
-  //Add the listener when the dropdown component is rendered
   ngOnInit(): void {
-    this._listener = this.renderer.listen(
+    this._unlisten = this._renderer.listen(
       'document',
       'click',
       this.onDocumentClick
     );
   }
 
-  //To reduce unnecessary memory leaks you need to use the clean-up
   ngOnDestroy(): void {
-    if (this._listener) {
-      this._listener();
-    }
+    this._unlisten?.();
   }
 
-  private onDocumentClick = (event: Event): void => {
-    if (!this.element.nativeElement.parentElement.contains(event.target)) {
+  private readonly onDocumentClick = (event: Event): void => {
+    const target = event.target as HTMLElement;
+    const parentElement = this._element.nativeElement?.parentElement;
+
+    if (!parentElement?.contains(target)) {
       this.outSideClick.emit();
     }
   };

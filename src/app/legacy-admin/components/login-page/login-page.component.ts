@@ -7,12 +7,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
-
-import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs/operators';
 import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth-data-service';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 
@@ -22,7 +19,6 @@ import { FooterComponent } from '../shared/footer/footer.component';
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.scss'],
   imports: [
-    CommonModule,
     FooterComponent,
     FooterMobileComponent,
     FormsModule,
@@ -65,11 +61,6 @@ export class LoginPageComponent {
         .pipe(
           finalize(() => {
             this.processedClicked = false;
-          }),
-          catchError((error) => {
-            console.error('Sign up failed', error);
-            this.errorMessage = 'An error occurred while signing up.';
-            return of(null);
           })
         )
         .subscribe((response) => {
@@ -92,11 +83,6 @@ export class LoginPageComponent {
     this._authApiService
       .requestAccess(email)
       .pipe(
-        catchError((error) => {
-          console.error('Error requesting access', error);
-          this.errorMessage = 'An error occurred while requesting access.';
-          return of(false);
-        }),
         finalize(() => {
           setTimeout(() => {
             this.requestingAccess = false;

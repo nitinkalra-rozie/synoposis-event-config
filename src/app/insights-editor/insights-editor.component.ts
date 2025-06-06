@@ -27,7 +27,7 @@ import {
   tap,
 } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth-data-service';
 import {
   ChangeEventStatusRequest,
   EventStatus,

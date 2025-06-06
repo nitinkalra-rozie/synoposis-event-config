@@ -11,12 +11,12 @@ import { Router } from '@angular/router';
 import { Amplify } from 'aws-amplify';
 import {
   confirmSignIn,
-  resendSignUpCode,
+  fetchAuthSession,
   signIn,
   SignInInput,
   SignInOutput,
 } from 'aws-amplify/auth';
-import { catchError, from, map, Observable, of, throwError } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { CustomChallengeResponse } from 'src/app/legacy-admin/shared/types';
 import { environment } from 'src/environments/environment';
@@ -54,6 +54,55 @@ export class AuthApiService {
   }
 
   signUp(email: string): Observable<CustomChallengeResponse> {
+    return from(fetchAuthSession()).pipe(
+      takeUntilDestroyed(this._destroyRef),
+      switchMap((session) => {
+        if (session.tokens?.accessToken) {
+          return [
+            {
+              success: true,
+              message: 'User already signed in',
+            } satisfies CustomChallengeResponse,
+          ];
+        }
+        return this.performSignIn(email);
+      })
+    );
+  }
+
+  OTPVerification(email: string, otp: string): Observable<boolean> {
+    return from(confirmSignIn({ challengeResponse: otp })).pipe(
+      takeUntilDestroyed(this._destroyRef),
+      map((result: SignInOutput) => result.isSignedIn)
+    );
+  }
+
+  resendOtp(email: string): Observable<void> {
+    return this.performSignIn(email).pipe(
+      takeUntilDestroyed(this._destroyRef),
+      map(() => void 0)
+    );
+  }
+
+  requestAccess(email: string): Observable<boolean> {
+    const requestBody = { email };
+    this.updateBaseUrl(environment.REQUEST_ACCESS_API || '');
+    this.updateHeaders({
+      'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
+      'Content-Type': 'application/json',
+    });
+
+    return this._http
+      .post<{ status: number }>(`${this._baseUrl()}/`, requestBody, {
+        headers: this._headers(),
+      })
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        map((response) => response.status === 200)
+      );
+  }
+
+  private performSignIn(email: string): Observable<CustomChallengeResponse> {
     const signInInput: SignInInput = {
       username: email,
       options: {
@@ -62,7 +111,6 @@ export class AuthApiService {
     };
 
     return from(signIn(signInInput)).pipe(
-      takeUntilDestroyed(this._destroyRef),
       map((result: SignInOutput) => {
         if (result.isSignedIn) {
           return {
@@ -85,52 +133,7 @@ export class AuthApiService {
           success: false,
           message: 'Unexpected authentication flow',
         } satisfies CustomChallengeResponse;
-      }),
-      catchError((error) => {
-        console.error('Error during signUp:', error);
-        return of({
-          success: false,
-          message: 'Authentication failed. Please try again.',
-        } satisfies CustomChallengeResponse);
       })
     );
-  }
-
-  OTPVerification(email: string, otp: string): Observable<boolean> {
-    return from(confirmSignIn({ challengeResponse: otp })).pipe(
-      takeUntilDestroyed(this._destroyRef),
-      map((result: SignInOutput) => result.isSignedIn)
-    );
-  }
-
-  resendOtp(email: string): Observable<void> {
-    return from(resendSignUpCode({ username: email })).pipe(
-      takeUntilDestroyed(this._destroyRef),
-      map(() => void 0),
-      catchError(() =>
-        this.signUp(email).pipe(
-          map(() => void 0),
-          catchError((signInError) => throwError(() => signInError))
-        )
-      )
-    );
-  }
-
-  requestAccess(email: string): Observable<boolean> {
-    const requestBody = { email };
-    this.updateBaseUrl(environment.REQUEST_ACCESS_API || '');
-    this.updateHeaders({
-      'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
-      'Content-Type': 'application/json',
-    });
-
-    return this._http
-      .post<{ status: number }>(`${this._baseUrl()}/`, requestBody, {
-        headers: this._headers(),
-      })
-      .pipe(
-        takeUntilDestroyed(this._destroyRef),
-        map((response) => response.status === 200)
-      );
   }
 }

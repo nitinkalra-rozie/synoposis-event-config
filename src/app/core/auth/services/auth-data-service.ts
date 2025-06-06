@@ -9,8 +9,8 @@ import {
   signOut,
 } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
-import { from, interval, Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
+import { from, interval, Observable, of } from 'rxjs';
+import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
@@ -45,11 +45,6 @@ export class AuthService {
         this._router.navigate(['/login'], { replaceUrl: true });
       }),
       map(() => void 0),
-      catchError((error) => {
-        console.warn('Logout error (continuing with navigation):', error);
-        this._router.navigate(['/login'], { replaceUrl: true });
-        return of(void 0);
-      }),
       tap(() => {
         this._isLoggingOut.set(false);
       })
@@ -110,9 +105,6 @@ export class AuthService {
             return true;
           })
         )
-      ),
-      catchError((error) =>
-        this.logout().pipe(switchMap(() => throwError(() => error)))
       )
     );
   }
@@ -186,31 +178,16 @@ export class AuthService {
           this.logAllTokens(session.tokens);
         }
         return isAuthenticated;
-      }),
-      catchError((error) => {
-        console.error('Error checking authentication status:', error);
-        return of(false);
       })
     );
   }
 
   private logAllTokens(tokens: AuthTokens): void {
     if (tokens.accessToken) {
-      const accessTokenStr = tokens.accessToken.toString();
-      try {
-        const decoded = jwtDecode(accessTokenStr);
-      } catch (error) {
-        console.error('Token decode failed', error);
-      }
+      jwtDecode(tokens.accessToken.toString());
     }
-
     if (tokens.idToken) {
-      const idTokenStr = tokens.idToken.toString();
-      try {
-        const decoded = jwtDecode(idTokenStr);
-      } catch (error) {
-        console.error('Token decode failed', error);
-      }
+      jwtDecode(tokens.idToken.toString());
     }
   }
 
@@ -242,8 +219,7 @@ export class AuthService {
         } else {
           return of(void 0);
         }
-      }),
-      catchError((error) => this.logout())
+      })
     );
   }
 }

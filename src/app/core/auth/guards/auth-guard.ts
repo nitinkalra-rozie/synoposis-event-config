@@ -7,8 +7,8 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { catchError, map, switchMap, take } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
+import { map, switchMap, take } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/auth/services/auth-data-service';
 import { UserRole } from '../../enum/auth-roles.enum';
 
 export const authGuard: CanActivateFn = (
@@ -36,10 +36,6 @@ export const authGuard: CanActivateFn = (
           );
         })
       );
-    }),
-    catchError((error) => {
-      console.error('🔥 Auth guard error:', error);
-      return [router.createUrlTree(['/login'])];
     })
   );
 };

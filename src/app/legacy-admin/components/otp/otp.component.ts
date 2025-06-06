@@ -7,10 +7,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { catchError, finalize, of, switchMap } from 'rxjs';
-
+import { finalize, switchMap } from 'rxjs';
 import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
-import { AuthService } from 'src/app/core/auth/services/auth.service';
+import { AuthService } from 'src/app/core/auth/services/auth-data-service';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 
@@ -36,7 +35,6 @@ export class OtpComponent implements OnInit {
   ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
     this.email = urlParams.get('email') || '';
-    console.log('📱 OTP component initialized for email:', this.email);
   }
 
   handleOtpChange(index: number, event: Event): void {
@@ -101,7 +99,6 @@ export class OtpComponent implements OnInit {
     this.errorMessage = '';
 
     if (!this.email) {
-      console.error('❌ Email is null');
       this.submitPressed = false;
       return;
     }
@@ -115,25 +112,13 @@ export class OtpComponent implements OnInit {
             return this.authService.checkSession$().pipe(
               switchMap(() => {
                 this.router.navigate(['/admin']);
-                return of(true);
-              }),
-              catchError((error) => {
-                console.error('❌ Session validation failed:', error);
-                this.errorMessage =
-                  'Session validation failed. Please try again.';
-                return of(false);
+                return [];
               })
             );
           } else {
             this.errorMessage = 'Wrong OTP!';
-            console.error('❌ OTP verification failed');
-            return of(false);
+            return [];
           }
-        }),
-        catchError((error) => {
-          this.errorMessage = 'Wrong OTP!';
-          console.error('❌ Error during OTP verification:', error);
-          return of(false);
         }),
         finalize(() => {
           this.submitPressed = false;
@@ -150,10 +135,6 @@ export class OtpComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.resendClicked = false;
-        }),
-        catchError((error) => {
-          console.error('❌ Error during OTP resend:', error);
-          return of(null);
         })
       )
       .subscribe();
