@@ -1030,7 +1030,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     this.isExporting = true;
     this.exportProgress = 0;
 
-    // Use snackbarService for processing notification
     this.snackbarService.info(
       'Export Started - Report download in progress...',
       'Dismiss',
@@ -1052,19 +1051,16 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
         this.exportProgress = 100;
         const reader = new FileReader();
         reader.onloadend = () => {
-          const base64Text = reader.result as string; // e.g. "UEsDBAoAAAAIAEIow1oL..."
+          const base64Text = reader.result as string;
           const binaryString = window.atob(base64Text);
-          // ─── Build Uint8Array ───
           const len = binaryString.length;
           const bytes = new Uint8Array(len);
           for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
           }
-          // ─── Create XLSX Blob ───
           const xlsxBlob = new Blob([bytes.buffer], {
             type: 'application/vnd.openxmlformats-officedocument-spreadsheetml.sheet',
           });
-          // ─── Trigger browser download ───
           const url = window.URL.createObjectURL(xlsxBlob);
           const link = document.createElement('a');
           link.href = url;
@@ -1072,7 +1068,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           link.click();
           window.URL.revokeObjectURL(url);
 
-          // Use snackbarService instead of notificationService
           this.snackbarService.success(
             'Report downloaded successfully!',
             'Dismiss'
@@ -1085,7 +1080,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         clearInterval(progressInterval);
         console.error('Export failed:', error);
-        // Use snackbarService instead of notificationService
         this.snackbarService.error(
           'Export Failed - Please try again later',
           'Dismiss'
@@ -1097,7 +1091,6 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   }
 
   private formatDateForAPI(date: Date): string {
-    // Format date as YYYY-MM-DD for the API
     return date.toISOString().split('T')[0];
   }
 }
