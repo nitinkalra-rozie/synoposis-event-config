@@ -1,0 +1,48 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.centralized-view-container {
+  @include m.d-flex-column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background-color: v.$primary-bg-color-variant-1;
+  height: 100dvh; // TODO:SYN-644: adjust this when the full layout is implemented and see
+  color: v.$primary-bg-color-variant-8;
+  @include m.body-regular;
+
+  .stage-info-container {
+    @include m.d-flex-column;
+    gap: 1.25rem;
+    box-shadow: v.$box-shadow-simple-drop-3;
+    border-radius: 0.25rem;
+    background-color: v.$primary-bg-color;
+
+    .header-section {
+      @include m.d-flex-row;
+      gap: 1.25rem;
+      padding: 1rem 1.25rem;
+      justify-content: space-between;
+      align-items: center;
+
+      .header-title {
+        @include m.d-flex-row;
+        gap: 0.5rem;
+      }
+
+      .header-actions {
+        width: 50%;
+        @include m.d-flex-row;
+        gap: 1.25rem;
+
+        // TODO:SYN-644: Modify or adjust this when the full layout is implemented
+        @media (max-width: v.$screen-expanded-cdk-breakpoint) {
+          width: auto;
+        }
+
+        .search-input {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

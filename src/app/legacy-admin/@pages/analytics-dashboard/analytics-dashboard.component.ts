@@ -516,7 +516,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
         'No event selected. Redirecting to admin page.',
         'Dismiss'
       );
-      this._router.navigate(['/admin']);
+      this._router.navigate(['/av-workspace']);
       return;
     }
 

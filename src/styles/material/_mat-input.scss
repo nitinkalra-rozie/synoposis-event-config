@@ -1,0 +1,60 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use '@angular/material' as mat;
+
+.syn-input-container {
+  .syn-input-form-field {
+    width: 100%;
+
+    @include mat.form-field-overrides(
+      (
+        container-height: 0.5rem,
+        container-vertical-padding: 0.5rem,
+      )
+    );
+
+    .mat-mdc-text-field-wrapper {
+      padding-right: 0;
+      box-shadow: v.$box-shadow-simple-drop-2;
+
+      .mat-mdc-form-field-flex {
+        @include m.d-flex;
+        @include m.align-items-center;
+        padding: 0 1rem 0 0.5rem;
+        border-radius: v.$button-border-radius;
+        background-color: v.$primary-bg-color;
+
+        .mat-mdc-form-field-icon-prefix {
+          @include m.d-flex;
+          @include m.align-items-center;
+
+          .mat-icon {
+            font-size: 1.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            line-height: 1.25rem;
+            color: v.$primary-bg-color-variant-5;
+          }
+        }
+
+        .mat-mdc-form-field-infix {
+          display: flex;
+          align-items: center;
+
+          .mat-mdc-input-element.mdc-text-field__input {
+            @include m.body-regular;
+
+            &::placeholder {
+              color: v.$primary-bg-color-variant-5;
+              opacity: 1;
+            }
+          }
+        }
+      }
+
+      .mdc-line-ripple {
+        display: none !important;
+      }
+    }
+  }
+}

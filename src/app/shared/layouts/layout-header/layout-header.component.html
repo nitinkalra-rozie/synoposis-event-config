@@ -6,7 +6,7 @@
         src="../../../../../assets/side-nav/rozie-synopsis-logo-mark.svg" />
     </div>
   </div>
-  <div class="header-content">
+  <div class="header-content" [class.header-content-elevated]="showBoxShadow()">
     <div class="header-title">{{ title() }}</div>
     <div class="header-icons">
       <button mat-icon-button class="info-button" [matMenuTriggerFor]="menu">

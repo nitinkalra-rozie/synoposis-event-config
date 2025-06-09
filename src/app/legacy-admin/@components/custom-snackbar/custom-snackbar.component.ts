@@ -16,7 +16,6 @@ import { SnackbarData } from 'src/app/legacy-admin/shared/types';
   styleUrls: ['./custom-snackbar.component.scss'],
 })
 export class CustomSnackbarComponent {
-  
   public data = inject<SnackbarData>(MAT_SNACK_BAR_DATA);
   private _snackBarRef = inject(MatSnackBarRef<CustomSnackbarComponent>);
 

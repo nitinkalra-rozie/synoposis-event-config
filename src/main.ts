@@ -4,7 +4,7 @@ import NoSleep from '@uriopass/nosleep.js';
 import { Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { appConfig } from 'src/app/app.config';
-import { AppComponent } from './app/app.component';
+import { App } from './app/app';
 import { environment } from './environments/environment';
 
 const noSleep = new NoSleep();
@@ -18,7 +18,7 @@ if (environment.production) {
   enableProdMode();
 }
 
-bootstrapApplication(AppComponent, appConfig).catch((err) => console.log(err));
+bootstrapApplication(App, appConfig).catch((err) => console.log(err));
 
 // TODO:@later remove the following and use navigator.wakeLock.request('screen'); at the required places
 // TODO:@later and get rid of the dependency @uriopass/nosleep.js

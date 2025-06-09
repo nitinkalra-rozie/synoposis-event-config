@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from 'src/app/core/guards/auth.guard';
-import { AnalyticsDashboardComponent } from 'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component';
 
 export const routes: Routes = [
   {
@@ -32,11 +31,11 @@ export const routes: Routes = [
       ).then((c) => c.LoginPageComponent),
   },
   {
-    path: 'admin',
-    loadComponent: () =>
-      import(
-        'src/app/legacy-admin/components/elsa-event-admin-v2/elsa-event-admin-v2.component'
-      ).then((c) => c.ElsaEventAdminV2Component),
+    path: 'av-workspace',
+    loadChildren: () =>
+      import('src/app/av-workspace/av-workspace.routes').then(
+        (r) => r.avWorkspaceRoutes
+      ),
     canActivate: [AuthGuard],
   },
   {
@@ -65,7 +64,10 @@ export const routes: Routes = [
   },
   {
     path: 'analytics',
-    component: AnalyticsDashboardComponent,
+    loadComponent: () =>
+      import(
+        'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component'
+      ).then((c) => c.AnalyticsDashboardComponent),
     canActivate: [AuthGuard],
   },
   {
