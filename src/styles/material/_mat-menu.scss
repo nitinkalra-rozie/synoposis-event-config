@@ -155,3 +155,29 @@ $session-selection-menu-width-right-sidebar-hidden: calc(
     }
   }
 }
+
+.syn-menu-multi-select-panel {
+  min-width: 17.5rem !important;
+  max-width: 17.5rem !important;
+  padding: 0;
+
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+    background-color: v.$primary-bg-color;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .mat-mdc-checkbox {
+    width: 100%;
+
+    .mdc-form-field {
+      width: 100%;
+    }
+
+    .mdc-form-field > label {
+      width: 100%;
+      cursor: pointer;
+    }
+  }
+}

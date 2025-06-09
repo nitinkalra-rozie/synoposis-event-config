@@ -2,8 +2,9 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { SynMultiSelect } from 'src/app/shared/components/syn-multi-select/syn-multi-select';
-import { SynSearchInput } from '../../../shared/components/syn-search-input/syn-search-input';
+import { SynMenuMultiSelect } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select';
+import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
+import { SynSearchInput } from 'src/app/shared/components/syn-search-input/syn-search-input';
 
 @Component({
   selector: 'app-centralized-view',
@@ -14,8 +15,8 @@ import { SynSearchInput } from '../../../shared/components/syn-search-input/syn-
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    SynMultiSelect,
     SynSearchInput,
+    SynMenuMultiSelect,
   ],
 })
 export class CentralizedView {
@@ -28,5 +29,11 @@ export class CentralizedView {
 
   protected executeSearch(value: string): void {
     console.log(value);
+  }
+
+  protected onSelectionsApplied(
+    selections: SynMenuMultiSelectOption<string>[] | string[]
+  ): void {
+    console.log('onSelectionsApplied', selections);
   }
 }

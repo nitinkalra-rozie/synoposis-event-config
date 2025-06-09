@@ -2,6 +2,7 @@ import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   OnChanges,
   output,
@@ -22,10 +23,7 @@ import {
   MatSelectModule,
 } from '@angular/material/select';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs';
-import {
-  SynMultiSelectConfig,
-  SynMultiSelectOption,
-} from './syn-multi-select-option.model';
+import { SynMultiSelectOption } from 'src/app/shared/components/syn-multi-select/syn-multi-select-option.model';
 
 @Component({
   selector: 'syn-multi-select',
@@ -62,12 +60,10 @@ export class SynMultiSelect<T> implements OnChanges {
   public options = input<SynMultiSelectOption<T>[] | string[]>();
   public labelIcon = input.required<string>();
   public labelText = input.required<string>();
-  public uiConfig = input<SynMultiSelectConfig>({
-    applyFilterButtonText: 'Apply filter',
-    labelSearch: 'Search',
-    labelPosition: 'before',
-  });
   public theme = input<'default' | 'transparent'>('default');
+  public applyFilterButtonText = input<string>('Apply filter');
+  public searchLabel = input<string>('Search');
+  public labelPosition = input<'before' | 'after'>('before');
 
   public selectionsApplied = output<SynMultiSelectOption<T>[] | string[]>();
 
@@ -76,6 +72,18 @@ export class SynMultiSelect<T> implements OnChanges {
 
   protected filteredOptions = signal<(SynMultiSelectOption<T> | string)[]>([]);
 
+  protected optionDisplayMap = computed(() => {
+    const options = this.filteredOptions();
+    const map = new Map<SynMultiSelectOption<T> | string, string>();
+
+    options.forEach((option) => {
+      const displayText = typeof option === 'string' ? option : option.label;
+      map.set(option, displayText);
+    });
+
+    return map;
+  });
+
   ngOnChanges(_changes: SimpleChanges): void {
     this._filterSearchOptions();
   }
@@ -83,10 +91,6 @@ export class SynMultiSelect<T> implements OnChanges {
   protected get selectedFirstValue(): string {
     const value = this.selectFormCtrl.value?.[0];
     return typeof value === 'string' ? value : value?.label;
-  }
-
-  protected displayOption(option: string | SynMultiSelectOption<T>): string {
-    return typeof option === 'string' ? option : option.label;
   }
 
   protected toggleAllChange(

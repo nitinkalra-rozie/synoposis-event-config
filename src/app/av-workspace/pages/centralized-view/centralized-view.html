@@ -18,7 +18,7 @@
         </syn-search-input>
 
         <!-- TODO:SYN-644: bind the locations from the backend -->
-        <syn-multi-select
+        <!-- <syn-multi-select
           [options]="[
             { label: 'Hall 01', value: 'hall01' },
             { label: 'Hall 02', value: 'hall02' },
@@ -31,13 +31,34 @@
             { label: 'Hall 09', value: 'hall09' },
             { label: 'Hall 10', value: 'hall10' },
           ]"
-          [uiConfig]="{
-            labelPosition: 'before',
-            labelSearch: 'Filter by location',
-            applyFilterButtonText: 'Apply filter'
-           }"
+          applyFilterButtonText="Apply filter"
           labelIcon="filter_list"
-          labelText="Filter" />
+          labelPosition="before"
+          labelText="Filter"
+          searchLabel="Filter by location" /> -->
+
+        <!-- TODO:SYN-644: bind the locations from the backend -->
+        <syn-menu-multi-select
+          [options]="[
+            { label: 'Hall 01', value: 'hall01' },
+            { label: 'Hall 02', value: 'hall02' },
+            { label: 'Hall 03', value: 'hall03' },
+            { label: 'Hall 04', value: 'hall04' },
+            { label: 'Hall 05', value: 'hall05' },
+            { label: 'Hall 06', value: 'hall06' },
+            { label: 'Hall 07', value: 'hall07' },
+            { label: 'Hall 08', value: 'hall08' },
+            { label: 'Hall 09', value: 'hall09' },
+            { label: 'Hall 10', value: 'hall10' },
+          ]"
+          (selectionsApplied)="onSelectionsApplied($event)"
+          applyFilterButtonText="Apply filter"
+          cancelButtonText="Cancel"
+          labelIcon="filter_list"
+          labelPosition="before"
+          labelText="Filter"
+          searchLabel="Filter by location"
+          searchPlaceholder="Search" />
       </div>
     </div>
 
