@@ -1,0 +1,15 @@
+@use 'variables' as v;
+
+.syn-input-container {
+  width: 100%;
+
+  .syn-input-form-field {
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    border-radius: v.$button-border-radius;
+
+    &.mat-focused {
+      border-color: v.$primary-color-variant-2;
+    }
+  }
+}

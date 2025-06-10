@@ -14,6 +14,7 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
   const privateAPIEndpoints = [
     '/api/',
     '/admin/',
+    '/av-workspace',
     '/user/',
     '/dashboard/',
     'r1/getEventConfig',

@@ -100,6 +100,8 @@ $primary-bg-color-variant-7: #343536;
 $primary-bg-color-variant-8: #1e2225;
 $primary-bg-color-variant-9: #000000;
 
+$primary-bg-hover-color: rgba(0, 0, 0, 0.08);
+
 $building-blocks-yellow: #ffbb00;
 $right-panel-button-yellow: #f49f0a;
 $building-blocks-green: #49be69;
@@ -203,6 +205,7 @@ $right-sidebar-expanded-width: 414px;
 $stepper-content-number-size: 2rem;
 $stepper-content-gap: 2rem;
 $top-bar-height: 4.375rem;
+$top-tabs-height: 3rem;
 $right-sidebar-hidden-content-container-width: calc(
   100vw - $left-sidebar-collapsed-width - 48px
 );

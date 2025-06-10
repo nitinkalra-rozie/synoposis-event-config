@@ -110,7 +110,7 @@ export class OtpComponent implements OnInit {
         tap((success) => {
           if (success) {
             this._authService.checkSession$().subscribe(() => {
-              this._router.navigate(['/admin']);
+              this._router.navigate(['/av-workspace']);
             });
           } else {
             this.errorMessage = 'Wrong OTP!';

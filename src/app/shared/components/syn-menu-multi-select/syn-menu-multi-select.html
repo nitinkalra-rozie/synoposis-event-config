@@ -1,0 +1,115 @@
+<div class="syn-menu-multi-select-container">
+  <button
+    #menuTrigger="matMenuTrigger"
+    class="menu-multi-select-trigger-button"
+    [class.menu-multi-select-panel-open]="isMenuOpen()"
+    [class.theme-transparent]="theme() === 'transparent'"
+    [disabled]="disabled()"
+    [matMenuTriggerFor]="multiSelectMenu"
+    (menuClosed)="onMenuClosed()"
+    (menuOpened)="onMenuOpened()"
+    type="button">
+    <div class="trigger-left-section">
+      @if (labelPosition() === 'before') {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      }
+      <span class="label-text">{{ labelText() }}</span>
+    </div>
+
+    <div class="trigger-right-section">
+      @if (selectedCount() === 0) { @if (labelPosition() === 'after') {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      } } @else {
+      <span class="select-display-value">{{ selectedFirstValue() }}</span>
+
+      @if (selectedCount() > 1) {
+      <span class="select-display-count-wrapper">
+        <mat-icon class="display-count-icon">add</mat-icon>
+        <span class="display-count">{{ selectedCount() - 1 }}</span>
+      </span>
+      } @if (labelPosition() === 'after') {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      } }
+    </div>
+  </button>
+
+  <mat-menu
+    #multiSelectMenu="matMenu"
+    class="syn-menu-multi-select-panel"
+    [hasBackdrop]="true"
+    [overlapTrigger]="false"
+    xPosition="before"
+    yPosition="below">
+    <div
+      class="syn-menu-multi-select-panel-content"
+      [style.height]="maxHeight()"
+      (click)="$event.stopPropagation()">
+      <div class="panel-search">
+        <div class="panel-search-label">{{ searchLabel() }}</div>
+
+        <div class="search-input-container">
+          <mat-icon>search</mat-icon>
+
+          <input
+            #searchInput
+            class="panel-search-input"
+            [formControl]="searchFormCtrl"
+            [placeholder]="searchPlaceholder()"
+            (keydown)="onSearchKeydown($event)"
+            type="text" />
+        </div>
+      </div>
+
+      @if (filteredOptions().length > 0) {
+      <div class="options-list">
+        @if (showAllOption()) {
+        <div
+          class="menu-multi-select-option select-all-option"
+          (click)="toggleAllSelection()">
+          <mat-checkbox
+            [checked]="isAllSelected()"
+            (change)="toggleAllSelection()"
+            (click)="$event.stopPropagation()">
+            All
+          </mat-checkbox>
+        </div>
+        }
+
+        <!-- Individual Options -->
+        @for (option of filteredOptions(); track option) {
+        <div
+          class="menu-multi-select-option"
+          (click)="toggleOptionSelection(option)">
+          <mat-checkbox
+            [checked]="selectedItemsSet().has(option)"
+            (change)="toggleOptionSelection(option)"
+            (click)="$event.stopPropagation()">
+            {{ optionDisplayMap().get(option) }}
+          </mat-checkbox>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="panel-no-options">No options match the search term</div>
+      }
+    </div>
+
+    <div
+      class="syn-menu-multi-select-panel-footer"
+      (click)="$event.stopPropagation()">
+      <button
+        class="btn-text-default"
+        (click)="cancelSelections()"
+        type="button">
+        {{ cancelButtonText() }}
+      </button>
+
+      <button
+        class="btn-primary-default"
+        (click)="applySelections()"
+        type="button">
+        {{ applyFilterButtonText() }}
+      </button>
+    </div>
+  </mat-menu>
+</div>

@@ -13,11 +13,9 @@
 
 .main-content {
   background-color: v.$primary-bg-color-variant-1;
-  height: calc(100% - v.$top-bar-height);
-  padding-left: v.$left-sidebar-collapsed-width;
+  height: calc(100dvh - (v.$top-bar-height + v.$top-tabs-height));
   @include m.d-flex-row-align-center;
   align-items: flex-start;
-  flex: 1;
   justify-content: space-between;
 }
 
@@ -42,11 +40,4 @@ app-sidebar-control-panel {
   width: 100%;
   @include m.d-flex-column-align-center;
   justify-content: space-between;
-}
-
-@media (width <= v.$screen-medium) {
-  .main-content {
-    padding-left: 20px;
-    height: calc(100% - 110px);
-  }
 }

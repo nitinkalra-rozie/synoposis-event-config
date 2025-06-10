@@ -4,14 +4,14 @@ function getPathsByUserRole(userRole: UserRole): string[] {
   switch (userRole) {
     case UserRole.SUPERADMIN:
       return [
-        'admin',
+        'av-workspace',
         'insights-editor',
         'content-editor',
         'agenda',
         'analytics',
       ];
     case UserRole.ADMIN:
-      return ['admin'];
+      return ['av-workspace'];
     case UserRole.EVENTORGANIZER:
       return ['agenda', 'analytics'];
     case UserRole.EDITOR:
@@ -40,7 +40,7 @@ function getDefaultRedirectForRole(userRole: UserRole): string {
       return '/insights-editor';
     case UserRole.ADMIN:
     case UserRole.SUPERADMIN:
-      return '/admin';
+      return '/av-workspace';
     default:
       return '/login';
   }

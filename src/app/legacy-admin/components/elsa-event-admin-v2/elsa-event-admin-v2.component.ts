@@ -13,7 +13,6 @@ import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/s
 import { GetDropdownOptionFromObjectPipe } from 'src/app/legacy-admin/@pipes/get-dropdown-option-from-object.pipe';
 import { GetMultiSelectOptionFromStringPipe } from 'src/app/legacy-admin/@pipes/get-multi-select-option-from-string.pipe';
 
-import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { EventControlsComponent } from 'src/app/legacy-admin/components/event-controls/event-controls.component';
@@ -41,7 +40,6 @@ import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
     GetDropdownOptionFromObjectPipe,
   ],
   imports: [
-    TopBarComponent,
     EventControlsComponent,
     SessionContentComponent,
     SidebarControlPanelComponent,
