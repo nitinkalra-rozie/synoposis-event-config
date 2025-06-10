@@ -135,3 +135,19 @@ export interface AnalyticsRequest {
   page: number;
   limit: number;
 }
+
+export interface DateRange {
+  name: string;
+  startDate: Date;
+  endDate: Date;
+}
+
+export interface ChartConfig {
+  labels: string[];
+  datasets: any[];
+}
+
+export interface DateRangeValue {
+  start: Date | null;
+  end: Date | null;
+}

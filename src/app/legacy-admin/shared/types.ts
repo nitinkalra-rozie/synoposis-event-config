@@ -67,9 +67,3 @@ export interface CustomChallengeResponse {
   __type?: string;
   Session?: string;
 }
-
-export interface SnackbarData {
-  message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  action?: string;
-}

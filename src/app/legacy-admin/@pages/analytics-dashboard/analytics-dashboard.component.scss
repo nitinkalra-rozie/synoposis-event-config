@@ -824,27 +824,42 @@ $error-color: #f44336;
 }
 
 // Export button styles
-.header-actions {
+.export-section {
   display: flex;
   align-items: center;
-  gap: 8px;
+  min-width: 180px;
 
+  .export-progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .export-progress-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .export-status {
+    font-weight: 500;
+  }
+
+  .export-percentage {
+    margin-left: auto;
+    font-weight: 600;
+    color: #2196f3;
+  }
   .export-btn {
-    background-color: #2196f3;
-    color: white;
-
-    &:hover:not([disabled]) {
-      background-color: #1976d2;
-    }
-
-    &[disabled] {
-      background-color: #cccccc;
-      color: #666;
-    }
-
     .spinning {
       animation: spin 1s linear infinite;
     }
+  }
+  .spinning {
+    animation: spin 2s linear infinite;
   }
 }
 

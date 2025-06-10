@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,18 +6,20 @@ import {
   MAT_SNACK_BAR_DATA,
   MatSnackBarRef,
 } from '@angular/material/snack-bar';
-import { SnackbarData } from 'src/app/legacy-admin/shared/types';
+import { SnackbarData } from 'src/app/legacy-admin/@data-services/snackbar/snackbar-data-model';
 
 @Component({
   selector: 'app-custom-snackbar',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [NgClass, MatIconModule, MatButtonModule],
   templateUrl: './custom-snackbar.component.html',
   styleUrls: ['./custom-snackbar.component.scss'],
 })
 export class CustomSnackbarComponent {
+  private readonly _snackBarRef = inject(
+    MatSnackBarRef<CustomSnackbarComponent>
+  );
   public data = inject<SnackbarData>(MAT_SNACK_BAR_DATA);
-  private _snackBarRef = inject(MatSnackBarRef<CustomSnackbarComponent>);
 
   getIcon(): string {
     switch (this.data.type) {
