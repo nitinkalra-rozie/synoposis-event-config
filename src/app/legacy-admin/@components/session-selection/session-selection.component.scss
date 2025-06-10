@@ -21,16 +21,18 @@
 
 $skeleton-content-width-right-sidebar-expanded: calc(
   calc(
-      100vw - v.$right-sidebar-expanded-width - v.$left-sidebar-collapsed-width -
-        88px
-    ) * 0.318
+      100vw - v.$right-sidebar-expanded-width -
+        v.$left-sidebar-collapsed-width - 88px
+    ) *
+    0.318
 );
 
 $skeleton-content-width-right-sidebar-collapsed: calc(
   calc(
-      100vw - v.$right-sidebar-collapsed-width - v.$left-sidebar-collapsed-width -
-        88px
-    ) * 0.318
+      100vw - v.$right-sidebar-collapsed-width -
+        v.$left-sidebar-collapsed-width - 88px
+    ) *
+    0.318
 );
 
 $skeleton-content-width-right-sidebar-hidden: calc(

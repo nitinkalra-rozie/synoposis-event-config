@@ -4,9 +4,12 @@
   width: 100%;
 
   .syn-input-form-field {
+    box-sizing: border-box;
+    border: 1px solid transparent;
+    border-radius: v.$button-border-radius;
+
     &.mat-focused {
-      border: 1px solid v.$primary-color-variant-2;
-      border-radius: v.$button-border-radius;
+      border-color: v.$primary-color-variant-2;
     }
   }
 }
