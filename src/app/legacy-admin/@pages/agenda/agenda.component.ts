@@ -30,7 +30,7 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
   findTimeZoneByOffset,
@@ -381,7 +381,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       sessionId: this.selected_session,
       status: status,
       changeEditMode: true,
-      editor: this._authService.getUserEmail(),
+      editor: this._authService.getUserEmail$(),
     };
     this._backendApiService.changeEventStatus(debrief).subscribe({
       next: (response) => {
@@ -410,7 +410,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const exist = data.find(
       (session) =>
         session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail()
+        session.Editing === this._authService.getUserEmail$()
     );
     return isUndefined(exist);
   };

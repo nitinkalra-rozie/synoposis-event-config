@@ -7,9 +7,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, tap } from 'rxjs';
 import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 
@@ -28,8 +28,8 @@ export class OtpComponent implements OnInit {
 
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
+  private readonly _router = inject(Router);
+  private readonly _authService = inject(AuthService);
   private readonly _authApiService = inject(AuthApiService);
 
   ngOnInit(): void {
@@ -105,19 +105,15 @@ export class OtpComponent implements OnInit {
 
     const inputOtp = this.otp.join('');
     this._authApiService
-      .OTPVerification(this.email, inputOtp)
+      .OTPVerification(inputOtp)
       .pipe(
-        switchMap((success) => {
+        tap((success) => {
           if (success) {
-            return this.authService.checkSession$().pipe(
-              switchMap(() => {
-                this.router.navigate(['/admin']);
-                return [];
-              })
-            );
+            this._authService.checkSession$().subscribe(() => {
+              this._router.navigate(['/admin']);
+            });
           } else {
             this.errorMessage = 'Wrong OTP!';
-            return [];
           }
         }),
         finalize(() => {

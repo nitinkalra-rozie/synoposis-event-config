@@ -12,7 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { combineLatest } from 'rxjs';
 
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 
@@ -43,7 +43,7 @@ export class SideNavComponent implements OnInit {
   private loadNavigationPermissions(): void {
     combineLatest([
       this._authService.getUserRole$(),
-      this._authService.isUserAdmin(),
+      this._authService.isUserAdmin$(),
     ])
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe(([userRole, isAdmin]) => {

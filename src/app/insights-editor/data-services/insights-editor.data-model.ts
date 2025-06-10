@@ -123,9 +123,8 @@ export enum EventStatus {
   NotStarted = 'NOT_STARTED',
   InProgress = 'IN_PROGRESS',
   UnderReview = 'UNDER_REVIEW',
-  Completed = 'Completed',
+  Completed = 'COMPLETED',
   ReviewComplete = 'REVIEW_COMPLETE',
-  NotStartedLabel = 'Not started',
-  InReviewLabel = 'In review',
-  CompleteLabel = 'Complete',
+  InReview = 'IN_REVIEW',
+  Complete = 'COMPLETE',
 }

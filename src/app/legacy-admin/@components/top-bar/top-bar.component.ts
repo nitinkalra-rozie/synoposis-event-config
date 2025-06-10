@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { finalize } from 'rxjs';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { SideNavComponent } from 'src/app/legacy-admin/@components/side-nav/side-nav.component';
 import { OutsideClickDirective } from 'src/app/legacy-admin/directives/outside-click.directive';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
@@ -20,12 +20,12 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
   ],
 })
 export class TopBarComponent {
-  public readonly showDropdown = signal(false);
   private readonly _authService = inject(AuthService);
   private readonly _modalService = inject(ModalService);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _isLoggingOut = signal(false);
 
+  public showDropdown = signal(false);
   protected toggleDropdown(): void {
     this.showDropdown.set(!this.showDropdown());
   }
@@ -56,21 +56,14 @@ export class TopBarComponent {
     this.showDropdown.set(false);
 
     this._authService
-      .logout()
+      .logout$()
       .pipe(
         finalize(() => {
           this._isLoggingOut.set(false);
         }),
         takeUntilDestroyed(this._destroyRef)
       )
-      .subscribe({
-        next: () => {
-          console.log('✅ Logout successful');
-        },
-        error: (error) => {
-          console.error('❌ Logout error:', error);
-        },
-      });
+      .subscribe();
   }
 
   private showModal(): void {

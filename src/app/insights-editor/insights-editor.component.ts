@@ -18,16 +18,17 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { clone, cloneDeep, isUndefined } from 'lodash-es';
-import { Subject, throwError } from 'rxjs';
+import { Observable, Subject, throwError } from 'rxjs';
 import {
   catchError,
   debounceTime,
   finalize,
+  map,
   switchMap,
   tap,
 } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import {
   ChangeEventStatusRequest,
   EventStatus,
@@ -137,9 +138,9 @@ export class InsightsEditorComponent implements OnInit {
   };
 
   public statuses = [
-    { label: EventStatus.NotStartedLabel, class: 'status-not-started' },
-    { label: EventStatus.InReviewLabel, class: 'status-in-progress' },
-    { label: EventStatus.CompleteLabel, class: 'status-complete' },
+    { label: EventStatus.NotStarted, class: 'status-not-started' },
+    { label: EventStatus.InReview, class: 'status-in-progress' },
+    { label: EventStatus.Complete, class: 'status-complete' },
   ];
 
   public filtered_sessions: Session[] = [];
@@ -316,7 +317,7 @@ export class InsightsEditorComponent implements OnInit {
     this.isLoading = true;
 
     this._authService
-      .getUserEmail()
+      .getUserEmail$()
       .pipe(
         switchMap((userEmail: string) => {
           const debrief: ChangeEventStatusRequest = {
@@ -392,13 +393,16 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
 
-  async checkSessionLocked(data, session_id): Promise<boolean> {
-    const userEmail = await this._authService.getUserEmail();
-    const exist = data.find(
-      (session) =>
-        session.SessionId === session_id && session.Editing === userEmail
+  checkSessionLocked(data: any, session_id: string): Observable<boolean> {
+    return this._authService.getUserEmail$().pipe(
+      map((userEmail: string) => {
+        const exist = data.find(
+          (session) =>
+            session.SessionId === session_id && session.Editing === userEmail
+        );
+        return isUndefined(exist);
+      })
     );
-    return isUndefined(exist);
   }
 
   getEventDetails(): void {
@@ -422,7 +426,7 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
 
-  async selectSession(session: any): Promise<void> {
+  selectSession(session: any): void {
     if (
       session['Status'] === EventStatus.NotStarted ||
       session['Status'] === EventStatus.InProgress
@@ -435,16 +439,24 @@ export class InsightsEditorComponent implements OnInit {
         sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
       }
 
-      // Await the user email
-      const userEmail = await this._authService.getUserEmail();
-      if (sessionObj.Editor == userEmail) {
-        this.isEditorMode = true;
-      } else {
-        this.isEditorMode = false;
-      }
-      this.selected_session_details = sessionObj;
-      console.log('Selected session:', session);
-      this.getEventReport();
+      // Use observable instead of async/await
+      this._authService
+        .getUserEmail$()
+        .pipe(
+          tap((userEmail: string) => {
+            if (sessionObj.Editor == userEmail) {
+              this.isEditorMode = true;
+            } else {
+              this.isEditorMode = false;
+            }
+            this.selected_session_details = sessionObj;
+            console.log('Selected session:', session);
+          }),
+          finalize(() => {
+            this.getEventReport();
+          })
+        )
+        .subscribe();
     }
   }
 

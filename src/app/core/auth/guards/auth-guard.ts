@@ -6,9 +6,9 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { UserRole } from '../../enum/auth-roles.enum';
 
 export const authGuard: CanActivateFn = (
@@ -22,17 +22,28 @@ export const authGuard: CanActivateFn = (
     take(1),
     switchMap((isAuthenticated) => {
       if (!isAuthenticated) {
-        return [router.createUrlTree(['/login'])];
+        return of(router.createUrlTree(['/login']));
       }
-      return authService.getAccessToken().pipe(
+      return authService.getAccessToken$().pipe(
         take(1),
         switchMap((accessToken) => {
           if (!accessToken) {
-            return [router.createUrlTree(['/login'])];
+            return of(router.createUrlTree(['/login']));
           }
           return authService.getUserRole$().pipe(
             take(1),
-            map((userRole: UserRole) => true)
+            map((userRole: UserRole) => {
+              const requiredRoles: UserRole[] = route.data?.['roles'] || [];
+              if (requiredRoles.length === 0) {
+                return true;
+              }
+              const hasRequiredRole = requiredRoles.includes(userRole);
+
+              if (hasRequiredRole) {
+                return true;
+              }
+              return router.createUrlTree(['/unauthorized']);
+            })
           );
         })
       );

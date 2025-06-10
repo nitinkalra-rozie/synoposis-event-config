@@ -7,11 +7,11 @@ import {
 import { inject } from '@angular/core';
 import { from, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { environment } from 'src/environments/environment';
 
-const isPrivateEndpoint = (url: string): boolean => {
-  const privateEndpoints = [
+const isPrivateAPIEndpoint = (url: string): boolean => {
+  const privateAPIEndpoints = [
     '/api/',
     '/admin/',
     '/user/',
@@ -35,7 +35,7 @@ const isPrivateEndpoint = (url: string): boolean => {
     '/manual-edit-generated-content',
   ];
 
-  const publicEndpoints = [
+  const publicAPIEndpoints = [
     '/login',
     '/refresh-token',
     '/auth/login',
@@ -45,11 +45,13 @@ const isPrivateEndpoint = (url: string): boolean => {
     '/reset-password',
     '/public/',
   ];
-  if (publicEndpoints.some((endpoint) => url.includes(endpoint))) {
+
+  if (publicAPIEndpoints.some((endpoint) => url.includes(endpoint))) {
     return false;
   }
+
   return (
-    privateEndpoints.some((endpoint) => url.includes(endpoint)) ||
+    privateAPIEndpoints.some((endpoint) => url.includes(endpoint)) ||
     url.includes('/api/')
   );
 };
@@ -59,19 +61,23 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
   const authService = inject(AuthService);
-  if (!isPrivateEndpoint(req.url)) {
+
+  if (!isPrivateAPIEndpoint(req.url)) {
     return next(req);
   }
-  return from(authService.getAccessToken()).pipe(
-    switchMap((token) => {
+
+  return from(authService.getAccessToken$()).pipe(
+    switchMap((accessToken) => {
       const headers: Record<string, string> = {
         'X-Api-Key': environment.X_API_KEY,
       };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
       }
-      const authReq = req.clone({ setHeaders: headers });
-      return next(authReq);
+
+      const authorizedRequest = req.clone({ setHeaders: headers });
+      return next(authorizedRequest);
     })
   );
 };

@@ -7,11 +7,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
-import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
-import { FooterComponent } from '../shared/footer/footer.component';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { FooterMobileComponent } from 'src/app/legacy-admin/components/shared/footer-mobile/footer-mobile.component';
+import { FooterComponent } from 'src/app/legacy-admin/components/shared/footer/footer.component';
 
 @Component({
   selector: 'app-login-page',
@@ -26,12 +26,12 @@ import { FooterComponent } from '../shared/footer/footer.component';
   ],
 })
 export class LoginPageComponent {
-  private readonly fb = inject(UntypedFormBuilder);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
+  private readonly _fb = inject(UntypedFormBuilder);
+  private readonly _router = inject(Router);
+  private readonly _authService = inject(AuthService);
   private readonly _authApiService = inject(AuthApiService);
 
-  emailForm: UntypedFormGroup = this.fb.group({
+  emailForm: UntypedFormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
   });
 
@@ -59,17 +59,18 @@ export class LoginPageComponent {
       this._authApiService
         .signUp(email)
         .pipe(
+          tap((response) => {
+            if (response?.success) {
+              this._router.navigate(['/otp'], { queryParams: { email } });
+            } else if (response) {
+              this.errorMessage = response.message;
+            }
+          }),
           finalize(() => {
             this.processedClicked = false;
           })
         )
-        .subscribe((response) => {
-          if (response?.success) {
-            this.router.navigate(['/otp'], { queryParams: { email } });
-          } else if (response) {
-            this.errorMessage = response.message;
-          }
-        });
+        .subscribe();
     }
   }
 
@@ -83,19 +84,16 @@ export class LoginPageComponent {
     this._authApiService
       .requestAccess(email)
       .pipe(
-        finalize(() => {
-          setTimeout(() => {
+        tap((success) => {
+          if (success) {
+            this.emailForm.reset();
+            this.errorMessage = '';
+          } else {
+            this.errorMessage = 'Failed to send access request.';
             this.requestingAccess = false;
-          }, 5000);
+          }
         })
       )
-      .subscribe((success) => {
-        if (success) {
-          this.emailForm.reset();
-          this.errorMessage = '';
-        } else {
-          this.errorMessage = 'Failed to send access request.';
-        }
-      });
+      .subscribe();
   }
 }

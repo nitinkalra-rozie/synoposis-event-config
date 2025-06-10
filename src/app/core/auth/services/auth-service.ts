@@ -10,9 +10,18 @@ import {
 } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
 import { from, interval, Observable, of } from 'rxjs';
-import { filter, map, switchMap, tap } from 'rxjs/operators';
+import {
+  catchError,
+  filter,
+  finalize,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 import { amplifyConfig } from 'src/app/core/config/amplify-config';
-import { UserRole } from 'src/app/core/enum/auth-roles.enum';
+import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
+
+const ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +29,7 @@ import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 export class AuthService {
   constructor() {
     Amplify.configure(amplifyConfig);
-    this.startTokenCheck();
+    this.startTokenCheck$();
   }
 
   private readonly _router = inject(Router);
@@ -30,66 +39,57 @@ export class AuthService {
 
   private readonly _isLoggingOut = signal<boolean>(false);
 
-  logout(): Observable<void> {
+  logout$(): Observable<void> {
     if (this._isLoggingOut()) {
       return of(void 0);
     }
-
     this._isLoggingOut.set(true);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('idToken');
-    localStorage.removeItem('refreshToken');
-
     return from(signOut({ global: true })).pipe(
       tap(() => {
         this._router.navigate(['/login'], { replaceUrl: true });
       }),
       map(() => void 0),
-      tap(() => {
+      finalize(() => {
         this._isLoggingOut.set(false);
+      }),
+      catchError(() => {
+        this._router.navigate(['/login'], { replaceUrl: true });
+        return of(void 0);
       })
     );
   }
 
-  isUserAdmin(): Observable<boolean> {
+  isUserAdmin$(): Observable<boolean> {
     return from(fetchAuthSession()).pipe(
       map((session) => {
         const accessToken = session.tokens?.accessToken?.toString();
         if (!accessToken) {
           return false;
         }
-        const decoded: any = jwtDecode(accessToken);
+        const decoded: JwtPayload = jwtDecode(accessToken);
         const normalizedEmail = decoded?.username?.toLowerCase().trim();
-        const isAdmin = normalizedEmail?.endsWith('@rozie.ai') ?? false;
-        return isAdmin;
+        const isSuperAdmin =
+          normalizedEmail?.endsWith(ADMIN_EMAIL_DOMAIN) ?? false;
+        return isSuperAdmin;
       })
     );
   }
 
-  getAccessToken(): Observable<string | null> {
+  getAccessToken$(): Observable<string | null> {
     return from(fetchAuthSession()).pipe(
-      map((session) => {
-        const accessToken = session.tokens?.accessToken?.toString() || null;
-        return accessToken;
-      })
+      map((session) => session.tokens?.accessToken?.toString() || null)
     );
   }
 
-  getIdToken(): Observable<string | null> {
+  getIdToken$(): Observable<string | null> {
     return from(fetchAuthSession()).pipe(
-      map((session) => {
-        const idToken = session.tokens?.idToken?.toString() || null;
-        return idToken;
-      })
+      map((session) => session.tokens?.idToken?.toString() || null)
     );
   }
 
-  getUserEmail(): Observable<string | null> {
+  getUserEmail$(): Observable<string | null> {
     return from(getCurrentUser()).pipe(
-      map((user) => {
-        const email = user.signInDetails?.loginId || user.username;
-        return email;
-      })
+      map((user) => user.signInDetails?.loginId || user.username)
     );
   }
 
@@ -97,40 +97,40 @@ export class AuthService {
     return from(getCurrentUser()).pipe(
       switchMap((user) =>
         from(fetchAuthSession()).pipe(
-          map((session) => {
+          tap((session) => {
             if (!session.tokens) {
               throw new Error('No valid session tokens');
             }
             this.logAllTokens(session.tokens);
-            return true;
-          })
+          }),
+          map(() => true)
         )
       )
     );
   }
 
   getUserGroups$(): Observable<string[] | null> {
-    return this.getAccessToken().pipe(
+    return this.getAccessToken$().pipe(
       switchMap((accessToken) => {
         if (!accessToken) {
           return of(null);
         }
-        const decodedToken: any = jwtDecode(accessToken);
+        const decodedToken: JwtPayload = jwtDecode(accessToken);
         const userGroups = decodedToken['cognito:groups'] || [];
         return of(userGroups);
       })
     );
   }
 
-  getUserRole$(): Observable<UserRole> {
-    return this.getAccessToken().pipe(
+  getUserRole$(): Observable<UserRole | null> {
+    return this.getAccessToken$().pipe(
       switchMap((accessToken) => {
         if (!accessToken) {
-          return of(UserRole.EDITOR);
+          return of(null);
         }
-        const decodedToken: any = jwtDecode(accessToken);
+        const decodedToken: JwtPayload = jwtDecode(accessToken);
         const email = decodedToken.email || decodedToken.username;
-        if (email && email.endsWith('@rozie.ai')) {
+        if (email && email.endsWith(ADMIN_EMAIL_DOMAIN)) {
           return of(UserRole.SUPERADMIN);
         }
 
@@ -160,7 +160,7 @@ export class AuthService {
         if (!accessToken) {
           return true;
         }
-        const decodedToken: any = jwtDecode(accessToken.toString());
+        const decodedToken: JwtPayload = jwtDecode(accessToken.toString());
         const expirationTime = decodedToken.exp * 1000;
         const currentTime = Date.now();
         const isExpired = currentTime >= expirationTime;
@@ -191,7 +191,7 @@ export class AuthService {
     }
   }
 
-  private startTokenCheck(): void {
+  private startTokenCheck$(): void {
     interval(this._tokenCheckIntervalMs)
       .pipe(
         filter(() => !this._isLoggingOut()),
@@ -215,7 +215,7 @@ export class AuthService {
     return from(fetchAuthSession()).pipe(
       switchMap((session) => {
         if (!session.tokens?.accessToken) {
-          return this.logout();
+          return this.logout$();
         } else {
           return of(void 0);
         }

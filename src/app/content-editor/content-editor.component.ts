@@ -27,7 +27,7 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
@@ -685,7 +685,7 @@ export class ContentEditorComponent {
       sessionId: this.selected_session,
       status: status,
       changeEditMode: true,
-      editor: this._authService.getUserEmail(),
+      editor: this._authService.getUserEmail$(),
     };
     this._backendApiService.changeEventStatus(debrief).subscribe({
       next: (response) => {
@@ -777,7 +777,7 @@ export class ContentEditorComponent {
     const exist = data.find(
       (session) =>
         session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail()
+        session.Editing === this._authService.getUserEmail$()
     );
     return isUndefined(exist);
   }
@@ -815,7 +815,7 @@ export class ContentEditorComponent {
       if (sessionObj.StartsAt) {
         sessionObj.StartsAt = this.convertDate(sessionObj.StartsAt);
       }
-      if (sessionObj.Editor == this._authService.getUserEmail()) {
+      if (sessionObj.Editor == this._authService.getUserEmail$()) {
         this.isEditorMode = true;
       } else {
         this.isEditorMode = false;

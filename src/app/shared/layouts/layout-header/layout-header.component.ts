@@ -7,7 +7,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService } from 'src/app/core/auth/services/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 
 @Component({
@@ -30,7 +30,7 @@ export class LayoutHeaderComponent {
   private _showModal(): void {
     const handleYesSelect = (): void => {
       this._modalService.close();
-      this._authService.logout();
+      this._authService.logout$();
     };
 
     const handleNoSelect = (): void => {

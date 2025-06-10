@@ -1,0 +1,47 @@
+<div class="unauthorized-page">
+  <div class="unauthorized-card">
+    <div class="access-denied-icon">
+      <img
+        class="lock-icon"
+        alt="Access Denied"
+        height="64"
+        ngSrc="assets/icons/lock.svg"
+        priority
+        width="64" />
+    </div>
+
+    <h1 class="access-denied-title">Access Denied</h1>
+    <p class="primary-message">
+      You don't have permission to access this page.
+    </p>
+    <p class="secondary-message">
+      Please contact your administrator if you believe this is an error, or
+      check your access permissions.
+    </p>
+
+    <div class="action-buttons">
+      <button
+        class="navigation-button navigation-button--secondary"
+        (click)="goBack()">
+        <img
+          class="button-icon"
+          alt="Go Back"
+          height="16"
+          ngSrc="assets/icons/arrow-back.svg"
+          width="16" />
+        Go Back
+      </button>
+      <button
+        class="navigation-button navigation-button--primary"
+        (click)="goToAdmin()">
+        <img
+          class="button-icon"
+          alt="Go to Dashboard"
+          height="16"
+          ngSrc="assets/icons/home.svg"
+          width="16" />
+        Go to Dashboard
+      </button>
+    </div>
+  </div>
+</div>
