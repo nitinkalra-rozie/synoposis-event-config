@@ -115,6 +115,38 @@
           <mat-icon>settings</mat-icon>
         </button>
 
+        <!-- Export Section - Show button OR progress bar -->
+        <div class="export-section">
+          <!-- Export Button - shown when not exporting -->
+          @if (!isExporting()) {
+            <button
+              mat-raised-button
+              matTooltip="Export Report"
+              class="export-btn"
+              (click)="exportReport()"
+              color="primary">
+              <mat-icon>download</mat-icon>
+              <span>Export Report</span>
+            </button>
+          }
+
+          <!-- Progress Bar - shown when exporting -->
+          @if (isExporting()) {
+            <div class="export-progress-container">
+              <div class="export-progress-info">
+                <mat-icon class="spinning">hourglass_empty</mat-icon>
+                <span class="export-status">Exporting Report...</span>
+                <span class="export-percentage">{{ exportProgress() }}%</span>
+              </div>
+              <mat-progress-bar
+                class="export-progress-bar"
+                [value]="exportProgress()"
+                mode="determinate">
+              </mat-progress-bar>
+            </div>
+          }
+        </div>
+
         <mat-menu #settingsMenu="matMenu" class="settings-menu">
           <div class="settings-menu-content">
             <h3>Dashboard Settings</h3>
@@ -249,7 +281,7 @@
             </div>
             <div class="time-analysis-chart">
               <canvas
-                [data]="timeAnalysisChartData"
+                [data]="timeAnalysisChartData()"
                 [options]="barChartOptions"
                 [type]="'bar'"
                 baseChart>
@@ -308,14 +340,14 @@
                       (click)="sortSessionsBy('views')">
                       Views
                       @if (
-                        sessionSortField === 'views' &&
-                        sessionSortDirection === 'asc'
+                        sessionSortField() === 'views' &&
+                        sessionSortDirection() === 'asc'
                       ) {
                         <mat-icon>arrow_upward</mat-icon>
                       }
                       @if (
-                        sessionSortField === 'views' &&
-                        sessionSortDirection === 'desc'
+                        sessionSortField() === 'views' &&
+                        sessionSortDirection() === 'desc'
                       ) {
                         <mat-icon>arrow_downward</mat-icon>
                       }
@@ -333,14 +365,14 @@
                       (click)="sortSessionsBy('users')">
                       Users
                       @if (
-                        sessionSortField === 'users' &&
-                        sessionSortDirection === 'asc'
+                        sessionSortField() === 'users' &&
+                        sessionSortDirection() === 'asc'
                       ) {
                         <mat-icon>arrow_upward</mat-icon>
                       }
                       @if (
-                        sessionSortField === 'users' &&
-                        sessionSortDirection === 'desc'
+                        sessionSortField() === 'users' &&
+                        sessionSortDirection() === 'desc'
                       ) {
                         <mat-icon>arrow_downward</mat-icon>
                       }
@@ -366,7 +398,7 @@
             <div class="top-sessions-histogram">
               <h3 class="chart-title">Sessions Distribution</h3>
               <canvas
-                [data]="sessionsHistogramChartData"
+                [data]="sessionsHistogramChartData()"
                 [options]="barChartOptions"
                 [type]="'bar'"
                 baseChart>
