@@ -302,11 +302,11 @@ export class InsightsEditorComponent implements OnInit {
     }
   }
 
-  async enableEditMode(): Promise<void> {
+  enableEditMode(): void {
     const status = this.convertStringToEventStatus(
       this.selected_session_details.Status
     );
-    await this.changeEventStatus(status);
+    this.changeEventStatus(status);
   }
 
   saveEdits(): void {
@@ -439,7 +439,6 @@ export class InsightsEditorComponent implements OnInit {
         sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
       }
 
-      // Use observable instead of async/await
       this._authService
         .getUserEmail$()
         .pipe(
