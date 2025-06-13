@@ -9,7 +9,7 @@ import {
   SignInInput,
   SignInOutput,
 } from 'aws-amplify/auth';
-import { from, map, Observable, switchMap } from 'rxjs';
+import { from, map, Observable, switchMap, tap } from 'rxjs';
 import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
@@ -17,6 +17,7 @@ import {
 import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { CustomChallengeResponse } from 'src/app/legacy-admin/shared/types';
 import { environment } from 'src/environments/environment';
+import { AuthService } from './auth-service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,7 @@ export class AuthApiService {
 
   private readonly _http = inject(HttpClient);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _authService = inject(AuthService);
 
   signUp(email: string): Observable<CustomChallengeResponse> {
     return from(fetchAuthSession()).pipe(
@@ -51,7 +53,12 @@ export class AuthApiService {
   OTPVerification(otp: string): Observable<boolean> {
     return from(confirmSignIn({ challengeResponse: otp })).pipe(
       takeUntilDestroyed(this._destroyRef),
-      map((result: SignInOutput) => result.isSignedIn)
+      map((result: SignInOutput) => result.isSignedIn),
+      tap((isSignedIn) => {
+        if (isSignedIn) {
+          this._authService.initializeTokenRefreshScheduling();
+        }
+      })
     );
   }
 

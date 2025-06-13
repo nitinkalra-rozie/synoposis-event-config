@@ -1,12 +1,13 @@
 import {
+  HttpErrorResponse,
   HttpEvent,
   HttpHandlerFn,
   HttpInterceptorFn,
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { from, Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { environment } from 'src/environments/environment';
 
@@ -78,7 +79,43 @@ export const authInterceptor: HttpInterceptorFn = (
       }
 
       const authorizedRequest = req.clone({ setHeaders: headers });
-      return next(authorizedRequest);
-    })
+
+      return next(authorizedRequest).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 401) {
+            return authService.handleAuthError$().pipe(
+              switchMap((refreshSuccess) => {
+                if (refreshSuccess) {
+                  return from(authService.getAccessToken$()).pipe(
+                    switchMap((newToken) => {
+                      if (newToken) {
+                        const retryHeaders: Record<string, string> = {
+                          'X-Api-Key': environment.X_API_KEY,
+                          Authorization: `Bearer ${newToken}`,
+                        };
+
+                        const retryRequest = req.clone({
+                          setHeaders: retryHeaders,
+                        });
+
+                        return next(retryRequest);
+                      } else {
+                        return throwError(() => error);
+                      }
+                    })
+                  );
+                } else {
+                  return throwError(() => error);
+                }
+              }),
+              catchError(() => throwError(() => error))
+            );
+          }
+
+          return throwError(() => error);
+        })
+      );
+    }),
+    catchError((error) => throwError(() => error))
   );
 };
