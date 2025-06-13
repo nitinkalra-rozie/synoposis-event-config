@@ -1,8 +1,8 @@
 export const SIGN_IN_STEPS = {
   CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE:
     'CONFIRM_SIGN_IN_WITH_CUSTOM_CHALLENGE',
-} as const;
+};
 
 export const AUTH_FLOW_TYPES = {
   CUSTOM_WITHOUT_SRP: 'CUSTOM_WITHOUT_SRP',
-} as const;
+};

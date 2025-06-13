@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from 'src/app/core/auth/guards/auth-guard';
+import { ROUTE_PERMISSIONS } from 'src/app/core/config/permission-config';
 
 export const routes: Routes = [
   {
@@ -37,6 +38,7 @@ export const routes: Routes = [
         (r) => r.avWorkspaceRoutes
       ),
     canActivate: [authGuard],
+    data: { roles: ROUTE_PERMISSIONS.avWorkspace },
   },
   {
     path: 'insights-editor',
@@ -45,6 +47,9 @@ export const routes: Routes = [
         (r) => r.insightsEditorRoutes
       ),
     canActivate: [authGuard],
+    data: {
+      roles: ROUTE_PERMISSIONS.editor,
+    },
   },
   {
     path: 'content-editor',
@@ -53,6 +58,9 @@ export const routes: Routes = [
         (r) => r.contentEditorRoutes
       ),
     canActivate: [authGuard],
+    data: {
+      roles: ROUTE_PERMISSIONS.editor,
+    },
   },
   {
     path: 'agenda',
@@ -61,6 +69,9 @@ export const routes: Routes = [
         (c) => c.AgendaComponent
       ),
     canActivate: [authGuard],
+    data: {
+      roles: ROUTE_PERMISSIONS.eventOrganizer,
+    },
   },
   {
     path: 'analytics',
@@ -69,6 +80,9 @@ export const routes: Routes = [
         'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component'
       ).then((c) => c.AnalyticsDashboardComponent),
     canActivate: [authGuard],
+    data: {
+      roles: ROUTE_PERMISSIONS.eventOrganizer,
+    },
   },
   {
     path: 'unauthorized',
