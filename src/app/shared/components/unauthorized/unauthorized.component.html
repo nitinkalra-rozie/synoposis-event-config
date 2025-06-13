@@ -1,13 +1,7 @@
 <div class="unauthorized-page">
   <div class="unauthorized-card">
     <div class="access-denied-icon">
-      <img
-        class="lock-icon"
-        alt="Access Denied"
-        height="64"
-        ngSrc="assets/icons/lock.svg"
-        priority
-        width="64" />
+      <mat-icon class="lock-icon" aria-label="Access Denied">lock</mat-icon>
     </div>
 
     <h1 class="access-denied-title">Access Denied</h1>
@@ -23,23 +17,15 @@
       <button
         class="navigation-button navigation-button--secondary"
         (click)="goBack()">
-        <img
-          class="button-icon"
-          alt="Go Back"
-          height="16"
-          ngSrc="assets/icons/arrow-back.svg"
-          width="16" />
+        <mat-icon class="button-icon" aria-label="Go Back">arrow_back</mat-icon>
         Go Back
       </button>
       <button
         class="navigation-button navigation-button--primary"
         (click)="goToAdmin()">
-        <img
-          class="button-icon"
-          alt="Go to Dashboard"
-          height="16"
-          ngSrc="assets/icons/home.svg"
-          width="16" />
+        <mat-icon class="button-icon" aria-label="Go to Dashboard"
+          >home</mat-icon
+        >
         Go to Dashboard
       </button>
     </div>

@@ -21,7 +21,8 @@ import {
 import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
 
-const ADMIN_EMAIL_DOMAIN = '@rozie.ai';
+const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
+const TOKEN_CHECK_INTERVAL_MS = 60000;
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +35,6 @@ export class AuthService {
 
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
-  private readonly _tokenCheckIntervalMs = 60000;
   private readonly _destroyRef = inject(DestroyRef);
 
   private readonly _isLoggingOut = signal<boolean>(false);
@@ -69,7 +69,7 @@ export class AuthService {
         const decoded: JwtPayload = jwtDecode(accessToken);
         const normalizedEmail = decoded?.username?.toLowerCase().trim();
         const isSuperAdmin =
-          normalizedEmail?.endsWith(ADMIN_EMAIL_DOMAIN) ?? false;
+          normalizedEmail?.endsWith(SUPER_ADMIN_EMAIL_DOMAIN) ?? false;
         return isSuperAdmin;
       })
     );
@@ -130,7 +130,7 @@ export class AuthService {
         }
         const decodedToken: JwtPayload = jwtDecode(accessToken);
         const email = decodedToken.email || decodedToken.username;
-        if (email && email.endsWith(ADMIN_EMAIL_DOMAIN)) {
+        if (email && email.endsWith(SUPER_ADMIN_EMAIL_DOMAIN)) {
           return of(UserRole.SUPERADMIN);
         }
 
@@ -192,7 +192,7 @@ export class AuthService {
   }
 
   private startTokenCheck$(): void {
-    interval(this._tokenCheckIntervalMs)
+    interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
         filter(() => !this._isLoggingOut()),
         filter(

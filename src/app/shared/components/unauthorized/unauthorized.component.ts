@@ -1,13 +1,14 @@
-import { Location, NgOptimizedImage } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-unauthorized',
-  imports: [NgOptimizedImage, MatIconModule],
+  imports: [MatIconModule],
   templateUrl: './unauthorized.component.html',
   styleUrls: ['./unauthorized.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UnauthorizedComponent {
   private _router = inject(Router);

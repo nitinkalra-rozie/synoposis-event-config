@@ -1,7 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
 import { Amplify } from 'aws-amplify';
 import {
   confirmSignIn,
@@ -28,16 +27,9 @@ export class AuthApiService {
       Amplify.configure(amplifyConfig);
     }
   }
+
   private readonly _http = inject(HttpClient);
-  private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
-
-  private readonly _baseUrl = signal(environment.AUTH_API_END_POINT || '');
-  private readonly _customHeaders = signal<Record<string, string>>({});
-
-  updateBaseUrl(url: string): void {
-    this._baseUrl.set(url);
-  }
 
   signUp(email: string): Observable<CustomChallengeResponse> {
     return from(fetchAuthSession()).pipe(
@@ -72,7 +64,7 @@ export class AuthApiService {
     additionalHeaders?: Record<string, string>
   ): Observable<boolean> {
     const requestBody = { email };
-    this.updateBaseUrl(environment.REQUEST_ACCESS_API || '');
+    const baseUrl = this._getRequestAccessBaseUrl();
 
     const methodHeaders = {
       'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
@@ -87,17 +79,14 @@ export class AuthApiService {
         const allHeaders = {
           ...methodHeaders,
           ...(token && { Authorization: `Bearer ${token}` }),
-          ...this._customHeaders(),
         };
 
         return new HttpHeaders(allHeaders);
       }),
       switchMap((headers) =>
-        this._http.post<{ status: number }>(
-          `${this._baseUrl()}/`,
-          requestBody,
-          { headers }
-        )
+        this._http.post<{ status: number }>(`${baseUrl}/`, requestBody, {
+          headers,
+        })
       ),
       takeUntilDestroyed(this._destroyRef),
       map((response) => response.status === 200)
@@ -138,4 +127,7 @@ export class AuthApiService {
       })
     );
   }
+
+  private _getRequestAccessBaseUrl = (): string =>
+    environment.REQUEST_ACCESS_API || '';
 }
