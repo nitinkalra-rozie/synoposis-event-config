@@ -1,0 +1,31 @@
+@use 'variables' as v;
+
+.centralized-view-container {
+  .stage-info-container {
+    .table-container {
+      .mat-mdc-table {
+        thead {
+          .mat-mdc-header-row {
+            background-color: v.$primary-bg-color-variant-1 !important;
+
+            .mat-mdc-header-cell {
+              &:not(:last-child) {
+                border-right: 0.5px solid v.$primary-bg-color-variant-2 !important;
+              }
+            }
+          }
+        }
+
+        tbody {
+          .mat-mdc-row {
+            .mat-mdc-cell {
+              &:not(:last-child) {
+                border-right: 0.5px solid v.$primary-bg-color-variant-2 !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

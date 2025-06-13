@@ -1,5 +1,6 @@
 @use 'variables' as v;
 @use 'mixins' as m;
+@use '@angular/material' as mat;
 
 .centralized-view-container {
   @include m.d-flex-column;
@@ -17,30 +18,110 @@
     border-radius: 0.25rem;
     background-color: v.$primary-bg-color;
 
-    .header-section {
-      @include m.d-flex-row;
-      gap: 1.25rem;
-      padding: 1rem 1.25rem;
-      justify-content: space-between;
-      align-items: center;
+    .table-container {
+      width: 100%;
 
-      .header-title {
-        @include m.d-flex-row;
-        gap: 0.5rem;
+      .error-message {
+        @include m.d-flex-column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+        text-align: center;
+
+        p {
+          margin: 0;
+          color: v.$primary-bg-color-variant-6;
+          @include m.body-regular;
+        }
       }
 
-      .header-actions {
-        width: 50%;
-        @include m.d-flex-row;
-        gap: 1.25rem;
+      .no-stages-message {
+        @include m.d-flex-column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+        text-align: center;
 
-        // TODO:SYN-644: Modify or adjust this when the full layout is implemented
-        @media (max-width: v.$screen-expanded-cdk-breakpoint) {
-          width: auto;
+        p {
+          margin: 0;
+          color: v.$primary-bg-color-variant-6;
+          @include m.body-regular;
+        }
+      }
+
+      @include mat.table-overrides(
+        (
+          row-item-outline-width: 1px,
+          background-color: v.$primary-bg-color,
+          header-headline-color: v.$primary-bg-color-variant-8,
+          row-item-label-text-color: v.$primary-bg-color-variant-6,
+          row-item-outline-color: v.$primary-bg-color-variant-2,
+          header-headline-weight: v.$font-weight-semibold,
+        )
+      );
+
+      table {
+        width: 100%;
+
+        .auto-av-chip {
+          display: inline-block;
+          padding: 2px 8px;
+          border-radius: 12px;
+          background: linear-gradient(90deg, #ff4081, #ff8c42);
+          color: white;
+          font-size: 10px;
+          font-weight: 600;
+          line-height: 16px;
         }
 
-        .search-input {
-          width: 100%;
+        .session-select {
+        }
+
+        .action-buttons {
+          @include m.d-flex-row;
+          gap: 0.5rem;
+
+          .action-btn {
+            min-width: 4rem;
+            height: 2rem;
+            border-radius: v.$button-border-radius;
+            text-transform: none;
+            box-shadow: none;
+            border: none;
+
+            &.active:hover {
+              opacity: 0.92;
+            }
+
+            &.inactive {
+              opacity: 0.5;
+              cursor: default;
+            }
+
+            &.mic-btn,
+            &.pause-btn {
+              background-color: v.$primary-color-variant-2;
+              color: v.$text-color-white;
+            }
+
+            &.stop-btn {
+              background-color: v.$secondary-color-variant-9;
+              color: v.$text-color-white;
+            }
+
+            &.cc-btn {
+              background-color: v.$primary-bg-color;
+              color: v.$primary-bg-color-variant-6;
+              border: 1px solid v.$primary-bg-color-variant-3;
+            }
+
+            mat-icon {
+              width: 1.125rem;
+              height: 1.125rem;
+              font-size: 1.125rem;
+              margin: auto;
+            }
+          }
         }
       }
     }
