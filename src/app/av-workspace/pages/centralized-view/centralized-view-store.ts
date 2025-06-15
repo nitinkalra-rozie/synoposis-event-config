@@ -139,6 +139,10 @@ export class CentralizedViewStore {
     return selectedCount > 0 && selectedCount < filteredEntities.length;
   });
 
+  private _hasSelection = computed(() => state.selectedItems().size > 0);
+
+  private _selectionCount = computed(() => state.selectedItems().size);
+
   setSearchTerm(searchTerm: string): void {
     state.searchTerm.set(searchTerm);
   }
@@ -223,13 +227,5 @@ export class CentralizedViewStore {
         })
       )
       .subscribe();
-  }
-
-  private _hasSelection(): boolean {
-    return state.selectedItems().size > 0;
-  }
-
-  private _selectionCount(): number {
-    return state.selectedItems().size;
   }
 }
