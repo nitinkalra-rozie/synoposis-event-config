@@ -76,7 +76,7 @@
 .access-denied-title {
   @include m.font-semi-bold;
   font-size: v.$font-size-4xl;
-  background: v.$crimson-to-coral-gradient;
+  background: v.$primary-bg-color-variant-9;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
