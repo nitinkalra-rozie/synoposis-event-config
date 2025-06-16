@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+  apiBaseUrl: 'https://api.synopsis.rozie.ai',
   getTranscriberPreSignedUrl:
     'https://api.synopsis.rozie.ai/r2/getPreSignedUrl',
   putTranscript: 'https://api.synopsis.rozie.ai/r2/postTranscript',
