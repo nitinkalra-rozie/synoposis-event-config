@@ -219,6 +219,7 @@ $right-sidebar-collapsed-content-container-width: calc(
   --dashboard-content-container-width: 995px;
 }
 
+/** #region v2 color codes */
 $crimson-pink: #e91e63; // Deep pinkish-red
 $coral-orange: #ff6b35; // Vibrant coral-orange
 $amber-orange: #ff9800; // Bright amber-orange
@@ -323,6 +324,7 @@ $warm-red: $crimson-pink;
 $warm-orange: $coral-orange;
 $warm-yellow: $amber-orange;
 $warm-gradient: $crimson-to-amber-gradient;
+/** #endregion v2 color codes */
 
 /** snackbar colors */
 $snackbar-success-icon-color: #e8f5e8;
