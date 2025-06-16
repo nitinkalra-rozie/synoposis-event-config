@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, tap } from 'rxjs/operators';
-import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
+import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { FooterMobileComponent } from 'src/app/legacy-admin/components/shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from 'src/app/legacy-admin/components/shared/footer/footer.component';
@@ -29,7 +29,7 @@ export class LoginPageComponent {
   private readonly _fb = inject(UntypedFormBuilder);
   private readonly _router = inject(Router);
   private readonly _authService = inject(AuthService);
-  private readonly _authApiService = inject(AuthApiService);
+  private readonly _authApiService = inject(AuthDataService);
 
   emailForm: UntypedFormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],

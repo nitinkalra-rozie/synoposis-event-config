@@ -1,5 +1,5 @@
-@use '../../../../styles/helpers/variables' as v;
-@use '../../../../styles/helpers/mixins' as m;
+@use 'variables' as v;
+@use 'mixins' as m;
 
 .unauthorized-page {
   @include m.flex-center;
@@ -35,214 +35,208 @@
       160px 30px 0 rgba(255, 255, 255, 0.3);
     animation: sparkle 3s linear infinite;
   }
-}
 
-.unauthorized-card {
-  grid-area: 1 / 1;
-  background: v.$primary-bg-color;
-  border-radius: 1.5rem;
-  padding: 3rem 2.5rem;
-  text-align: center;
-  box-shadow: v.$box-shadow-sunset-card;
-  max-width: 30rem;
-  width: 100%;
-  backdrop-filter: blur(0.625rem);
-  border: 0.0625rem solid rgba(255, 255, 255, 0.2);
-  animation: float 6s ease-in-out infinite;
-
-  background-image:
-    linear-gradient(v.$primary-bg-color, v.$primary-bg-color),
-    v.$crimson-to-amber-gradient;
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  border: 0.125rem solid transparent;
-}
-
-.access-denied-icon {
-  margin-bottom: 2rem;
-
-  .lock-icon {
-    font-size: 5rem !important;
-    width: 5rem;
-    height: 5rem;
-    filter: drop-shadow(#{v.$box-shadow-crimson-soft});
-    color: v.$crimson-pink;
-    display: inline-flex;
-    @include m.align-items-center;
-    @include m.justify-content-center;
-  }
-}
-
-.access-denied-title {
-  @include m.font-semi-bold;
-  font-size: v.$font-size-4xl;
-  background: v.$primary-bg-color-variant-9;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.2;
-}
-
-.primary-message {
-  @include m.subhead-medium;
-  color: v.$primary-bg-color-variant-6;
-  margin: 0 0 0.75rem 0;
-  font-size: v.$font-size-lg;
-  line-height: 1.5;
-}
-
-.secondary-message {
-  @include m.font-regular;
-  color: v.$primary-bg-color-variant-9;
-  margin: 0 0 2.5rem 0;
-  font-size: v.$font-size-md;
-  line-height: 1.6;
-  opacity: 0.8;
-}
-
-.action-buttons {
-  @include m.d-flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.navigation-button {
-  @include m.d-flex;
-  @include m.align-items-center;
-  gap: 0.625rem;
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 0.75rem;
-  font-size: v.$font-size-base;
-  font-weight: v.$font-weight-medium;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-decoration: none;
-  min-width: 8.75rem;
-  background-size: 200% 100%;
-  background-position: 100% 0;
-  transition:
-    background-position 0.6s ease,
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-
-  &--primary {
-    background:
-      linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.2) 50%,
-        transparent 100%
-      ),
-      v.$crimson-to-coral-gradient;
-    color: v.$text-color-white;
-    box-shadow: v.$box-shadow-crimson-coral;
-
-    &:hover {
-      transform: translateY(-0.125rem);
-      box-shadow: v.$box-shadow-crimson-coral-elevated;
-      background-position: -100% 0;
-    }
-
-    .button-icon {
-      color: v.$text-color-white;
-      filter: drop-shadow(0 0.0625rem 0.125rem rgba(0, 0, 0, 0.2));
-    }
-  }
-
-  &--secondary {
+  .unauthorized-card {
+    grid-area: 1 / 1;
     background: v.$primary-bg-color;
-    color: v.$crimson-pink;
-    border: 0.125rem solid v.$crimson-pink-light;
-    box-shadow: v.$box-shadow-neutral-soft;
+    border-radius: 1.5rem;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    box-shadow: v.$box-shadow-sunset-card;
+    max-width: 30rem;
+    width: 100%;
+    backdrop-filter: blur(0.625rem);
+    border: 0.0625rem solid rgba(255, 255, 255, 0.2);
+    animation: float 6s ease-in-out infinite;
 
-    &:hover {
-      background: v.$crimson-pink-light;
-      border-color: v.$crimson-pink-medium;
-      transform: translateY(-0.125rem);
-      box-shadow: v.$box-shadow-neutral-medium;
+    background-image:
+      linear-gradient(v.$primary-bg-color, v.$primary-bg-color),
+      v.$crimson-to-amber-gradient;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    border: 0.125rem solid transparent;
+
+    .access-denied-icon {
+      margin-bottom: 2rem;
+
+      .lock-icon {
+        font-size: 5rem !important;
+        width: 5rem;
+        height: 5rem;
+        filter: drop-shadow(#{v.$box-shadow-crimson-soft});
+        color: v.$crimson-pink;
+        display: inline-flex;
+        @include m.align-items-center;
+        @include m.justify-content-center;
+      }
     }
 
-    .button-icon {
-      color: v.$crimson-pink;
+    .access-denied-title {
+      @include m.font-semi-bold;
+      font-size: v.$font-size-4xl;
+      background: v.$primary-bg-color-variant-9;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0 0 1.5rem 0;
+      line-height: 1.2;
+    }
+
+    .primary-message {
+      @include m.subhead-medium;
+      color: v.$primary-bg-color-variant-6;
+      margin: 0 0 0.75rem 0;
+      font-size: v.$font-size-lg;
+      line-height: 1.5;
+    }
+
+    .secondary-message {
+      @include m.font-regular;
+      color: v.$primary-bg-color-variant-9;
+      margin: 0 0 2.5rem 0;
+      font-size: v.$font-size-md;
+      line-height: 1.6;
+      opacity: 0.8;
+    }
+
+    .action-buttons {
+      @include m.d-flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      .navigation-button {
+        @include m.d-flex;
+        @include m.align-items-center;
+        gap: 0.625rem;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: v.$font-size-base;
+        font-weight: v.$font-weight-medium;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        min-width: 8.75rem;
+        background-size: 200% 100%;
+        background-position: 100% 0;
+        transition:
+          background-position 0.6s ease,
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+
+        &--primary {
+          background:
+            linear-gradient(
+              90deg,
+              transparent 0%,
+              rgba(255, 255, 255, 0.2) 50%,
+              transparent 100%
+            ),
+            v.$crimson-to-coral-gradient;
+          color: v.$text-color-white;
+          box-shadow: v.$box-shadow-crimson-coral;
+
+          &:hover {
+            transform: translateY(-0.125rem);
+            box-shadow: v.$box-shadow-crimson-coral-elevated;
+            background-position: -100% 0;
+          }
+
+          .button-icon {
+            color: v.$text-color-white;
+            filter: drop-shadow(0 0.0625rem 0.125rem rgba(0, 0, 0, 0.2));
+          }
+        }
+
+        &--secondary {
+          background: v.$primary-bg-color;
+          color: v.$crimson-pink;
+          border: 0.125rem solid v.$crimson-pink-light;
+          box-shadow: v.$box-shadow-neutral-soft;
+
+          &:hover {
+            background: v.$crimson-pink-light;
+            border-color: v.$crimson-pink-medium;
+            transform: translateY(-0.125rem);
+            box-shadow: v.$box-shadow-neutral-medium;
+          }
+
+          .button-icon {
+            color: v.$crimson-pink;
+          }
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+
+      .button-icon {
+        @include m.align-items-center;
+        @include m.justify-content-center;
+        font-size: 1.25rem !important;
+        width: 1.25rem;
+        height: 1.25rem;
+        transition: transform 0.2s ease;
+        display: inline-flex;
+      }
     }
   }
-
-  &:active {
-    transform: translateY(0);
-  }
 }
-
-.button-icon {
-  @include m.align-items-center;
-  @include m.justify-content-center;
-  font-size: 1.25rem !important;
-  width: 1.25rem;
-  height: 1.25rem;
-  transition: transform 0.2s ease;
-  display: inline-flex;
-}
-
-.navigation-button:hover .button-icon {
-  transform: scale(1.1);
-}
-
 @media (max-width: v.$screen-compact) {
   .unauthorized-page {
     padding: 16px;
-  }
 
-  .unauthorized-card {
-    padding: 32px 24px;
-    border-radius: 20px;
-    max-width: 100%;
-  }
+    .unauthorized-card {
+      padding: 32px 24px;
+      border-radius: 20px;
+      max-width: 100%;
 
-  .access-denied-title {
-    font-size: v.$font-size-3xl;
-  }
+      .access-denied-title {
+        font-size: v.$font-size-3xl;
+      }
 
-  .access-denied-icon .lock-icon {
-    font-size: 4rem !important;
-    width: 4rem;
-    height: 4rem;
-  }
+      .access-denied-icon .lock-icon {
+        font-size: 4rem !important;
+        width: 4rem;
+        height: 4rem;
+      }
 
-  .action-buttons {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .navigation-button {
-    width: 100%;
-    justify-content: center;
-    padding: 14px 24px;
+      .action-buttons {
+        flex-direction: column;
+        gap: 12px;
+        .navigation-button {
+          width: 100%;
+          justify-content: center;
+          padding: 14px 24px;
+        }
+      }
+    }
   }
 }
 
 @media (max-width: v.$screen-small) {
   .unauthorized-card {
     padding: 24px 20px;
-  }
 
-  .access-denied-title {
-    font-size: v.$font-size-2xl;
-  }
+    .access-denied-title {
+      font-size: v.$font-size-2xl;
+    }
 
-  .primary-message {
-    font-size: v.$font-size-base;
-  }
+    .primary-message {
+      font-size: v.$font-size-base;
+    }
 
-  .secondary-message {
-    font-size: v.$font-size-sm;
-  }
+    .secondary-message {
+      font-size: v.$font-size-sm;
+    }
 
-  .access-denied-icon .lock-icon {
-    font-size: 3rem !important;
-    width: 3rem;
-    height: 3rem;
+    .access-denied-icon .lock-icon {
+      font-size: 3rem !important;
+      width: 3rem;
+      height: 3rem;
+    }
   }
 }
 

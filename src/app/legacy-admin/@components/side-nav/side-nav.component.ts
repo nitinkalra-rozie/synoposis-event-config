@@ -10,7 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { combineLatest } from 'rxjs';
+import { combineLatest, tap } from 'rxjs';
 
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
@@ -45,11 +45,14 @@ export class SideNavComponent implements OnInit {
       this._authService.getUserRole$(),
       this._authService.isUserAdmin$(),
     ])
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe(([userRole, isAdmin]) => {
-        this.userRole.set(userRole);
-        this.isAdminUser.set(isAdmin);
-        this.isLoading.set(false);
-      });
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        tap(([userRole, isAdmin]) => {
+          this.userRole.set(userRole);
+          this.isAdminUser.set(isAdmin);
+          this.isLoading.set(false);
+        })
+      )
+      .subscribe();
   }
 }

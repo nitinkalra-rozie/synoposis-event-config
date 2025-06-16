@@ -21,7 +21,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthApiService {
+export class AuthDataService {
   constructor() {
     if (!Amplify.getConfig().Auth?.Cognito) {
       Amplify.configure(amplifyConfig);

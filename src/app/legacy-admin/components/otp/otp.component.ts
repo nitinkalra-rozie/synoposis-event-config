@@ -8,7 +8,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, tap } from 'rxjs';
-import { AuthApiService } from 'src/app/core/auth/services/auth-api-service';
+import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
@@ -30,7 +30,7 @@ export class OtpComponent implements OnInit {
 
   private readonly _router = inject(Router);
   private readonly _authService = inject(AuthService);
-  private readonly _authApiService = inject(AuthApiService);
+  private readonly _authApiService = inject(AuthDataService);
 
   ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
