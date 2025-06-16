@@ -1,0 +1,231 @@
+import {
+  computed,
+  inject,
+  Injectable,
+  signal,
+  WritableSignal,
+} from '@angular/core';
+import { take, tap } from 'rxjs';
+import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
+import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+
+interface CentralizedViewState {
+  loading: WritableSignal<boolean>;
+  entities: WritableSignal<EventStage[]>;
+  searchTerm: WritableSignal<string>;
+  locationFilters: WritableSignal<string[]>;
+  error: WritableSignal<string | null>;
+  selectedItems: WritableSignal<Set<EventStage>>;
+}
+
+const state: CentralizedViewState = {
+  loading: signal(false),
+  entities: signal<EventStage[]>([]),
+  searchTerm: signal(''),
+  locationFilters: signal([]),
+  error: signal(null),
+  selectedItems: signal(new Set<EventStage>()),
+};
+
+@Injectable()
+export class CentralizedViewStore {
+  constructor() {
+    this._loadStages();
+  }
+
+  private readonly _eventStagesDataService = inject(EventStagesDataService);
+  private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+
+  public $vm = computed(() => ({
+    loading: state.loading,
+    entities: this._filteredEntities,
+    searchTerm: state.searchTerm,
+    locationFilters: state.locationFilters,
+    displayedColumns: this._displayedColumns,
+    locations: this._locations,
+    totalCount: state.entities().length,
+    filteredCount: this._filteredEntities().length,
+    error: state.error,
+    selection: state.selectedItems,
+    isAllSelected: this._isAllSelected,
+    isIndeterminate: this._isIndeterminate,
+    hasSelection: this._hasSelection,
+    selectionCount: this._selectionCount,
+  }));
+
+  private _displayedColumns = computed(() => {
+    const hasLocations = state.entities().some((stage) => stage.location);
+
+    return [
+      'select',
+      'stage',
+      ...(hasLocations ? ['location'] : []),
+      'session',
+      'status',
+      'action',
+      // TODO:@later implement the delete column after the MVP
+      // 'delete',
+    ];
+  });
+
+  private _filteredEntities = computed(() => {
+    const entities = state.entities();
+    const searchTerm = state.searchTerm().toLowerCase().trim();
+    const locationFilters = state.locationFilters();
+
+    let filtered = entities;
+
+    if (searchTerm) {
+      filtered = filtered.filter((stage) => {
+        const stageMatch = stage.stage.toLowerCase().includes(searchTerm);
+
+        const locationMatch = stage?.location
+          ?.toLowerCase()
+          .includes(searchTerm);
+
+        const sessionMatch = stage.sessions.some((session) =>
+          session.SessionTitle.toLowerCase().includes(searchTerm)
+        );
+
+        return stageMatch || sessionMatch || locationMatch;
+      });
+    }
+
+    if (locationFilters.length > 0) {
+      filtered = filtered.filter((stage) =>
+        stage.sessions.some((session) =>
+          locationFilters.includes(session.Location)
+        )
+      );
+    }
+
+    return filtered;
+  });
+
+  private _locations = computed(() => {
+    const entities = state.entities();
+    const locations = new Set<string>();
+
+    entities.forEach((stage) => {
+      if (stage.location) {
+        locations.add(stage.location);
+      }
+    });
+
+    return Array.from(locations).sort();
+  });
+
+  private _isAllSelected = computed(() => {
+    const filteredEntities = this._filteredEntities();
+
+    if (filteredEntities.length === 0) return false;
+
+    return filteredEntities.every((entity) =>
+      state.selectedItems().has(entity)
+    );
+  });
+
+  private _isIndeterminate = computed(() => {
+    const filteredEntities = this._filteredEntities();
+    const selectedEntities = state.selectedItems();
+
+    if (filteredEntities.length === 0) return false;
+
+    const selectedCount = filteredEntities.filter((entity) =>
+      selectedEntities.has(entity)
+    ).length;
+
+    return selectedCount > 0 && selectedCount < filteredEntities.length;
+  });
+
+  private _hasSelection = computed(() => state.selectedItems().size > 0);
+
+  private _selectionCount = computed(() => state.selectedItems().size);
+
+  setSearchTerm(searchTerm: string): void {
+    state.searchTerm.set(searchTerm);
+  }
+
+  setLocationFilters(locations: string[]): void {
+    state.locationFilters.set(locations);
+  }
+
+  clearFilters(): void {
+    state.searchTerm.set('');
+    state.locationFilters.set([]);
+  }
+
+  toggleAllRows(): void {
+    const filteredEntities = this._filteredEntities();
+    const currentSelection = state.selectedItems();
+
+    if (this._isAllSelected()) {
+      const newSelected = new Set<EventStage>(
+        [...currentSelection].filter(
+          (entity) => !filteredEntities.includes(entity)
+        )
+      );
+      state.selectedItems.set(newSelected);
+    } else {
+      const newSelected = new Set<EventStage>([
+        ...currentSelection,
+        ...filteredEntities.filter((entity) => !currentSelection.has(entity)),
+      ]);
+      state.selectedItems.set(newSelected);
+    }
+  }
+
+  toggleRow(row: EventStage): void {
+    const currentSelection = state.selectedItems();
+    const newSelected = new Set(currentSelection);
+
+    if (newSelected.has(row)) {
+      newSelected.delete(row);
+    } else {
+      newSelected.add(row);
+    }
+
+    state.selectedItems.set(newSelected);
+  }
+
+  private _loadStages(): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) {
+      state.error.set('No event name available');
+      return;
+    }
+
+    state.loading.set(true);
+    state.error.set(null);
+
+    this._eventStagesDataService
+      .getEventStages({
+        action: 'getStageListWithSessions',
+        eventName,
+      })
+      .pipe(
+        take(1),
+        tap({
+          next: (response) => {
+            if (response?.success) {
+              state.entities.set(response.data);
+              state.error.set(null);
+            } else {
+              state.error.set('Failed to load stages');
+              state.entities.set([]);
+            }
+            state.loading.set(false);
+          },
+          error: (error) => {
+            console.error('Error loading event stages:', error);
+            const errorMessage = error?.message || 'Failed to load stages';
+            state.error.set(`Unable to load stages: ${errorMessage}`);
+            state.entities.set([]);
+            state.loading.set(false);
+          },
+        })
+      )
+      .subscribe();
+  }
+}

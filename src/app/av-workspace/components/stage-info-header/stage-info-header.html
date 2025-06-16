@@ -1,0 +1,31 @@
+<div class="stage-info-header">
+  <div class="stage-info-header__title">
+    <mat-icon svgIcon="syn:podium_outlined" />
+    <span>Stage information</span>
+  </div>
+  <div class="stage-info-header__actions">
+    <syn-search-input
+      class="stage-info-header__actions-search"
+      [searchValue]="searchTerm()"
+      (enterPressed)="searchChange.emit($event)"
+      (searchChange)="searchChange.emit($event)"
+      appearance="fill"
+      placeholder="Search"
+      searchIcon="search">
+    </syn-search-input>
+    @if (showFilter() && locations().length > 0) {
+    <syn-menu-multi-select
+      class="stage-info-header__actions-filter"
+      [options]="locations()"
+      [showSelectAllOption]="true"
+      (selectionsApplied)="filterChange.emit($event)"
+      applyFilterButtonText="Apply filter"
+      cancelButtonText="Cancel"
+      labelIcon="filter_list"
+      labelPosition="before"
+      labelText="Filter"
+      searchLabel="Filter by location"
+      searchPlaceholder="Search" />
+    }
+  </div>
+</div>

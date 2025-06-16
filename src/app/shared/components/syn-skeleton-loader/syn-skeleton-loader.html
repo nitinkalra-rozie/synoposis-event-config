@@ -1,0 +1,12 @@
+<div
+  class="skeleton-loader-container"
+  [class.flex-col]="direction() === 'vertical'">
+  <div
+    *repeatTimes="count()"
+    class="skeleton-loader"
+    [class]="skeletonClass()"
+    [style.height]="height()"
+    [style.width]="
+      direction() === 'horizontal' ? (100 / count()) + '%' : '100%'
+    "></div>
+</div>
