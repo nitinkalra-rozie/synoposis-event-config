@@ -12,9 +12,9 @@ import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'syn-search-input',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './syn-search-input.html',
   styleUrl: './syn-search-input.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatFormFieldModule, MatInputModule, MatIconModule, FormsModule],
 })
 export class SynSearchInput {
