@@ -4,6 +4,7 @@
     [appearance]="appearance()"
     subscriptSizing="dynamic">
     <mat-icon matPrefix>{{ searchIcon() }}</mat-icon>
+
     <input
       matInput
       [disabled]="disabled()"
@@ -14,5 +15,20 @@
       (focus)="onFocus()"
       (keydown)="onKeyDown($event)"
       (ngModelChange)="onSearchChange($event)" />
+
+    @if (showClearButton()) {
+    <div matSuffix class="clear-button-container">
+      <button
+        mat-icon-button
+        class="clear-button"
+        [attr.aria-label]="'Clear search'"
+        [disabled]="disabled()"
+        (click)="onClear()"
+        type="button">
+        <mat-icon>close</mat-icon>
+      </button>
+      <span class="count-text">{{ countText() }}</span>
+    </div>
+    }
   </mat-form-field>
 </div>

@@ -20,6 +20,8 @@ import { SynSearchInput } from 'src/app/shared/components/syn-search-input/syn-s
 export class StageInfoHeader {
   public readonly searchTerm = input.required<string>();
   public readonly locations = input.required<string[]>();
+  public readonly filteredCount = input<number>(0);
+  public readonly totalCount = input<number>(0);
   public readonly showFilter = input<boolean>(true);
 
   public readonly searchChange = output<string>();
