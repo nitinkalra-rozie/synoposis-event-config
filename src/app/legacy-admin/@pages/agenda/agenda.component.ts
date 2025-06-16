@@ -28,8 +28,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
@@ -376,44 +376,60 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   changeEventStatus(status: string): void {
     this.isLoading = true;
-    const debrief = {
-      action: 'changeEventStatus',
-      sessionId: this.selected_session,
-      status: status,
-      changeEditMode: true,
-      editor: this._authService.getUserEmail$(),
-    };
-    this._backendApiService.changeEventStatus(debrief).subscribe({
-      next: (response) => {
-        if (response['data'].status === 'SUCCESS') {
-          this.isEditorMode = true;
-        } else {
-          this.snackBar.open(
-            'Another editor already editing this session!',
-            'Close',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
+    this._authService
+      .getUserEmail$()
+      .pipe(
+        take(1),
+        switchMap((email) => {
+          const debrief = {
+            action: 'changeEventStatus',
+            sessionId: this.selected_session,
+            status: status,
+            changeEditMode: true,
+            editor: email,
+          };
+          return this._backendApiService.changeEventStatus(debrief);
+        }),
+        tap({
+          next: (response) => {
+            if (response['data'].status === 'SUCCESS') {
+              this.isEditorMode = true;
+            } else {
+              this.snackBar.open(
+                'Another editor already editing this session!',
+                'Close',
+                {
+                  duration: 5000,
+                  panelClass: ['error-snackbar'],
+                }
+              );
             }
-          );
-        }
-        this.getEventDetails();
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+            this.getEventDetails();
+          },
+          error: (error) => {
+            console.error('Error fetching data:', error);
+            this.isLoading = false;
+          },
+        })
+      )
+      .subscribe();
   }
 
-  public checkSessionLocked = (data: any[], session_id: string): boolean => {
-    const exist = data.find(
-      (session) =>
-        session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail$()
+  public checkSessionLocked = (
+    data: any[],
+    session_id: string
+  ): Observable<boolean> =>
+    this._authService.getUserEmail$().pipe(
+      take(1),
+      map((email) =>
+        isUndefined(
+          data.find(
+            (session) =>
+              session.SessionId === session_id && session.Editing === email
+          )
+        )
+      )
     );
-    return isUndefined(exist);
-  };
 
   public getEventDetails = (): void => {
     this.isLoading = true;

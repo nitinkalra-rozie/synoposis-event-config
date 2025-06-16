@@ -25,8 +25,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, of, Subject } from 'rxjs';
+import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
@@ -680,36 +680,45 @@ export class ContentEditorComponent {
 
   changeEventStatus(status): void {
     this.isLoading = true;
-    const debrief = {
-      action: 'changeEventStatus',
-      sessionId: this.selected_session,
-      status: status,
-      changeEditMode: true,
-      editor: this._authService.getUserEmail$(),
-    };
-    this._backendApiService.changeEventStatus(debrief).subscribe({
-      next: (response) => {
-        console.log(response['data']);
-        if (response['data'].status == 'SUCCESS') {
-          this.isEditorMode = true;
-        } else {
-          this.snackBar.open(
-            'Another editor already editing this session!',
-            'Close',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
+    this._authService
+      .getUserEmail$()
+      .pipe(
+        take(1),
+        switchMap((email) => {
+          const debrief = {
+            action: 'changeEventStatus',
+            sessionId: this.selected_session,
+            status: status,
+            changeEditMode: true,
+            editor: email,
+          };
+          return this._backendApiService.changeEventStatus(debrief);
+        }),
+        tap({
+          next: (response) => {
+            console.log(response['data']);
+            if (response['data'].status == 'SUCCESS') {
+              this.isEditorMode = true;
+            } else {
+              this.snackBar.open(
+                'Another editor already editing this session!',
+                'Close',
+                {
+                  duration: 5000,
+                  panelClass: ['error-snackbar'],
+                }
+              );
             }
-          );
-        }
-        this.getEventDetails();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+            this.getEventDetails();
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error fetching data:', error);
+            this.isLoading = false;
+          },
+        })
+      )
+      .subscribe();
   }
 
   postEditedDebrief(): void {
@@ -773,13 +782,17 @@ export class ContentEditorComponent {
     });
   }
 
-  checkSessionLocked(data, session_id): boolean {
-    const exist = data.find(
-      (session) =>
-        session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail$()
+  checkSessionLocked(data: any[], session_id: string): Observable<boolean> {
+    return this._authService.getUserEmail$().pipe(
+      take(1),
+      map((email) => {
+        const exist = data.find(
+          (session) =>
+            session.SessionId === session_id && session.Editing === email
+        );
+        return isUndefined(exist);
+      })
     );
-    return isUndefined(exist);
   }
 
   getEventDetails(): void {
@@ -809,22 +822,34 @@ export class ContentEditorComponent {
       session['Status'] == 'IN_PROGRESS'
     ) {
       this.showError();
-    } else {
-      this.selected_session = session['SessionId'];
-      const sessionObj = JSON.parse(JSON.stringify(session));
-      if (sessionObj.StartsAt) {
-        sessionObj.StartsAt = this.convertDate(sessionObj.StartsAt);
-      }
-      if (sessionObj.Editor == this._authService.getUserEmail$()) {
-        this.isEditorMode = true;
-      } else {
-        this.isEditorMode = false;
-      }
-      console.log('speaker', sessionObj);
-      this.selected_session_details = sessionObj;
-      console.log('Selected session:', session);
-      this.getEventReport();
+      return;
     }
+
+    of(session)
+      .pipe(
+        map((sessionObj) => {
+          const cloned = JSON.parse(JSON.stringify(sessionObj));
+          if (cloned.StartsAt) {
+            cloned.StartsAt = this.convertDate(cloned.StartsAt);
+          }
+          return cloned;
+        }),
+        switchMap((sessionObj) =>
+          this._authService.getUserEmail$().pipe(
+            take(1),
+            map((email) => ({ sessionObj, email }))
+          )
+        ),
+        tap(({ sessionObj, email }) => {
+          this.selected_session = sessionObj.SessionId;
+          this.isEditorMode = sessionObj.Editor === email;
+          this.selected_session_details = sessionObj;
+          console.log('speaker', sessionObj);
+          console.log('Selected session:', sessionObj);
+          this.getEventReport();
+        })
+      )
+      .subscribe();
   }
 
   // Method to dynamically assign a class based on the session's status
