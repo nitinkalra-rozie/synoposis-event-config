@@ -1,8 +1,10 @@
 <div class="centralized-view-container">
   <div class="stage-info-container">
     <app-stage-info-header
+      [filteredCount]="$vm().filteredCount"
       [locations]="$vm().locations()"
       [searchTerm]="$vm().searchTerm()"
+      [totalCount]="$vm().totalCount"
       (filterChange)="onFilterSelectionsApplied($event)"
       (searchChange)="executeSearch($event)" />
 
@@ -62,7 +64,7 @@
             <div class="cell-content">
               <span>{{ element.stage }}</span>
               @if (element.autoAv) {
-              <span class="auto-av-chip">AUTOAV</span>
+              <span class="auto-av-chip">AUTO AV</span>
               }
             </div>
           </td>
