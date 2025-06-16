@@ -1,8 +1,10 @@
 <div class="centralized-view-container">
   <div class="stage-info-container">
     <app-stage-info-header
+      [filteredCount]="$vm().filteredCount"
       [locations]="$vm().locations()"
       [searchTerm]="$vm().searchTerm()"
+      [totalCount]="$vm().totalCount"
       (filterChange)="onSelectionsApplied($event)"
       (searchChange)="executeSearch($event)" />
 
