@@ -31,6 +31,7 @@ import { isUndefined } from 'lodash-es';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
   findTimeZoneByOffset,
@@ -380,16 +381,16 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       .getUserEmail$()
       .pipe(
         take(1),
-        switchMap((email) => {
-          const debrief = {
-            action: 'changeEventStatus',
-            sessionId: this.selected_session,
-            status: status,
-            changeEditMode: true,
-            editor: email,
-          };
-          return this._backendApiService.changeEventStatus(debrief);
-        }),
+        map((email) => ({
+          action: 'changeEventStatus',
+          sessionId: this.selected_session,
+          status: status,
+          changeEditMode: true,
+          editor: email,
+        })),
+        switchMap((debrief) =>
+          this._backendApiService.changeEventStatus(debrief)
+        ),
         tap({
           next: (response) => {
             if (response['data'].status === 'SUCCESS') {
@@ -531,13 +532,13 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'NOT_AVAILABLE':
-        return 'status-not-available';
-      case 'NOT_STARTED':
+      case EventStatus.NotStarted:
         return 'status-not-started';
-      case 'UNDER_REVIEW':
+      case EventStatus.UnderReview:
         return 'status-in-review';
-      case 'REVIEW_COMPLETED':
+      case EventStatus.Completed:
+        return 'status-completed';
+      case EventStatus.ReviewComplete:
         return 'status-completed';
       default:
         return '';

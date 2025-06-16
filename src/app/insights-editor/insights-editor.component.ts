@@ -25,6 +25,7 @@ import {
   finalize,
   map,
   switchMap,
+  take,
   tap,
 } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
@@ -315,21 +316,22 @@ export class InsightsEditorComponent implements OnInit {
 
   changeEventStatus(status: EventStatus): void {
     this.isLoading = true;
-
     this._authService
       .getUserEmail$()
       .pipe(
-        switchMap((userEmail: string) => {
-          const debrief: ChangeEventStatusRequest = {
+        take(1),
+        map(
+          (userEmail: string): ChangeEventStatusRequest => ({
             action: 'changeEventStatus',
             sessionId: this.selected_session,
             status: status,
             changeEditMode: true,
             editor: userEmail || '',
-          };
-
-          return this._editorialDataService.changeEventStatus(debrief);
-        }),
+          })
+        ),
+        switchMap((debrief) =>
+          this._editorialDataService.changeEventStatus(debrief)
+        ),
         tap((response) => {
           if (response && response['data']?.status === 'SUCCESS') {
             this.isEditorMode = true;
@@ -393,12 +395,13 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
 
-  checkSessionLocked(data: any, session_id: string): Observable<boolean> {
+  checkSessionLocked(data: any[], session_id: string): Observable<boolean> {
     return this._authService.getUserEmail$().pipe(
-      map((userEmail: string) => {
+      take(1),
+      map((email) => {
         const exist = data.find(
           (session) =>
-            session.SessionId === session_id && session.Editing === userEmail
+            session.SessionId === session_id && session.Editing === email
         );
         return isUndefined(exist);
       })
@@ -432,31 +435,23 @@ export class InsightsEditorComponent implements OnInit {
       session['Status'] === EventStatus.InProgress
     ) {
       this.showError();
-    } else {
-      this.selected_session = session['SessionId'];
-      const sessionObj = JSON.parse(JSON.stringify(session));
-      if (sessionObj.StartsAt) {
-        sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
-      }
-
-      this._authService
-        .getUserEmail$()
-        .pipe(
-          tap((userEmail: string) => {
-            if (sessionObj.Editor == userEmail) {
-              this.isEditorMode = true;
-            } else {
-              this.isEditorMode = false;
-            }
-            this.selected_session_details = sessionObj;
-            console.log('Selected session:', session);
-          }),
-          finalize(() => {
-            this.getEventReport();
-          })
-        )
-        .subscribe();
+      return;
     }
+
+    this.selected_session = session['SessionId'];
+    const sessionObj = { ...session };
+    if (sessionObj.StartsAt) {
+      sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
+    }
+    this._authService
+      .getUserEmail$()
+      .pipe(take(1))
+      .subscribe((userEmail: string) => {
+        this.isEditorMode = sessionObj.Editor === userEmail;
+        this.selected_session_details = sessionObj;
+        console.log('Selected session:', session);
+        this.getEventReport();
+      });
   }
 
   // Method to dynamically assign a class based on the session's status

@@ -14,10 +14,10 @@ import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { amplifyConfig } from 'src/app/core/config/amplify-config';
 import { CustomChallengeResponse } from 'src/app/legacy-admin/shared/types';
 import { environment } from 'src/environments/environment';
-import { AuthService } from './auth-service';
 
 @Injectable({
   providedIn: 'root',

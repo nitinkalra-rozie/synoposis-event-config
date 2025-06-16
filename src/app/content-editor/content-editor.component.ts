@@ -25,9 +25,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
@@ -680,20 +681,21 @@ export class ContentEditorComponent {
 
   changeEventStatus(status): void {
     this.isLoading = true;
+
     this._authService
       .getUserEmail$()
       .pipe(
         take(1),
-        switchMap((email) => {
-          const debrief = {
-            action: 'changeEventStatus',
-            sessionId: this.selected_session,
-            status: status,
-            changeEditMode: true,
-            editor: email,
-          };
-          return this._backendApiService.changeEventStatus(debrief);
-        }),
+        map((email) => ({
+          action: 'changeEventStatus',
+          sessionId: this.selected_session,
+          status: status,
+          changeEditMode: true,
+          editor: email,
+        })),
+        switchMap((debrief) =>
+          this._backendApiService.changeEventStatus(debrief)
+        ),
         tap({
           next: (response) => {
             console.log(response['data']);
@@ -818,34 +820,28 @@ export class ContentEditorComponent {
 
   selectSession(session: any): void {
     if (
-      session['Status'] == 'NOT_STARTED' ||
-      session['Status'] == 'IN_PROGRESS'
+      session['Status'] === EventStatus.NotStarted ||
+      session['Status'] === EventStatus.InProgress
     ) {
       this.showError();
       return;
     }
 
-    of(session)
+    const clonedSession = JSON.parse(JSON.stringify(session));
+    if (clonedSession.StartsAt) {
+      clonedSession.StartsAt = this.convertDate(clonedSession.StartsAt);
+    }
+
+    this._authService
+      .getUserEmail$()
       .pipe(
-        map((sessionObj) => {
-          const cloned = JSON.parse(JSON.stringify(sessionObj));
-          if (cloned.StartsAt) {
-            cloned.StartsAt = this.convertDate(cloned.StartsAt);
-          }
-          return cloned;
-        }),
-        switchMap((sessionObj) =>
-          this._authService.getUserEmail$().pipe(
-            take(1),
-            map((email) => ({ sessionObj, email }))
-          )
-        ),
-        tap(({ sessionObj, email }) => {
-          this.selected_session = sessionObj.SessionId;
-          this.isEditorMode = sessionObj.Editor === email;
-          this.selected_session_details = sessionObj;
-          console.log('speaker', sessionObj);
-          console.log('Selected session:', sessionObj);
+        take(1),
+        tap((email) => {
+          this.selected_session = clonedSession.SessionId;
+          this.isEditorMode = clonedSession.Editor === email;
+          this.selected_session_details = clonedSession;
+          console.log('speaker', clonedSession);
+          console.log('Selected session:', clonedSession);
           this.getEventReport();
         })
       )
