@@ -319,17 +319,18 @@ export class InsightsEditorComponent implements OnInit {
     this._authService
       .getUserEmail$()
       .pipe(
-        switchMap((userEmail: string) => {
-          const debrief: ChangeEventStatusRequest = {
+        map(
+          (userEmail: string): ChangeEventStatusRequest => ({
             action: 'changeEventStatus',
             sessionId: this.selected_session,
             status: status,
             changeEditMode: true,
             editor: userEmail || '',
-          };
-
-          return this._editorialDataService.changeEventStatus(debrief);
-        }),
+          })
+        ),
+        switchMap((debrief: ChangeEventStatusRequest) =>
+          this._editorialDataService.changeEventStatus(debrief)
+        ),
         tap((response) => {
           if (response && response['data']?.status === 'SUCCESS') {
             this.isEditorMode = true;
