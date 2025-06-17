@@ -14,11 +14,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-header/stage-info-header';
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { CentralizedViewStore } from 'src/app/av-workspace/pages/centralized-view/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
-import { StageInfoHeader } from '../../components/stage-info-header/stage-info-header';
+import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
+import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-select/syn-single-select-option.model';
 
 @Component({
   selector: 'app-centralized-view',
@@ -37,6 +39,7 @@ import { StageInfoHeader } from '../../components/stage-info-header/stage-info-h
     MatButtonModule,
     StageInfoPlaceholder,
     StageInfoHeader,
+    SynSingleSelect,
   ],
 })
 export class CentralizedView {
@@ -86,7 +89,7 @@ export class CentralizedView {
     this._store.setSearchTerm(value);
   }
 
-  protected onSelectionsApplied(
+  protected onFilterSelectionsApplied(
     selections: SynMenuMultiSelectOption<string>[] | string[]
   ): void {
     const locationFilters = Array.isArray(selections)
@@ -96,5 +99,11 @@ export class CentralizedView {
       : [];
 
     this._store.setLocationFilters(locationFilters);
+  }
+
+  protected onSessionSelected(
+    event: SynSingleSelectOption<string> | string
+  ): void {
+    console.log(event);
   }
 }

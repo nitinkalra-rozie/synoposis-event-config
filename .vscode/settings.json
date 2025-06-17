@@ -19,7 +19,8 @@
     "Registerables",
     "Rozie",
     "stylelint",
-    "SUPERADMIN"
+    "SUPERADMIN",
+    "titlecase"
   ],
   "json.format.enable": false,
   "[jsonc]": {
