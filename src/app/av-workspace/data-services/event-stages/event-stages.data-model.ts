@@ -56,3 +56,14 @@ export interface EventStagesRequestData {
   action: string;
   eventName: string;
 }
+
+export interface StageSessionsRequestData {
+  action: string;
+  eventName: string;
+  stage: string;
+}
+
+export interface StageSessionsResponseData {
+  success: boolean;
+  data: Session[];
+}
