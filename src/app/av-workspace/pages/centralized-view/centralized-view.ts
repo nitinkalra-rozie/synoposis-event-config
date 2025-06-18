@@ -44,6 +44,8 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
 })
 export class CentralizedView {
   constructor() {
+    this._store.fetchStages();
+
     effect(() => {
       const entities = this.$vm().entities();
       const sort = this._sort();
@@ -105,5 +107,11 @@ export class CentralizedView {
     event: SynSingleSelectOption<string> | string
   ): void {
     console.log(event);
+  }
+
+  protected onSessionDropdownOpened(isOpen: boolean, stageName: string): void {
+    if (isOpen) {
+      this._store.fetchSessions(stageName);
+    }
   }
 }

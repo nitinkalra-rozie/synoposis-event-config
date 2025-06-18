@@ -92,46 +92,10 @@
             SESSION
           </th>
           <td *matCellDef="let element" mat-cell>
-            <!-- TODO:SYN-644: Integrate the session dropdown with API -->
             <syn-single-select
-              [options]="[
-              {
-                value: 'action1',
-                label: 'Action 1'
-              },
-              {
-                value: 'section2',
-                label: 'Section 2'
-              }, 
-              {
-                value: 'travel3',
-                label: 'Travel 3'
-              },
-              {
-                value: 'nordic4',
-                label: 'Nordic 4'
-              },
-              {
-                value: 'single5',
-                label: 'Single 5'
-              },
-              {
-                value: 'double6',
-                label: 'Double 6'
-              },
-              {
-                value: 'three7',
-                label: 'Three 7'
-              },
-              {
-                value: 'thought8',
-                label: 'Thought 8'
-              },
-              {
-                value: 'thought9',
-                label: 'Thought 9'
-              },
-            ]"
+              [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
+              [options]="$vm().sessionsByStage().get(element.stage)"
+              (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
               (selectionChanged)="onSessionSelected($event)"
               appearance="outline"
               optionsType="Sessions"
