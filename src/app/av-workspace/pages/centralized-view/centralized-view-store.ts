@@ -5,9 +5,10 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { take, tap } from 'rxjs';
+import { filter, take, tap } from 'rxjs';
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
 interface CentralizedViewState {
@@ -17,6 +18,9 @@ interface CentralizedViewState {
   locationFilters: WritableSignal<string[]>;
   error: WritableSignal<string | null>;
   selectedItems: WritableSignal<Set<EventStage>>;
+  sessionsByStage: WritableSignal<Map<string, SessionWithDropdownOptions[]>>;
+  sessionLoadingStates: WritableSignal<Map<string, boolean>>;
+  sessionErrors: WritableSignal<Map<string, string | null>>;
 }
 
 const state: CentralizedViewState = {
@@ -26,14 +30,13 @@ const state: CentralizedViewState = {
   locationFilters: signal([]),
   error: signal(null),
   selectedItems: signal(new Set<EventStage>()),
+  sessionsByStage: signal(new Map<string, SessionWithDropdownOptions[]>()),
+  sessionLoadingStates: signal(new Map<string, boolean>()),
+  sessionErrors: signal(new Map<string, string | null>()),
 };
 
 @Injectable()
 export class CentralizedViewStore {
-  constructor() {
-    this._loadStages();
-  }
-
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
 
@@ -52,6 +55,9 @@ export class CentralizedViewStore {
     isIndeterminate: this._isIndeterminate,
     hasSelection: this._hasSelection,
     selectionCount: this._selectionCount,
+    sessionsByStage: state.sessionsByStage,
+    sessionLoadingStates: state.sessionLoadingStates,
+    sessionErrors: state.sessionErrors,
   }));
 
   private _displayedColumns = computed(() => {
@@ -189,7 +195,8 @@ export class CentralizedViewStore {
     state.selectedItems.set(newSelected);
   }
 
-  private _loadStages(): void {
+  fetchStages(): void {
+    // TODO:SYN-644: Move the event name to the event config store
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     if (!eventName) {
       state.error.set('No event name available');
@@ -223,6 +230,71 @@ export class CentralizedViewStore {
             state.error.set(`Unable to load stages: ${errorMessage}`);
             state.entities.set([]);
             state.loading.set(false);
+          },
+        })
+      )
+      .subscribe();
+  }
+
+  fetchSessions(stage: string): void {
+    // TODO:SYN-644: Move the event name to the event config store
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) {
+      state.error.set('No event name available');
+      return;
+    }
+
+    const cachedSessions = state.sessionsByStage().get(stage);
+    const isCurrentlyLoading = state.sessionLoadingStates().get(stage);
+
+    if (!cachedSessions && !isCurrentlyLoading) {
+      state.sessionLoadingStates.set(
+        new Map(state.sessionLoadingStates()).set(stage, true)
+      );
+    }
+
+    this._eventStagesDataService
+      .getStageSessions({
+        action: 'getSessionListForStage',
+        eventName,
+        stage,
+      })
+      .pipe(
+        take(1),
+        filter(() => !cachedSessions && !isCurrentlyLoading),
+        tap({
+          next: (response) => {
+            if (response?.success) {
+              const newSessions = response.data.map((session) => ({
+                value: session.SessionId,
+                label: session.SessionTitle,
+                session,
+              }));
+              state.sessionsByStage.set(
+                new Map(state.sessionsByStage()).set(stage, newSessions)
+              );
+            } else {
+              state.sessionErrors.set(
+                new Map(state.sessionErrors()).set(
+                  stage,
+                  'Failed to load sessions'
+                )
+              );
+            }
+            state.sessionLoadingStates.set(
+              new Map(state.sessionLoadingStates()).set(stage, false)
+            );
+          },
+          error: (error) => {
+            console.error('Error loading sessions:', error);
+            const errorMessage = error?.message || 'Failed to load sessions';
+            state.error.set(`Unable to load sessions: ${errorMessage}`);
+            state.sessionErrors.set(
+              new Map(state.sessionErrors()).set(stage, errorMessage)
+            );
+            state.sessionLoadingStates.set(
+              new Map(state.sessionLoadingStates()).set(stage, false)
+            );
           },
         })
       )
