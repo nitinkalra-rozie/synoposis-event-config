@@ -1,0 +1,110 @@
+<div
+  class="syn-single-select-container"
+  [ngClass]="{ 'theme-transparent': theme() === 'transparent' }">
+  <mat-form-field
+    class="single-select-form-field"
+    [appearance]="appearance()"
+    [class.mat-form-field-appearance-fill]="appearance() === 'fill'"
+    [class.single-select-panel-open]="
+      matSingleSelect.panelOpen && appearance() !== 'outline'
+    "
+    subscriptSizing="dynamic">
+    @if (labelText()) {
+    <div class="select-display-label">
+      @if (labelPosition() === 'before') {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      }
+      <span class="label-text">{{ labelText() }}</span>
+      @if (labelPosition() === 'after') {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      }
+    </div>
+    }
+
+    <mat-icon matSuffix class="expand-icon-suffix">
+      {{ matSingleSelect.panelOpen ? 'expand_less' : 'expand_more' }}
+    </mat-icon>
+
+    <mat-select
+      #matSingleSelect
+      class="single-select"
+      [formControl]="selectFormCtrl"
+      [placeholder]="placeholder()"
+      (openedChange)="onDropdownOpenedChange($event)"
+      panelClass="syn-single-select-panel">
+      <mat-select-trigger class="select-trigger">
+        @if (selectFormCtrl.value) {
+        <span
+          matTooltipClass="tooltip-text-only"
+          matTooltipPosition="above"
+          class="select-display-value"
+          [tooltipOnOverflow]="selectedValue">
+          {{ selectedValue }}
+        </span>
+        } @else {
+        <span class="select-placeholder-value">{{ placeholder() }}</span>
+        }
+      </mat-select-trigger>
+
+      <div class="syn-single-select-panel-content">
+        <!-- This is a dummy option to prevent the panel from being empty. This is required to prevent the panel from being empty. -->
+        <mat-option [style.display]="'none'" disabled value="placeholder">
+          Dummy option
+        </mat-option>
+        @if (isLoading()) {
+        <syn-single-select-placeholder />
+        } @else { @if (displayState().showNoOptions) {
+        <div class="panel-no-options">
+          <div class="no-options-title">
+            No {{ optionsType() | titlecase }} Available
+          </div>
+          <div class="no-options-subtitle">
+            There are currently no {{ optionsType().toLowerCase() }} to display.
+          </div>
+        </div>
+        } @else {
+        <!-- https://github.com/angular/components/issues/5697 -->
+        <!-- https://stackblitz.com/edit/angular-mat-select-multi-with-formcontrol-x2tbvo?file=app%2Fselect-search-dropdown.component.html -->
+        <div class="panel-search">
+          <div class="panel-search-label">{{ searchLabel() }}</div>
+
+          <div class="search-input-container">
+            <mat-icon>search</mat-icon>
+            <input
+              matInput
+              class="panel-search-input"
+              [attr.aria-label]="searchLabel()"
+              [formControl]="searchFormCtrl"
+              [placeholder]="searchLabel()"
+              (keydown.space)="$event.stopPropagation()"
+              type="text" />
+          </div>
+        </div>
+
+        @if (displayState().showNoSearchResults) {
+        <div class="panel-no-results">
+          <div class="no-results-title">No Results Match Your Search</div>
+          <div class="no-results-subtitle">
+            Check Your Spellings or Find All the {{optionsType() | titlecase}}
+            Below
+          </div>
+        </div>
+        } @for (option of displayState().options; track option) {
+        <mat-option
+          #optionElement
+          class="single-select-option"
+          [value]="option"
+          (onSelectionChange)="onSelectionChange(optionElement, $event)">
+          <span
+            matTooltipClass="tooltip-text-only"
+            matTooltipPosition="right"
+            class="option-text"
+            [tooltipOnOverflow]="optionDisplayMap().get(option) || ''">
+            {{ optionDisplayMap().get(option) }}
+          </span>
+        </mat-option>
+        } } }
+      </div>
+    </mat-select>
+  </mat-form-field>
+</div>

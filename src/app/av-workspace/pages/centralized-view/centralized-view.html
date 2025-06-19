@@ -1,9 +1,11 @@
 <div class="centralized-view-container">
   <div class="stage-info-container">
     <app-stage-info-header
+      [filteredCount]="$vm().filteredCount"
       [locations]="$vm().locations()"
       [searchTerm]="$vm().searchTerm()"
-      (filterChange)="onSelectionsApplied($event)"
+      [totalCount]="$vm().totalCount"
+      (filterChange)="onFilterSelectionsApplied($event)"
       (searchChange)="executeSearch($event)" />
 
     <div class="table-container">
@@ -62,7 +64,7 @@
             <div class="cell-content">
               <span>{{ element.stage }}</span>
               @if (element.autoAv) {
-              <span class="auto-av-chip">AUTOAV</span>
+              <span class="auto-av-chip">AUTO AV</span>
               }
             </div>
           </td>
@@ -81,7 +83,6 @@
         </ng-container>
 
         <!-- Session Column -->
-        <!-- TODO:SYN-644: implement the session column -->
         <ng-container matColumnDef="session">
           <th
             *matHeaderCellDef
@@ -91,7 +92,16 @@
             SESSION
           </th>
           <td *matCellDef="let element" mat-cell>
-            Session dropdown to be implemented
+            <syn-single-select
+              [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
+              [options]="$vm().sessionsByStage().get(element.stage)"
+              (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
+              (selectionChanged)="onSessionSelected($event)"
+              appearance="outline"
+              optionsType="Sessions"
+              placeholder="Select a session"
+              searchLabel="Search session"
+              theme="default" />
           </td>
         </ng-container>
 
