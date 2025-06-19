@@ -1,27 +1,12 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Amplify } from 'aws-amplify';
-import {
-  AuthTokens,
-  fetchAuthSession,
-  getCurrentUser,
-  signOut,
-} from 'aws-amplify/auth';
-import { jwtDecode } from 'jwt-decode';
+import { signOut } from 'aws-amplify/auth';
 import { from, interval, Observable, of } from 'rxjs';
-import {
-  catchError,
-  filter,
-  finalize,
-  map,
-  switchMap,
-  tap,
-} from 'rxjs/operators';
-import { amplifyConfig } from 'src/app/core/config/amplify-config';
-import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
+import { catchError, filter, map, switchMap } from 'rxjs/operators';
+import { AuthStore } from 'src/app/core/auth/services/auth-store';
+import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
-const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 const TOKEN_CHECK_INTERVAL_MS = 60000;
 
 @Injectable({
@@ -29,166 +14,61 @@ const TOKEN_CHECK_INTERVAL_MS = 60000;
 })
 export class AuthService {
   constructor() {
-    Amplify.configure(amplifyConfig);
     this.startTokenCheck$();
   }
 
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _authStore = inject(AuthStore);
 
   private readonly _isLoggingOut = signal<boolean>(false);
 
   logout$(): Observable<void> {
-    if (this._isLoggingOut()) {
-      return of(void 0);
-    }
-    this._isLoggingOut.set(true);
-    return from(signOut({ global: true })).pipe(
-      tap(() => {
-        this._router.navigate(['/login'], { replaceUrl: true });
-      }),
-      map(() => void 0),
-      finalize(() => {
-        this._isLoggingOut.set(false);
-      }),
-      catchError(() => {
-        this._router.navigate(['/login'], { replaceUrl: true });
-        return of(void 0);
-      })
-    );
+    return from(signOut());
   }
 
   isUserAdmin$(): Observable<boolean> {
-    return from(fetchAuthSession()).pipe(
-      map((session) => {
-        const accessToken = session.tokens?.accessToken?.toString();
-        if (!accessToken) {
-          return false;
-        }
-        const decoded: JwtPayload = jwtDecode(accessToken);
-        const normalizedEmail = decoded?.username?.toLowerCase().trim();
-        const isSuperAdmin =
-          normalizedEmail?.endsWith(SUPER_ADMIN_EMAIL_DOMAIN) ?? false;
-        return isSuperAdmin;
-      })
-    );
+    return this._authStore.isUserAdmin$();
   }
 
   getAccessToken$(): Observable<string | null> {
-    return from(fetchAuthSession()).pipe(
-      map((session) => session.tokens?.accessToken?.toString() || null)
-    );
+    return this._authStore.getAccessToken$();
   }
 
   getIdToken$(): Observable<string | null> {
-    return from(fetchAuthSession()).pipe(
-      map((session) => session.tokens?.idToken?.toString() || null)
-    );
+    return this._authStore.getIdToken$();
   }
 
   getUserEmail$(): Observable<string | null> {
-    return from(getCurrentUser()).pipe(
-      map((user) => user.signInDetails?.loginId || user.username)
-    );
+    return this._authStore.getUserEmail$();
   }
 
   checkSession$(): Observable<boolean> {
-    return from(getCurrentUser()).pipe(
-      switchMap((user) =>
-        from(fetchAuthSession()).pipe(
-          tap((session) => {
-            if (!session.tokens) {
-              throw new Error('No valid session tokens');
-            }
-            this.logAllTokens(session.tokens);
-          }),
-          map(() => true)
-        )
-      )
+    return this._authStore.getSession$().pipe(
+      map((session) => {
+        if (!session.tokens) {
+          throw new Error('No valid session tokens');
+        }
+        return true;
+      })
     );
   }
 
   getUserGroups$(): Observable<string[] | null> {
-    return this.getAccessToken$().pipe(
-      switchMap((accessToken) => {
-        if (!accessToken) {
-          return of(null);
-        }
-        const decodedToken: JwtPayload = jwtDecode(accessToken);
-        const userGroups = decodedToken['cognito:groups'] || [];
-        return of(userGroups);
-      })
-    );
+    return this._authStore.getUserGroups$();
   }
 
   getUserRole$(): Observable<UserRole | null> {
-    return this.getAccessToken$().pipe(
-      switchMap((accessToken) => {
-        if (!accessToken) {
-          return of(null);
-        }
-        const decodedToken: JwtPayload = jwtDecode(accessToken);
-        const email = decodedToken.email || decodedToken.username;
-        if (email && email.endsWith(SUPER_ADMIN_EMAIL_DOMAIN)) {
-          return of(UserRole.SUPERADMIN);
-        }
-
-        return this.getUserGroups$().pipe(
-          map((groups) => {
-            let role = UserRole.EDITOR;
-            if (groups?.some((group) => group.includes('SUPER_ADMIN'))) {
-              role = UserRole.SUPERADMIN;
-            } else if (groups?.some((group) => group.includes('ADMIN'))) {
-              role = UserRole.ADMIN;
-            } else if (
-              groups?.some((group) => group.includes('EVENT_ORGANIZER'))
-            ) {
-              role = UserRole.EVENTORGANIZER;
-            }
-            return role;
-          })
-        );
-      })
-    );
+    return this._authStore.getUserRole$();
   }
 
   isTokenExpired$(): Observable<boolean> {
-    return from(fetchAuthSession()).pipe(
-      map((session) => {
-        const accessToken = session.tokens?.accessToken;
-        if (!accessToken) {
-          return true;
-        }
-        const decodedToken: JwtPayload = jwtDecode(accessToken.toString());
-        const expirationTime = decodedToken.exp * 1000;
-        const currentTime = Date.now();
-        const isExpired = currentTime >= expirationTime;
-
-        return isExpired;
-      })
-    );
+    return this._authStore.isTokenExpired$();
   }
 
   isAuthenticated(): Observable<boolean> {
-    return from(fetchAuthSession()).pipe(
-      map((session) => {
-        const isAuthenticated = !!session.tokens?.accessToken;
-        if (isAuthenticated) {
-          this.logAllTokens(session.tokens);
-        }
-        return isAuthenticated;
-      })
-    );
-  }
-
-  private logAllTokens(tokens: AuthTokens): void {
-    if (tokens.accessToken) {
-      jwtDecode(tokens.accessToken.toString());
-    }
-    if (tokens.idToken) {
-      jwtDecode(tokens.idToken.toString());
-    }
+    return this._authStore.isAuthenticated$();
   }
 
   private startTokenCheck$(): void {
@@ -212,14 +92,20 @@ export class AuthService {
       return of(void 0);
     }
 
-    return from(fetchAuthSession()).pipe(
-      switchMap((session) => {
-        if (!session.tokens?.accessToken) {
-          return this.logout$();
-        } else {
+    const cachedSession = this._authStore.getCachedSession();
+
+    if (!cachedSession?.tokens?.accessToken) {
+      return this._authStore.refreshSession$().pipe(
+        switchMap((session) => {
+          if (!session.tokens?.accessToken) {
+            return this.logout$();
+          }
           return of(void 0);
-        }
-      })
-    );
+        }),
+        catchError(() => this.logout$())
+      );
+    }
+
+    return of(void 0);
   }
 }

@@ -6,11 +6,11 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-unauthorized',
   imports: [MatIconModule],
-  templateUrl: './unauthorized.component.html',
-  styleUrls: ['./unauthorized.component.scss'],
+  templateUrl: './unauthorized.html',
+  styleUrls: ['./unauthorized.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UnauthorizedComponent {
+export class Unauthorized {
   private _router = inject(Router);
   private _location = inject(Location);
 
@@ -19,6 +19,6 @@ export class UnauthorizedComponent {
   }
 
   goToAdmin(): void {
-    this._router.navigate(['/admin']);
+    this._router.navigate(['/av-workspace']);
   }
 }

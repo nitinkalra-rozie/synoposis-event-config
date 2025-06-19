@@ -9,6 +9,7 @@ import {
 import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthStore } from 'src/app/core/auth/services/auth-store';
 import { UserRole } from '../../enum/auth-roles.enum';
 
 export const authGuard: CanActivateFn = (
@@ -17,34 +18,32 @@ export const authGuard: CanActivateFn = (
 ): Observable<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const authStore = inject(AuthStore);
 
-  return authService.isAuthenticated().pipe(
+  return authStore.refreshSession$().pipe(
     take(1),
-    switchMap((isAuthenticated) => {
+    switchMap((session) => {
+      const isAuthenticated = !!session.tokens?.accessToken;
       if (!isAuthenticated) {
         return of(router.createUrlTree(['/login']));
       }
-      return authService.getAccessToken$().pipe(
+      const accessToken = session.tokens?.accessToken?.toString();
+      if (!accessToken) {
+        return of(router.createUrlTree(['/login']));
+      }
+      return authService.getUserRole$().pipe(
         take(1),
-        switchMap((accessToken) => {
-          if (!accessToken) {
-            return of(router.createUrlTree(['/login']));
+        map((userRole: UserRole) => {
+          const requiredRoles: UserRole[] = route.data?.['roles'] || [];
+          if (requiredRoles.length === 0) {
+            return true;
           }
-          return authService.getUserRole$().pipe(
-            take(1),
-            map((userRole: UserRole) => {
-              const requiredRoles: UserRole[] = route.data?.['roles'] || [];
-              if (requiredRoles.length === 0) {
-                return true;
-              }
-              const hasRequiredRole = requiredRoles.includes(userRole);
+          const hasRequiredRole = requiredRoles.includes(userRole);
 
-              if (hasRequiredRole) {
-                return true;
-              }
-              return router.createUrlTree(['/unauthorized']);
-            })
-          );
+          if (hasRequiredRole) {
+            return true;
+          }
+          return router.createUrlTree(['/unauthorized']);
         })
       );
     })

@@ -1,0 +1,83 @@
+@use 'variables' as v;
+
+/** #region v2 color codes */
+$crimson-pink: #e91e63; // Deep pinkish-red
+$coral-orange: #ff6b35; // Vibrant coral-orange
+$amber-orange: #ff9800; // Bright amber-orange
+
+$crimson-pink-light: rgba(233, 30, 99, 0.1);
+$crimson-pink-medium: rgba(233, 30, 99, 0.3);
+
+$crimson-to-amber-gradient: linear-gradient(
+  135deg,
+  $crimson-pink 0%,
+  $coral-orange 50%,
+  $amber-orange 100%
+);
+$crimson-to-coral-gradient: linear-gradient(
+  135deg,
+  $crimson-pink,
+  $coral-orange
+);
+
+$crimson-coral-amber-overlay: linear-gradient(
+  135deg,
+  rgba(233, 30, 99, 0.9) 0%,
+  rgba(255, 107, 53, 0.9) 50%,
+  rgba(255, 152, 0, 0.9) 100%
+);
+
+$box-shadow-crimson-soft: 0 4px 8px rgba(233, 30, 99, 0.3);
+
+$box-shadow-crimson-coral:
+  0 8px 25px rgba(233, 30, 99, 0.3),
+  0 4px 12px rgba(255, 107, 53, 0.2);
+
+$box-shadow-crimson-coral-elevated:
+  0 12px 35px rgba(233, 30, 99, 0.4),
+  0 6px 18px rgba(255, 107, 53, 0.3);
+
+$box-shadow-sunset-card:
+  0 20px 60px rgba(0, 0, 0, 0.15),
+  0 8px 25px rgba(0, 0, 0, 0.08);
+
+$box-shadow-neutral-soft: 0 4px 15px rgba(0, 0, 0, 0.05);
+$box-shadow-neutral-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+
+/** snackbar colors */
+$snackbar-success-icon-color: #e8f5e8;
+$snackbar-error-icon-color: #ffebee;
+$snackbar-warning-icon-color: #fff3e0;
+$snackbar-info-icon-color: #e3f2fd;
+
+$snackbar-button-hover-bg: rgba(255, 255, 255, 0.25);
+$snackbar-button-active-bg: rgba(255, 255, 255, 0.15);
+
+/** background overlay colors */
+$overlay-light-10: rgba(255, 255, 255, 0.1);
+$overlay-light-15: rgba(255, 255, 255, 0.15);
+$overlay-light-20: rgba(255, 255, 255, 0.2);
+
+$snackbar-info-gradient: linear-gradient(
+  135deg,
+  v.$selection-variant-3 0%,
+  v.$primary-color-variant-1 100%
+);
+
+$snackbar-warning-gradient: linear-gradient(
+  135deg,
+  v.$selection-variant-9 0%,
+  v.$selection-variant-9 100%
+);
+
+$snackbar-error-gradient: linear-gradient(
+  135deg,
+  v.$selection-variant-10 0%,
+  v.$selection-variant-10 100%
+);
+
+$snackbar-success-gradient: linear-gradient(
+  135deg,
+  v.$selection-variant-4 0%,
+  v.$selection-variant-11 100%
+);

@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from 'src/app/core/auth/guards/auth-guard';
+import { loginRedirectGuard } from 'src/app/core/auth/guards/login-redirect-guard';
+// import { loginRedirectGuard } from 'src/app/core/auth/guards/login-redirect.guard';
 import { ROUTE_PERMISSIONS } from 'src/app/core/config/permission-config';
 
 export const routes: Routes = [
@@ -9,6 +11,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/login-page/login-page.component'
       ).then((c) => c.LoginPageComponent),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'stream',
@@ -23,6 +26,7 @@ export const routes: Routes = [
       import('src/app/legacy-admin/components/otp/otp.component').then(
         (c) => c.OtpComponent
       ),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'login',
@@ -30,6 +34,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/login-page/login-page.component'
       ).then((c) => c.LoginPageComponent),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'av-workspace',
@@ -87,9 +92,9 @@ export const routes: Routes = [
   {
     path: 'unauthorized',
     loadComponent: () =>
-      import(
-        'src/app/shared/components/unauthorized/unauthorized.component'
-      ).then((c) => c.UnauthorizedComponent),
+      import('src/app/shared/pages/unauthorized/unauthorized').then(
+        (c) => c.Unauthorized
+      ),
   },
   {
     path: '**',

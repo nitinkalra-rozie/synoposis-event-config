@@ -1,5 +1,6 @@
 @use 'mixins' as m;
 @use 'variables' as v;
+@use 'variables-v2' as v2;
 
 .sample-skeleton-square {
   max-width: 424px;

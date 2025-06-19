@@ -1,10 +1,11 @@
-@use 'variables' as v;
+@use 'variables-v2' as v2;
 @use 'mixins' as m;
+@use 'variables' as v;
 
 .unauthorized-page {
   @include m.flex-center;
   min-height: 100vh;
-  background: v.$crimson-to-amber-gradient;
+  background: v2.$crimson-to-amber-gradient;
   padding: 1.25rem;
   font-family: v.$base-font;
   display: grid;
@@ -13,7 +14,7 @@
   &::before {
     content: '';
     grid-area: 1 / 1;
-    background: v.$crimson-coral-amber-overlay;
+    background: v2.$crimson-coral-amber-overlay;
     inset: 0;
   }
 
@@ -42,7 +43,7 @@
     border-radius: 1.5rem;
     padding: 3rem 2.5rem;
     text-align: center;
-    box-shadow: v.$box-shadow-sunset-card;
+    box-shadow: v2.$box-shadow-sunset-card;
     max-width: 30rem;
     width: 100%;
     backdrop-filter: blur(0.625rem);
@@ -51,7 +52,7 @@
 
     background-image:
       linear-gradient(v.$primary-bg-color, v.$primary-bg-color),
-      v.$crimson-to-amber-gradient;
+      v2.$crimson-to-amber-gradient;
     background-origin: border-box;
     background-clip: padding-box, border-box;
     border: 0.125rem solid transparent;
@@ -63,8 +64,8 @@
         font-size: 5rem !important;
         width: 5rem;
         height: 5rem;
-        filter: drop-shadow(#{v.$box-shadow-crimson-soft});
-        color: v.$crimson-pink;
+        filter: drop-shadow(#{v2.$box-shadow-crimson-soft});
+        color: v2.$crimson-pink;
         display: inline-flex;
         @include m.align-items-center;
         @include m.justify-content-center;
@@ -133,13 +134,13 @@
               rgba(255, 255, 255, 0.2) 50%,
               transparent 100%
             ),
-            v.$crimson-to-coral-gradient;
+            v2.$crimson-to-coral-gradient;
           color: v.$text-color-white;
-          box-shadow: v.$box-shadow-crimson-coral;
+          box-shadow: v2.$box-shadow-crimson-coral;
 
           &:hover {
             transform: translateY(-0.125rem);
-            box-shadow: v.$box-shadow-crimson-coral-elevated;
+            box-shadow: v2.$box-shadow-crimson-coral-elevated;
             background-position: -100% 0;
           }
 
@@ -151,19 +152,19 @@
 
         &--secondary {
           background: v.$primary-bg-color;
-          color: v.$crimson-pink;
-          border: 0.125rem solid v.$crimson-pink-light;
-          box-shadow: v.$box-shadow-neutral-soft;
+          color: v2.$crimson-pink;
+          border: 0.125rem solid v2.$crimson-pink-light;
+          box-shadow: v2.$box-shadow-neutral-soft;
 
           &:hover {
-            background: v.$crimson-pink-light;
-            border-color: v.$crimson-pink-medium;
+            background: v2.$crimson-pink-light;
+            border-color: v2.$crimson-pink-medium;
             transform: translateY(-0.125rem);
-            box-shadow: v.$box-shadow-neutral-medium;
+            box-shadow: v2.$box-shadow-neutral-medium;
           }
 
           .button-icon {
-            color: v.$crimson-pink;
+            color: v2.$crimson-pink;
           }
         }
 
