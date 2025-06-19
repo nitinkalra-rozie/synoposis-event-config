@@ -24,7 +24,7 @@ const STAGE_STATUS_CONFIG: Record<StageStatusType, StageStatusConfig> = {
     icon: 'syn:status_error',
     text: 'Transcript Failed',
   },
-  online: {
+  Online: {
     icon: 'syn:status_online',
     text: 'Online',
   },

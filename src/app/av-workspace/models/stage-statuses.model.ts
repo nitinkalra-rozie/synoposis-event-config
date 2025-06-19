@@ -3,7 +3,7 @@ export type StageStatusType =
   | 'Offline'
   | 'audio_error'
   | 'transcript_error'
-  | 'online'
+  | 'Online'
   | 'projecting';
 
 export interface StageStatusConfig {
