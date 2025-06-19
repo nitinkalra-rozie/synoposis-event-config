@@ -85,5 +85,9 @@
 
   .mdc-list-item {
     @include m.body-regular;
+
+    .mdc-list-item__primary-text {
+      overflow: hidden;
+    }
   }
 }

@@ -25,7 +25,9 @@ import {
   MatSelectModule,
 } from '@angular/material/select';
 import { debounceTime, distinctUntilChanged, tap } from 'rxjs';
+import { TooltipOnOverflow } from 'src/app/shared/directives/tooltip-on-overflow';
 import { SynSingleSelectOption } from './syn-single-select-option.model';
+import { SynSingleSelectPlaceholder } from './syn-single-select-placeholder';
 
 @Component({
   selector: 'syn-single-select',
@@ -40,6 +42,8 @@ import { SynSingleSelectOption } from './syn-single-select-option.model';
     MatIconModule,
     FormsModule,
     ReactiveFormsModule,
+    TooltipOnOverflow,
+    SynSingleSelectPlaceholder,
   ],
 })
 export class SynSingleSelect<T> implements OnChanges {
@@ -56,6 +60,7 @@ export class SynSingleSelect<T> implements OnChanges {
 
   public readonly matSingleSelectRef = viewChild<MatSelect>('matSingleSelect');
 
+  public readonly isLoading = input<boolean>(false);
   public readonly options = input.required<
     SynSingleSelectOption<T>[] | string[]
   >();
@@ -68,6 +73,7 @@ export class SynSingleSelect<T> implements OnChanges {
   public readonly theme = input<'default' | 'transparent'>('default');
   public readonly appearance = input<'fill' | 'outline'>('fill');
 
+  public readonly dropdownOpened = output<boolean>();
   public readonly selectionChanged = output<
     SynSingleSelectOption<T> | string | null
   >();
@@ -84,15 +90,35 @@ export class SynSingleSelect<T> implements OnChanges {
     const filtered = this.filteredOptions();
     const allOptions = this.options() ?? [];
 
+    if (allOptions.length === 0) {
+      return {
+        options: [],
+        showNoSearchResults: false,
+        showNoOptions: true,
+      };
+    }
+
     if (!searchValue) {
-      return { options: allOptions, showNoResults: false };
+      return {
+        options: allOptions,
+        showNoSearchResults: false,
+        showNoOptions: false,
+      };
     }
 
     if (filtered.length > 0) {
-      return { options: filtered, showNoResults: false };
+      return {
+        options: filtered,
+        showNoSearchResults: false,
+        showNoOptions: false,
+      };
     }
 
-    return { options: allOptions, showNoResults: true };
+    return {
+      options: allOptions,
+      showNoSearchResults: true,
+      showNoOptions: false,
+    };
   });
 
   protected optionDisplayMap = computed(() => {
@@ -129,6 +155,7 @@ export class SynSingleSelect<T> implements OnChanges {
   }
 
   protected onDropdownOpenedChange(isOpen: boolean): void {
+    this.dropdownOpened.emit(isOpen);
     if (isOpen && this.selectFormCtrl.value) {
       runInInjectionContext(this._injector, () => {
         afterNextRender(() => {

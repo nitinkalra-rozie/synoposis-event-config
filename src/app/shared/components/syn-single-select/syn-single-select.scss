@@ -59,7 +59,7 @@
     }
 
     .single-select {
-      width: fit-content;
+      width: 100%;
       height: fit-content;
 
       .select-trigger {
@@ -70,7 +70,6 @@
         color: v.$primary-bg-color-variant-6;
 
         .select-display-value {
-          display: inline-block;
           @include m.body-regular;
           @include m.ellipsis();
         }
@@ -130,6 +129,31 @@
 
   .single-select-option {
     color: v.$primary-bg-color-variant-6;
+
+    .option-text {
+      @include m.ellipsis();
+      display: block;
+      max-width: 100%;
+    }
+  }
+
+  .panel-no-options {
+    @include m.d-flex-column();
+    gap: 0.5rem;
+    margin: 1rem 1rem 0.5rem 1rem;
+    padding: 0.5rem 0;
+    text-align: center;
+
+    .no-options-title {
+      font-size: v.$font-size-sm;
+      color: v.$primary-bg-color-variant-8;
+      font-weight: 600;
+    }
+
+    .no-options-subtitle {
+      font-size: v.$font-size-xxs;
+      color: v.$primary-bg-color-variant-5;
+    }
   }
 
   .panel-no-results {
