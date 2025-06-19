@@ -25,7 +25,6 @@ import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-me
 export class SideNavComponent implements OnInit {
   public readonly userRole = signal<UserRole | null>(null);
   public readonly isAdminUser = signal(false);
-  public readonly isLoading = signal(true);
   public readonly visibleMenuItems = computed(() => {
     const role = this.userRole();
     if (!role) return [];
@@ -50,7 +49,6 @@ export class SideNavComponent implements OnInit {
         tap(([userRole, isAdmin]) => {
           this.userRole.set(userRole);
           this.isAdminUser.set(isAdmin);
-          this.isLoading.set(false);
         })
       )
       .subscribe();

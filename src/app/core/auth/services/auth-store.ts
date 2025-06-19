@@ -13,15 +13,9 @@ import {
   tap,
 } from 'rxjs/operators';
 import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
-
-interface AuthSession {
-  tokens: AuthTokens | null;
-  user: any;
-  timestamp: number;
-}
+import { AuthSession } from 'src/app/legacy-admin/shared/types';
 
 const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
-const CACHE_DURATION_MS = 5 * 60 * 1000;
 const REFRESH_THRESHOLD_MS = 2 * 60 * 1000;
 
 @Injectable({
