@@ -17,6 +17,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-header/stage-info-header';
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
 import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
+import { StagesActions } from 'src/app/av-workspace/components/stages-actions/stages-actions';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { CentralizedViewStore } from 'src/app/av-workspace/pages/centralized-view/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
@@ -42,6 +43,7 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
     StageInfoHeader,
     SynSingleSelect,
     StageStatus,
+    StagesActions,
   ],
 })
 export class CentralizedView {
@@ -115,5 +117,20 @@ export class CentralizedView {
     if (isOpen) {
       this._store.fetchSessions(stageName);
     }
+  }
+
+  protected onStartListening(): void {
+    console.log('Start listening for selected stages:', this.$vm().selection());
+    // TODO: Implement start listening logic
+  }
+
+  protected onPauseListening(): void {
+    console.log('Pause listening for selected stages:', this.$vm().selection());
+    // TODO: Implement pause listening logic
+  }
+
+  protected onStopListening(): void {
+    console.log('Stop listening for selected stages:', this.$vm().selection());
+    // TODO: Implement stop listening logic
   }
 }

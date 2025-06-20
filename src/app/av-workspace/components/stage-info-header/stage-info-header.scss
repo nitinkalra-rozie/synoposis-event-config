@@ -4,7 +4,7 @@
 .stage-info-header {
   @include m.d-flex-row;
   gap: 1.25rem;
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.25rem 0rem;
   justify-content: space-between;
   align-items: center;
 
