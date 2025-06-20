@@ -16,6 +16,7 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-header/stage-info-header';
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
+import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { CentralizedViewStore } from 'src/app/av-workspace/pages/centralized-view/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
@@ -40,6 +41,7 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
     StageInfoPlaceholder,
     StageInfoHeader,
     SynSingleSelect,
+    StageStatus,
   ],
 })
 export class CentralizedView {
