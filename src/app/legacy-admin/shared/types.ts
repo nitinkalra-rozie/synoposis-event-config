@@ -1,4 +1,3 @@
-import { AuthTokens } from 'aws-amplify/auth';
 import { EventDetailType } from './enums';
 
 export interface SpeakerInfo {
@@ -48,23 +47,4 @@ export interface PostData {
   debriefType?: string;
   sessionIds?: string[];
   stage?: string;
-}
-
-export interface AuthResponse {
-  AuthenticationResult: {
-    AccessToken: string;
-    IdToken: string;
-    RefreshToken: string;
-  };
-}
-
-export interface CustomChallengeResponse {
-  success: boolean;
-  message: string;
-}
-
-export interface AuthSession {
-  tokens: AuthTokens | null;
-  user: any;
-  timestamp: number;
 }

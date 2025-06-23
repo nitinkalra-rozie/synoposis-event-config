@@ -12,8 +12,8 @@ import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
+import { CustomChallengeResponse } from 'src/app/core/auth/data-service/auth-data-model';
 import { AuthStore } from 'src/app/core/auth/services/auth-store';
-import { CustomChallengeResponse } from 'src/app/legacy-admin/shared/types';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -77,7 +77,6 @@ export class AuthDataService {
       ...additionalHeaders,
     };
 
-    // Use cached access token
     return this._authStore.getAccessToken$().pipe(
       map((token) => {
         const allHeaders = {

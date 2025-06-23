@@ -26,6 +26,7 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     'r2/getCurrentSessionDetails',
     'r6/config',
     'r5/postEventDetails',
+    'r5/admin-analytics',
     'r2/stage',
     'r2/postAudioChunk',
     '/get-content-versions',

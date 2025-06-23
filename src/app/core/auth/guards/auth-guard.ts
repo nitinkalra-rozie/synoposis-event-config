@@ -10,6 +10,11 @@ import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { AuthStore } from 'src/app/core/auth/services/auth-store';
+import {
+  getDefaultRedirectUrl,
+  hasRoutePermission,
+  isUserAuthenticated,
+} from 'src/app/core/auth/utils/auth-utils';
 import { UserRole } from '../../enum/auth-roles.enum';
 
 export const authGuard: CanActivateFn = (
@@ -23,27 +28,34 @@ export const authGuard: CanActivateFn = (
   return authStore.refreshSession$().pipe(
     take(1),
     switchMap((session) => {
-      const isAuthenticated = !!session.tokens?.accessToken;
-      if (!isAuthenticated) {
+      const hasValidSession = !!session?.tokens?.accessToken;
+
+      if (!hasValidSession) {
         return of(router.createUrlTree(['/login']));
       }
+
       const accessToken = session.tokens?.accessToken?.toString();
-      if (!accessToken) {
+      if (!accessToken || accessToken.trim() === '') {
         return of(router.createUrlTree(['/login']));
       }
+
       return authService.getUserRole$().pipe(
         take(1),
         map((userRole: UserRole) => {
-          const requiredRoles: UserRole[] = route.data?.['roles'] || [];
-          if (requiredRoles.length === 0) {
-            return true;
-          }
-          const hasRequiredRole = requiredRoles.includes(userRole);
+          const currentPath = state.url;
 
-          if (hasRequiredRole) {
+          if (!isUserAuthenticated(userRole)) {
+            return router.createUrlTree(['/login']);
+          }
+
+          const hasPermission = hasRoutePermission(userRole, currentPath);
+
+          if (hasPermission) {
             return true;
           }
-          return router.createUrlTree(['/unauthorized']);
+
+          const userDashboard = getDefaultRedirectUrl(userRole);
+          return router.createUrlTree([userDashboard]);
         })
       );
     })

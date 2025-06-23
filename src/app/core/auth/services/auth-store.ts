@@ -2,18 +2,18 @@ import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthTokens, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
-import { BehaviorSubject, EMPTY, from, Observable, timer } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, of, timer } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
   filter,
   map,
-  shareReplay,
+  mergeMap,
   switchMap,
   tap,
 } from 'rxjs/operators';
+import { AuthSession } from 'src/app/core/auth/data-service/auth-data-model';
 import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
-import { AuthSession } from 'src/app/legacy-admin/shared/types';
 
 const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 const REFRESH_THRESHOLD_MS = 2 * 60 * 1000;
@@ -25,40 +25,34 @@ export class AuthStore {
   constructor() {
     this.startPeriodicRefresh();
   }
-  private readonly _destroyRef = inject(DestroyRef);
 
+  private readonly _destroyRef = inject(DestroyRef);
   private readonly _sessionCache$ = new BehaviorSubject<AuthSession | null>(
     null
   );
-
   private readonly _isLoading = signal<boolean>(false);
 
   getSession$(): Observable<AuthSession> {
-    const cached = this._sessionCache$.value;
-
-    if (cached && this.isSessionValid(cached)) {
-      return this._sessionCache$.pipe(
-        filter((session) => session !== null),
-        map((session) => session!)
-      );
-    }
-
-    return this.refreshSession$();
+    return this._sessionCache$.pipe(
+      switchMap((cached) => {
+        if (cached && this.isSessionValidSync(cached)) {
+          return of(cached);
+        }
+        return this.refreshSession$();
+      }),
+      filter((session): session is AuthSession => session !== null)
+    );
   }
 
   getAccessToken$(): Observable<string | null> {
     return this.getSession$().pipe(
-      map((session) => session.tokens?.accessToken?.toString() || null),
-      distinctUntilChanged(),
-      shareReplay(1)
+      map((session) => session.tokens?.accessToken?.toString() || null)
     );
   }
 
   getIdToken$(): Observable<string | null> {
     return this.getSession$().pipe(
-      map((session) => session.tokens?.idToken?.toString() || null),
-      distinctUntilChanged(),
-      shareReplay(1)
+      map((session) => session.tokens?.idToken?.toString() || null)
     );
   }
 
@@ -68,8 +62,7 @@ export class AuthStore {
         const user = session.user;
         return user?.signInDetails?.loginId || user?.username || null;
       }),
-      distinctUntilChanged(),
-      shareReplay(1)
+      distinctUntilChanged()
     );
   }
 
@@ -78,12 +71,12 @@ export class AuthStore {
       map((accessToken) => {
         if (!accessToken) return false;
 
-        const decoded: JwtPayload = jwtDecode(accessToken);
+        const decoded = this.decodeToken(accessToken);
+        if (!decoded) return false;
+
         const normalizedEmail = decoded?.username?.toLowerCase().trim();
         return normalizedEmail?.endsWith(SUPER_ADMIN_EMAIL_DOMAIN) ?? false;
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
+      })
     );
   }
 
@@ -92,44 +85,41 @@ export class AuthStore {
       map((accessToken) => {
         if (!accessToken) return null;
 
-        const decodedToken: JwtPayload = jwtDecode(accessToken);
+        const decodedToken = this.decodeToken(accessToken);
+        if (!decodedToken) return [];
+
         return decodedToken['cognito:groups'] || [];
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
+      })
     );
   }
 
   getUserRole$(): Observable<UserRole | null> {
     return this.getAccessToken$().pipe(
-      switchMap((accessToken) => {
-        if (!accessToken) return [null];
+      map((accessToken) => {
+        if (!accessToken) return null;
 
-        const decodedToken: JwtPayload = jwtDecode(accessToken);
+        const decodedToken = this.decodeToken(accessToken);
+        if (!decodedToken) return UserRole.EDITOR;
+
         const email = decodedToken.email || decodedToken.username;
 
         if (email && email.endsWith(SUPER_ADMIN_EMAIL_DOMAIN)) {
-          return [UserRole.SUPERADMIN];
+          return UserRole.SUPERADMIN;
         }
 
-        return this.getUserGroups$().pipe(
-          map((groups) => {
-            let role = UserRole.EDITOR;
-            if (groups?.some((group) => group.includes('SUPER_ADMIN'))) {
-              role = UserRole.SUPERADMIN;
-            } else if (groups?.some((group) => group.includes('ADMIN'))) {
-              role = UserRole.ADMIN;
-            } else if (
-              groups?.some((group) => group.includes('EVENT_ORGANIZER'))
-            ) {
-              role = UserRole.EVENTORGANIZER;
-            }
-            return role;
-          })
-        );
+        const groups = decodedToken['cognito:groups'] || [];
+
+        if (groups.some((group) => group.includes('SUPER_ADMIN'))) {
+          return UserRole.SUPERADMIN;
+        } else if (groups.some((group) => group.includes('ADMIN'))) {
+          return UserRole.ADMIN;
+        } else if (groups.some((group) => group.includes('EVENT_ORGANIZER'))) {
+          return UserRole.EVENTORGANIZER;
+        }
+
+        return UserRole.EDITOR;
       }),
-      distinctUntilChanged(),
-      shareReplay(1)
+      distinctUntilChanged()
     );
   }
 
@@ -138,13 +128,13 @@ export class AuthStore {
       map((accessToken) => {
         if (!accessToken) return true;
 
-        const decodedToken: JwtPayload = jwtDecode(accessToken);
+        const decodedToken = this.decodeToken(accessToken);
+        if (!decodedToken) return true;
+
         const expirationTime = decodedToken.exp * 1000;
         const currentTime = Date.now();
         return currentTime >= expirationTime;
-      }),
-      distinctUntilChanged(),
-      shareReplay(1)
+      })
     );
   }
 
@@ -155,53 +145,52 @@ export class AuthStore {
           this.logAllTokens(session.tokens);
         }
       }),
-      map((session) => !!session.tokens?.accessToken),
-      distinctUntilChanged(),
-      shareReplay(1)
+      map((session) => !!session.tokens?.accessToken)
     );
   }
 
   refreshSession$(): Observable<AuthSession> {
     if (this._isLoading()) {
       return this._sessionCache$.pipe(
-        filter((session) => session !== null),
-        map((session) => session!)
+        filter((session): session is AuthSession => session !== null)
       );
     }
 
     this._isLoading.set(true);
 
-    return from(fetchAuthSession()).pipe(
-      switchMap((session) =>
-        from(getCurrentUser()).pipe(
-          map(
-            (user) =>
-              ({
-                tokens: session.tokens || null,
+    return new Observable<AuthSession>((observer) => {
+      fetchAuthSession()
+        .then((session) => {
+          getCurrentUser()
+            .then((user) => {
+              const authSession = this.createAuthSession(
+                session.tokens || null,
                 user,
-                timestamp: Date.now(),
-              }) as AuthSession
-          ),
-          catchError(() => [
-            {
-              tokens: session.tokens || null,
-              user: null,
-              timestamp: Date.now(),
-            } as AuthSession,
-          ])
-        )
-      ),
-      tap((session) => {
-        this._sessionCache$.next(session);
-        this._isLoading.set(false);
-      }),
-      catchError((error) => {
-        this._isLoading.set(false);
-        this.clearCache();
-        throw error;
-      }),
-      shareReplay(1)
-    );
+                Date.now()
+              );
+              this._sessionCache$.next(authSession);
+              this._isLoading.set(false);
+              observer.next(authSession);
+              observer.complete();
+            })
+            .catch(() => {
+              const authSession = this.createAuthSession(
+                session.tokens || null,
+                null,
+                Date.now()
+              );
+              this._sessionCache$.next(authSession);
+              this._isLoading.set(false);
+              observer.next(authSession);
+              observer.complete();
+            });
+        })
+        .catch((error) => {
+          this._isLoading.set(false);
+          this.clearCache();
+          observer.error(error);
+        });
+    });
   }
 
   clearCache(): void {
@@ -210,25 +199,47 @@ export class AuthStore {
 
   getCachedSession(): AuthSession | null {
     const cached = this._sessionCache$.value;
-    return cached && this.isSessionValid(cached) ? cached : null;
+    return cached && this.isSessionValidSync(cached) ? cached : null;
   }
 
   isLoading(): boolean {
     return this._isLoading();
   }
 
-  private isSessionValid(session: AuthSession): boolean {
+  private createAuthSession(
+    tokens: any,
+    user: any,
+    timestamp: number
+  ): AuthSession {
+    return {
+      tokens,
+      user,
+      timestamp,
+    };
+  }
+
+  private decodeToken(token: string): JwtPayload | null {
+    const decoded = jwtDecode<JwtPayload>(token);
+    return decoded || null;
+  }
+
+  private isSessionValidSync(session: AuthSession): boolean {
     const accessToken = session.tokens?.accessToken?.toString();
     if (!accessToken) return false;
 
-    const decoded: JwtPayload = jwtDecode(accessToken);
+    const decoded = this.decodeToken(accessToken);
+    if (!decoded) return false;
+
     return decoded.exp * 1000 > Date.now();
   }
 
-  private shouldRefreshSession(session: AuthSession): boolean {
+  private shouldRefreshSessionSync(session: AuthSession): boolean {
     const accessToken = session.tokens?.accessToken?.toString();
     if (!accessToken) return true;
-    const decoded: JwtPayload = jwtDecode(accessToken);
+
+    const decoded = this.decodeToken(accessToken);
+    if (!decoded) return true;
+
     const expiresAt = decoded.exp * 1000;
     const now = Date.now();
     return expiresAt - now < REFRESH_THRESHOLD_MS;
@@ -238,24 +249,19 @@ export class AuthStore {
     timer(60000, 60000)
       .pipe(
         takeUntilDestroyed(this._destroyRef),
-        switchMap(() => {
-          const cached = this._sessionCache$.value;
-          if (cached && this.shouldRefreshSession(cached)) {
-            return this.refreshSession$().pipe(catchError(() => EMPTY));
-          }
-
-          return EMPTY;
-        })
+        map(() => this._sessionCache$.value),
+        filter((cached) => !!cached && this.shouldRefreshSessionSync(cached)),
+        mergeMap(() => this.refreshSession$().pipe(catchError(() => EMPTY)))
       )
       .subscribe();
   }
 
   private logAllTokens(tokens: AuthTokens): void {
     if (tokens.accessToken) {
-      jwtDecode(tokens.accessToken.toString());
+      this.decodeToken(tokens.accessToken.toString());
     }
     if (tokens.idToken) {
-      jwtDecode(tokens.idToken.toString());
+      this.decodeToken(tokens.idToken.toString());
     }
   }
 }
