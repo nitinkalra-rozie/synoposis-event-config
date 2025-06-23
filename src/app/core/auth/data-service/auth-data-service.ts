@@ -12,7 +12,8 @@ import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
-import { CustomChallengeResponse } from 'src/app/core/auth/data-service/auth-data-model';
+import { CustomChallengeResponse } from 'src/app/core/auth/data-service/auth.data-model';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { AuthStore } from 'src/app/core/auth/services/auth-store';
 import { environment } from 'src/environments/environment';
 
@@ -23,9 +24,10 @@ export class AuthDataService {
   private readonly _http = inject(HttpClient);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
+  private readonly _authService = inject(AuthService);
 
   signUp(email: string): Observable<CustomChallengeResponse> {
-    const cachedSession = this._authStore.getCachedSession();
+    const cachedSession = this._authStore.getSession();
 
     if (cachedSession?.tokens?.accessToken) {
       return of({
@@ -34,7 +36,7 @@ export class AuthDataService {
       } satisfies CustomChallengeResponse);
     }
 
-    return this._authStore.refreshSession$().pipe(
+    return this._authService.refreshSession$().pipe(
       takeUntilDestroyed(this._destroyRef),
       switchMap((session) => {
         if (session.tokens?.accessToken) {
@@ -53,7 +55,7 @@ export class AuthDataService {
       takeUntilDestroyed(this._destroyRef),
       map((result: SignInOutput) => {
         if (result.isSignedIn) {
-          this._authStore.refreshSession$().subscribe();
+          this._authService.refreshSession$().subscribe();
         }
         return result.isSignedIn;
       })
@@ -77,7 +79,7 @@ export class AuthDataService {
       ...additionalHeaders,
     };
 
-    return this._authStore.getAccessToken$().pipe(
+    return this._authService.getAccessToken$().pipe(
       map((token) => {
         const allHeaders = {
           ...methodHeaders,
@@ -106,7 +108,7 @@ export class AuthDataService {
     return from(signIn(signInInput)).pipe(
       map((result: SignInOutput) => {
         if (result.isSignedIn) {
-          this._authStore.refreshSession$().subscribe();
+          this._authService.refreshSession$().subscribe();
 
           return {
             success: true,

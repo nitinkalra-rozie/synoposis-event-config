@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from 'src/app/core/auth/guards/auth-guard';
-import { authRedirectResolver } from 'src/app/core/auth/resolver/auth-resolver';
+import { loginRedirectGuard } from 'src/app/core/auth/guards/login-guard';
 
 export const routes: Routes = [
   {
@@ -9,9 +9,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/login-page/login-page.component'
       ).then((c) => c.LoginPageComponent),
-    resolve: {
-      redirect: authRedirectResolver,
-    },
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'stream',
@@ -26,6 +24,7 @@ export const routes: Routes = [
       import('src/app/legacy-admin/components/otp/otp.component').then(
         (c) => c.OtpComponent
       ),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'login',
@@ -33,9 +32,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/login-page/login-page.component'
       ).then((c) => c.LoginPageComponent),
-    resolve: {
-      redirect: authRedirectResolver,
-    },
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'av-workspace',

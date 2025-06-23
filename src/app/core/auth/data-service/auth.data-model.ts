@@ -4,7 +4,6 @@ import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 export interface RoutePermission {
   path: string;
   roles: UserRole[];
-  redirectUrl?: string;
 }
 
 export interface CustomChallengeResponse {

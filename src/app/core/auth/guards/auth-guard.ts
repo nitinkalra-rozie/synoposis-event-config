@@ -9,7 +9,6 @@ import {
 import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
-import { AuthStore } from 'src/app/core/auth/services/auth-store';
 import {
   getDefaultRedirectUrl,
   hasRoutePermission,
@@ -23,9 +22,8 @@ export const authGuard: CanActivateFn = (
 ): Observable<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const authStore = inject(AuthStore);
 
-  return authStore.refreshSession$().pipe(
+  return authService.refreshSession$().pipe(
     take(1),
     switchMap((session) => {
       const hasValidSession = !!session?.tokens?.accessToken;

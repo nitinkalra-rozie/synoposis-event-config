@@ -1,18 +1,26 @@
 import { inject } from '@angular/core';
-import { ResolveFn, Router } from '@angular/router';
+import {
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { switchMap, take, tap } from 'rxjs/operators';
+import { AuthService } from '../services/auth-service';
 import {
   getDefaultRedirectUrl,
   isUserAuthenticated,
-} from 'src/app/core/auth/utils/auth-utils';
-import { AuthService } from '../services/auth-service';
+} from '../utils/auth-utils';
 
-export const authRedirectResolver: ResolveFn<null> = (): Observable<null> => {
+export const loginRedirectGuard: CanActivateFn = (
+  _route,
+  state: RouterStateSnapshot
+): Observable<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  return authService.isAuthenticated().pipe(
+  return authService.isAuthenticated$().pipe(
     take(1),
     switchMap((isAuth) => {
       if (!isAuth) {

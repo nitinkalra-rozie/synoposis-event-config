@@ -22,6 +22,7 @@ export function hasRoutePermission(
 export function getDefaultRedirectUrl(userRole: UserRole): string {
   switch (userRole) {
     case UserRole.SUPERADMIN:
+      return '/av-workspace';
     case UserRole.ADMIN:
       return '/av-workspace';
     case UserRole.EDITOR:
