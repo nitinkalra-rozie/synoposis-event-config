@@ -128,28 +128,28 @@
                 mat-raised-button
                 class="action-btn mic-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon svgIcon="syn:mic_outlined" />
               </button>
               <button
                 mat-raised-button
                 class="action-btn pause-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon>pause</mat-icon>
               </button>
               <button
                 mat-raised-button
                 class="action-btn stop-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon svgIcon="syn:stop_outlined" />
               </button>
               <button
                 mat-raised-button
                 class="action-btn cc-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon svgIcon="syn:closed_caption" />
               </button>
             </div>
@@ -170,7 +170,9 @@
           </td>
         </ng-container> -->
 
-        <tr *matHeaderRowDef="$vm().displayedColumns()" mat-header-row></tr>
+        <tr
+          *matHeaderRowDef="$vm().displayedColumns(); sticky: true"
+          mat-header-row></tr>
         <tr
           *matRowDef="let row; columns: $vm().displayedColumns()"
           mat-row></tr>
@@ -178,4 +180,13 @@
       }
     </div>
   </div>
+
+  <app-stages-actions
+    [isPauseListeningEnabled]="false"
+    [isStartListeningEnabled]="$vm().selection().size > 0"
+    [isStopListeningEnabled]="false"
+    [selectedCount]="$vm().selection().size"
+    (pauseListening)="onPauseListening()"
+    (startListening)="onStartListening()"
+    (stopListening)="onStopListening()" />
 </div>

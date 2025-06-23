@@ -3,23 +3,28 @@
 @use '@angular/material' as mat;
 
 .centralized-view-container {
+  height: calc(100dvh - v.$top-bar-height - v.$top-tabs-height);
   @include m.d-flex-column;
   gap: 1.25rem;
+  box-sizing: border-box;
   padding: 1.25rem;
   background-color: v.$primary-bg-color-variant-1;
-  height: 100dvh; // TODO:SYN-644: adjust this when the full layout is implemented and see
   color: v.$primary-bg-color-variant-8;
   @include m.body-regular;
 
   .stage-info-container {
+    min-height: 0;
     @include m.d-flex-column;
     gap: 1.25rem;
+    flex: 1;
     box-shadow: v.$box-shadow-simple-drop-3;
     border-radius: 0.25rem;
     background-color: v.$primary-bg-color;
 
     .table-container {
       width: 100%;
+      flex: 1;
+      overflow: auto;
 
       .error-message {
         @include m.d-flex-column;
@@ -27,6 +32,7 @@
         justify-content: center;
         padding: 3rem 1.5rem;
         text-align: center;
+        flex: 1;
 
         p {
           margin: 0;
@@ -41,6 +47,7 @@
         justify-content: center;
         padding: 3rem 1.5rem;
         text-align: center;
+        flex: 1;
 
         p {
           margin: 0;
@@ -89,13 +96,13 @@
             box-shadow: none;
             border: none;
 
-            &.active:hover {
-              opacity: 0.92;
-            }
-
-            &.inactive {
+            &:disabled {
               opacity: 0.5;
               cursor: default;
+            }
+
+            &.active:hover {
+              opacity: 0.92;
             }
 
             &.mic-btn,
