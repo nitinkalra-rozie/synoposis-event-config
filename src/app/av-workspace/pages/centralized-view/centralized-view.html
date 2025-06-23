@@ -106,7 +106,6 @@
         </ng-container>
 
         <!-- Status Column -->
-        <!-- TODO:SYN-644: implement the status column -->
         <ng-container matColumnDef="status">
           <th
             *matHeaderCellDef
@@ -115,7 +114,9 @@
             sortActionDescription="Sort by status">
             STATUS
           </th>
-          <td *matCellDef="let element" mat-cell>{{element.status}}</td>
+          <td *matCellDef="let element" mat-cell>
+            <app-stage-status [status]="element.status" />
+          </td>
         </ng-container>
 
         <!-- Action Column -->
