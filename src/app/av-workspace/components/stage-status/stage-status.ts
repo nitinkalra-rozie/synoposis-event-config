@@ -12,23 +12,23 @@ import {
 
 // TODO:SYN-1289: Correct the types once the backend provides the correct values
 const STAGE_STATUS_CONFIG: Record<StageStatusType, StageStatusConfig> = {
-  Offline: {
+  OFFLINE: {
     icon: 'syn:status_offline',
     text: 'Offline',
   },
-  audio_error: {
+  AUDIO_NOT_RECEIVING: {
     icon: 'syn:status_error',
     text: 'Audio Not Receiving',
   },
-  transcript_error: {
+  TRANSCRIPT_NOT_RECEIVING: {
     icon: 'syn:status_error',
     text: 'Transcript Failed',
   },
-  Online: {
+  ONLINE: {
     icon: 'syn:status_online',
     text: 'Online',
   },
-  projecting: {
+  ONLINE_AND_PROJECTING: {
     icon: 'syn:status_online_projecting',
     text: 'Online and Projecting',
   },
