@@ -7,7 +7,7 @@ import {
   SignInInput,
   SignInOutput,
 } from 'aws-amplify/auth';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { from, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
@@ -27,16 +27,7 @@ export class AuthDataService {
   private readonly _authService = inject(AuthService);
 
   signUp(email: string): Observable<CustomChallengeResponse> {
-    const cachedSession = this._authStore.getSession();
-
-    if (cachedSession?.tokens?.accessToken) {
-      return of({
-        success: true,
-        message: 'User already signed in',
-      } satisfies CustomChallengeResponse);
-    }
-
-    return this._authService.refreshSession$().pipe(
+    return this._authStore.getSession$().pipe(
       takeUntilDestroyed(this._destroyRef),
       switchMap((session) => {
         if (session.tokens?.accessToken) {
@@ -53,12 +44,10 @@ export class AuthDataService {
   OTPVerification(otp: string): Observable<boolean> {
     return from(confirmSignIn({ challengeResponse: otp })).pipe(
       takeUntilDestroyed(this._destroyRef),
-      map((result: SignInOutput) => {
-        if (result.isSignedIn) {
-          this._authService.refreshSession$().subscribe();
-        }
-        return result.isSignedIn;
-      })
+      tap(() => {
+        this._authStore.invalidateCache();
+      }),
+      map((result: SignInOutput) => result.isSignedIn)
     );
   }
 
@@ -72,7 +61,6 @@ export class AuthDataService {
   ): Observable<boolean> {
     const requestBody = { email };
     const baseUrl = this._getRequestAccessBaseUrl();
-
     const methodHeaders = {
       'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
       'Content-Type': 'application/json',
@@ -108,8 +96,6 @@ export class AuthDataService {
     return from(signIn(signInInput)).pipe(
       map((result: SignInOutput) => {
         if (result.isSignedIn) {
-          this._authService.refreshSession$().subscribe();
-
           return {
             success: true,
             message: 'User signed in successfully',

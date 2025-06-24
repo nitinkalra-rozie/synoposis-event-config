@@ -23,37 +23,26 @@ export const authGuard: CanActivateFn = (
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  return authService.refreshSession$().pipe(
+  return authService.checkSession$().pipe(
     take(1),
-    switchMap((session) => {
-      const hasValidSession = !!session?.tokens?.accessToken;
-
-      if (!hasValidSession) {
-        return of(router.createUrlTree(['/login']));
-      }
-
-      const accessToken = session.tokens?.accessToken?.toString();
-      if (!accessToken || accessToken.trim() === '') {
+    switchMap((isValid) => {
+      if (!isValid) {
         return of(router.createUrlTree(['/login']));
       }
 
       return authService.getUserRole$().pipe(
         take(1),
-        map((userRole: UserRole) => {
-          const currentPath = state.url;
-
-          if (!isUserAuthenticated(userRole)) {
+        map((userRole: UserRole | null) => {
+          if (!userRole || !isUserAuthenticated(userRole)) {
             return router.createUrlTree(['/login']);
           }
 
+          const currentPath = state.url;
           const hasPermission = hasRoutePermission(userRole, currentPath);
 
-          if (hasPermission) {
-            return true;
-          }
-
-          const userDashboard = getDefaultRedirectUrl(userRole);
-          return router.createUrlTree([userDashboard]);
+          return hasPermission
+            ? true
+            : router.createUrlTree([getDefaultRedirectUrl(userRole)]);
         })
       );
     })

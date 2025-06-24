@@ -6,7 +6,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { switchMap, take, tap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth-service';
 import {
   getDefaultRedirectUrl,
@@ -20,23 +20,23 @@ export const loginRedirectGuard: CanActivateFn = (
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  return authService.isAuthenticated$().pipe(
+  return authService.isAuthenticated().pipe(
     take(1),
     switchMap((isAuth) => {
       if (!isAuth) {
-        return of(null);
+        return of(true);
       }
 
       return authService.getUserRole$().pipe(
         take(1),
-        tap((role) => {
+        map((role) => {
           if (isUserAuthenticated(role)) {
             const redirectUrl = getDefaultRedirectUrl(role);
-            router.navigateByUrl(redirectUrl);
+            return router.createUrlTree([redirectUrl]);
           }
+          return true;
         })
       );
-    }),
-    switchMap(() => of(null))
+    })
   );
 };

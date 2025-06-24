@@ -13,6 +13,6 @@ export interface CustomChallengeResponse {
 
 export interface AuthSession {
   tokens: AuthTokens | null;
-  user: any;
-  timestamp: number;
+  isAuthenticated: boolean;
+  lastFetched: number;
 }
