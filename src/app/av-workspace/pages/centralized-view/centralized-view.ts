@@ -49,6 +49,7 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
 export class CentralizedView {
   constructor() {
     this._store.fetchStages();
+    this._store.initializeWebSocket();
 
     effect(() => {
       const entities = this.$vm().entities();

@@ -1,14 +1,19 @@
 import {
   computed,
+  DestroyRef,
   inject,
   Injectable,
   signal,
   WritableSignal,
 } from '@angular/core';
-import { filter, take, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter, finalize, take, tap } from 'rxjs';
+import { CentralizedViewWebSocketMessage } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
+import { CentralizedViewWebSocketDataService } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-service';
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
+import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
 interface CentralizedViewState {
@@ -21,6 +26,18 @@ interface CentralizedViewState {
   sessionsByStage: WritableSignal<Map<string, SessionWithDropdownOptions[]>>;
   sessionLoadingStates: WritableSignal<Map<string, boolean>>;
   sessionErrors: WritableSignal<Map<string, string | null>>;
+  stageStatuses: WritableSignal<Map<string, string>>;
+  sessionStates: WritableSignal<
+    Map<
+      string,
+      {
+        sessionId: string;
+        status: 'live' | 'paused' | 'ended';
+        stage: string;
+      }
+    >
+  >;
+  autoAvStates: WritableSignal<Map<string, boolean>>;
 }
 
 const state: CentralizedViewState = {
@@ -33,31 +50,54 @@ const state: CentralizedViewState = {
   sessionsByStage: signal(new Map<string, SessionWithDropdownOptions[]>()),
   sessionLoadingStates: signal(new Map<string, boolean>()),
   sessionErrors: signal(new Map<string, string | null>()),
+  stageStatuses: signal(new Map<string, string>()),
+  sessionStates: signal(
+    new Map<
+      string,
+      {
+        sessionId: string;
+        status: 'live' | 'paused' | 'ended';
+        stage: string;
+      }
+    >()
+  ),
+  autoAvStates: signal(new Map<string, boolean>()),
 };
 
 @Injectable()
 export class CentralizedViewStore {
+  private readonly _destroyRef = inject(DestroyRef);
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _webSocketDataService = inject(
+    CentralizedViewWebSocketDataService
+  );
+  private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
 
   public $vm = computed(() => ({
-    loading: state.loading,
+    loading: state.loading.asReadonly(),
     entities: this._filteredEntities,
-    searchTerm: state.searchTerm,
-    locationFilters: state.locationFilters,
+    searchTerm: state.searchTerm.asReadonly(),
+    locationFilters: state.locationFilters.asReadonly(),
     displayedColumns: this._displayedColumns,
     locations: this._locations,
     totalCount: state.entities().length,
     filteredCount: this._filteredEntities().length,
-    error: state.error,
-    selection: state.selectedItems,
+    error: state.error.asReadonly(),
+    selection: state.selectedItems.asReadonly(),
     isAllSelected: this._isAllSelected,
     isIndeterminate: this._isIndeterminate,
     hasSelection: this._hasSelection,
     selectionCount: this._selectionCount,
-    sessionsByStage: state.sessionsByStage,
-    sessionLoadingStates: state.sessionLoadingStates,
-    sessionErrors: state.sessionErrors,
+    sessionsByStage: state.sessionsByStage.asReadonly(),
+    sessionLoadingStates: state.sessionLoadingStates.asReadonly(),
+    sessionErrors: state.sessionErrors.asReadonly(),
+    websocketConnected: this._webSocketStore.$isConnected,
+    websocketConnecting: this._webSocketStore.$isConnecting,
+    websocketError: this._webSocketStore.$error,
+    stageStatuses: state.stageStatuses.asReadonly(),
+    sessionStates: state.sessionStates.asReadonly(),
+    autoAvStates: state.autoAvStates.asReadonly(),
   }));
 
   private _displayedColumns = computed(() => {
@@ -222,16 +262,15 @@ export class CentralizedViewStore {
               state.error.set('Failed to load stages');
               state.entities.set([]);
             }
-            state.loading.set(false);
           },
           error: (error) => {
             console.error('Error loading event stages:', error);
             const errorMessage = error?.message || 'Failed to load stages';
             state.error.set(`Unable to load stages: ${errorMessage}`);
             state.entities.set([]);
-            state.loading.set(false);
           },
-        })
+        }),
+        finalize(() => state.loading.set(false))
       )
       .subscribe();
   }
@@ -281,9 +320,6 @@ export class CentralizedViewStore {
                 )
               );
             }
-            state.sessionLoadingStates.set(
-              new Map(state.sessionLoadingStates()).set(stage, false)
-            );
           },
           error: (error) => {
             console.error('Error loading sessions:', error);
@@ -292,12 +328,212 @@ export class CentralizedViewStore {
             state.sessionErrors.set(
               new Map(state.sessionErrors()).set(stage, errorMessage)
             );
-            state.sessionLoadingStates.set(
-              new Map(state.sessionLoadingStates()).set(stage, false)
-            );
           },
+        }),
+        finalize(() => {
+          state.sessionLoadingStates.set(
+            new Map(state.sessionLoadingStates()).set(stage, false)
+          );
         })
       )
       .subscribe();
   }
+
+  // #region TODO:SYN-644: Add a facade service layer for the WebSocket related functions
+  initializeWebSocket(): void {
+    if (
+      this._webSocketStore.$isConnected() ||
+      this._webSocketStore.$isConnecting()
+    ) {
+      console.warn('WebSocket already connected or connecting');
+      return;
+    }
+
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) {
+      console.error('No event name available for WebSocket initialization');
+      return;
+    }
+
+    console.log('Initializing WebSocket for event:', eventName);
+
+    this._webSocketDataService
+      .connect()
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe({
+        next: (message) => {
+          // Handle WebSocket messages directly here
+          this._handleWebSocketMessage(message);
+        },
+        error: (error) => {
+          console.error('WebSocket connection failed:', error);
+          this._webSocketStore.setError('Connection failed');
+        },
+      });
+  }
+
+  private _handleWebSocketMessage(
+    message: CentralizedViewWebSocketMessage
+  ): void {
+    console.log('Handling WebSocket message in store:', message);
+
+    switch (message.eventType) {
+      case 'SESSION_LIVE_LISTENING':
+        this._handleSessionLiveListening(message);
+        break;
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        this._handleSessionPaused(message);
+        break;
+      case 'SESSION_END':
+        this._handleSessionEnd(message);
+        break;
+      case 'SET_AUTOAV_SETUP':
+        this._handleAutoAvSetup(message);
+        break;
+      case 'STAGE_STATUS_UPDATED':
+        this._handleStageStatusUpdate(message);
+        break;
+      default:
+        console.warn(
+          'Unhandled WebSocket event type:',
+          message.eventType,
+          message
+        );
+    }
+  }
+
+  private _handleSessionLiveListening(
+    message: CentralizedViewWebSocketMessage
+  ): void {
+    if (message.sessionId && message.stage) {
+      const newSessionStates = new Map(state.sessionStates());
+      newSessionStates.set(message.sessionId, {
+        sessionId: message.sessionId,
+        status: 'live',
+        stage: message.stage,
+      });
+      state.sessionStates.set(newSessionStates);
+
+      // Directly update entities with session info
+      this._updateEntitiesForSession(message.sessionId, message.stage, 'live');
+    }
+  }
+
+  private _handleSessionPaused(message: CentralizedViewWebSocketMessage): void {
+    if (message.sessionId && message.stage) {
+      const newSessionStates = new Map(state.sessionStates());
+      const existingSession = newSessionStates.get(message.sessionId);
+      if (existingSession) {
+        newSessionStates.set(message.sessionId, {
+          ...existingSession,
+          status: 'paused',
+        });
+        state.sessionStates.set(newSessionStates);
+
+        // Directly update entities
+        this._updateEntitiesForSession(
+          message.sessionId,
+          message.stage,
+          'paused'
+        );
+      }
+    }
+  }
+
+  private _handleSessionEnd(message: CentralizedViewWebSocketMessage): void {
+    if (message.sessionId && message.stage) {
+      const newSessionStates = new Map(state.sessionStates());
+      const existingSession = newSessionStates.get(message.sessionId);
+      if (existingSession) {
+        newSessionStates.set(message.sessionId, {
+          ...existingSession,
+          status: 'ended',
+        });
+        state.sessionStates.set(newSessionStates);
+
+        // Directly update entities
+        this._updateEntitiesForSession(
+          message.sessionId,
+          message.stage,
+          'ended'
+        );
+      }
+    }
+  }
+
+  private _handleAutoAvSetup(message: CentralizedViewWebSocketMessage): void {
+    if (message.stage && message.autoAv !== undefined) {
+      const newAutoAvStates = new Map(state.autoAvStates());
+      newAutoAvStates.set(message.stage, message.autoAv);
+      state.autoAvStates.set(newAutoAvStates);
+
+      // Directly update entities with autoAv info
+      this._updateEntitiesForAutoAv(message.stage, message.autoAv);
+    }
+  }
+
+  private _handleStageStatusUpdate(
+    message: CentralizedViewWebSocketMessage
+  ): void {
+    if (message.stage && message.status) {
+      const newStageStatuses = new Map(state.stageStatuses());
+      newStageStatuses.set(message.stage, message.status);
+      state.stageStatuses.set(newStageStatuses);
+
+      // Directly update entities with new status
+      this._updateEntitiesForStageStatus(message.stage, message.status);
+    }
+  }
+
+  private _updateEntitiesForSession(
+    sessionId: string,
+    stage: string,
+    sessionStatus: 'live' | 'paused' | 'ended'
+  ): void {
+    const currentEntities = state.entities();
+    const updatedEntities = currentEntities.map((entity) => {
+      if (entity.stage === stage) {
+        const currentSessionId =
+          sessionStatus === 'live' ? sessionId : entity.currentSessionId;
+        return {
+          ...entity,
+          currentSessionId,
+          lastUpdatedAt: Date.now(),
+        };
+      }
+      return entity;
+    });
+    state.entities.set(updatedEntities);
+  }
+
+  private _updateEntitiesForAutoAv(stage: string, autoAv: boolean): void {
+    const currentEntities = state.entities();
+    const updatedEntities = currentEntities.map((entity) => {
+      if (entity.stage === stage) {
+        return {
+          ...entity,
+          autoAv,
+          lastUpdatedAt: Date.now(),
+        };
+      }
+      return entity;
+    });
+    state.entities.set(updatedEntities);
+  }
+
+  private _updateEntitiesForStageStatus(stage: string, status: string): void {
+    const currentEntities = state.entities();
+    const updatedEntities = currentEntities.map((entity) => {
+      if (entity.stage === stage) {
+        return {
+          ...entity,
+          status: status as any, // Map WebSocket status to StageStatus
+          lastUpdatedAt: Date.now(),
+        };
+      }
+      return entity;
+    });
+    state.entities.set(updatedEntities);
+  }
+  // #endregion TODO:SYN-644: Add a facade service layer for the WebSocket related functions
 }
