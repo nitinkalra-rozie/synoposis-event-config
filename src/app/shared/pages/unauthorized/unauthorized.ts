@@ -24,11 +24,11 @@ export class Unauthorized {
   private readonly _authService = inject(AuthService);
   private readonly _destroyRef = inject(DestroyRef);
 
-  goBack(): void {
+  goToHome(): void {
     this._navigateBasedOnUserRole();
   }
 
-  goToHome(): void {
+  goBack(): void {
     this._navigateBasedOnUserRole();
   }
 
