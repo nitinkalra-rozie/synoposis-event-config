@@ -1,3 +1,5 @@
+import { StageStatusType } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+
 export interface CentralizedViewWebSocketMessage {
   actionType: 'admin' | 'messageStage';
   eventType: CentralizedViewEventType;
@@ -7,7 +9,7 @@ export interface CentralizedViewWebSocketMessage {
   sessionId?: string;
   autoAv?: boolean;
   actionBy: 'CENTRALIZED_MANAGER' | 'AUTO_AV';
-  status?: string; // for STAGE_STATUS_UPDATED
+  status?: StageStatusType;
 }
 
 export type CentralizedViewEventType =

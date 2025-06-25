@@ -5,12 +5,9 @@ import {
   input,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  StageStatusConfig,
-  StageStatusType,
-} from 'src/app/av-workspace/models/stage-statuses.model';
+import { StageStatusType } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { StageStatusConfig } from 'src/app/av-workspace/models/stage-statuses.model';
 
-// TODO:SYN-1289: Correct the types once the backend provides the correct values
 const STAGE_STATUS_CONFIG: Record<StageStatusType, StageStatusConfig> = {
   OFFLINE: {
     icon: 'syn:status_offline',
