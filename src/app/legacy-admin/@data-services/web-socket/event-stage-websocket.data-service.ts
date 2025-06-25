@@ -5,6 +5,7 @@ import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-servi
 import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
+import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -14,6 +15,7 @@ import { environment } from 'src/environments/environment';
 export class EventStageWebsocketDataService {
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
   private readonly _browserWindowService = inject(BrowserWindowService);
+  private readonly _authService = inject(AuthService);
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
@@ -26,7 +28,8 @@ export class EventStageWebsocketDataService {
 
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&stage=${selectedLocation}`;
-    this._socket = new WebSocket(webSocketUrl);
+    const token = this._authService.getAccessToken();
+    this._socket = new WebSocket(webSocketUrl, token);
 
     return new Observable((observer) => {
       this._socket.onopen = () => {
