@@ -14,19 +14,17 @@
     </p>
 
     <div class="action-buttons">
-      <button
-        class="navigation-button navigation-button--secondary"
-        (click)="goBack()">
-        <mat-icon class="button-icon" aria-label="Go Back">arrow_back</mat-icon>
-        Go Back
+      <button class="navigation-button navigation-button--secondary" (click)="goBack()">
+        <mat-icon class="button-icon" aria-label="Go to Safe Location">home</mat-icon>
+        Go to Home
       </button>
-      <button
-        class="navigation-button navigation-button--primary"
-        (click)="goToAdmin()">
-        <mat-icon class="button-icon" aria-label="Go to Dashboard"
-          >home</mat-icon
-        >
+      <button class="navigation-button navigation-button--primary" (click)="goToHome()">
+        <mat-icon class="button-icon" aria-label="Go to Your Dashboard">dashboard</mat-icon>
         Go to Dashboard
+      </button>
+      <button class="navigation-button navigation-button--tertiary" (click)="logout()">
+        <mat-icon class="button-icon" aria-label="Logout">logout</mat-icon>
+        Sign Out
       </button>
     </div>
   </div>
