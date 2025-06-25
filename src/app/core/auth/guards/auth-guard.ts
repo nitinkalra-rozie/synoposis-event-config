@@ -14,7 +14,7 @@ import {
   hasRoutePermission,
   isUserAuthenticated,
 } from 'src/app/core/auth/utils/auth-utils';
-import { UserRole } from '../../enum/auth-roles.enum';
+import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,

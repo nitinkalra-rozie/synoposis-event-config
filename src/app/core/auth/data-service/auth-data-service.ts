@@ -36,7 +36,7 @@ export class AuthDataService {
             message: 'User already signed in',
           } satisfies CustomChallengeResponse);
         }
-        return this.performSignIn(email);
+        return this._performSignIn(email);
       })
     );
   }
@@ -52,7 +52,9 @@ export class AuthDataService {
   }
 
   resendOtp(email: string): Observable<CustomChallengeResponse> {
-    return this.performSignIn(email).pipe(takeUntilDestroyed(this._destroyRef));
+    return this._performSignIn(email).pipe(
+      takeUntilDestroyed(this._destroyRef)
+    );
   }
 
   requestAccess(
@@ -85,7 +87,7 @@ export class AuthDataService {
     );
   }
 
-  private performSignIn(email: string): Observable<CustomChallengeResponse> {
+  private _performSignIn(email: string): Observable<CustomChallengeResponse> {
     const signInInput: SignInInput = {
       username: email,
       options: {

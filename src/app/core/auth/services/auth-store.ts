@@ -16,23 +16,18 @@ export class AuthStore {
   }
 
   getSession$(): Observable<AuthSession> {
-    const current = this._session();
+    const currentSession = this._session();
     const now = Date.now();
-    if (current && now - current.lastFetched < this._cacheDurationMs) {
-      return of(current);
+    if (
+      currentSession &&
+      now - currentSession.lastFetched < this._cacheDurationMs
+    ) {
+      return of(currentSession);
     }
-    return this.fetchAndCacheSession$();
+    return this._fetchAndCacheSession$();
   }
 
-  private createUnauthenticatedSession(): AuthSession {
-    return {
-      tokens: null,
-      isAuthenticated: false,
-      lastFetched: Date.now(),
-    };
-  }
-
-  private fetchAndCacheSession$(): Observable<AuthSession> {
+  private _fetchAndCacheSession$(): Observable<AuthSession> {
     return from(fetchAuthSession()).pipe(
       map((session) => {
         const authSession: AuthSession = {
@@ -44,11 +39,19 @@ export class AuthStore {
         return authSession;
       }),
       catchError(() => {
-        const errorSession = this.createUnauthenticatedSession();
+        const errorSession = this._createUnauthenticatedSession();
         this._session.set(errorSession);
         return of(errorSession);
       }),
       shareReplay(1)
     );
+  }
+
+  private _createUnauthenticatedSession(): AuthSession {
+    return {
+      tokens: null,
+      isAuthenticated: false,
+      lastFetched: Date.now(),
+    };
   }
 }

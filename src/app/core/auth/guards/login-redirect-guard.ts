@@ -7,11 +7,11 @@ import {
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
-import { AuthService } from '../services/auth-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import {
   getDefaultRedirectUrl,
   isUserAuthenticated,
-} from '../utils/auth-utils';
+} from 'src/app/core/auth/utils/auth-utils';
 
 export const loginRedirectGuard: CanActivateFn = (
   _route,

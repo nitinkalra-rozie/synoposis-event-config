@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthTokens, getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
-import { EMPTY, from, interval, Observable, of } from 'rxjs';
+import { EMPTY, from, interval, Observable, of, throwError } from 'rxjs';
 import {
   catchError,
   filter,
@@ -24,7 +24,7 @@ const TOKEN_CHECK_INTERVAL_MS = 60000;
 })
 export class AuthService {
   constructor() {
-    this.startTokenCheck$();
+    this._startTokenCheck();
   }
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
@@ -48,9 +48,9 @@ export class AuthService {
       finalize(() => {
         this._isLoggingOut.set(false);
       }),
-      catchError(() => {
+      catchError((error) => {
         this._router.navigate(['/login']);
-        return EMPTY;
+        return throwError(() => error);
       })
     );
   }
@@ -92,9 +92,9 @@ export class AuthService {
         this._authStore.getSession$().pipe(
           tap((session) => {
             if (!session.tokens) {
-              throw new Error('No valid session tokens');
+              throwError(() => 'No valid session tokens');
             }
-            this.logAllTokens(session.tokens);
+            this._logAllTokens(session.tokens);
           })
         )
       )
@@ -144,32 +144,18 @@ export class AuthService {
     );
   }
 
-  isTokenExpired$(): Observable<boolean> {
-    return this.getAccessToken$().pipe(
-      map((accessToken) => {
-        if (!accessToken) {
-          return true;
-        }
-        const decodedToken: JwtPayload = jwtDecode(accessToken);
-        const expirationTime = decodedToken.exp * 1000;
-        const currentTime = Date.now();
-        return currentTime >= expirationTime;
-      })
-    );
-  }
-
   isAuthenticated(): Observable<boolean> {
     return this._authStore.getSession$().pipe(
       tap((session) => {
         if (session.isAuthenticated && session.tokens) {
-          this.logAllTokens(session.tokens);
+          this._logAllTokens(session.tokens);
         }
       }),
       map((session) => session.isAuthenticated)
     );
   }
 
-  private logAllTokens(tokens: AuthTokens): void {
+  private _logAllTokens(tokens: AuthTokens): void {
     if (tokens.accessToken) {
       jwtDecode(tokens.accessToken.toString());
     }
@@ -178,7 +164,7 @@ export class AuthService {
     }
   }
 
-  private startTokenCheck$(): void {
+  private _startTokenCheck(): void {
     interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
         filter(() => !this._isLoggingOut()),
@@ -189,12 +175,12 @@ export class AuthService {
             )
         ),
         takeUntilDestroyed(this._destroyRef),
-        switchMap(() => this.runTokenCheck$())
+        switchMap(() => this._runTokenCheck$())
       )
       .subscribe();
   }
 
-  private runTokenCheck$(): Observable<void> {
+  private _runTokenCheck$(): Observable<void> {
     if (this._isLoggingOut()) {
       return EMPTY;
     }
