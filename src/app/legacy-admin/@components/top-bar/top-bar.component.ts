@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, EMPTY, tap } from 'rxjs';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { AuthStore } from 'src/app/core/auth/services/auth-store';
 import { SideNavComponent } from 'src/app/legacy-admin/@components/side-nav/side-nav.component';
@@ -52,32 +52,19 @@ export class TopBarComponent {
   };
 
   private performLogout(): void {
-    console.log('[TopBar] Logging out...');
     this.showDropdown.set(false);
-
-    const startTime = performance.now();
 
     this._authService
       .logout$()
       .pipe(
-        finalize(() => {
-          const elapsed = performance.now() - startTime;
-          console.log(`[TopBar] Logout finalized in ${elapsed.toFixed(2)}ms`);
-        }),
-        takeUntilDestroyed(this._destroyRef)
+        takeUntilDestroyed(this._destroyRef),
+        tap(() => this._router.navigate(['/login'])),
+        catchError(() => {
+          this._router.navigate(['/login']);
+          return EMPTY;
+        })
       )
-      .subscribe({
-        next: () => {
-          console.log('[TopBar] Navigating to /login');
-          this._router.navigate(['/login'], { replaceUrl: true }).then(() => {
-            window.location.reload();
-          });
-        },
-        error: (err) => {
-          console.error('[TopBar] Logout error:', err);
-          this._router.navigate(['/login'], { replaceUrl: true });
-        },
-      });
+      .subscribe();
   }
 
   private showModal(): void {
