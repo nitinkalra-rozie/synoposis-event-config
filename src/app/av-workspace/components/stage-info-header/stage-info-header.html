@@ -2,6 +2,34 @@
   <div class="stage-info-header__title">
     <mat-icon svgIcon="syn:podium_outlined" />
     <span>Stage information</span>
+
+    <div class="stage-info-header__ws-icon-container">
+      @if (websocketError()) {
+      <mat-icon
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="ws-icon error"
+        [matTooltip]="websocketError()!">
+        error
+      </mat-icon>
+      } @else if (websocketConnecting()) {
+      <mat-icon
+        matTooltip="Connecting to real-time updates..."
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="ws-icon connecting">
+        sync
+      </mat-icon>
+      } @else if (websocketConnected()) {
+      <mat-icon
+        matTooltip="Connected - Real-time updates active"
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="ws-icon connected">
+        wifi_tethering
+      </mat-icon>
+      }
+    </div>
   </div>
   <div class="stage-info-header__actions">
     <syn-search-input
