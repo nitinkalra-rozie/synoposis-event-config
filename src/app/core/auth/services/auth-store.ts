@@ -1,26 +1,16 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { Observable, from, of } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 import { AuthSession } from 'src/app/core/auth/data-service/auth.data-model';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthStore {
-  public readonly session = computed(() => this._session());
-  public readonly isAuthenticated = computed(
-    () => this._session()?.isAuthenticated ?? false
-  );
-  public readonly accessToken = computed(
-    () => this._session()?.tokens?.accessToken?.toString() ?? null
-  );
-  public readonly idToken = computed(
-    () => this._session()?.tokens?.idToken?.toString() ?? null
-  );
-
   private readonly _cacheDurationMs = 30000;
 
   private readonly _session = signal<AuthSession | null>(null);
+
   invalidateCache(): void {
     this._session.set(null);
   }
@@ -28,11 +18,9 @@ export class AuthStore {
   getSession$(): Observable<AuthSession> {
     const current = this._session();
     const now = Date.now();
-
     if (current && now - current.lastFetched < this._cacheDurationMs) {
       return of(current);
     }
-
     return this.fetchAndCacheSession$();
   }
 

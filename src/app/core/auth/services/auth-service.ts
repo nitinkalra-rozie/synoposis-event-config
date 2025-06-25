@@ -1,7 +1,7 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { getCurrentUser, signOut } from 'aws-amplify/auth';
+import { AuthTokens, getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
 import { EMPTY, from, interval, Observable, of } from 'rxjs';
 import {
@@ -26,7 +26,6 @@ export class AuthService {
   constructor() {
     this.startTokenCheck$();
   }
-
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
@@ -170,7 +169,7 @@ export class AuthService {
     );
   }
 
-  private logAllTokens(tokens: any): void {
+  private logAllTokens(tokens: AuthTokens): void {
     if (tokens.accessToken) {
       jwtDecode(tokens.accessToken.toString());
     }
