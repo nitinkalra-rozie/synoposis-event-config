@@ -527,7 +527,7 @@ export class CentralizedViewStore {
       if (entity.stage === stage) {
         return {
           ...entity,
-          status: status as any, // Map WebSocket status to StageStatus
+          status: status as any, // TODO:SYN-644: Map WebSocket status to StageStatus
           lastUpdatedAt: Date.now(),
         };
       }
