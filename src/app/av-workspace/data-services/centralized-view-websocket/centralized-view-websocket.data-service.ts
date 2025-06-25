@@ -31,7 +31,7 @@ export class CentralizedViewWebSocketDataService {
 
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&cms=true`;
     const token = this._authService.getAccessToken();
-    this._socket = new WebSocket(webSocketUrl, token);
+    this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
 
     return new Observable((observer) => {
       this._socket.onopen = () => {
