@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -12,13 +11,12 @@ import { Router } from '@angular/router';
 })
 export class Unauthorized {
   private _router = inject(Router);
-  private _location = inject(Location);
 
   goBack(): void {
-    this._location.back();
+    this._router.navigate(['/login']);
   }
 
   goToAdmin(): void {
-    this._router.navigate(['/av-workspace']);
+    this._router.navigate(['']);
   }
 }
