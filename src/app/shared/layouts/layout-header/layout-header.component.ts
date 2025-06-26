@@ -31,7 +31,7 @@ export class LayoutHeaderComponent {
   private _showModal(): void {
     const handleYesSelect = (): void => {
       this._modalService.close();
-      this._authService.logout$();
+      this._authService.logout$().subscribe();
     };
 
     const handleNoSelect = (): void => {

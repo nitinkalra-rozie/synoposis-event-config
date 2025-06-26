@@ -851,11 +851,13 @@ export class ContentEditorComponent {
   // Method to dynamically assign a class based on the session's status
   getStatusClass(status: string): string {
     switch (status) {
-      case 'NOT_STARTED':
+      case EventStatus.NotStarted:
         return 'status-not-started';
-      case 'UNDER_REVIEW':
+      case EventStatus.UnderReview:
         return 'status-in-review';
-      case 'Completed':
+      case EventStatus.Completed:
+        return 'status-completed';
+      case EventStatus.ReviewComplete:
         return 'status-completed';
       default:
         return '';

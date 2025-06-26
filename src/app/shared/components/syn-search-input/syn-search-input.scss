@@ -1,4 +1,5 @@
 @use 'variables' as v;
+@use 'mixins' as m;
 
 .syn-input-container {
   width: 100%;
@@ -10,6 +11,42 @@
 
     &.mat-focused {
       border-color: v.$primary-color-variant-2;
+    }
+
+    .clear-button-container {
+      @include m.d-flex-row;
+      @include m.align-items-center;
+      gap: 0.5rem;
+
+      .clear-button {
+        width: 1.5rem;
+        height: 1.5rem;
+        @include m.d-flex;
+        @include m.align-items-center;
+        @include m.justify-content-center;
+        padding: 0;
+
+        .mat-icon {
+          font-size: v.$font-size-lg;
+          width: 1.125rem;
+          height: 1.125rem;
+          color: v.$primary-bg-color-variant-6;
+        }
+
+        &:hover:not([disabled]) {
+          background-color: v.$primary-bg-hover-color;
+
+          .mat-icon {
+            color: v.$primary-bg-color-variant-8;
+          }
+        }
+      }
+
+      .count-text {
+        font-size: v.$font-size-sm;
+        color: v.$primary-bg-color-variant-5;
+        white-space: nowrap;
+      }
     }
   }
 }

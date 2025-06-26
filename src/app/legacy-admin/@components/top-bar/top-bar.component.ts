@@ -2,8 +2,10 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { finalize } from 'rxjs';
+import { Router } from '@angular/router';
+import { catchError, EMPTY, tap } from 'rxjs';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthStore } from 'src/app/core/auth/services/auth-store';
 import { SideNavComponent } from 'src/app/legacy-admin/@components/side-nav/side-nav.component';
 import { OutsideClickDirective } from 'src/app/legacy-admin/directives/outside-click.directive';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
@@ -21,11 +23,13 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 })
 export class TopBarComponent {
   private readonly _authService = inject(AuthService);
+  private readonly _authStore = inject(AuthStore);
   private readonly _modalService = inject(ModalService);
   private readonly _destroyRef = inject(DestroyRef);
-  private readonly _isLoggingOut = signal(false);
+  private readonly _router = inject(Router);
 
   public showDropdown = signal(false);
+
   protected toggleDropdown(): void {
     this.showDropdown.set(!this.showDropdown());
   }
@@ -48,20 +52,17 @@ export class TopBarComponent {
   };
 
   private performLogout(): void {
-    if (this._isLoggingOut()) {
-      return;
-    }
-
-    this._isLoggingOut.set(true);
     this.showDropdown.set(false);
 
     this._authService
       .logout$()
       .pipe(
-        finalize(() => {
-          this._isLoggingOut.set(false);
-        }),
-        takeUntilDestroyed(this._destroyRef)
+        takeUntilDestroyed(this._destroyRef),
+        tap(() => this._router.navigate(['/login'])),
+        catchError(() => {
+          this._router.navigate(['/login']);
+          return EMPTY;
+        })
       )
       .subscribe();
   }

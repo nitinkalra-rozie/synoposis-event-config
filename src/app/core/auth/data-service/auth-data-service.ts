@@ -1,51 +1,42 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Amplify } from 'aws-amplify';
 import {
   confirmSignIn,
-  fetchAuthSession,
   signIn,
   SignInInput,
   SignInOutput,
 } from 'aws-amplify/auth';
-import { from, map, Observable, switchMap, tap } from 'rxjs';
+import { from, map, Observable, of, switchMap, tap } from 'rxjs';
 import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
+import { CustomChallengeResponse } from 'src/app/core/auth/data-service/auth.data-model';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
-import { amplifyConfig } from 'src/app/core/config/amplify-config';
-import { CustomChallengeResponse } from 'src/app/legacy-admin/shared/types';
+import { AuthStore } from 'src/app/core/auth/services/auth-store';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthDataService {
-  constructor() {
-    if (!Amplify.getConfig().Auth?.Cognito) {
-      Amplify.configure(amplifyConfig);
-    }
-  }
-
   private readonly _http = inject(HttpClient);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _authStore = inject(AuthStore);
   private readonly _authService = inject(AuthService);
 
   signUp(email: string): Observable<CustomChallengeResponse> {
-    return from(fetchAuthSession()).pipe(
+    return this._authStore.getSession$().pipe(
       takeUntilDestroyed(this._destroyRef),
       switchMap((session) => {
         if (session.tokens?.accessToken) {
-          return [
-            {
-              success: true,
-              message: 'User already signed in',
-            } satisfies CustomChallengeResponse,
-          ];
+          return of({
+            success: true,
+            message: 'User already signed in',
+          } satisfies CustomChallengeResponse);
         }
-        return this.performSignIn(email);
+        return this._performSignIn(email);
       })
     );
   }
@@ -53,17 +44,17 @@ export class AuthDataService {
   OTPVerification(otp: string): Observable<boolean> {
     return from(confirmSignIn({ challengeResponse: otp })).pipe(
       takeUntilDestroyed(this._destroyRef),
-      map((result: SignInOutput) => result.isSignedIn),
-      tap((isSignedIn) => {
-        if (isSignedIn) {
-          this._authService.initializeTokenRefreshScheduling();
-        }
-      })
+      tap(() => {
+        this._authStore.invalidateCache();
+      }),
+      map((result: SignInOutput) => result.isSignedIn)
     );
   }
 
   resendOtp(email: string): Observable<CustomChallengeResponse> {
-    return this.performSignIn(email).pipe(takeUntilDestroyed(this._destroyRef));
+    return this._performSignIn(email).pipe(
+      takeUntilDestroyed(this._destroyRef)
+    );
   }
 
   requestAccess(
@@ -72,22 +63,18 @@ export class AuthDataService {
   ): Observable<boolean> {
     const requestBody = { email };
     const baseUrl = this._getRequestAccessBaseUrl();
-
     const methodHeaders = {
       'x-api-key': environment.REQUEST_ACCESS_API_KEY || '',
       'Content-Type': 'application/json',
       ...additionalHeaders,
     };
 
-    return from(fetchAuthSession()).pipe(
-      map((session) => {
-        const token = session.tokens?.accessToken?.toString() || '';
-
+    return this._authService.getAccessToken$().pipe(
+      map((token) => {
         const allHeaders = {
           ...methodHeaders,
           ...(token && { Authorization: `Bearer ${token}` }),
         };
-
         return new HttpHeaders(allHeaders);
       }),
       switchMap((headers) =>
@@ -100,7 +87,7 @@ export class AuthDataService {
     );
   }
 
-  private performSignIn(email: string): Observable<CustomChallengeResponse> {
+  private _performSignIn(email: string): Observable<CustomChallengeResponse> {
     const signInInput: SignInInput = {
       username: email,
       options: {

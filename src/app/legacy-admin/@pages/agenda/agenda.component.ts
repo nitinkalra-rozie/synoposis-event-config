@@ -375,8 +375,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     this.changeEventStatus(this.selected_session_details.Status);
   }
 
-  changeEventStatus(status: string): void {
+  changeEventStatus(status): void {
     this.isLoading = true;
+
     this._authService
       .getUserEmail$()
       .pipe(
@@ -393,7 +394,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         ),
         tap({
           next: (response) => {
-            if (response['data'].status === 'SUCCESS') {
+            console.log(response['data']);
+            if (response['data'].status == 'SUCCESS') {
               this.isEditorMode = true;
             } else {
               this.snackBar.open(
@@ -406,6 +408,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
               );
             }
             this.getEventDetails();
+            this.isLoading = false;
           },
           error: (error) => {
             console.error('Error fetching data:', error);

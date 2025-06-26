@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -160,6 +161,7 @@ export class InsightsEditorComponent implements OnInit {
   private _insightsData: Array<string> = [];
   private _topicUpdate$ = new Subject<{ text: string; index: number }>();
   private _topicsData: Array<string> = [];
+  private _destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -304,7 +306,7 @@ export class InsightsEditorComponent implements OnInit {
   }
 
   enableEditMode(): void {
-    const status = this.convertStringToEventStatus(
+    const status = this._convertStringToEventStatus(
       this.selected_session_details.Status
     );
     this.changeEventStatus(status);
@@ -319,7 +321,6 @@ export class InsightsEditorComponent implements OnInit {
     this._authService
       .getUserEmail$()
       .pipe(
-        take(1),
         map(
           (userEmail: string): ChangeEventStatusRequest => ({
             action: 'changeEventStatus',
@@ -329,7 +330,7 @@ export class InsightsEditorComponent implements OnInit {
             editor: userEmail || '',
           })
         ),
-        switchMap((debrief) =>
+        switchMap((debrief: ChangeEventStatusRequest) =>
           this._editorialDataService.changeEventStatus(debrief)
         ),
         tap((response) => {
@@ -353,7 +354,8 @@ export class InsightsEditorComponent implements OnInit {
         catchError((error) => {
           console.error('Error in changeEventStatus:', error);
           return throwError(() => error);
-        })
+        }),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -551,7 +553,7 @@ export class InsightsEditorComponent implements OnInit {
     this.realtimeinsights = cloneDeep(this._realTimeInsightsData);
   }
 
-  private convertStringToEventStatus(status: string): EventStatus {
+  private _convertStringToEventStatus(status: string): EventStatus {
     switch (status) {
       case 'NOT_STARTED':
         return EventStatus.NotStarted;

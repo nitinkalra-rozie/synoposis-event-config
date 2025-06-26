@@ -48,16 +48,3 @@ export interface PostData {
   sessionIds?: string[];
   stage?: string;
 }
-
-export interface AuthResponse {
-  AuthenticationResult: {
-    AccessToken: string;
-    IdToken: string;
-    RefreshToken: string;
-  };
-}
-
-export interface CustomChallengeResponse {
-  success: boolean;
-  message: string;
-}

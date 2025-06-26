@@ -1,9 +1,11 @@
 <div class="centralized-view-container">
   <div class="stage-info-container">
     <app-stage-info-header
+      [filteredCount]="$vm().filteredCount"
       [locations]="$vm().locations()"
       [searchTerm]="$vm().searchTerm()"
-      (filterChange)="onSelectionsApplied($event)"
+      [totalCount]="$vm().totalCount"
+      (filterChange)="onFilterSelectionsApplied($event)"
       (searchChange)="executeSearch($event)" />
 
     <div class="table-container">
@@ -62,7 +64,7 @@
             <div class="cell-content">
               <span>{{ element.stage }}</span>
               @if (element.autoAv) {
-              <span class="auto-av-chip">AUTOAV</span>
+              <span class="auto-av-chip">AUTO AV</span>
               }
             </div>
           </td>
@@ -81,7 +83,6 @@
         </ng-container>
 
         <!-- Session Column -->
-        <!-- TODO:SYN-644: implement the session column -->
         <ng-container matColumnDef="session">
           <th
             *matHeaderCellDef
@@ -91,12 +92,20 @@
             SESSION
           </th>
           <td *matCellDef="let element" mat-cell>
-            Session dropdown to be implemented
+            <syn-single-select
+              [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
+              [options]="$vm().sessionsByStage().get(element.stage)"
+              (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
+              (selectionChanged)="onSessionSelected($event)"
+              appearance="outline"
+              optionsType="Sessions"
+              placeholder="Select a session"
+              searchLabel="Search session"
+              theme="default" />
           </td>
         </ng-container>
 
         <!-- Status Column -->
-        <!-- TODO:SYN-644: implement the status column -->
         <ng-container matColumnDef="status">
           <th
             *matHeaderCellDef
@@ -105,7 +114,9 @@
             sortActionDescription="Sort by status">
             STATUS
           </th>
-          <td *matCellDef="let element" mat-cell>{{element.status}}</td>
+          <td *matCellDef="let element" mat-cell>
+            <app-stage-status [status]="element.status" />
+          </td>
         </ng-container>
 
         <!-- Action Column -->
@@ -117,28 +128,28 @@
                 mat-raised-button
                 class="action-btn mic-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon svgIcon="syn:mic_outlined" />
               </button>
               <button
                 mat-raised-button
                 class="action-btn pause-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon>pause</mat-icon>
               </button>
               <button
                 mat-raised-button
                 class="action-btn stop-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon svgIcon="syn:stop_outlined" />
               </button>
               <button
                 mat-raised-button
                 class="action-btn cc-btn"
                 [class.active]="true"
-                [class.inactive]="false">
+                [disabled]="true">
                 <mat-icon svgIcon="syn:closed_caption" />
               </button>
             </div>
@@ -159,7 +170,9 @@
           </td>
         </ng-container> -->
 
-        <tr *matHeaderRowDef="$vm().displayedColumns()" mat-header-row></tr>
+        <tr
+          *matHeaderRowDef="$vm().displayedColumns(); sticky: true"
+          mat-header-row></tr>
         <tr
           *matRowDef="let row; columns: $vm().displayedColumns()"
           mat-row></tr>
@@ -167,4 +180,13 @@
       }
     </div>
   </div>
+
+  <app-stages-actions
+    [isPauseListeningEnabled]="false"
+    [isStartListeningEnabled]="$vm().selection().size > 0"
+    [isStopListeningEnabled]="false"
+    [selectedCount]="$vm().selection().size"
+    (pauseListening)="onPauseListening()"
+    (startListening)="onStartListening()"
+    (stopListening)="onStopListening()" />
 </div>

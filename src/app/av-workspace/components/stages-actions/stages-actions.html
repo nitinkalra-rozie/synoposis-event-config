@@ -1,0 +1,35 @@
+<div class="stages-actions-container">
+  <div class="stages-actions-header">
+    <mat-icon svgIcon="syn:task_outlined"></mat-icon>
+    <span>
+      Actions for Selected Stages ({{ selectedCount() ? selectedCount() : 0 }})
+    </span>
+  </div>
+
+  <div class="stages-actions-buttons">
+    <button
+      mat-raised-button
+      class="action-btn mic-btn"
+      [disabled]="!isStartListeningEnabled()"
+      (click)="onStartListening()">
+      <mat-icon svgIcon="syn:mic_outlined" />
+      <span>Start Listening</span>
+    </button>
+    <button
+      mat-raised-button
+      class="action-btn pause-btn"
+      [disabled]="!isPauseListeningEnabled()"
+      (click)="onPauseListening()">
+      <mat-icon>pause</mat-icon>
+      <span>Pause Listening</span>
+    </button>
+    <button
+      mat-raised-button
+      class="action-btn stop-btn"
+      [disabled]="!isStopListeningEnabled()"
+      (click)="onStopListening()">
+      <mat-icon svgIcon="syn:stop_outlined" />
+      <span>Stop Listening</span>
+    </button>
+  </div>
+</div>

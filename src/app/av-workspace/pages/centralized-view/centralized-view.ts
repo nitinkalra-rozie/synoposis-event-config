@@ -14,11 +14,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-header/stage-info-header';
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
+import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
+import { StagesActions } from 'src/app/av-workspace/components/stages-actions/stages-actions';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { CentralizedViewStore } from 'src/app/av-workspace/pages/centralized-view/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
-import { StageInfoHeader } from '../../components/stage-info-header/stage-info-header';
+import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
+import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-select/syn-single-select-option.model';
 
 @Component({
   selector: 'app-centralized-view',
@@ -37,10 +41,15 @@ import { StageInfoHeader } from '../../components/stage-info-header/stage-info-h
     MatButtonModule,
     StageInfoPlaceholder,
     StageInfoHeader,
+    SynSingleSelect,
+    StageStatus,
+    StagesActions,
   ],
 })
 export class CentralizedView {
   constructor() {
+    this._store.fetchStages();
+
     effect(() => {
       const entities = this.$vm().entities();
       const sort = this._sort();
@@ -86,7 +95,7 @@ export class CentralizedView {
     this._store.setSearchTerm(value);
   }
 
-  protected onSelectionsApplied(
+  protected onFilterSelectionsApplied(
     selections: SynMenuMultiSelectOption<string>[] | string[]
   ): void {
     const locationFilters = Array.isArray(selections)
@@ -96,5 +105,32 @@ export class CentralizedView {
       : [];
 
     this._store.setLocationFilters(locationFilters);
+  }
+
+  protected onSessionSelected(
+    event: SynSingleSelectOption<string> | string
+  ): void {
+    console.log(event);
+  }
+
+  protected onSessionDropdownOpened(isOpen: boolean, stageName: string): void {
+    if (isOpen) {
+      this._store.fetchSessions(stageName);
+    }
+  }
+
+  protected onStartListening(): void {
+    console.log('Start listening for selected stages:', this.$vm().selection());
+    // TODO: Implement start listening logic
+  }
+
+  protected onPauseListening(): void {
+    console.log('Pause listening for selected stages:', this.$vm().selection());
+    // TODO: Implement pause listening logic
+  }
+
+  protected onStopListening(): void {
+    console.log('Stop listening for selected stages:', this.$vm().selection());
+    // TODO: Implement stop listening logic
   }
 }

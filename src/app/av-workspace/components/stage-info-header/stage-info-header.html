@@ -6,7 +6,9 @@
   <div class="stage-info-header__actions">
     <syn-search-input
       class="stage-info-header__actions-search"
+      [filteredCount]="filteredCount()"
       [searchValue]="searchTerm()"
+      [totalCount]="totalCount()"
       (enterPressed)="searchChange.emit($event)"
       (searchChange)="searchChange.emit($event)"
       appearance="fill"
