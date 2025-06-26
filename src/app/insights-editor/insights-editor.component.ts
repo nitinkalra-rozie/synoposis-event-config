@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,18 +19,28 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { clone, cloneDeep, isUndefined } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
-import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
+import { Observable, Subject, throwError } from 'rxjs';
 import {
+  catchError,
+  debounceTime,
+  finalize,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
+import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
+import {
+  ChangeEventStatusRequest,
+  EventStatus,
   RealtimeInsight,
   Session,
 } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { InsightsEditorDataService } from 'src/app/insights-editor/data-services/insights-editor.data-service';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
+
 @Component({
   selector: 'app-insights-editor',
   templateUrl: './insights-editor.component.html',
@@ -89,7 +100,7 @@ export class InsightsEditorComponent implements OnInit {
         this._realTimeInsightsData[indexI].Insights[indexJ] = text;
       });
   }
-
+  public readonly EventStatus = EventStatus;
   private readonly _authService = inject(AuthService);
   private readonly _editorialDataService = inject(InsightsEditorDataService);
 
@@ -128,9 +139,9 @@ export class InsightsEditorComponent implements OnInit {
   };
 
   public statuses = [
-    { label: 'Not started', class: 'status-not-started' },
-    { label: 'In review', class: 'status-in-progress' },
-    { label: 'Complete', class: 'status-complete' },
+    { label: EventStatus.NotStarted, class: 'status-not-started' },
+    { label: EventStatus.InReview, class: 'status-in-progress' },
+    { label: EventStatus.Complete, class: 'status-complete' },
   ];
 
   public filtered_sessions: Session[] = [];
@@ -149,6 +160,7 @@ export class InsightsEditorComponent implements OnInit {
   private _insightsData: Array<string> = [];
   private _topicUpdate$ = new Subject<{ text: string; index: number }>();
   private _topicsData: Array<string> = [];
+  private _destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -280,7 +292,7 @@ export class InsightsEditorComponent implements OnInit {
       );
       const sessionID = this.filtered_sessions[0];
       this.selected_session =
-        sessionID && sessionID['Status'] != 'NOT_STARTED'
+        sessionID && sessionID['Status'] != EventStatus.NotStarted
           ? sessionID['SessionId']
           : '';
       this.dataLoaded = false;
@@ -293,44 +305,59 @@ export class InsightsEditorComponent implements OnInit {
   }
 
   enableEditMode(): void {
-    this.changeEventStatus(this.selected_session_details.Status);
+    const status = this._convertStringToEventStatus(
+      this.selected_session_details.Status
+    );
+    this.changeEventStatus(status);
   }
 
   saveEdits(): void {
     this.postEditedDebrief();
   }
 
-  changeEventStatus(status): void {
+  changeEventStatus(status: EventStatus): void {
     this.isLoading = true;
-    const debrief = {
-      action: 'changeEventStatus',
-      sessionId: this.selected_session,
-      status: status,
-      changeEditMode: true,
-      editor: this._authService.getUserEmail(),
-    };
-    this._editorialDataService.changeEventStatus(debrief).subscribe({
-      next: (response) => {
-        if (response['data'].status == 'SUCCESS') {
-          this.isEditorMode = true;
-        } else {
-          this.snackBar.open(
-            'Another editor already editing this session!',
-            'Close',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
-            }
-          );
-        }
-        this.getEventDetails();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+
+    this._authService
+      .getUserEmail$()
+      .pipe(
+        map(
+          (userEmail: string): ChangeEventStatusRequest => ({
+            action: 'changeEventStatus',
+            sessionId: this.selected_session,
+            status: status,
+            changeEditMode: true,
+            editor: userEmail || '',
+          })
+        ),
+        switchMap((debrief: ChangeEventStatusRequest) =>
+          this._editorialDataService.changeEventStatus(debrief)
+        ),
+        tap((response) => {
+          if (response && response['data']?.status === 'SUCCESS') {
+            this.isEditorMode = true;
+          } else if (response) {
+            this.snackBar.open(
+              'Another editor already editing this session!',
+              'Close',
+              {
+                duration: 5000,
+                panelClass: ['error-snackbar'],
+              }
+            );
+          }
+        }),
+        tap(() => this.getEventDetails()),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+        catchError((error) => {
+          console.error('Error in changeEventStatus:', error);
+          return throwError(() => error);
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
   }
 
   postEditedDebrief(): void {
@@ -370,13 +397,16 @@ export class InsightsEditorComponent implements OnInit {
     });
   }
 
-  checkSessionLocked(data, session_id): boolean {
-    const exist = data.find(
-      (session) =>
-        session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail()
+  checkSessionLocked(data: any, session_id: string): Observable<boolean> {
+    return this._authService.getUserEmail$().pipe(
+      map((userEmail: string) => {
+        const exist = data.find(
+          (session) =>
+            session.SessionId === session_id && session.Editing === userEmail
+        );
+        return isUndefined(exist);
+      })
     );
-    return isUndefined(exist);
   }
 
   getEventDetails(): void {
@@ -402,8 +432,8 @@ export class InsightsEditorComponent implements OnInit {
 
   selectSession(session: any): void {
     if (
-      session['Status'] == 'NOT_STARTED' ||
-      session['Status'] == 'IN_PROGRESS'
+      session['Status'] === EventStatus.NotStarted ||
+      session['Status'] === EventStatus.InProgress
     ) {
       this.showError();
     } else {
@@ -412,25 +442,37 @@ export class InsightsEditorComponent implements OnInit {
       if (sessionObj.StartsAt) {
         sessionObj.StartsAt = getAbsoluteDate(sessionObj.StartsAt);
       }
-      if (sessionObj.Editor == this._authService.getUserEmail()) {
-        this.isEditorMode = true;
-      } else {
-        this.isEditorMode = false;
-      }
-      this.selected_session_details = sessionObj;
-      console.log('Selected session:', session);
-      this.getEventReport();
+
+      this._authService
+        .getUserEmail$()
+        .pipe(
+          tap((userEmail: string) => {
+            if (sessionObj.Editor == userEmail) {
+              this.isEditorMode = true;
+            } else {
+              this.isEditorMode = false;
+            }
+            this.selected_session_details = sessionObj;
+            console.log('Selected session:', session);
+          }),
+          finalize(() => {
+            this.getEventReport();
+          })
+        )
+        .subscribe();
     }
   }
 
   // Method to dynamically assign a class based on the session's status
   getStatusClass(status: string): string {
     switch (status) {
-      case 'NOT_STARTED':
+      case EventStatus.NotStarted:
         return 'status-not-started';
-      case 'UNDER_REVIEW':
+      case EventStatus.UnderReview:
         return 'status-in-review';
-      case 'Completed':
+      case EventStatus.Completed:
+        return 'status-completed';
+      case EventStatus.ReviewComplete:
         return 'status-completed';
       default:
         return '';
@@ -516,5 +558,21 @@ export class InsightsEditorComponent implements OnInit {
     this.insights = clone(this._insightsData);
     this.topics = clone(this._topicsData);
     this.realtimeinsights = cloneDeep(this._realTimeInsightsData);
+  }
+
+  private _convertStringToEventStatus(status: string): EventStatus {
+    switch (status) {
+      case 'NOT_STARTED':
+        return EventStatus.NotStarted;
+      case 'IN_PROGRESS':
+        return EventStatus.InProgress;
+      case 'UNDER_REVIEW':
+        return EventStatus.UnderReview;
+      case 'Completed':
+        return EventStatus.Completed;
+      default:
+        console.warn(`Unknown status: ${status}`);
+        return EventStatus.NotStarted;
+    }
   }
 }

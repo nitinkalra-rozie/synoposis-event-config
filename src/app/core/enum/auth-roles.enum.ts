@@ -1,8 +1,9 @@
 export enum UserRole {
-  SUPERADMIN = 'SUPERADMIN',
-  ADMIN = 'ADMIN',
+  UNAUTHENTICATED = 'UNAUTHENTICATED',
   EDITOR = 'EDITOR',
-  EVENTORGANIZER = 'EVENTORGANIZER',
+  EVENTORGANIZER = 'EVENT_ORGANIZER',
+  ADMIN = 'ADMIN',
+  SUPERADMIN = 'SUPER_ADMIN',
 }
 
 export interface MenuItem {
@@ -12,4 +13,12 @@ export interface MenuItem {
   routerLink: string;
   roles: UserRole[];
   isSvg?: boolean;
+}
+
+export interface JwtPayload {
+  email?: string;
+  username?: string;
+  exp?: number;
+  iat?: number;
+  sub?: string;
 }
