@@ -1,8 +1,15 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginService } from 'src/app/legacy-admin/services/login.service'; // Ensure this import path is correct
-import { AuthResponse } from 'src/app/legacy-admin/shared/types';
+import { finalize, tap } from 'rxjs';
+import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 
@@ -18,19 +25,19 @@ export class OtpComponent implements OnInit {
   submitPressed = false;
   email = '';
   errorMessage = '';
+
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
-  constructor(
-    private router: Router,
-    private loginService: LoginService
-  ) {}
+  private readonly _router = inject(Router);
+  private readonly _authService = inject(AuthService);
+  private readonly _authApiService = inject(AuthDataService);
 
-  ngOnInit() {
+  ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
     this.email = urlParams.get('email') || '';
   }
 
-  handleOtpChange(index: number, event: Event) {
+  handleOtpChange(index: number, event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const value = inputElement.value;
     if (!isNaN(Number(value)) && value.length === 1) {
@@ -40,7 +47,6 @@ export class OtpComponent implements OnInit {
         return;
       }
 
-      // Move focus to the next input
       if (index < this.otp.length - 1) {
         const nextInput = this.inputsRef.nativeElement.children[
           index + 1
@@ -52,7 +58,7 @@ export class OtpComponent implements OnInit {
     }
   }
 
-  handleKeyDown(index: number, event: KeyboardEvent) {
+  handleKeyDown(index: number, event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
 
     if (event.key === 'Backspace') {
@@ -88,63 +94,71 @@ export class OtpComponent implements OnInit {
     }
   }
 
-  handleSubmit() {
+  handleSubmit(): void {
     this.submitPressed = true;
     this.errorMessage = '';
+
     if (!this.email) {
-      console.error('Email is null');
+      this.submitPressed = false;
       return;
     }
 
     const inputOtp = this.otp.join('');
-
-    this.loginService.OTPVerification(this.email, inputOtp).subscribe(
-      (responseData: AuthResponse | null) => {
-        this.submitPressed = false;
-        if (
-          responseData &&
-          responseData.AuthenticationResult &&
-          responseData.AuthenticationResult.AccessToken
-        ) {
-          this.router.navigate(['/av-workspace']);
-        } else {
-          this.errorMessage = 'Wrong otp!';
-          console.error('OTP verification failed or no token received');
-        }
-      },
-      (error) => {
-        this.submitPressed = false;
-        this.errorMessage = 'Wrong otp!';
-        console.error('Error during OTP verification', error);
-      }
-    );
+    this._authApiService
+      .OTPVerification(inputOtp)
+      .pipe(
+        tap((success) => {
+          if (success) {
+            this._authService.getUserRole$().subscribe((role) => {
+              if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+                this._router.navigate(['/av-workspace']);
+              } else if (role === 'EDITOR') {
+                this._router.navigate(['/insights-editor']);
+              } else if (role === 'EVENT_ORGANIZER') {
+                this._router.navigate(['/agenda']);
+              } else {
+                this._router.navigate(['/av-workspace']);
+              }
+            });
+          } else {
+            this.errorMessage = 'Wrong OTP!';
+          }
+        }),
+        finalize(() => {
+          this.submitPressed = false;
+        })
+      )
+      .subscribe();
   }
 
-  async handleResendOTP() {
-    try {
-      this.resendClicked = true;
-      await this.loginService.signUp(this.email).toPromise();
-    } catch (error) {
-      console.error('Error during OTP resend', error);
-    }
+  handleResendOTP(): void {
+    this.resendClicked = true;
+
+    this._authApiService
+      .resendOtp(this.email)
+      .pipe(
+        finalize(() => {
+          this.resendClicked = false;
+        })
+      )
+      .subscribe();
   }
 
-  handlePaste(event: ClipboardEvent) {
+  handlePaste(event: ClipboardEvent): void {
     event.preventDefault();
-    const pasteData = event.clipboardData.getData('text');
+    const pasteData = event.clipboardData?.getData('text') ?? '';
     const otpArray = pasteData.split('').slice(0, 6);
-
     this.otp = otpArray;
+
     const lastIndex = otpArray.length - 1;
     if (this.otp.every((digit) => digit !== '')) {
       this.handleSubmit();
       return;
     }
-    const lastInput = this.inputsRef.nativeElement.children[
+
+    const lastInput = this.inputsRef?.nativeElement.children[
       lastIndex
     ] as HTMLInputElement;
-    if (lastInput) {
-      lastInput.focus();
-    }
+    lastInput?.focus();
   }
 }

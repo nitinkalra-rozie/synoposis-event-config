@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from 'src/app/core/guards/auth.guard';
+import { authGuard } from 'src/app/core/auth/guards/auth-guard';
+import { loginRedirectGuard } from 'src/app/core/auth/guards/login-redirect-guard';
 
 export const routes: Routes = [
   {
@@ -8,6 +9,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/login-page/login-page.component'
       ).then((c) => c.LoginPageComponent),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'stream',
@@ -22,6 +24,7 @@ export const routes: Routes = [
       import('src/app/legacy-admin/components/otp/otp.component').then(
         (c) => c.OtpComponent
       ),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'login',
@@ -29,6 +32,7 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/components/login-page/login-page.component'
       ).then((c) => c.LoginPageComponent),
+    canActivate: [loginRedirectGuard],
   },
   {
     path: 'av-workspace',
@@ -36,7 +40,7 @@ export const routes: Routes = [
       import('src/app/av-workspace/av-workspace.routes').then(
         (r) => r.avWorkspaceRoutes
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'insights-editor',
@@ -44,7 +48,7 @@ export const routes: Routes = [
       import('./insights-editor/insights-editor.routes').then(
         (r) => r.insightsEditorRoutes
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'content-editor',
@@ -52,7 +56,7 @@ export const routes: Routes = [
       import('src/app/content-editor/content-editor.routes').then(
         (r) => r.contentEditorRoutes
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'agenda',
@@ -60,7 +64,7 @@ export const routes: Routes = [
       import('src/app/legacy-admin/@pages/agenda/agenda.component').then(
         (c) => c.AgendaComponent
       ),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
   },
   {
     path: 'analytics',
@@ -68,7 +72,14 @@ export const routes: Routes = [
       import(
         'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component'
       ).then((c) => c.AnalyticsDashboardComponent),
-    canActivate: [AuthGuard],
+    canActivate: [authGuard],
+  },
+  {
+    path: 'unauthorized',
+    loadComponent: () =>
+      import('src/app/shared/pages/unauthorized/unauthorized').then(
+        (c) => c.Unauthorized
+      ),
   },
   {
     path: '**',

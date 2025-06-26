@@ -16,7 +16,7 @@ export interface Session {
   SessionTitle: string;
   SessionId: string;
   Track: string;
-  Status: string;
+  Status: EventStatus;
   Location: string;
   StartsAt: string;
   Editor: string;
@@ -59,7 +59,7 @@ export interface SpeakerInfo {
 export interface ChangeEventStatusRequest {
   action: string;
   sessionId: string;
-  status: string;
+  status: EventStatus;
   changeEditMode: boolean;
   editor: string;
 }
@@ -77,7 +77,7 @@ export interface DebriefData {
   summary: string;
   keytakeaways: string[];
   insights: string[];
-  status: string;
+  status: EventStatus;
   topics: string[];
   trends: Trend[];
   postInsightTimestamp: string;
@@ -102,7 +102,7 @@ export interface EventDetail {
   SessionId: string;
   SpeakersInfo: SpeakerInfo[];
   SessionDescription: string;
-  Status: string;
+  Status: EventStatus;
   EndsAt: string;
   Type: string;
   PrimarySessionId: string;
@@ -117,4 +117,14 @@ export interface EventDetailsResponse {
   success: boolean;
   data: EventDetail[];
   error: string | null;
+}
+
+export enum EventStatus {
+  NotStarted = 'NOT_STARTED',
+  InProgress = 'IN_PROGRESS',
+  UnderReview = 'UNDER_REVIEW',
+  Completed = 'COMPLETED',
+  ReviewComplete = 'REVIEW_COMPLETE',
+  InReview = 'IN_REVIEW',
+  Complete = 'COMPLETE',
 }

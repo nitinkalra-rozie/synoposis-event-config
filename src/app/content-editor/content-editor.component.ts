@@ -25,10 +25,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { LargeModalDialogComponent } from './components/dialog/original-debrief-modal-dialog.component';
@@ -680,36 +681,46 @@ export class ContentEditorComponent {
 
   changeEventStatus(status): void {
     this.isLoading = true;
-    const debrief = {
-      action: 'changeEventStatus',
-      sessionId: this.selected_session,
-      status: status,
-      changeEditMode: true,
-      editor: this._authService.getUserEmail(),
-    };
-    this._backendApiService.changeEventStatus(debrief).subscribe({
-      next: (response) => {
-        console.log(response['data']);
-        if (response['data'].status == 'SUCCESS') {
-          this.isEditorMode = true;
-        } else {
-          this.snackBar.open(
-            'Another editor already editing this session!',
-            'Close',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
+
+    this._authService
+      .getUserEmail$()
+      .pipe(
+        take(1),
+        map((email) => ({
+          action: 'changeEventStatus',
+          sessionId: this.selected_session,
+          status: status,
+          changeEditMode: true,
+          editor: email,
+        })),
+        switchMap((debrief) =>
+          this._backendApiService.changeEventStatus(debrief)
+        ),
+        tap({
+          next: (response) => {
+            console.log(response['data']);
+            if (response['data'].status == 'SUCCESS') {
+              this.isEditorMode = true;
+            } else {
+              this.snackBar.open(
+                'Another editor already editing this session!',
+                'Close',
+                {
+                  duration: 5000,
+                  panelClass: ['error-snackbar'],
+                }
+              );
             }
-          );
-        }
-        this.getEventDetails();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+            this.getEventDetails();
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error fetching data:', error);
+            this.isLoading = false;
+          },
+        })
+      )
+      .subscribe();
   }
 
   postEditedDebrief(): void {
@@ -773,13 +784,17 @@ export class ContentEditorComponent {
     });
   }
 
-  checkSessionLocked(data, session_id): boolean {
-    const exist = data.find(
-      (session) =>
-        session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail()
+  checkSessionLocked(data: any[], session_id: string): Observable<boolean> {
+    return this._authService.getUserEmail$().pipe(
+      take(1),
+      map((email) => {
+        const exist = data.find(
+          (session) =>
+            session.SessionId === session_id && session.Editing === email
+        );
+        return isUndefined(exist);
+      })
     );
-    return isUndefined(exist);
   }
 
   getEventDetails(): void {
@@ -805,36 +820,44 @@ export class ContentEditorComponent {
 
   selectSession(session: any): void {
     if (
-      session['Status'] == 'NOT_STARTED' ||
-      session['Status'] == 'IN_PROGRESS'
+      session['Status'] === EventStatus.NotStarted ||
+      session['Status'] === EventStatus.InProgress
     ) {
       this.showError();
-    } else {
-      this.selected_session = session['SessionId'];
-      const sessionObj = JSON.parse(JSON.stringify(session));
-      if (sessionObj.StartsAt) {
-        sessionObj.StartsAt = this.convertDate(sessionObj.StartsAt);
-      }
-      if (sessionObj.Editor == this._authService.getUserEmail()) {
-        this.isEditorMode = true;
-      } else {
-        this.isEditorMode = false;
-      }
-      console.log('speaker', sessionObj);
-      this.selected_session_details = sessionObj;
-      console.log('Selected session:', session);
-      this.getEventReport();
+      return;
     }
+
+    const clonedSession = JSON.parse(JSON.stringify(session));
+    if (clonedSession.StartsAt) {
+      clonedSession.StartsAt = this.convertDate(clonedSession.StartsAt);
+    }
+
+    this._authService
+      .getUserEmail$()
+      .pipe(
+        take(1),
+        tap((email) => {
+          this.selected_session = clonedSession.SessionId;
+          this.isEditorMode = clonedSession.Editor === email;
+          this.selected_session_details = clonedSession;
+          console.log('speaker', clonedSession);
+          console.log('Selected session:', clonedSession);
+          this.getEventReport();
+        })
+      )
+      .subscribe();
   }
 
   // Method to dynamically assign a class based on the session's status
   getStatusClass(status: string): string {
     switch (status) {
-      case 'NOT_STARTED':
+      case EventStatus.NotStarted:
         return 'status-not-started';
-      case 'UNDER_REVIEW':
+      case EventStatus.UnderReview:
         return 'status-in-review';
-      case 'Completed':
+      case EventStatus.Completed:
+        return 'status-completed';
+      case EventStatus.ReviewComplete:
         return 'status-completed';
       default:
         return '';
