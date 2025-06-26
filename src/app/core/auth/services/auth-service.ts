@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthTokens, getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
-import { EMPTY, from, interval, Observable, of, throwError } from 'rxjs';
+import { EMPTY, from, interval, Observable, of, throwError, timer } from 'rxjs';
 import {
   catchError,
   filter,
@@ -18,6 +18,7 @@ import { AuthStore } from './auth-store';
 
 const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 const TOKEN_CHECK_INTERVAL_MS = 60000;
+const REFRESH_BUFFER_TIME_MS = 60 * 1000;
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,8 @@ export class AuthService {
   private readonly _authStore = inject(AuthStore);
 
   private readonly _isLoggingOut = signal<boolean>(false);
+
+  // private readonly _REFRESH_BUFFER_TIME_MS = 60 * 1000;
 
   logout$(): Observable<void> {
     if (this._isLoggingOut()) {
@@ -193,6 +196,53 @@ export class AuthService {
           return EMPTY;
         }
       })
+    );
+  }
+
+  private scheduleTokenRefresh(): void {
+    this._authStore
+      .getSession$()
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        switchMap((session) => {
+          const accessToken = session.tokens?.accessToken;
+
+          if (!accessToken) {
+            return EMPTY;
+          }
+
+          const decodedToken: JwtPayload = jwtDecode(accessToken.toString());
+          const tokenExpiryTime = decodedToken.exp * 1000;
+          const timeUntilExpiry = tokenExpiryTime - Date.now();
+
+          const refreshIn = Math.max(
+            0,
+            timeUntilExpiry - REFRESH_BUFFER_TIME_MS
+          );
+
+          if (refreshIn <= 0) {
+            return this._refreshTokenFlow$();
+          }
+
+          return timer(refreshIn).pipe(
+            switchMap(() => this._refreshTokenFlow$())
+          );
+        }),
+        catchError((error) => throwError(() => error))
+      )
+      .subscribe();
+  }
+
+  private _refreshTokenFlow$(): Observable<void> {
+    if (this._isLoggingOut()) {
+      return EMPTY;
+    }
+
+    return this._authStore.updateSessionWithLatestTokens$().pipe(
+      tap(() => {
+        this.scheduleTokenRefresh();
+      }),
+      catchError(() => this.logout$())
     );
   }
 }

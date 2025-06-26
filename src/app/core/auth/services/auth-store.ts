@@ -27,6 +27,10 @@ export class AuthStore {
     return this._fetchAndCacheSession$();
   }
 
+  updateSessionWithLatestTokens$(): Observable<void> {
+    return this._fetchAndCacheSession$().pipe(map(() => undefined));
+  }
+
   private _fetchAndCacheSession$(): Observable<AuthSession> {
     return from(fetchAuthSession()).pipe(
       map((session) => {
