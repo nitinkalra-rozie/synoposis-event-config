@@ -5,8 +5,8 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { environment } from 'src/environments/environment';
 
@@ -68,7 +68,7 @@ export const authInterceptor: HttpInterceptorFn = (
     return next(req);
   }
 
-  return from(authService.getAccessToken$()).pipe(
+  return authService.getAccessToken$().pipe(
     switchMap((accessToken) => {
       const headers: Record<string, string> = {
         'X-Api-Key': environment.X_API_KEY,
@@ -80,6 +80,12 @@ export const authInterceptor: HttpInterceptorFn = (
 
       const authorizedRequest = req.clone({ setHeaders: headers });
       return next(authorizedRequest);
+    }),
+    catchError((error) => {
+      if (error.status === 401) {
+        authService.logout$().subscribe();
+      }
+      return throwError(() => error);
     })
   );
 };

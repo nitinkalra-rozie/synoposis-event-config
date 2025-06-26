@@ -7,7 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { catchError, map, switchMap, take } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/auth/services/auth-service';
 import {
   getDefaultRedirectUrl,
@@ -49,6 +49,7 @@ export const authGuard: CanActivateFn = (
             : router.createUrlTree([getDefaultRedirectUrl(userRole)]);
         })
       );
-    })
+    }),
+    catchError(() => of(router.createUrlTree(['/login'])))
   );
 };

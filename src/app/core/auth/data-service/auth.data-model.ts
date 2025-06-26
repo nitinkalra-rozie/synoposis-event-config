@@ -16,3 +16,9 @@ export interface AuthSession {
   isAuthenticated: boolean;
   lastFetched: number;
 }
+
+export interface TokenRefreshError {
+  type: 'NETWORK_ERROR' | 'REFRESH_TOKEN_EXPIRED' | 'UNKNOWN_ERROR';
+  originalError: any;
+  message: string;
+}

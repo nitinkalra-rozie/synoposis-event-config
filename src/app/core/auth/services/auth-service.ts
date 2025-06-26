@@ -3,21 +3,41 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthTokens, getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
-import { EMPTY, from, interval, Observable, of, throwError } from 'rxjs';
+import {
+  defer,
+  EMPTY,
+  from,
+  interval,
+  Observable,
+  of,
+  Subject,
+  throwError,
+  timer,
+} from 'rxjs';
 import {
   catchError,
   filter,
   finalize,
   map,
+  mapTo,
+  retry,
+  share,
   switchMap,
   tap,
+  timeout,
 } from 'rxjs/operators';
-import { AuthSession } from 'src/app/core/auth/data-service/auth.data-model';
+import {
+  AuthSession,
+  TokenRefreshError,
+} from 'src/app/core/auth/data-service/auth.data-model';
 import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { AuthStore } from './auth-store';
 
 const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 const TOKEN_CHECK_INTERVAL_MS = 60000;
+const REFRESH_TIMEOUT_MS = 5000;
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 1000;
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +52,20 @@ export class AuthService {
   private readonly _authStore = inject(AuthStore);
 
   private readonly _isLoggingOut = signal<boolean>(false);
+  private readonly _isRefreshing = signal<boolean>(false);
+
+  private readonly _refreshInProgress$ = new Subject<boolean>();
+
+  initializeAuth$(): Observable<boolean> {
+    return this._authStore.getSession$().pipe(
+      map((session) => {
+        const isAuthenticated =
+          session.isAuthenticated && !!session.tokens?.accessToken;
+        return isAuthenticated;
+      }),
+      catchError((error) => throwError(() => error))
+    );
+  }
 
   logout$(): Observable<void> {
     if (this._isLoggingOut()) {
@@ -81,23 +115,53 @@ export class AuthService {
   }
 
   getUserEmail$(): Observable<string | null> {
-    return from(getCurrentUser()).pipe(
-      map((user) => user.signInDetails?.loginId || user.username)
+    return this._authStore.getSession$().pipe(
+      switchMap((session) => {
+        if (!session.isAuthenticated || !session.tokens?.accessToken) {
+          return EMPTY;
+        }
+        return from(getCurrentUser()).pipe(
+          map((user) => user.signInDetails?.loginId || user.username),
+          catchError((error) => throwError(() => error))
+        );
+      })
     );
   }
 
-  checkSession$(): Observable<AuthSession> {
-    return from(getCurrentUser()).pipe(
-      switchMap(() =>
-        this._authStore.getSession$().pipe(
-          tap((session) => {
-            if (!session.tokens) {
-              throwError(() => 'No valid session tokens');
-            }
-            this._logAllTokens(session.tokens);
+  checkSession$(): Observable<boolean> {
+    return this._authStore.getSession$().pipe(
+      switchMap((session) => {
+        if (!session.isAuthenticated || !session.tokens?.accessToken) {
+          return of(false);
+        }
+
+        return from(getCurrentUser()).pipe(
+          map(() => {
+            this._logAllTokens(session.tokens!);
+            return true;
+          }),
+          catchError((error) => {
+            console.error('[AuthService] getCurrentUser failed:', error);
+            return of(false);
           })
-        )
-      )
+        );
+      }),
+      catchError((error) => {
+        console.error('[AuthService] Session check failed:', error);
+        return of(false);
+      })
+    );
+  }
+
+  getSessionDetails$(): Observable<AuthSession | null> {
+    return this._authStore.getSession$().pipe(
+      map((session) => {
+        if (!session.isAuthenticated || !session.tokens?.accessToken) {
+          return null;
+        }
+        return session;
+      }),
+      catchError((error) => throwError(() => error))
     );
   }
 
@@ -146,13 +210,94 @@ export class AuthService {
 
   isAuthenticated(): Observable<boolean> {
     return this._authStore.getSession$().pipe(
-      tap((session) => {
-        if (session.isAuthenticated && session.tokens) {
-          this._logAllTokens(session.tokens);
-        }
+      map((session) => {
+        const isAuth = session.isAuthenticated && !!session.tokens?.accessToken;
+        return isAuth;
       }),
-      map((session) => session.isAuthenticated)
+      catchError((error) => throwError(() => error))
     );
+  }
+
+  private _refreshTokens$(): Observable<AuthSession> {
+    if (this._isLoggingOut()) {
+      return EMPTY;
+    }
+
+    this._refreshInProgress$.next(true);
+    this._isRefreshing.set(true);
+
+    return this._authStore.forceRefreshSession$().pipe(
+      timeout(REFRESH_TIMEOUT_MS),
+      retry({
+        count: MAX_RETRY_ATTEMPTS,
+        delay: (retryIndex) => timer(RETRY_DELAY_MS * Math.pow(2, retryIndex)),
+        resetOnSuccess: true,
+      }),
+      catchError((error) => this._handleTokenRefreshError(error)),
+      finalize(() => {
+        this._isRefreshing.set(false);
+        this._refreshInProgress$.next(false);
+      }),
+      share()
+    );
+  }
+
+  private _handleTokenRefreshError(error: any): Observable<never> {
+    const tokenRefreshError = this._categorizeRefreshError(error);
+
+    if (this._shouldLogoutOnRefreshError(tokenRefreshError)) {
+      return this.logout$().pipe(
+        switchMap(() => throwError(() => tokenRefreshError))
+      );
+    }
+
+    return throwError(() => tokenRefreshError);
+  }
+
+  private _categorizeRefreshError(error: any): TokenRefreshError {
+    if (
+      error.name === 'TimeoutError' ||
+      error.message?.includes('timeout') ||
+      error.message?.includes('network') ||
+      error.status === 0
+    ) {
+      return {
+        type: 'NETWORK_ERROR',
+        originalError: error,
+        message: 'Network error during token refresh',
+      };
+    }
+
+    if (
+      error.message?.toLowerCase().includes('refresh token') ||
+      error.message?.includes('invalid_grant') ||
+      error.message?.includes('token_expired') ||
+      error.status === 401
+    ) {
+      return {
+        type: 'REFRESH_TOKEN_EXPIRED',
+        originalError: error,
+        message: 'Refresh token expired or invalid',
+      };
+    }
+
+    return {
+      type: 'UNKNOWN_ERROR',
+      originalError: error,
+      message: error.message || 'Unknown token refresh error',
+    };
+  }
+
+  private _shouldLogoutOnRefreshError(error: TokenRefreshError): boolean {
+    if (error.type === 'REFRESH_TOKEN_EXPIRED') {
+      return true;
+    }
+
+    if (error.type === 'NETWORK_ERROR') {
+      return false;
+    }
+
+    return true;
   }
 
   private _logAllTokens(tokens: AuthTokens): void {
@@ -167,7 +312,7 @@ export class AuthService {
   private _startTokenCheck(): void {
     interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
-        filter(() => !this._isLoggingOut()),
+        filter(() => !this._isLoggingOut() && !this._isRefreshing()),
         filter(
           () =>
             !this._route.snapshot.children?.[0]?.routeConfig?.path?.includes(
@@ -181,18 +326,44 @@ export class AuthService {
   }
 
   private _runTokenCheck$(): Observable<void> {
-    if (this._isLoggingOut()) {
+    if (this._isLoggingOut() || this._isRefreshing()) {
       return EMPTY;
     }
 
     return this._authStore.getSession$().pipe(
       switchMap((session) => {
-        if (!session.tokens?.accessToken) {
+        const accessToken = session.tokens?.accessToken?.toString();
+
+        if (!accessToken) {
           return this.logout$();
-        } else {
-          return EMPTY;
         }
-      })
+
+        return defer(() => {
+          try {
+            const decoded = jwtDecode<JwtPayload>(accessToken);
+            return of(decoded);
+          } catch (error) {
+            return throwError(() => error);
+          }
+        }).pipe(
+          switchMap((decoded) => {
+            const currentTime = Math.floor(Date.now() / 1000);
+            const timeUntilExpiry = (decoded.exp || 0) - currentTime;
+            const REFRESH_THRESHOLD_SECONDS = 300;
+
+            if (timeUntilExpiry <= REFRESH_THRESHOLD_SECONDS) {
+              return this._refreshTokens$().pipe(
+                mapTo(undefined),
+                catchError(() => this.logout$())
+              );
+            }
+
+            return EMPTY;
+          }),
+          catchError(() => this.logout$())
+        );
+      }),
+      catchError(() => this.logout$())
     );
   }
 }
