@@ -9,7 +9,8 @@
         matTooltipClass="tooltip-text-only"
         matTooltipPosition="above"
         class="ws-icon error"
-        [matTooltip]="websocketError()!">
+        [matTooltip]="websocketError()"
+        aria-label="Websocket error">
         error
       </mat-icon>
       } @else if (websocketConnecting()) {
@@ -17,7 +18,8 @@
         matTooltip="Connecting to real-time updates..."
         matTooltipClass="tooltip-text-only"
         matTooltipPosition="above"
-        class="ws-icon connecting">
+        class="ws-icon connecting"
+        aria-label="Websocket connecting">
         sync
       </mat-icon>
       } @else if (websocketConnected()) {
@@ -25,7 +27,8 @@
         matTooltip="Connected - Real-time updates active"
         matTooltipClass="tooltip-text-only"
         matTooltipPosition="above"
-        class="ws-icon connected">
+        class="ws-icon connected"
+        aria-label="Websocket connected">
         wifi_tethering
       </mat-icon>
       }
