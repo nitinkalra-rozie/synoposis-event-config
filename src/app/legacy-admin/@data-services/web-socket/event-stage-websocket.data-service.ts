@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { interval, Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
@@ -14,6 +16,7 @@ import { environment } from 'src/environments/environment';
 export class EventStageWebsocketDataService {
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
   private readonly _browserWindowService = inject(BrowserWindowService);
+  private readonly _authService = inject(AuthService);
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
@@ -26,7 +29,8 @@ export class EventStageWebsocketDataService {
 
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&stage=${selectedLocation}`;
-    this._socket = new WebSocket(webSocketUrl);
+    const token = toSignal(this._authService.getAccessToken$());
+    this._socket = new WebSocket(webSocketUrl, token()); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
 
     return new Observable((observer) => {
       this._socket.onopen = () => {

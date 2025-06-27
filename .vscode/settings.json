@@ -9,6 +9,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.insertFinalNewline": true,
   "cSpell.words": [
+    "AUTOAV",
     "clarionexec",
     "devkit",
     "downeast",
