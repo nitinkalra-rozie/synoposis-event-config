@@ -1,7 +1,7 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthTokens, getCurrentUser, signOut } from 'aws-amplify/auth';
+import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
 import { EMPTY, from, interval, Observable, of, throwError } from 'rxjs';
 import {
@@ -88,16 +88,7 @@ export class AuthService {
 
   checkSession$(): Observable<AuthSession> {
     return from(getCurrentUser()).pipe(
-      switchMap(() =>
-        this._authStore.getSession$().pipe(
-          tap((session) => {
-            if (!session.tokens) {
-              throwError(() => 'No valid session tokens');
-            }
-            this._logAllTokens(session.tokens);
-          })
-        )
-      )
+      switchMap(() => this._authStore.getSession$())
     );
   }
 
@@ -145,23 +136,9 @@ export class AuthService {
   }
 
   isAuthenticated(): Observable<boolean> {
-    return this._authStore.getSession$().pipe(
-      tap((session) => {
-        if (session.isAuthenticated && session.tokens) {
-          this._logAllTokens(session.tokens);
-        }
-      }),
-      map((session) => session.isAuthenticated)
-    );
-  }
-
-  private _logAllTokens(tokens: AuthTokens): void {
-    if (tokens.accessToken) {
-      jwtDecode(tokens.accessToken.toString());
-    }
-    if (tokens.idToken) {
-      jwtDecode(tokens.idToken.toString());
-    }
+    return this._authStore
+      .getSession$()
+      .pipe(map((session) => session.isAuthenticated));
   }
 
   private _startTokenCheck(): void {
