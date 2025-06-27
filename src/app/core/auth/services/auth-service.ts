@@ -331,39 +331,60 @@ export class AuthService {
     }
 
     return this._authStore.getSession$().pipe(
-      switchMap((session) => {
-        const accessToken = session.tokens?.accessToken?.toString();
-
-        if (!accessToken) {
-          return this.logout$();
-        }
-
-        return defer(() => {
-          try {
-            const decoded = jwtDecode<JwtPayload>(accessToken);
-            return of(decoded);
-          } catch (error) {
-            return throwError(() => error);
-          }
-        }).pipe(
-          switchMap((decoded) => {
-            const currentTime = Math.floor(Date.now() / 1000);
-            const timeUntilExpiry = (decoded.exp || 0) - currentTime;
-            const REFRESH_THRESHOLD_SECONDS = 300;
-
-            if (timeUntilExpiry <= REFRESH_THRESHOLD_SECONDS) {
-              return this._refreshTokens$().pipe(
-                mapTo(undefined),
-                catchError(() => this.logout$())
-              );
-            }
-
-            return EMPTY;
-          }),
-          catchError(() => this.logout$())
-        );
-      }),
+      switchMap((session) => this._processSessionForTokenCheck$(session)),
       catchError(() => this.logout$())
     );
+  }
+
+  private _processSessionForTokenCheck$(
+    session: AuthSession
+  ): Observable<void> {
+    const accessToken = session.tokens?.accessToken?.toString();
+
+    if (!accessToken) {
+      return this.logout$();
+    }
+
+    return this._decodeAccessToken$(accessToken).pipe(
+      switchMap((decoded) => this._handleTokenExpiry$(decoded)),
+      catchError(() => this.logout$())
+    );
+  }
+
+  private _decodeAccessToken$(accessToken: string): Observable<JwtPayload> {
+    return defer(() => {
+      try {
+        const decoded = jwtDecode<JwtPayload>(accessToken);
+        return of(decoded);
+      } catch (error) {
+        return throwError(() => error);
+      }
+    });
+  }
+
+  private _handleTokenExpiry$(decoded: JwtPayload): Observable<void> {
+    const timeUntilExpiry = this._calculateTimeUntilExpiry(decoded);
+    const REFRESH_THRESHOLD_SECONDS = 300;
+
+    if (this._shouldRefreshToken(timeUntilExpiry, REFRESH_THRESHOLD_SECONDS)) {
+      return this._refreshTokens$().pipe(
+        mapTo(undefined),
+        catchError(() => this.logout$())
+      );
+    }
+
+    return EMPTY;
+  }
+
+  private _calculateTimeUntilExpiry(decoded: JwtPayload): number {
+    const currentTime = Math.floor(Date.now() / 1000);
+    return (decoded.exp || 0) - currentTime;
+  }
+
+  private _shouldRefreshToken(
+    timeUntilExpiry: number,
+    threshold: number
+  ): boolean {
+    return timeUntilExpiry <= threshold;
   }
 }

@@ -83,7 +83,9 @@ export const authInterceptor: HttpInterceptorFn = (
     }),
     catchError((error) => {
       if (error.status === 401) {
-        authService.logout$().subscribe();
+        return authService
+          .logout$()
+          .pipe(switchMap(() => throwError(() => error)));
       }
       return throwError(() => error);
     })
