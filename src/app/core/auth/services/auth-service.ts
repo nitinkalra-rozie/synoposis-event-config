@@ -33,9 +33,6 @@ export class AuthService {
   private readonly _authStore = inject(AuthStore);
 
   private readonly _isLoggingOut = signal<boolean>(false);
-
-  // private readonly _REFRESH_BUFFER_TIME_MS = 60 * 1000;
-
   logout$(): Observable<void> {
     if (this._isLoggingOut()) {
       return EMPTY;
