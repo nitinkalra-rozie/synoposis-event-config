@@ -1,0 +1,118 @@
+import { inject, Injectable } from '@angular/core';
+import { interval, Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
+import {
+  CentralizedViewWebSocketMessage,
+  CentralizedViewWebSocketOutgoingMessage,
+} from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
+import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
+import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class CentralizedViewWebSocketDataService {
+  private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _authService = inject(AuthService);
+  private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
+
+  private _socket!: WebSocket;
+  private _pingDestroy$ = new Subject<void>();
+
+  connect(): Observable<CentralizedViewWebSocketMessage> {
+    this._webSocketStore.setConnecting(true);
+
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) {
+      throw new Error('No event name available for WebSocket connection');
+    }
+
+    const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&cms=true`;
+    const token = this._authService.getAccessToken();
+    this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
+
+    return new Observable((observer) => {
+      this._socket.onopen = () => {
+        this._webSocketStore.setConnected(true);
+        this._webSocketStore.setConnecting(false);
+        this._sendMessage({
+          eventName: eventName,
+          client: true,
+          event: 'getLastEvent',
+          cms: true,
+        });
+        console.log('Centralized View WebSocket connection established.');
+
+        this._startPing(eventName);
+      };
+
+      this._socket.onmessage = (event: MessageEvent) => {
+        try {
+          const parsedMessage: CentralizedViewWebSocketMessage = JSON.parse(
+            event.data
+          );
+          console.log('Parsed WebSocket message:', parsedMessage);
+          observer.next(parsedMessage);
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+          this._webSocketStore.setError('Failed to parse WebSocket message');
+        }
+      };
+
+      this._socket.onerror = (error: Event) => {
+        observer.error('Centralized View WebSocket error: ' + error);
+      };
+
+      this._socket.onclose = (event: CloseEvent) => {
+        console.log('Centralized View WebSocket connection closed:', event);
+        this.disconnect();
+        observer.complete();
+      };
+    });
+  }
+
+  disconnect(): void {
+    this._clearPing();
+    if (this._socket) {
+      this._socket.onclose = function () {}; // disable onclose handler first
+      this._socket.close();
+      this._socket = null as unknown as WebSocket; // ensure the socket doesn't have older references
+      this._webSocketStore.setConnected(false);
+    }
+  }
+
+  private _sendMessage(message: CentralizedViewWebSocketOutgoingMessage): void {
+    if (this._webSocketStore.$isConnected()) {
+      this._socket.send(JSON.stringify(message));
+    } else {
+      console.error('Centralized View WebSocket is not connected.');
+      this._webSocketStore.setError('WebSocket connection lost');
+    }
+  }
+
+  private _startPing(eventName: string): void {
+    this._clearPing();
+    interval(30000)
+      .pipe(
+        tap(() => {
+          if (this._webSocketStore.$isConnected()) {
+            this._sendMessage({
+              eventName: eventName,
+              client: true,
+              event: 'ping',
+              cms: true,
+            });
+            console.log('Ping sent to keep Centralized View WebSocket alive');
+          }
+        }),
+        takeUntil(this._pingDestroy$)
+      )
+      .subscribe();
+  }
+
+  private _clearPing(): void {
+    this._pingDestroy$.next();
+  }
+}

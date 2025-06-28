@@ -5,6 +5,9 @@
       [locations]="$vm().locations()"
       [searchTerm]="$vm().searchTerm()"
       [totalCount]="$vm().totalCount"
+      [websocketConnected]="$vm().websocketConnected()"
+      [websocketConnecting]="$vm().websocketConnecting()"
+      [websocketError]="$vm().websocketError()"
       (filterChange)="onFilterSelectionsApplied($event)"
       (searchChange)="executeSearch($event)" />
 
