@@ -177,7 +177,7 @@ export class AuthService {
     );
   }
 
-  private scheduleTokenRefresh(): void {
+  private _scheduleTokenRefresh(): void {
     this._authStore
       .getSession$()
       .pipe(
@@ -218,7 +218,7 @@ export class AuthService {
 
     return this._authStore.updateSessionWithLatestTokens$().pipe(
       tap(() => {
-        this.scheduleTokenRefresh();
+        this._scheduleTokenRefresh();
       }),
       catchError(() => this.logout$())
     );
