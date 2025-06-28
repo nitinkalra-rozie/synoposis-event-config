@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { interval, Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import {
@@ -31,8 +30,8 @@ export class CentralizedViewWebSocketDataService {
     }
 
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&cms=true`;
-    const token = toSignal(this._authService.getAccessToken$());
-    this._socket = new WebSocket(webSocketUrl, token()); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
+    const token = this._authService.getAccessToken();
+    this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
 
     return new Observable((observer) => {
       this._socket.onopen = () => {

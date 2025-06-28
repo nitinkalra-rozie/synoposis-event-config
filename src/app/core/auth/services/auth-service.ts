@@ -68,6 +68,10 @@ export class AuthService {
     );
   }
 
+  getAccessToken(): string | null {
+    return this._authStore.getSession().tokens?.accessToken?.toString() || null;
+  }
+
   getAccessToken$(): Observable<string | null> {
     return this._authStore
       .getSession$()
