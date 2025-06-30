@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
+  catchError,
   EMPTY,
   filter,
   finalize,
@@ -121,7 +122,15 @@ export class AuthTokenService {
           lastFetched: Date.now(),
         });
       }),
-      map((session) => session.tokens?.accessToken?.toString() || '')
+      map((session) => session.tokens?.accessToken?.toString() || ''),
+      catchError(() => {
+        this._authStore.updateSession({
+          tokens: null,
+          isAuthenticated: false,
+          lastFetched: Date.now(),
+        });
+        return of('');
+      })
     );
   }
 }

@@ -80,7 +80,7 @@ export const authInterceptor: HttpInterceptorFn = (
       return next(authorizedRequest);
     }),
     catchError((error) => {
-      if (error.status === 401 || error.status == 0) {
+      if (error.status === 401 || error.status === 403 || error.status === 0) {
         return authFacade
           .logout()
           .pipe(switchMap(() => throwError(() => error)));
