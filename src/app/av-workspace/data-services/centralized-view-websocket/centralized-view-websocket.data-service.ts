@@ -62,6 +62,7 @@ export class CentralizedViewWebSocketDataService {
                 this._webSocketStore.setError(
                   'Failed to parse WebSocket message'
                 );
+                observer.error(error);
               }
             };
 

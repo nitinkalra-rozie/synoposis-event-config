@@ -69,13 +69,13 @@ export const authInterceptor: HttpInterceptorFn = (
   }
 
   return authFacade.getValidToken$().pipe(
-    switchMap((token) => {
+    switchMap((accessToken) => {
       const headers: Record<string, string> = {
         'X-Api-Key': environment.X_API_KEY,
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       };
-
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
       const authorizedRequest = req.clone({ setHeaders: headers });
       return next(authorizedRequest);
     }),
