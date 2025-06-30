@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 
@@ -26,7 +26,6 @@ import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-me
   imports: [RouterLinkActive, RouterLink, MatTooltipModule, MatIconModule],
 })
 export class LayoutSideNavComponent implements OnInit {
-  protected readonly _authService = inject(AuthService);
   protected readonly _menuItems = inject(NAVIGATION_MENU);
 
   protected readonly isAdminUser = signal<boolean>(false);
@@ -40,6 +39,7 @@ export class LayoutSideNavComponent implements OnInit {
   });
 
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _authFacade = inject(AuthFacade);
 
   ngOnInit(): void {
     this.loadUserPermissions();
@@ -47,8 +47,8 @@ export class LayoutSideNavComponent implements OnInit {
 
   private loadUserPermissions(): void {
     combineLatest([
-      this._authService.getUserRole$(),
-      this._authService.isUserAdmin$(),
+      this._authFacade.getUserRole$(),
+      this._authFacade.isUserAdmin$(),
     ])
       .pipe(
         takeUntilDestroyed(this._destroyRef),

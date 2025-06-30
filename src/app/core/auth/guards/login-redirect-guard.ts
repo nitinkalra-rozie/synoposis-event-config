@@ -7,7 +7,7 @@ import {
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import {
   getDefaultRedirectUrl,
   isUserAuthenticated,
@@ -17,17 +17,17 @@ export const loginRedirectGuard: CanActivateFn = (
   _route,
   state: RouterStateSnapshot
 ): Observable<boolean | UrlTree> => {
-  const authService = inject(AuthService);
   const router = inject(Router);
+  const authFacade = inject(AuthFacade);
 
-  return authService.isAuthenticated().pipe(
+  return authFacade.isAuthenticated().pipe(
     take(1),
     switchMap((isAuth) => {
       if (!isAuth) {
         return of(true);
       }
 
-      return authService.getUserRole$().pipe(
+      return authFacade.getUserRole$().pipe(
         take(1),
         map((role) => {
           if (isUserAuthenticated(role)) {

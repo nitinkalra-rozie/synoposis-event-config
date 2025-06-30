@@ -27,7 +27,7 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
@@ -285,7 +285,7 @@ export class ContentEditorComponent {
   private _speakerUpdate = new Subject<{ text: string; index: number }>();
   private _backendApiService = inject(BackendApiService);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
-  private _authService = inject(AuthService);
+  private _authFacade = inject(AuthFacade);
   //#endregion
 
   // TODO: convert to the new patterns, apply separations and etc. Remove if not valid anymore by the end if initial phase
@@ -682,7 +682,7 @@ export class ContentEditorComponent {
   changeEventStatus(status): void {
     this.isLoading = true;
 
-    this._authService
+    this._authFacade
       .getUserEmail$()
       .pipe(
         take(1),
@@ -785,7 +785,7 @@ export class ContentEditorComponent {
   }
 
   checkSessionLocked(data: any[], session_id: string): Observable<boolean> {
-    return this._authService.getUserEmail$().pipe(
+    return this._authFacade.getUserEmail$().pipe(
       take(1),
       map((email) => {
         const exist = data.find(
@@ -832,7 +832,7 @@ export class ContentEditorComponent {
       clonedSession.StartsAt = this.convertDate(clonedSession.StartsAt);
     }
 
-    this._authService
+    this._authFacade
       .getUserEmail$()
       .pipe(
         take(1),
