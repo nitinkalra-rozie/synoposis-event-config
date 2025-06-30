@@ -1,10 +1,9 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthTokens, getCurrentUser, signOut } from 'aws-amplify/auth';
+import { getCurrentUser, signOut } from 'aws-amplify/auth';
 import { jwtDecode } from 'jwt-decode';
 import {
-  defer,
   EMPTY,
   from,
   interval,
@@ -19,7 +18,6 @@ import {
   filter,
   finalize,
   map,
-  mapTo,
   retry,
   share,
   switchMap,
@@ -102,6 +100,10 @@ export class AuthService {
     );
   }
 
+  getAccessToken(): string | null {
+    return this._authStore.getSession().tokens?.accessToken?.toString() || null;
+  }
+
   getAccessToken$(): Observable<string | null> {
     return this._authStore
       .getSession$()
@@ -128,28 +130,9 @@ export class AuthService {
     );
   }
 
-  checkSession$(): Observable<boolean> {
-    return this._authStore.getSession$().pipe(
-      switchMap((session) => {
-        if (!session.isAuthenticated || !session.tokens?.accessToken) {
-          return of(false);
-        }
-
-        return from(getCurrentUser()).pipe(
-          map(() => {
-            this._logAllTokens(session.tokens!);
-            return true;
-          }),
-          catchError((error) => {
-            console.error('[AuthService] getCurrentUser failed:', error);
-            return of(false);
-          })
-        );
-      }),
-      catchError((error) => {
-        console.error('[AuthService] Session check failed:', error);
-        return of(false);
-      })
+  checkSession$(): Observable<AuthSession> {
+    return from(getCurrentUser()).pipe(
+      switchMap(() => this._authStore.getSession$())
     );
   }
 
@@ -300,15 +283,6 @@ export class AuthService {
     return true;
   }
 
-  private _logAllTokens(tokens: AuthTokens): void {
-    if (tokens.accessToken) {
-      jwtDecode(tokens.accessToken.toString());
-    }
-    if (tokens.idToken) {
-      jwtDecode(tokens.idToken.toString());
-    }
-  }
-
   private _startTokenCheck(): void {
     interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
@@ -320,71 +294,24 @@ export class AuthService {
             )
         ),
         takeUntilDestroyed(this._destroyRef),
-        switchMap(() => this._runTokenCheck$())
+        switchMap(() => this._refreshTokens$())
       )
       .subscribe();
   }
 
-  private _runTokenCheck$(): Observable<void> {
-    if (this._isLoggingOut() || this._isRefreshing()) {
-      return EMPTY;
-    }
+  // private _runTokenCheck$(): Observable<void> {
+  //   if (this._isLoggingOut() || this._isRefreshing()) {
+  //     return EMPTY;
+  //   }
 
-    return this._authStore.getSession$().pipe(
-      switchMap((session) => this._processSessionForTokenCheck$(session)),
-      catchError(() => this.logout$())
-    );
-  }
-
-  private _processSessionForTokenCheck$(
-    session: AuthSession
-  ): Observable<void> {
-    const accessToken = session.tokens?.accessToken?.toString();
-
-    if (!accessToken) {
-      return this.logout$();
-    }
-
-    return this._decodeAccessToken$(accessToken).pipe(
-      switchMap((decoded) => this._handleTokenExpiry$(decoded)),
-      catchError(() => this.logout$())
-    );
-  }
-
-  private _decodeAccessToken$(accessToken: string): Observable<JwtPayload> {
-    return defer(() => {
-      try {
-        const decoded = jwtDecode<JwtPayload>(accessToken);
-        return of(decoded);
-      } catch (error) {
-        return throwError(() => error);
-      }
-    });
-  }
-
-  private _handleTokenExpiry$(decoded: JwtPayload): Observable<void> {
-    const timeUntilExpiry = this._calculateTimeUntilExpiry(decoded);
-    const REFRESH_THRESHOLD_SECONDS = 300;
-
-    if (this._shouldRefreshToken(timeUntilExpiry, REFRESH_THRESHOLD_SECONDS)) {
-      return this._refreshTokens$().pipe(
-        mapTo(undefined),
-        catchError(() => this.logout$())
-      );
-    }
-
-    return EMPTY;
-  }
-
-  private _calculateTimeUntilExpiry(decoded: JwtPayload): number {
-    const currentTime = Math.floor(Date.now() / 1000);
-    return (decoded.exp || 0) - currentTime;
-  }
-
-  private _shouldRefreshToken(
-    timeUntilExpiry: number,
-    threshold: number
-  ): boolean {
-    return timeUntilExpiry <= threshold;
-  }
+  //   return this._authStore.getSession$().pipe(
+  //     switchMap((session) => {
+  //       if (!session.tokens?.accessToken) {
+  //         return this.logout$();
+  //       } else {
+  //         return EMPTY;
+  //       }
+  //     })
+  //   );
+  // }
 }

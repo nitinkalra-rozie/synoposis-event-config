@@ -6,7 +6,6 @@ import { SynSkeletonLoader } from 'src/app/shared/components/syn-skeleton-loader
   templateUrl: './stage-info-table-placeholder.html',
   styleUrl: './stage-info-table-placeholder.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [SynSkeletonLoader],
 })
 export class StageInfoPlaceholder {}

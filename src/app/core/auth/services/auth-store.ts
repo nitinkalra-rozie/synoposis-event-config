@@ -19,6 +19,13 @@ export class AuthStore {
     this._session.set(session);
   }
 
+  getSession(): AuthSession {
+    return this._session();
+  }
+
+  forceRefreshSession$(): Observable<AuthSession> {
+    return this._fetchAndCacheSession$(true);
+  }
   getSession$(): Observable<AuthSession> {
     const currentSession = this._session();
     const now = Date.now();
@@ -31,8 +38,8 @@ export class AuthStore {
     return this._fetchAndCacheSession$();
   }
 
-  forceRefreshSession$(): Observable<AuthSession> {
-    return this._fetchAndCacheSession$(true);
+  updateSessionWithLatestTokens$(): Observable<void> {
+    return this._fetchAndCacheSession$().pipe(map(() => undefined));
   }
 
   private _fetchAndCacheSession$(

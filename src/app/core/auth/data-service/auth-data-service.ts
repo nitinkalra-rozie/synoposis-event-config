@@ -44,8 +44,11 @@ export class AuthDataService {
   OTPVerification(otp: string): Observable<boolean> {
     return from(confirmSignIn({ challengeResponse: otp })).pipe(
       takeUntilDestroyed(this._destroyRef),
-      tap(() => {
-        this._authStore.invalidateCache();
+      tap((result) => {
+        if (result.isSignedIn) {
+          this._authStore.invalidateCache();
+          this._authService['scheduleTokenRefresh']();
+        }
       }),
       map((result: SignInOutput) => result.isSignedIn)
     );

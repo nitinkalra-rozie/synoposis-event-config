@@ -1,8 +1,15 @@
-export type SessionStatus =
+export type SessionStatusType =
   | 'NOT_STARTED'
   | 'UNDER_REVIEW'
   | 'IN_PROGRESS'
   | 'COMPLETED';
+
+export type StageStatusType =
+  | 'OFFLINE'
+  | 'AUDIO_NOT_RECEIVING'
+  | 'TRANSCRIPT_NOT_RECEIVING'
+  | 'ONLINE'
+  | 'ONLINE_AND_PROJECTING';
 
 export interface SpeakerInfo {
   Organization: string;
@@ -22,7 +29,7 @@ export interface Session {
   SessionId: string;
   SpeakersInfo: SpeakerInfo[];
   SessionDescription: string;
-  Status: SessionStatus;
+  Status: SessionStatusType;
   EndsAt: string;
   Type: string;
   PrimarySessionId: string;
@@ -34,11 +41,9 @@ export interface Session {
   Editor?: string;
 }
 
-export type StageStatus = 'offline' | 'online' | 'projecting';
-
 export interface EventStage {
   stage: string;
-  status: StageStatus;
+  status: StageStatusType;
   sessions: readonly Session[];
   autoAv: boolean;
   currentSessionId: string | null;
