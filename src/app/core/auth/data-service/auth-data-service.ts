@@ -47,7 +47,7 @@ export class AuthDataService {
       tap((result) => {
         if (result.isSignedIn) {
           this._authStore.invalidateCache();
-          this._authService['scheduleTokenRefresh']();
+          this._authService.scheduleTokenRefresh().subscribe();
         }
       }),
       map((result: SignInOutput) => result.isSignedIn)

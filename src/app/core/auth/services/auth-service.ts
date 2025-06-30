@@ -201,6 +201,10 @@ export class AuthService {
     );
   }
 
+  scheduleTokenRefresh(): Observable<AuthSession> {
+    return this._refreshTokens$();
+  }
+
   private _refreshTokens$(): Observable<AuthSession> {
     if (this._isLoggingOut()) {
       return EMPTY;
@@ -298,20 +302,4 @@ export class AuthService {
       )
       .subscribe();
   }
-
-  // private _runTokenCheck$(): Observable<void> {
-  //   if (this._isLoggingOut() || this._isRefreshing()) {
-  //     return EMPTY;
-  //   }
-
-  //   return this._authStore.getSession$().pipe(
-  //     switchMap((session) => {
-  //       if (!session.tokens?.accessToken) {
-  //         return this.logout$();
-  //       } else {
-  //         return EMPTY;
-  //       }
-  //     })
-  //   );
-  // }
 }
