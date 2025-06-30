@@ -15,6 +15,10 @@ export class AuthStore {
     this._session.set(null);
   }
 
+  getSession(): AuthSession {
+    return this._session();
+  }
+
   getSession$(): Observable<AuthSession> {
     const currentSession = this._session();
     const now = Date.now();
