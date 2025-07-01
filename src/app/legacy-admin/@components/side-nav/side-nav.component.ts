@@ -11,8 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { combineLatest, tap } from 'rxjs';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 
-import { AuthService } from 'src/app/core/auth/services/auth-service';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 import { NAVIGATION_MENU } from 'src/app/legacy-admin/@data-providers/sidebar-menu.data-provider';
 
@@ -31,7 +31,7 @@ export class SideNavComponent implements OnInit {
     return this._menuItems.filter((item) => item.roles.includes(role));
   });
 
-  private readonly _authService = inject(AuthService);
+  private readonly _authFacade = inject(AuthFacade);
   private readonly _menuItems = inject(NAVIGATION_MENU);
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -41,8 +41,8 @@ export class SideNavComponent implements OnInit {
 
   private loadNavigationPermissions(): void {
     combineLatest([
-      this._authService.getUserRole$(),
-      this._authService.isUserAdmin$(),
+      this._authFacade.getUserRole$(),
+      this._authFacade.isUserAdmin$(),
     ])
       .pipe(
         takeUntilDestroyed(this._destroyRef),

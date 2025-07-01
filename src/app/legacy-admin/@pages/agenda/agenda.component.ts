@@ -30,7 +30,7 @@ import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
@@ -276,7 +276,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   private _backendApiService = inject(BackendApiService);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
-  private _authService = inject(AuthService);
+  private _authFacade = inject(AuthFacade);
 
   // -- Lifecycle and Methods with explicit return types:
   ngOnInit(): void {
@@ -378,7 +378,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   changeEventStatus(status): void {
     this.isLoading = true;
 
-    this._authService
+    this._authFacade
       .getUserEmail$()
       .pipe(
         take(1),
@@ -423,7 +423,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     data: any[],
     session_id: string
   ): Observable<boolean> =>
-    this._authService.getUserEmail$().pipe(
+    this._authFacade.getUserEmail$().pipe(
       take(1),
       map((email) =>
         isUndefined(
