@@ -20,42 +20,39 @@ export class CentralizedViewStore {
   private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
   private readonly _webSocketFacade = inject(CentralizedViewWebSocketFacade);
 
-  public $vm = computed(() => {
-    const filteredEntities = this._filteredEntities();
-    return {
-      // Data state
-      loading: this._dataStore.$loading,
-      entities: computed(() => filteredEntities),
-      error: this._dataStore.$error,
-      sessionsByStage: this._dataStore.$sessionsByStage,
-      sessionLoadingStates: this._dataStore.$sessionLoadingStates,
-      sessionErrors: this._dataStore.$sessionErrors,
+  public $vm = computed(() => ({
+    // Data state
+    loading: this._dataStore.$loading,
+    entities: this._filteredEntities,
+    error: this._dataStore.$error,
+    sessionsByStage: this._dataStore.$sessionsByStage,
+    sessionLoadingStates: this._dataStore.$sessionLoadingStates,
+    sessionErrors: this._dataStore.$sessionErrors,
 
-      // UI state
-      searchTerm: this._uiStore.$searchTerm,
-      locationFilters: this._uiStore.$locationFilters,
-      selection: this._uiStore.$selectedItems,
-      hasSelection: this._uiStore.$hasSelection,
-      selectionCount: this._uiStore.$selectionCount,
+    // UI state
+    searchTerm: this._uiStore.$searchTerm,
+    locationFilters: this._uiStore.$locationFilters,
+    selection: this._uiStore.$selectedItems,
+    hasSelection: this._uiStore.$hasSelection,
+    selectionCount: this._uiStore.$selectionCount,
 
-      // Computed values
-      displayedColumns: this._dataStore.$displayedColumns,
-      locations: this._dataStore.$locations,
-      totalCount: this._dataStore.$entities().length,
-      filteredCount: filteredEntities.length,
-      isAllSelected: computed(() =>
-        this._uiStore.isAllSelected(filteredEntities)
-      ),
-      isIndeterminate: computed(() =>
-        this._uiStore.isIndeterminate(filteredEntities)
-      ),
+    // Computed values
+    displayedColumns: this._dataStore.$displayedColumns,
+    locations: this._dataStore.$locations,
+    totalCount: this._dataStore.$entities().length,
+    filteredCount: this._filteredEntities().length,
+    isAllSelected: computed(() =>
+      this._uiStore.isAllSelected(this._filteredEntities())
+    ),
+    isIndeterminate: computed(() =>
+      this._uiStore.isIndeterminate(this._filteredEntities())
+    ),
 
-      // WebSocket state
-      websocketConnected: this._webSocketStore.$isConnected,
-      websocketConnecting: this._webSocketStore.$isConnecting,
-      websocketError: this._webSocketStore.$error,
-    };
-  });
+    // WebSocket state
+    websocketConnected: this._webSocketStore.$isConnected,
+    websocketConnecting: this._webSocketStore.$isConnecting,
+    websocketError: this._webSocketStore.$error,
+  }));
 
   private _filteredEntities = computed(() => {
     const entities = this._dataStore.$entities();
