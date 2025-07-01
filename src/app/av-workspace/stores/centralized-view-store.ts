@@ -1,0 +1,181 @@
+import { computed, DestroyRef, inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-websocket-facade';
+import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
+import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
+import { EventStagesDataStore } from 'src/app/av-workspace/stores/event-stages-data-store';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class CentralizedViewStore {
+  constructor() {
+    this._initializeWebSocketSubscriptions();
+  }
+
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _uiStore = inject(CentralizedViewUIStore);
+  private readonly _dataStore = inject(EventStagesDataStore);
+  private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
+  private readonly _webSocketFacade = inject(CentralizedViewWebSocketFacade);
+
+  public $vm = computed(() => {
+    const filteredEntities = this._filteredEntities();
+    return {
+      // Data state
+      loading: this._dataStore.$loading,
+      entities: computed(() => filteredEntities),
+      error: this._dataStore.$error,
+      sessionsByStage: this._dataStore.$sessionsByStage,
+      sessionLoadingStates: this._dataStore.$sessionLoadingStates,
+      sessionErrors: this._dataStore.$sessionErrors,
+
+      // UI state
+      searchTerm: this._uiStore.$searchTerm,
+      locationFilters: this._uiStore.$locationFilters,
+      selection: this._uiStore.$selectedItems,
+      hasSelection: this._uiStore.$hasSelection,
+      selectionCount: this._uiStore.$selectionCount,
+
+      // Computed values
+      displayedColumns: this._dataStore.$displayedColumns,
+      locations: this._dataStore.$locations,
+      totalCount: this._dataStore.$entities().length,
+      filteredCount: filteredEntities.length,
+      isAllSelected: computed(() =>
+        this._uiStore.isAllSelected(filteredEntities)
+      ),
+      isIndeterminate: computed(() =>
+        this._uiStore.isIndeterminate(filteredEntities)
+      ),
+
+      // WebSocket state
+      websocketConnected: this._webSocketStore.$isConnected,
+      websocketConnecting: this._webSocketStore.$isConnecting,
+      websocketError: this._webSocketStore.$error,
+    };
+  });
+
+  private _filteredEntities = computed(() => {
+    const entities = this._dataStore.$entities();
+    const searchTerm = this._uiStore.$searchTerm().toLowerCase().trim();
+    const locationFilters = this._uiStore.$locationFilters();
+
+    let filtered = entities;
+
+    if (searchTerm) {
+      filtered = filtered.filter((stage) => {
+        const stageMatch = stage.stage.toLowerCase().includes(searchTerm);
+        const locationMatch = stage?.location
+          ?.toLowerCase()
+          .includes(searchTerm);
+        const sessionMatch = stage.sessions.some((session) =>
+          session.SessionTitle.toLowerCase().includes(searchTerm)
+        );
+        return stageMatch || sessionMatch || locationMatch;
+      });
+    }
+
+    if (locationFilters.length > 0) {
+      filtered = filtered.filter((stage) =>
+        stage.sessions.some((session) =>
+          locationFilters.includes(session.Location)
+        )
+      );
+    }
+
+    return filtered;
+  });
+
+  setSearchTerm(searchTerm: string): void {
+    this._uiStore.setSearchTerm(searchTerm);
+  }
+
+  setLocationFilters(locations: string[]): void {
+    this._uiStore.setLocationFilters(locations);
+  }
+
+  clearFilters(): void {
+    this._uiStore.clearFilters();
+  }
+
+  toggleAllRows(): void {
+    const filteredEntities = this._filteredEntities();
+    this._uiStore.toggleAllRows(filteredEntities);
+  }
+
+  toggleRow(row: EventStage): void {
+    this._uiStore.toggleRow(row);
+  }
+
+  fetchStages(): void {
+    this._dataStore.fetchStages();
+  }
+
+  fetchSessions(stage: string): void {
+    this._dataStore.fetchSessions(stage);
+  }
+
+  initializeWebSocket(): void {
+    this._webSocketFacade.connect();
+  }
+
+  disconnectWebSocket(): void {
+    this._webSocketFacade.disconnect();
+  }
+
+  private _initializeWebSocketSubscriptions(): void {
+    this._webSocketFacade.sessionLiveListening$
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((message) => {
+        if (message.sessionId && message.stage) {
+          this._dataStore.updateEntitySession(
+            message.stage,
+            message.sessionId,
+            'live'
+          );
+        }
+      });
+
+    this._webSocketFacade.sessionPaused$
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((message) => {
+        if (message.sessionId && message.stage) {
+          this._dataStore.updateEntitySession(
+            message.stage,
+            message.sessionId,
+            'paused'
+          );
+        }
+      });
+
+    this._webSocketFacade.sessionEnd$
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((message) => {
+        if (message.sessionId && message.stage) {
+          this._dataStore.updateEntitySession(
+            message.stage,
+            message.sessionId,
+            'ended'
+          );
+        }
+      });
+
+    this._webSocketFacade.autoAvSetup$
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((message) => {
+        if (message.stage && message.autoAv !== undefined) {
+          this._dataStore.updateEntityAutoAv(message.stage, message.autoAv);
+        }
+      });
+
+    this._webSocketFacade.stageStatusUpdate$
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((message) => {
+        if (message.stage && message.status) {
+          this._dataStore.updateEntityStatus(message.stage, message.status);
+        }
+      });
+  }
+}
