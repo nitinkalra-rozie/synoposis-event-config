@@ -5,9 +5,9 @@ import {
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { environment } from 'src/environments/environment';
 
 const isPrivateAPIEndpoint = (url: string): boolean => {
@@ -62,24 +62,30 @@ export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
-  const authService = inject(AuthService);
+  const authFacade = inject(AuthFacade);
 
   if (!isPrivateAPIEndpoint(req.url)) {
     return next(req);
   }
 
-  return from(authService.getAccessToken$()).pipe(
+  return authFacade.getValidToken$().pipe(
     switchMap((accessToken) => {
       const headers: Record<string, string> = {
         'X-Api-Key': environment.X_API_KEY,
       };
-
       if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`;
       }
-
       const authorizedRequest = req.clone({ setHeaders: headers });
       return next(authorizedRequest);
+    }),
+    catchError((error) => {
+      if (error.status === 401 || error.status === 403 || error.status === 0) {
+        return authFacade
+          .logout()
+          .pipe(switchMap(() => throwError(() => error)));
+      }
+      return throwError(() => error);
     })
   );
 };

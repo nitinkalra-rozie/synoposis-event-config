@@ -8,8 +8,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, tap } from 'rxjs';
-import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { FooterMobileComponent } from '../shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from '../shared/footer/footer.component';
 
@@ -29,8 +28,7 @@ export class OtpComponent implements OnInit {
   @ViewChild('inputs') inputsRef: ElementRef | undefined;
 
   private readonly _router = inject(Router);
-  private readonly _authService = inject(AuthService);
-  private readonly _authApiService = inject(AuthDataService);
+  private readonly _authFacade = inject(AuthFacade);
 
   ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
@@ -104,12 +102,12 @@ export class OtpComponent implements OnInit {
     }
 
     const inputOtp = this.otp.join('');
-    this._authApiService
-      .OTPVerification(inputOtp)
+    this._authFacade
+      .verifyOTP(inputOtp)
       .pipe(
         tap((success) => {
           if (success) {
-            this._authService.getUserRole$().subscribe((role) => {
+            this._authFacade.getUserRole$().subscribe((role) => {
               if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
                 this._router.navigate(['/av-workspace']);
               } else if (role === 'EDITOR') {
@@ -134,7 +132,7 @@ export class OtpComponent implements OnInit {
   handleResendOTP(): void {
     this.resendClicked = true;
 
-    this._authApiService
+    this._authFacade
       .resendOtp(this.email)
       .pipe(
         finalize(() => {

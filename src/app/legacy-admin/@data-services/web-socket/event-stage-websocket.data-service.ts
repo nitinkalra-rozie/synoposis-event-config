@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { interval, Observable, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
@@ -15,7 +15,7 @@ import { environment } from 'src/environments/environment';
 export class EventStageWebsocketDataService {
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
   private readonly _browserWindowService = inject(BrowserWindowService);
-  private readonly _authService = inject(AuthService);
+  private readonly _authFacade = inject(AuthFacade);
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
@@ -28,38 +28,49 @@ export class EventStageWebsocketDataService {
 
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&stage=${selectedLocation}`;
-    const token = this._authService.getAccessToken();
-    this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
 
-    return new Observable((observer) => {
-      this._socket.onopen = () => {
-        this._eventStageWebSocketState.setConnected(true);
-        this._eventStageWebSocketState.setConnecting(false);
-        this._sendMessage({
-          eventName: eventName,
-          client: true,
-          event: 'getLastEvent',
-          stage: selectedLocation,
+    return this._authFacade.getAccessToken$().pipe(
+      take(1),
+      // eslint-disable-next-line arrow-body-style
+      switchMap((token) => {
+        return new Observable<MessageEvent>((observer) => {
+          this._socket = new WebSocket(webSocketUrl, token); // Token sent as subprotocol for now
+
+          this._socket.onopen = () => {
+            this._eventStageWebSocketState.setConnected(true);
+            this._eventStageWebSocketState.setConnecting(false);
+            this._sendMessage({
+              eventName: eventName,
+              client: true,
+              event: 'getLastEvent',
+              stage: selectedLocation,
+            });
+            console.log('WebSocket connection established.');
+            this._startPing(eventName, selectedLocation);
+          };
+
+          this._socket.onmessage = (event: MessageEvent) => {
+            this._handleWebSocketMessage(event.data);
+            observer.next(event);
+          };
+
+          this._socket.onerror = (error: Event) => {
+            observer.error('Session WebSocket error: ' + error);
+          };
+
+          this._socket.onclose = (event: CloseEvent) => {
+            console.log('WebSocket connection closed:', event);
+            this.disconnect();
+            observer.complete();
+          };
+
+          return () => {
+            console.log('WebSocket observable unsubscribed, disconnecting...');
+            this.disconnect();
+          };
         });
-        console.log('WebSocket connection established.');
-
-        this._startPing(eventName, selectedLocation);
-      };
-
-      this._socket.onmessage = (event: MessageEvent) => {
-        this._handleWebSocketMessage(event.data);
-      };
-
-      this._socket.onerror = (error: Event) => {
-        observer.error('Session WebSocket error: ' + error);
-      };
-
-      this._socket.onclose = (event: CloseEvent) => {
-        console.log('WebSocket connection closed:', event);
-        this.disconnect();
-        observer.complete();
-      };
-    });
+      })
+    );
   }
 
   disconnect(): void {
