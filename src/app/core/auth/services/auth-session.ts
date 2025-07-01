@@ -75,7 +75,7 @@ export class AuthSessionService {
       return EMPTY;
     }
 
-    this._authStore.$isLoggingOut.set(true);
+    this._authStore.setIsLoggingOut(true);
 
     return from(signOut({ global: true })).pipe(
       tap(() => {
@@ -83,7 +83,7 @@ export class AuthSessionService {
         this._router.navigate(['/login']);
       }),
       finalize(() => {
-        this._authStore.$isLoggingOut.set(false);
+        this._authStore.setIsLoggingOut(false);
       }),
       catchError((error) => {
         this._router.navigate(['/login']);

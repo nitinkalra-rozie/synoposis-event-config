@@ -20,6 +20,7 @@ interface AuthState {
   lastActivity: number;
   sessionExpiry: number | null;
   refreshInProgress: boolean;
+  isLoggingOut: boolean;
 }
 
 const initialState: AuthState = {
@@ -30,6 +31,7 @@ const initialState: AuthState = {
   lastActivity: Date.now(),
   sessionExpiry: null,
   refreshInProgress: false,
+  isLoggingOut: false,
 };
 
 const state = {
@@ -40,6 +42,7 @@ const state = {
   lastActivity: signal<number>(initialState.lastActivity),
   sessionExpiry: signal<number | null>(initialState.sessionExpiry),
   refreshInProgress: signal<boolean>(initialState.refreshInProgress),
+  isLoggingOut: signal<boolean>(initialState.isLoggingOut),
 };
 
 @Injectable({
@@ -53,8 +56,7 @@ export class AuthStore {
   public readonly $lastActivity = state.lastActivity.asReadonly();
   public readonly $sessionExpiry = state.sessionExpiry.asReadonly();
   public readonly $refreshInProgress = state.refreshInProgress.asReadonly();
-
-  public readonly $isLoggingOut = signal<boolean>(false);
+  public readonly $isLoggingOut = state.isLoggingOut.asReadonly();
 
   public readonly $isTokenValid = computed(() =>
     ['valid', 'refreshing'].includes(state.tokenStatus())
@@ -94,6 +96,10 @@ export class AuthStore {
     state.refreshInProgress.set(value);
   }
 
+  setIsLoggingOut(value: boolean): void {
+    state.isLoggingOut.set(value);
+  }
+
   getSession$(): Observable<AuthSession> {
     const currentSession = state.session();
     const now = Date.now();
@@ -114,6 +120,7 @@ export class AuthStore {
     state.lastActivity.set(Date.now());
     state.sessionExpiry.set(initialState.sessionExpiry);
     state.refreshInProgress.set(initialState.refreshInProgress);
+    state.isLoggingOut.set(initialState.isLoggingOut);
   }
 
   private _fetchAndCacheSession$(): Observable<AuthSession> {
