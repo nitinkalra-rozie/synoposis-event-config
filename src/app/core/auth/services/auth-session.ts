@@ -40,11 +40,6 @@ export class AuthSessionService {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
   private readonly _authErrorHandler = inject(AuthErrorHandler);
-  private readonly _isLoggingOut = signal<boolean>(false);
-
-  public get isLogoutInProgress(): boolean {
-    return this._isLoggingOut();
-  }
 
   signUp$(email: string): Observable<CustomChallengeResponse> {
     return this._authStore.getSession$().pipe(
