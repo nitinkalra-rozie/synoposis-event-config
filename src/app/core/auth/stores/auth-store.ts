@@ -54,6 +54,8 @@ export class AuthStore {
   public readonly $sessionExpiry = state.sessionExpiry.asReadonly();
   public readonly $refreshInProgress = state.refreshInProgress.asReadonly();
 
+  public readonly $isLoggingOut = signal<boolean>(false);
+
   public readonly $isTokenValid = computed(() =>
     ['valid', 'refreshing'].includes(state.tokenStatus())
   );

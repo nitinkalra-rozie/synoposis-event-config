@@ -76,7 +76,7 @@ export class AuthTokenService {
   private _startTokenCheck(): void {
     interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
-        filter(() => !this._sessionService.$isLoggingOut()),
+        filter(() => !this._authStore.$isLoggingOut()),
         filter(
           () =>
             !this._route.snapshot.children?.[0]?.routeConfig?.path?.includes(
@@ -90,14 +90,14 @@ export class AuthTokenService {
   }
 
   private _runTokenCheck$(): Observable<void> {
-    if (this._sessionService.$isLoggingOut()) {
+    if (this._authStore.$isLoggingOut()) {
       return EMPTY;
     }
 
     return this._authStore.getSession$().pipe(
       switchMap((session) => {
         if (!session.tokens?.accessToken && session.isAuthenticated === false) {
-          if (!this._sessionService.$isLoggingOut()) {
+          if (!this._authStore.$isLoggingOut()) {
             return this._sessionService.logout$();
           }
         }

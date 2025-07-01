@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
@@ -35,8 +35,6 @@ import { AuthStore } from 'src/app/core/auth/stores/auth-store';
   providedIn: 'root',
 })
 export class AuthSessionService {
-  public readonly $isLoggingOut = signal<boolean>(false);
-
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
@@ -73,11 +71,11 @@ export class AuthSessionService {
   }
 
   logout$(): Observable<void> {
-    if (this.$isLoggingOut()) {
+    if (this._authStore.$isLoggingOut()) {
       return EMPTY;
     }
 
-    this.$isLoggingOut.set(true);
+    this._authStore.$isLoggingOut.set(true);
 
     return from(signOut({ global: true })).pipe(
       tap(() => {
@@ -85,7 +83,7 @@ export class AuthSessionService {
         this._router.navigate(['/login']);
       }),
       finalize(() => {
-        this.$isLoggingOut.set(false);
+        this._authStore.$isLoggingOut.set(false);
       }),
       catchError((error) => {
         this._router.navigate(['/login']);

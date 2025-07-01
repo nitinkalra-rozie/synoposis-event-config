@@ -8,7 +8,7 @@ import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
-import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
+import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 import { environment } from 'src/environments/environment';
 
 const isPrivateAPIEndpoint = (url: string): boolean => {
@@ -64,7 +64,7 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<any>> => {
   const authFacade = inject(AuthFacade);
-  const authSessionService = inject(AuthSessionService);
+  const authStore = inject(AuthStore);
 
   if (!isPrivateAPIEndpoint(req.url)) {
     return next(req);
@@ -84,7 +84,7 @@ export const authInterceptor: HttpInterceptorFn = (
     catchError((error) => {
       if (
         (error.status === 401 || error.status == 0) &&
-        !authSessionService.$isLoggingOut()
+        !authStore.$isLoggingOut()
       ) {
         return authFacade
           .logout$()
