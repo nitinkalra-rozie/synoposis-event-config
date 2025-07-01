@@ -2,8 +2,9 @@ import { computed, Injectable, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
-import { AuthSession } from 'src/app/core/auth/data-service/auth.data-model';
+import { AuthSession } from 'src/app/core/auth/models/auth.model';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
+
 export type TokenStatus =
   | 'valid'
   | 'expired'
@@ -34,15 +35,30 @@ const INITIAL_AUTH_STATE: AuthState = {
   providedIn: 'root',
 })
 export class AuthStore {
-  public readonly isAuthenticated$ = computed(
-    () => this._state().isAuthenticated
-  );
-  public readonly tokenStatus$ = computed(() => this._state().tokenStatus);
-  public readonly userRole$ = computed(() => this._state().userRole);
-  public readonly sessionExpiry$ = computed(() => this._state().sessionExpiry);
-  public readonly isTokenValid$ = computed(() =>
-    ['valid', 'refreshing'].includes(this._state().tokenStatus)
-  );
+  public readonly isAuthenticated$ = computed(() => {
+    const state = this._state();
+    return state.isAuthenticated;
+  });
+
+  public readonly userRole$ = computed(() => {
+    const state = this._state();
+    return state.userRole;
+  });
+
+  public readonly tokenStatus$ = computed(() => {
+    const state = this._state();
+    return state.tokenStatus;
+  });
+
+  public readonly sessionExpiry$ = computed(() => {
+    const state = this._state();
+    return state.sessionExpiry;
+  });
+
+  public readonly isTokenValid$ = computed(() => {
+    const state = this._state();
+    return ['valid', 'refreshing'].includes(state.tokenStatus);
+  });
 
   private readonly _cacheDurationMs = 5000;
   private readonly _session = signal<AuthSession | null>(null);
@@ -54,7 +70,11 @@ export class AuthStore {
   }
 
   getSession(): AuthSession {
-    return this._state().session!;
+    const session = this._state().session;
+    if (!session) {
+      throw new Error('Session not available when requested');
+    }
+    return session;
   }
 
   updateSession(session: AuthSession): void {

@@ -19,6 +19,7 @@ import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 
 const TOKEN_CHECK_INTERVAL_MS = 3000;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -51,7 +52,7 @@ export class AuthTokenService {
       .pipe(map((session) => session.tokens?.idToken?.toString() || null));
   }
 
-  isAuthenticated(): Observable<boolean> {
+  isAuthenticated$(): Observable<boolean> {
     return this._authStore.getSession$().pipe(
       map((session) => {
         if (!session) {

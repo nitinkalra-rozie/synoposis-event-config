@@ -20,12 +20,12 @@ export const loginRedirectGuard: CanActivateFn = (
   const router = inject(Router);
   const authFacade = inject(AuthFacade);
 
-  const isCachedAuth = authFacade.isAuthenticated();
+  const isCachedAuth = authFacade.isAuthenticated$();
   if (!isCachedAuth) {
     return of(router.createUrlTree(['/login']));
   }
 
-  return authFacade.isAuthenticated().pipe(
+  return authFacade.isAuthenticated$().pipe(
     take(1),
     switchMap((isAuth) => {
       if (!isAuth) {

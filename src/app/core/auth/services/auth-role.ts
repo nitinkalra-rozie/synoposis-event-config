@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { EMPTY, map, Observable, of, switchMap } from 'rxjs';
+import { map, Observable, of, switchMap, throwError } from 'rxjs';
 import { AuthTokenService } from 'src/app/core/auth/services/auth-token';
 import { JwtPayload, UserRole } from 'src/app/core/enum/auth-roles.enum';
 
@@ -40,7 +40,7 @@ export class AuthRoleService {
     return this._tokenService.getAccessToken$().pipe(
       switchMap((accessToken) => {
         if (!accessToken) {
-          return EMPTY;
+          return throwError(() => new Error('No access token available'));
         }
         const decodedToken: JwtPayload = jwtDecode(accessToken);
         const email = decodedToken.email || decodedToken.username;

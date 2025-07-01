@@ -31,45 +31,47 @@ export class EventStageWebsocketDataService {
 
     return this._authFacade.getAccessToken$().pipe(
       take(1),
-      // eslint-disable-next-line arrow-body-style
-      switchMap((token) => {
-        return new Observable<MessageEvent>((observer) => {
-          this._socket = new WebSocket(webSocketUrl, token); // Token sent as subprotocol for now
+      switchMap(
+        (token) =>
+          new Observable<MessageEvent>((observer) => {
+            this._socket = new WebSocket(webSocketUrl, token); // Token sent as subprotocol for now
 
-          this._socket.onopen = () => {
-            this._eventStageWebSocketState.setConnected(true);
-            this._eventStageWebSocketState.setConnecting(false);
-            this._sendMessage({
-              eventName: eventName,
-              client: true,
-              event: 'getLastEvent',
-              stage: selectedLocation,
-            });
-            console.log('WebSocket connection established.');
-            this._startPing(eventName, selectedLocation);
-          };
+            this._socket.onopen = () => {
+              this._eventStageWebSocketState.setConnected(true);
+              this._eventStageWebSocketState.setConnecting(false);
+              this._sendMessage({
+                eventName: eventName,
+                client: true,
+                event: 'getLastEvent',
+                stage: selectedLocation,
+              });
+              console.log('WebSocket connection established.');
+              this._startPing(eventName, selectedLocation);
+            };
 
-          this._socket.onmessage = (event: MessageEvent) => {
-            this._handleWebSocketMessage(event.data);
-            observer.next(event);
-          };
+            this._socket.onmessage = (event: MessageEvent) => {
+              this._handleWebSocketMessage(event.data);
+              observer.next(event);
+            };
 
-          this._socket.onerror = (error: Event) => {
-            observer.error('Session WebSocket error: ' + error);
-          };
+            this._socket.onerror = (error: Event) => {
+              observer.error('Session WebSocket error: ' + error);
+            };
 
-          this._socket.onclose = (event: CloseEvent) => {
-            console.log('WebSocket connection closed:', event);
-            this.disconnect();
-            observer.complete();
-          };
+            this._socket.onclose = (event: CloseEvent) => {
+              console.log('WebSocket connection closed:', event);
+              this.disconnect();
+              observer.complete();
+            };
 
-          return () => {
-            console.log('WebSocket observable unsubscribed, disconnecting...');
-            this.disconnect();
-          };
-        });
-      })
+            return () => {
+              console.log(
+                'WebSocket observable unsubscribed, disconnecting...'
+              );
+              this.disconnect();
+            };
+          })
+      )
     );
   }
 

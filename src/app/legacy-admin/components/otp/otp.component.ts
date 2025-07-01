@@ -103,7 +103,7 @@ export class OtpComponent implements OnInit {
 
     const inputOtp = this.otp.join('');
     this._authFacade
-      .verifyOTP(inputOtp)
+      .verifyOTP$(inputOtp)
       .pipe(
         tap((success) => {
           if (success) {
@@ -133,7 +133,7 @@ export class OtpComponent implements OnInit {
     this.resendClicked = true;
 
     this._authFacade
-      .resendOtp(this.email)
+      .resendOtp$(this.email)
       .pipe(
         finalize(() => {
           this.resendClicked = false;
