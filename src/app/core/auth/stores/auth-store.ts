@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
@@ -54,11 +54,11 @@ export class AuthStore {
   public readonly $sessionExpiry = state.sessionExpiry.asReadonly();
   public readonly $refreshInProgress = state.refreshInProgress.asReadonly();
 
-  private readonly _cacheDurationMs = 5000;
+  public readonly $isTokenValid = computed(() =>
+    ['valid', 'refreshing'].includes(state.tokenStatus())
+  );
 
-  public get isTokenValid$(): boolean {
-    return ['valid', 'refreshing'].includes(state.tokenStatus());
-  }
+  private readonly _cacheDurationMs = 5000;
 
   invalidateCache(): void {
     this.resetState();

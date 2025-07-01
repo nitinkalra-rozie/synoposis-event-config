@@ -59,9 +59,8 @@ export class AuthTokenService {
   }
 
   getValidToken$(): Observable<string> {
-    return toObservable(this._authStore.$tokenStatus).pipe(
-      switchMap((tokenStatus) => {
-        const isValid = ['valid', 'refreshing'].includes(tokenStatus);
+    return toObservable(this._authStore.$isTokenValid).pipe(
+      switchMap((isValid) => {
         if (isValid) {
           const token = this._authStore
             .getSession()
