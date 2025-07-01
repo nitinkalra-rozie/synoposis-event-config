@@ -36,6 +36,8 @@ import { AuthStore } from 'src/app/core/auth/stores/auth-store';
   providedIn: 'root',
 })
 export class AuthSessionService {
+  public readonly $isLoggingOut = signal<boolean>(false);
+
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
@@ -78,11 +80,11 @@ export class AuthSessionService {
   }
 
   logout$(): Observable<void> {
-    if (this._isLoggingOut()) {
+    if (this.$isLoggingOut()) {
       return EMPTY;
     }
 
-    this._isLoggingOut.set(true);
+    this.$isLoggingOut.set(true);
 
     return from(signOut({ global: true })).pipe(
       tap(() => {
@@ -90,7 +92,7 @@ export class AuthSessionService {
         this._router.navigate(['/login']);
       }),
       finalize(() => {
-        this._isLoggingOut.set(false);
+        this.$isLoggingOut.set(false);
       }),
       catchError((error) => {
         this._router.navigate(['/login']);

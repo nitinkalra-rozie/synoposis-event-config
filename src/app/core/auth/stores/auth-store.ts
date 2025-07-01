@@ -22,7 +22,7 @@ interface AuthState {
   refreshInProgress: boolean;
 }
 
-const INITIAL_AUTH_STATE: AuthState = {
+const initialState: AuthState = {
   session: null,
   tokenStatus: 'invalid',
   userRole: null,
@@ -31,46 +31,41 @@ const INITIAL_AUTH_STATE: AuthState = {
   sessionExpiry: null,
   refreshInProgress: false,
 };
+
+const state = {
+  session: signal<AuthSession | null>(initialState.session),
+  tokenStatus: signal<TokenStatus>(initialState.tokenStatus),
+  userRole: signal<UserRole | null>(initialState.userRole),
+  isAuthenticated: signal<boolean>(initialState.isAuthenticated),
+  lastActivity: signal<number>(initialState.lastActivity),
+  sessionExpiry: signal<number | null>(initialState.sessionExpiry),
+  refreshInProgress: signal<boolean>(initialState.refreshInProgress),
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthStore {
-  public readonly isAuthenticated$ = computed(() => {
-    const state = this._state();
-    return state.isAuthenticated;
-  });
+  public readonly $session = state.session.asReadonly();
+  public readonly $tokenStatus = state.tokenStatus.asReadonly();
+  public readonly $userRole = state.userRole.asReadonly();
+  public readonly $isAuthenticated = state.isAuthenticated.asReadonly();
+  public readonly $lastActivity = state.lastActivity.asReadonly();
+  public readonly $sessionExpiry = state.sessionExpiry.asReadonly();
+  public readonly $refreshInProgress = state.refreshInProgress.asReadonly();
 
-  public readonly userRole$ = computed(() => {
-    const state = this._state();
-    return state.userRole;
-  });
-
-  public readonly tokenStatus$ = computed(() => {
-    const state = this._state();
-    return state.tokenStatus;
-  });
-
-  public readonly sessionExpiry$ = computed(() => {
-    const state = this._state();
-    return state.sessionExpiry;
-  });
-
-  public readonly isTokenValid$ = computed(() => {
-    const state = this._state();
-    return ['valid', 'refreshing'].includes(state.tokenStatus);
-  });
+  public readonly $isTokenValid = computed(() =>
+    ['valid', 'refreshing'].includes(state.tokenStatus())
+  );
 
   private readonly _cacheDurationMs = 5000;
-  private readonly _session = signal<AuthSession | null>(null);
-  private readonly _state = signal<AuthState>(INITIAL_AUTH_STATE);
 
   invalidateCache(): void {
-    this._session.set(null);
-    this._resetAuthState();
+    this.resetState();
   }
 
   getSession(): AuthSession {
-    const session = this._state().session;
+    const session = state.session();
     if (!session) {
       throw new Error('Session not available when requested');
     }
@@ -78,18 +73,27 @@ export class AuthStore {
   }
 
   updateSession(session: AuthSession): void {
-    this._state.update((current) => ({
-      ...current,
-      session,
-      isAuthenticated: !!session.tokens?.accessToken,
-      sessionExpiry: this._calculateSessionExpiry(session),
-      lastActivity: Date.now(),
-      tokenStatus: !!session.tokens?.accessToken ? 'valid' : 'invalid',
-    }));
+    state.session.set(session);
+    state.isAuthenticated.set(!!session.tokens?.accessToken);
+    state.sessionExpiry.set(this._calculateSessionExpiry(session));
+    state.lastActivity.set(Date.now());
+    state.tokenStatus.set(!!session.tokens?.accessToken ? 'valid' : 'invalid');
+  }
+
+  setTokenStatus(status: TokenStatus): void {
+    state.tokenStatus.set(status);
+  }
+
+  setUserRole(role: UserRole | null): void {
+    state.userRole.set(role);
+  }
+
+  setRefreshInProgress(value: boolean): void {
+    state.refreshInProgress.set(value);
   }
 
   getSession$(): Observable<AuthSession> {
-    const currentSession = this._session();
+    const currentSession = state.session();
     const now = Date.now();
     if (
       currentSession &&
@@ -100,6 +104,16 @@ export class AuthStore {
     return this._fetchAndCacheSession$();
   }
 
+  resetState(): void {
+    state.session.set(initialState.session);
+    state.tokenStatus.set(initialState.tokenStatus);
+    state.userRole.set(initialState.userRole);
+    state.isAuthenticated.set(initialState.isAuthenticated);
+    state.lastActivity.set(Date.now());
+    state.sessionExpiry.set(initialState.sessionExpiry);
+    state.refreshInProgress.set(initialState.refreshInProgress);
+  }
+
   private _fetchAndCacheSession$(): Observable<AuthSession> {
     return from(fetchAuthSession()).pipe(
       map((session) => {
@@ -108,12 +122,12 @@ export class AuthStore {
           isAuthenticated: !!session.tokens?.accessToken,
           lastFetched: Date.now(),
         };
-        this._session.set(authSession);
+        state.session.set(authSession);
         return authSession;
       }),
       catchError(() => {
         const errorSession = this._createUnauthenticatedSession();
-        this._session.set(errorSession);
+        state.session.set(errorSession);
         return of(errorSession);
       }),
       shareReplay(1)
@@ -126,10 +140,6 @@ export class AuthStore {
       isAuthenticated: false,
       lastFetched: Date.now(),
     };
-  }
-
-  private _resetAuthState(): void {
-    this._state.set(INITIAL_AUTH_STATE);
   }
 
   private _calculateSessionExpiry(session: AuthSession): number | null {

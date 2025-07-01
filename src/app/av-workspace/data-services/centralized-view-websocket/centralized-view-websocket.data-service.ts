@@ -36,7 +36,7 @@ export class CentralizedViewWebSocketDataService {
       switchMap(
         (token) =>
           new Observable<CentralizedViewWebSocketMessage>((observer) => {
-            this._socket = new WebSocket(webSocketUrl, token); // Token as subprotocol for now
+            this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
 
             this._socket.onopen = () => {
               this._webSocketStore.setConnected(true);

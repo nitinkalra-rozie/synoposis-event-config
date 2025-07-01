@@ -7,7 +7,6 @@ import {
 import { AuthRoleService } from 'src/app/core/auth/services/auth-role';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthTokenService } from 'src/app/core/auth/services/auth-token';
-import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 @Injectable({
@@ -17,11 +16,6 @@ export class AuthFacade {
   private readonly _authSessionService = inject(AuthSessionService);
   private readonly _authTokenService = inject(AuthTokenService);
   private readonly _authRoleService = inject(AuthRoleService);
-  private readonly _authStore = inject(AuthStore);
-
-  public get isLogoutInProgress(): boolean {
-    return this._authSessionService.isLogoutInProgress;
-  }
 
   signUp$(email: string): Observable<CustomChallengeResponse> {
     return this._authSessionService.signUp$(email);
