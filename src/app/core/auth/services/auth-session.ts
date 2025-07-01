@@ -40,7 +40,11 @@ export class AuthSessionService {
   private readonly _authStore = inject(AuthStore);
   private readonly _isLoggingOut = signal<boolean>(false);
 
-  signUp(email: string): Observable<CustomChallengeResponse> {
+  public get isLogoutInProgress(): boolean {
+    return this._isLoggingOut();
+  }
+
+  signUp$(email: string): Observable<CustomChallengeResponse> {
     return this._authStore.getSession$().pipe(
       takeUntilDestroyed(this._destroyRef),
       switchMap((session) => {
@@ -50,12 +54,12 @@ export class AuthSessionService {
             message: 'User already signed in',
           } satisfies CustomChallengeResponse);
         }
-        return this._performSignIn(email);
+        return this._performSignIn$(email);
       })
     );
   }
 
-  OTPVerification(otp: string): Observable<boolean> {
+  OTPVerification$(otp: string): Observable<boolean> {
     return from(confirmSignIn({ challengeResponse: otp })).pipe(
       takeUntilDestroyed(this._destroyRef),
       tap(() => {
@@ -65,8 +69,8 @@ export class AuthSessionService {
     );
   }
 
-  resendOtp(email: string): Observable<CustomChallengeResponse> {
-    return this._performSignIn(email).pipe(
+  resendOtp$(email: string): Observable<CustomChallengeResponse> {
+    return this._performSignIn$(email).pipe(
       takeUntilDestroyed(this._destroyRef)
     );
   }
@@ -105,13 +109,13 @@ export class AuthSessionService {
     );
   }
 
-  isAuthenticated(): Observable<boolean> {
+  isAuthenticated$(): Observable<boolean> {
     return this._authStore
       .getSession$()
       .pipe(map((session) => session.isAuthenticated));
   }
 
-  private _performSignIn(email: string): Observable<CustomChallengeResponse> {
+  private _performSignIn$(email: string): Observable<CustomChallengeResponse> {
     const signInInput: SignInInput = {
       username: email,
       options: {

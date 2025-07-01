@@ -14,28 +14,32 @@ import { UserRole } from 'src/app/core/enum/auth-roles.enum';
   providedIn: 'root',
 })
 export class AuthFacade {
-  private readonly _sessionService = inject(AuthSessionService);
-  private readonly _tokenService = inject(AuthTokenService);
+  private readonly _authSessionService = inject(AuthSessionService);
+  private readonly _authTokenService = inject(AuthTokenService);
   private readonly _authRoleService = inject(AuthRoleService);
   private readonly _authStore = inject(AuthStore);
 
-  signUp(email: string): Observable<CustomChallengeResponse> {
-    return this._sessionService.signUp(email);
+  public get isLogoutInProgress(): boolean {
+    return this._authSessionService.isLogoutInProgress;
   }
 
-  verifyOTP(otp: string): Observable<boolean> {
-    return this._sessionService.OTPVerification(otp);
-  }
-  resendOtp(email: string): Observable<CustomChallengeResponse> {
-    return this._sessionService.resendOtp(email);
+  signUp$(email: string): Observable<CustomChallengeResponse> {
+    return this._authSessionService.signUp$(email);
   }
 
-  logout(): Observable<void> {
-    return this._sessionService.logout$();
+  verifyOTP$(otp: string): Observable<boolean> {
+    return this._authSessionService.OTPVerification$(otp);
+  }
+  resendOtp$(email: string): Observable<CustomChallengeResponse> {
+    return this._authSessionService.resendOtp$(email);
+  }
+
+  logout$(): Observable<void> {
+    return this._authSessionService.logout$();
   }
 
   getAccessToken$(): Observable<string | null> {
-    return this._tokenService.getAccessToken$();
+    return this._authTokenService.getAccessToken$();
   }
 
   getUserRole$(): Observable<UserRole | null> {
@@ -47,18 +51,18 @@ export class AuthFacade {
   }
 
   checkSession$(): Observable<AuthSession> {
-    return this._sessionService.checkSession$();
+    return this._authSessionService.checkSession$();
   }
 
   getUserEmail$(): Observable<string | null> {
-    return this._sessionService.getUserEmail$();
+    return this._authSessionService.getUserEmail$();
   }
 
   getValidToken$(): Observable<string> {
-    return this._tokenService.getValidToken$();
+    return this._authTokenService.getValidToken$();
   }
 
-  isAuthenticated(): Observable<boolean> {
-    return this._tokenService.isAuthenticated();
+  isAuthenticated$(): Observable<boolean> {
+    return this._authTokenService.isAuthenticated$();
   }
 }

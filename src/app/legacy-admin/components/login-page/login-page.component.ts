@@ -57,7 +57,7 @@ export class LoginPageComponent {
       this.errorMessage = '';
 
       this._authFacade
-        .signUp(email)
+        .signUp$(email)
         .pipe(
           tap((response) => {
             if (response?.success) {

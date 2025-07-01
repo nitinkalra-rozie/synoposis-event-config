@@ -20,7 +20,7 @@ export const loginRedirectGuard: CanActivateFn = (
   const router = inject(Router);
   const authFacade = inject(AuthFacade);
 
-  return authFacade.isAuthenticated().pipe(
+  return authFacade.isAuthenticated$().pipe(
     take(1),
     switchMap((isAuth) => {
       if (!isAuth) {
