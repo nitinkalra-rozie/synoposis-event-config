@@ -81,7 +81,7 @@ export const authInterceptor: HttpInterceptorFn = (
     }),
     catchError((error) => {
       if (
-        (error.status === 401 || error.status == 0) &&
+        (error.status === 401 || error.status === 403 || error.status == 0) &&
         !authFacade.isLogoutInProgress
       ) {
         return authFacade
