@@ -1,11 +1,10 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   EMPTY,
   filter,
-  finalize,
   from,
   interval,
   map,
@@ -28,12 +27,9 @@ export class AuthTokenService {
   }
 
   private readonly _sessionService = inject(AuthSessionService);
-
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
-
-  private readonly _isLoggingOut = signal<boolean>(false);
 
   getAccessToken(): string | null {
     return this._authStore.getSession().tokens?.accessToken?.toString() || null;
@@ -63,8 +59,9 @@ export class AuthTokenService {
   }
 
   getValidToken$(): Observable<string> {
-    return toObservable(this._authStore.isTokenValid$).pipe(
-      switchMap((isValid) => {
+    return toObservable(this._authStore.$tokenStatus).pipe(
+      switchMap((tokenStatus) => {
+        const isValid = ['valid', 'refreshing'].includes(tokenStatus);
         if (isValid) {
           const token = this._authStore
             .getSession()
@@ -80,7 +77,7 @@ export class AuthTokenService {
   private _startTokenCheck(): void {
     interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
-        filter(() => !this._isLoggingOut()),
+        filter(() => !this._sessionService.$isLoggingOut()),
         filter(
           () =>
             !this._route.snapshot.children?.[0]?.routeConfig?.path?.includes(
@@ -94,18 +91,15 @@ export class AuthTokenService {
   }
 
   private _runTokenCheck$(): Observable<void> {
-    if (this._isLoggingOut()) {
+    if (this._sessionService.$isLoggingOut()) {
       return EMPTY;
     }
 
     return this._authStore.getSession$().pipe(
       switchMap((session) => {
         if (!session.tokens?.accessToken && session.isAuthenticated === false) {
-          if (!this._isLoggingOut()) {
-            this._isLoggingOut.set(true);
-            return this._sessionService
-              .logout$()
-              .pipe(finalize(() => this._isLoggingOut.set(false)));
+          if (!this._sessionService.$isLoggingOut()) {
+            return this._sessionService.logout$();
           }
         }
         return EMPTY;
