@@ -2,6 +2,41 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, throwError } from 'rxjs';
 
+export type PossibleError =
+  | HttpError
+  | AwsCognitoError
+  | NetworkError
+  | JavaScriptError
+  | UnknownError;
+
+interface HttpError {
+  status: number;
+  message?: string;
+  error?: any;
+}
+
+interface AwsCognitoError {
+  message: string;
+  name?: string;
+  code?: string;
+}
+
+interface NetworkError {
+  status: 0;
+  message?: string;
+}
+
+interface JavaScriptError {
+  message: string;
+  name?: string;
+  stack?: string;
+}
+
+interface UnknownError {
+  toString?: () => string;
+  message?: string;
+}
+
 export interface AuthError {
   type:
     | 'UNAUTHENTICATED'
@@ -10,17 +45,17 @@ export interface AuthError {
     | 'NETWORK_ERROR'
     | 'UNKNOWN';
   message: string;
-  originalError?: any;
+  originalError?: PossibleError;
 }
 
-export const authErrorHandlerFn = (): (<T = any>(
-  error: any,
+export const authErrorHandlerFn = (): (<T>(
+  error: PossibleError,
   shouldRedirect: boolean
 ) => Observable<T | null>) => {
   const router = inject(Router);
 
-  return <T = any>(
-    error: any,
+  return <T>(
+    error: PossibleError,
     shouldRedirect: boolean = true
   ): Observable<T | null> => {
     const authError = classifyError(error);
@@ -54,9 +89,9 @@ export const authErrorHandlerFn = (): (<T = any>(
   };
 };
 
-const classifyError = (error: any): AuthError => {
-  const errorMessage = error?.message || error?.toString?.() || '';
-  const status = error?.status;
+const classifyError = (error: PossibleError): AuthError => {
+  const errorMessage = getErrorMessage(error);
+  const status = getErrorStatus(error);
 
   const rules: {
     match: () => boolean;
@@ -114,4 +149,21 @@ const classifyError = (error: any): AuthError => {
     message: errorMessage || 'An unknown error occurred',
     originalError: error,
   };
+};
+
+const getErrorMessage = (error: PossibleError): string => {
+  if ('message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+  if ('toString' in error && typeof error.toString === 'function') {
+    return error.toString();
+  }
+  return '';
+};
+
+const getErrorStatus = (error: PossibleError): number | undefined => {
+  if ('status' in error && typeof error.status === 'number') {
+    return error.status;
+  }
+  return undefined;
 };
