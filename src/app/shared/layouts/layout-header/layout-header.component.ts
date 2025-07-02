@@ -55,7 +55,7 @@ export class LayoutHeaderComponent {
 
   private _performLogout(): void {
     this._authFacade
-      .logout()
+      .logout$()
       .pipe(
         takeUntilDestroyed(this._destroyRef),
         catchError(() => {

@@ -19,7 +19,7 @@ import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info
 import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
 import { StagesActions } from 'src/app/av-workspace/components/stages-actions/stages-actions';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
-import { CentralizedViewStore } from 'src/app/av-workspace/pages/centralized-view/centralized-view-store';
+import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
 import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
 import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-select/syn-single-select-option.model';
@@ -29,7 +29,6 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
   templateUrl: './centralized-view.html',
   styleUrl: './centralized-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [CentralizedViewStore],
   imports: [
     MatIconModule,
     MatFormFieldModule,
