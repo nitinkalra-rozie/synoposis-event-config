@@ -45,6 +45,8 @@ const state = {
   isLoggingOut: signal<boolean>(initialState.isLoggingOut),
 };
 
+const twoMinutesInMs = 2 * 60 * 1000;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -67,7 +69,6 @@ export class AuthStore {
     if (!sessionExpiry) {
       return false;
     }
-    const twoMinutesInMs = 2 * 60 * 1000;
     return Date.now() >= sessionExpiry - twoMinutesInMs;
   });
 
