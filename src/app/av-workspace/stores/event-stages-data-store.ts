@@ -9,7 +9,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, take, tap, throwError } from 'rxjs';
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import {
+  EventStage,
+  StageStatusType,
+} from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
@@ -94,10 +97,10 @@ export class EventStagesDataStore {
     ];
   });
 
-  updateEntityStatus(stageId: string, status: string): void {
+  updateEntityStatus(stageId: string, status: StageStatusType): void {
     this._updateEntity(stageId, (entity) => ({
       ...entity,
-      status: status as any, // TODO: Map WebSocket status to StageStatus
+      status: status,
       lastUpdatedAt: Date.now(),
     }));
   }
