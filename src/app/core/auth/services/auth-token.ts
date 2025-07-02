@@ -13,6 +13,7 @@ import {
   of,
   switchMap,
   tap,
+  throwError,
 } from 'rxjs';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
@@ -117,13 +118,13 @@ export class AuthTokenService {
         });
       }),
       map((session) => session.tokens?.accessToken?.toString() || ''),
-      catchError(() => {
+      catchError((error) => {
         this._authStore.updateSession({
           tokens: null,
           isAuthenticated: false,
           lastFetched: Date.now(),
         });
-        return of('');
+        return throwError(() => error);
       })
     );
   }

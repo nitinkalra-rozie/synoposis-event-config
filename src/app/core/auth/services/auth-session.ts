@@ -25,7 +25,7 @@ import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
-import { AuthErrorHandler } from 'src/app/core/auth/error-handling/auth-error-handler';
+import { authErrorHandlerFn } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import {
   AuthSession,
   CustomChallengeResponse,
@@ -39,7 +39,7 @@ export class AuthSessionService {
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
-  private readonly _authErrorHandler = inject(AuthErrorHandler);
+  private readonly _handleAuthError = authErrorHandlerFn();
 
   signUp$(email: string): Observable<CustomChallengeResponse> {
     return this._authStore.getSession$().pipe(
@@ -97,9 +97,7 @@ export class AuthSessionService {
   getUserEmail$(): Observable<string | null> {
     return from(getCurrentUser()).pipe(
       map((user) => user.signInDetails?.loginId || user.username),
-      catchError((error) =>
-        this._authErrorHandler.handleAuthError<string>(error, false)
-      )
+      catchError((error) => this._handleAuthError<string>(error, false))
     );
   }
 
@@ -107,7 +105,7 @@ export class AuthSessionService {
     return from(getCurrentUser()).pipe(
       switchMap(() => this._authStore.getSession$()),
       catchError((error) => {
-        this._authErrorHandler.handleAuthError(error, false);
+        this._handleAuthError(error, false);
         return this._authStore.getSession$().pipe(
           map((session) => ({
             ...session,
