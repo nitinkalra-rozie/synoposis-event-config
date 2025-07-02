@@ -1,4 +1,4 @@
-import { RoutePermission } from 'src/app/core/auth/data-service/auth.data-model';
+import { RoutePermission } from 'src/app/core/auth/models/auth.model';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 export const ROUTE_PERMISSIONS: RoutePermission[] = [
