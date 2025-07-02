@@ -2,6 +2,41 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, throwError } from 'rxjs';
 
+export type PossibleError =
+  | HttpError
+  | AwsCognitoError
+  | NetworkError
+  | JavaScriptError
+  | UnknownError;
+
+interface HttpError {
+  status: number;
+  message?: string;
+  error?: any;
+}
+
+interface AwsCognitoError {
+  message: string;
+  name?: string;
+  code?: string;
+}
+
+interface NetworkError {
+  status: 0;
+  message?: string;
+}
+
+interface JavaScriptError {
+  message: string;
+  name?: string;
+  stack?: string;
+}
+
+interface UnknownError {
+  toString?: () => string;
+  message?: string;
+}
+
 export interface AuthError {
   type:
     | 'UNAUTHENTICATED'
@@ -10,17 +45,17 @@ export interface AuthError {
     | 'NETWORK_ERROR'
     | 'UNKNOWN';
   message: string;
-  originalError?: any;
+  originalError?: PossibleError;
 }
 
-export const authErrorHandlerFn = (): (<T = any>(
-  error: any,
+export const authErrorHandlerFn = (): (<T>(
+  error: PossibleError,
   shouldRedirect: boolean
 ) => Observable<T | null>) => {
   const router = inject(Router);
 
-  return <T = any>(
-    error: any,
+  return <T>(
+    error: PossibleError,
     shouldRedirect: boolean = true
   ): Observable<T | null> => {
     const authError = classifyError(error);
@@ -54,73 +89,59 @@ export const authErrorHandlerFn = (): (<T = any>(
   };
 };
 
-const classifyError = (error: any): AuthError => {
-  if (!error) {
-    return {
-      type: 'UNKNOWN',
-      message: 'Unknown error occurred',
-      originalError: error,
-    };
-  }
+const classifyError = (error: PossibleError): AuthError => {
+  const errorMessage = getErrorMessage(error);
+  const status = getErrorStatus(error);
 
-  const errorMessage = error.message || error.toString();
-  const errorName = error.name || '';
+  const rules: {
+    match: () => boolean;
+    result: Omit<AuthError, 'originalError'>;
+  }[] = [
+    {
+      match: () =>
+        errorMessage.includes('UserUnAuthenticatedException') ||
+        errorMessage.includes('User needs to be authenticated') ||
+        status === 401,
+      result: {
+        type: 'UNAUTHENTICATED',
+        message: 'User is not authenticated',
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('AccessDeniedException') ||
+        errorMessage.includes('UnauthorizedException') ||
+        status === 403,
+      result: {
+        type: 'UNAUTHORIZED',
+        message: 'User is not authorized to access this resource',
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('TokenExpiredException') ||
+        errorMessage.includes('Token has expired'),
+      result: {
+        type: 'TOKEN_EXPIRED',
+        message: 'Authentication token has expired',
+      },
+    },
+    {
+      match: () => status === 0,
+      result: {
+        type: 'NETWORK_ERROR',
+        message: 'Network connection error',
+      },
+    },
+  ];
 
-  if (
-    errorMessage.includes('UserUnAuthenticatedException') ||
-    errorMessage.includes('User needs to be authenticated')
-  ) {
-    return {
-      type: 'UNAUTHENTICATED',
-      message: 'User is not authenticated',
-      originalError: error,
-    };
-  }
-
-  if (
-    errorMessage.includes('AccessDeniedException') ||
-    errorMessage.includes('UnauthorizedException')
-  ) {
-    return {
-      type: 'UNAUTHORIZED',
-      message: 'User is not authorized to access this resource',
-      originalError: error,
-    };
-  }
-
-  if (
-    errorMessage.includes('TokenExpiredException') ||
-    errorMessage.includes('Token has expired')
-  ) {
-    return {
-      type: 'TOKEN_EXPIRED',
-      message: 'Authentication token has expired',
-      originalError: error,
-    };
-  }
-
-  if (error.status === 401) {
-    return {
-      type: 'UNAUTHENTICATED',
-      message: 'Authentication required',
-      originalError: error,
-    };
-  }
-
-  if (error.status === 403) {
-    return {
-      type: 'UNAUTHORIZED',
-      message: 'Access forbidden',
-      originalError: error,
-    };
-  }
-
-  if (error.status === 0) {
-    return {
-      type: 'NETWORK_ERROR',
-      message: 'Network connection error',
-      originalError: error,
-    };
+  for (const rule of rules) {
+    if (rule.match()) {
+      return {
+        ...rule.result,
+        originalError: error,
+      };
+    }
   }
 
   return {
@@ -128,4 +149,21 @@ const classifyError = (error: any): AuthError => {
     message: errorMessage || 'An unknown error occurred',
     originalError: error,
   };
+};
+
+const getErrorMessage = (error: PossibleError): string => {
+  if ('message' in error && typeof error.message === 'string') {
+    return error.message;
+  }
+  if ('toString' in error && typeof error.toString === 'function') {
+    return error.toString();
+  }
+  return '';
+};
+
+const getErrorStatus = (error: PossibleError): number | undefined => {
+  if ('status' in error && typeof error.status === 'number') {
+    return error.status;
+  }
+  return undefined;
 };
