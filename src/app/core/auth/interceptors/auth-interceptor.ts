@@ -82,10 +82,10 @@ export const authInterceptor: HttpInterceptorFn = (
       return next(authorizedRequest);
     }),
     catchError((error) => {
-      if (
-        (error.status === 401 || error.status == 0) &&
-        !authStore.$isLoggingOut()
-      ) {
+      if (authStore.$isLoggingOut()) {
+        return throwError(() => error);
+      }
+      if (error.status === 401 || error.status === 403) {
         return authFacade
           .logout$()
           .pipe(switchMap(() => throwError(() => error)));

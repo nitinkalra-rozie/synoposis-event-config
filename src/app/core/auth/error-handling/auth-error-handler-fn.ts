@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, throwError } from 'rxjs';
+import { TOKEN_REFRESH_ERRORS } from 'src/app/core/auth/constants/auth-constants';
 
 export type PossibleError =
   | HttpError
@@ -42,10 +43,12 @@ export interface AuthError {
     | 'UNAUTHENTICATED'
     | 'UNAUTHORIZED'
     | 'TOKEN_EXPIRED'
+    | 'REFRESH_TOKEN_EXPIRED'
     | 'NETWORK_ERROR'
     | 'UNKNOWN';
   message: string;
   originalError?: PossibleError;
+  isRetryable?: boolean;
 }
 
 export const authErrorHandlerFn = (): (<T>(
@@ -74,18 +77,94 @@ export const authErrorHandlerFn = (): (<T>(
         return EMPTY;
 
       case 'TOKEN_EXPIRED':
+      case 'REFRESH_TOKEN_EXPIRED':
         if (shouldRedirect) {
           router.navigate(['/login']);
         }
         return EMPTY;
 
       case 'NETWORK_ERROR':
-        router.navigate(['/login']);
-        return EMPTY;
+        if (shouldRedirect && !authError.isRetryable) {
+          router.navigate(['/login']);
+        }
+        return throwError(() => authError);
 
       default:
         return throwError(() => authError.originalError);
     }
+  };
+};
+
+export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
+  const errorMessage = getErrorMessage(error);
+  const status = getErrorStatus(error);
+
+  const rules: {
+    match: () => boolean;
+    result: Omit<AuthError, 'originalError'>;
+  }[] = [
+    {
+      match: () =>
+        errorMessage.includes('NotAuthorizedException') ||
+        errorMessage.includes('RefreshTokenExpiredException') ||
+        errorMessage.includes('refresh token has expired') ||
+        errorMessage.includes('Refresh Token has expired'),
+      result: {
+        type: 'REFRESH_TOKEN_EXPIRED',
+        message: TOKEN_REFRESH_ERRORS.REFRESH_TOKEN_EXPIRED,
+        isRetryable: false,
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('UserUnAuthenticatedException') ||
+        errorMessage.includes('User needs to be authenticated') ||
+        status === 401,
+      result: {
+        type: 'UNAUTHENTICATED',
+        message: 'User is not authenticated',
+        isRetryable: false,
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('AccessDeniedException') ||
+        errorMessage.includes('UnauthorizedException') ||
+        status === 403,
+      result: {
+        type: 'UNAUTHORIZED',
+        message: TOKEN_REFRESH_ERRORS.UNAUTHORIZED,
+        isRetryable: false,
+      },
+    },
+    {
+      match: () =>
+        status === 0 ||
+        errorMessage.includes('Network Error') ||
+        errorMessage.includes('NetworkError') ||
+        errorMessage.includes('fetch'),
+      result: {
+        type: 'NETWORK_ERROR',
+        message: TOKEN_REFRESH_ERRORS.NETWORK_ERROR,
+        isRetryable: true,
+      },
+    },
+  ];
+
+  for (const rule of rules) {
+    if (rule.match()) {
+      return {
+        ...rule.result,
+        originalError: error,
+      };
+    }
+  }
+
+  return {
+    type: 'UNKNOWN',
+    message: TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR,
+    originalError: error,
+    isRetryable: false,
   };
 };
 
@@ -105,6 +184,7 @@ const classifyError = (error: PossibleError): AuthError => {
       result: {
         type: 'UNAUTHENTICATED',
         message: 'User is not authenticated',
+        isRetryable: false,
       },
     },
     {
@@ -115,6 +195,7 @@ const classifyError = (error: PossibleError): AuthError => {
       result: {
         type: 'UNAUTHORIZED',
         message: 'User is not authorized to access this resource',
+        isRetryable: false,
       },
     },
     {
@@ -124,6 +205,7 @@ const classifyError = (error: PossibleError): AuthError => {
       result: {
         type: 'TOKEN_EXPIRED',
         message: 'Authentication token has expired',
+        isRetryable: false,
       },
     },
     {
@@ -131,6 +213,7 @@ const classifyError = (error: PossibleError): AuthError => {
       result: {
         type: 'NETWORK_ERROR',
         message: 'Network connection error',
+        isRetryable: true,
       },
     },
   ];
@@ -148,6 +231,7 @@ const classifyError = (error: PossibleError): AuthError => {
     type: 'UNKNOWN',
     message: errorMessage || 'An unknown error occurred',
     originalError: error,
+    isRetryable: false,
   };
 };
 

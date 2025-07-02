@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
   catchError,
+  concatMap,
   EMPTY,
   filter,
   finalize,
@@ -12,10 +13,14 @@ import {
   map,
   Observable,
   of,
+  retryWhen,
   switchMap,
   tap,
   throwError,
+  timer,
 } from 'rxjs';
+import { TOKEN_REFRESH_CONFIG } from 'src/app/core/auth/constants/auth-constants';
+import { classifyTokenRefreshError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 
@@ -138,6 +143,14 @@ export class AuthTokenService {
     this._authStore.setRefreshInProgress(true);
     this._authStore.setTokenStatus('refreshing');
 
+    return this._performTokenRefresh$().pipe(
+      finalize(() => {
+        this._authStore.setRefreshInProgress(false);
+      })
+    );
+  }
+
+  private _performTokenRefresh$(): Observable<string> {
     return from(fetchAuthSession({ forceRefresh: true })).pipe(
       tap((session) => {
         this._authStore.updateSession({
@@ -150,19 +163,62 @@ export class AuthTokenService {
         );
       }),
       map((session) => session.tokens?.accessToken?.toString() || ''),
+      retryWhen((errors) =>
+        errors.pipe(
+          concatMap((error, index) => {
+            const authError = classifyTokenRefreshError(error);
+            const retryCount = index + 1;
+
+            if (retryCount > TOKEN_REFRESH_CONFIG.MAX_RETRY_ATTEMPTS) {
+              return throwError(() => authError);
+            }
+
+            if (!authError.isRetryable) {
+              return throwError(() => authError);
+            }
+
+            const delayMs = Math.min(
+              TOKEN_REFRESH_CONFIG.RETRY_DELAY_MS *
+                Math.pow(
+                  TOKEN_REFRESH_CONFIG.EXPONENTIAL_BACKOFF_MULTIPLIER,
+                  retryCount - 1
+                ),
+              TOKEN_REFRESH_CONFIG.MAX_RETRY_DELAY_MS
+            );
+            return timer(delayMs);
+          })
+        )
+      ),
       catchError((error) => {
+        const authError = classifyTokenRefreshError(error);
         this._authStore.updateSession({
           tokens: null,
           isAuthenticated: false,
           lastFetched: Date.now(),
         });
         this._authStore.setTokenStatus('invalid');
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        this._authStore.setRefreshInProgress(false);
+        return this._handleTokenRefreshError$(authError);
       })
     );
+  }
+
+  private _handleTokenRefreshError$(authError: any): Observable<string> {
+    this._authStore.setLastRefreshError(authError);
+
+    switch (authError.type) {
+      case 'REFRESH_TOKEN_EXPIRED':
+      case 'UNAUTHENTICATED':
+      case 'UNAUTHORIZED':
+        return this._sessionService
+          .logout$()
+          .pipe(switchMap(() => throwError(() => authError)));
+
+      case 'NETWORK_ERROR':
+        return throwError(() => authError);
+
+      default:
+        return throwError(() => authError);
+    }
   }
 
   private _isTokenExpired(): boolean {
