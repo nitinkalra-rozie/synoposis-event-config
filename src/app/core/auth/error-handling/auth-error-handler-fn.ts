@@ -55,72 +55,58 @@ export const authErrorHandlerFn = (): (<T = any>(
 };
 
 const classifyError = (error: any): AuthError => {
-  if (!error) {
-    return {
-      type: 'UNKNOWN',
-      message: 'Unknown error occurred',
-      originalError: error,
-    };
-  }
+  const errorMessage = error?.message || error?.toString?.() || '';
+  const status = error?.status;
 
-  const errorMessage = error.message || error.toString();
-  const errorName = error.name || '';
+  const rules: {
+    match: () => boolean;
+    result: Omit<AuthError, 'originalError'>;
+  }[] = [
+    {
+      match: () =>
+        errorMessage.includes('UserUnAuthenticatedException') ||
+        errorMessage.includes('User needs to be authenticated') ||
+        status === 401,
+      result: {
+        type: 'UNAUTHENTICATED',
+        message: 'User is not authenticated',
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('AccessDeniedException') ||
+        errorMessage.includes('UnauthorizedException') ||
+        status === 403,
+      result: {
+        type: 'UNAUTHORIZED',
+        message: 'User is not authorized to access this resource',
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('TokenExpiredException') ||
+        errorMessage.includes('Token has expired'),
+      result: {
+        type: 'TOKEN_EXPIRED',
+        message: 'Authentication token has expired',
+      },
+    },
+    {
+      match: () => status === 0,
+      result: {
+        type: 'NETWORK_ERROR',
+        message: 'Network connection error',
+      },
+    },
+  ];
 
-  if (
-    errorMessage.includes('UserUnAuthenticatedException') ||
-    errorMessage.includes('User needs to be authenticated')
-  ) {
-    return {
-      type: 'UNAUTHENTICATED',
-      message: 'User is not authenticated',
-      originalError: error,
-    };
-  }
-
-  if (
-    errorMessage.includes('AccessDeniedException') ||
-    errorMessage.includes('UnauthorizedException')
-  ) {
-    return {
-      type: 'UNAUTHORIZED',
-      message: 'User is not authorized to access this resource',
-      originalError: error,
-    };
-  }
-
-  if (
-    errorMessage.includes('TokenExpiredException') ||
-    errorMessage.includes('Token has expired')
-  ) {
-    return {
-      type: 'TOKEN_EXPIRED',
-      message: 'Authentication token has expired',
-      originalError: error,
-    };
-  }
-
-  if (error.status === 401) {
-    return {
-      type: 'UNAUTHENTICATED',
-      message: 'Authentication required',
-      originalError: error,
-    };
-  }
-
-  if (error.status === 403) {
-    return {
-      type: 'UNAUTHORIZED',
-      message: 'Access forbidden',
-      originalError: error,
-    };
-  }
-
-  if (error.status === 0) {
-    return {
-      type: 'NETWORK_ERROR',
-      message: 'Network connection error',
-      originalError: error,
-    };
+  for (const rule of rules) {
+    if (rule.match()) {
+      return {
+        ...rule.result,
+        originalError: error,
+      };
+    }
   }
 
   return {
