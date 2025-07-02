@@ -2,7 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
-import { AuthSession } from 'src/app/core/auth/data-service/auth.data-model';
+import { AuthSession } from 'src/app/core/auth/models/auth.model';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 export type TokenStatus =

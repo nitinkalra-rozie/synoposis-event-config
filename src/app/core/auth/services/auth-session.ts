@@ -25,6 +25,7 @@ import {
   AUTH_FLOW_TYPES,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
+import { authErrorHandlerFn } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import {
   AuthSession,
   CustomChallengeResponse,
@@ -94,13 +95,24 @@ export class AuthSessionService {
 
   getUserEmail$(): Observable<string | null> {
     return from(getCurrentUser()).pipe(
-      map((user) => user.signInDetails?.loginId || user.username)
+      map((user) => user.signInDetails?.loginId || user.username),
+      catchError((error) => authErrorHandlerFn()<string>(error, false))
     );
   }
 
   checkSession$(): Observable<AuthSession> {
     return from(getCurrentUser()).pipe(
-      switchMap(() => this._authStore.getSession$())
+      switchMap(() => this._authStore.getSession$()),
+      catchError((error) => {
+        authErrorHandlerFn()(error, false);
+        return this._authStore.getSession$().pipe(
+          map((session) => ({
+            ...session,
+            isAuthenticated: false,
+            tokens: null,
+          }))
+        );
+      })
     );
   }
 
