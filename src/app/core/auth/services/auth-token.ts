@@ -6,6 +6,7 @@ import {
   catchError,
   EMPTY,
   filter,
+  finalize,
   from,
   interval,
   map,
@@ -63,7 +64,7 @@ export class AuthTokenService {
   getValidToken$(): Observable<string> {
     return toObservable(this._authStore.$isTokenValid).pipe(
       switchMap((isValid) => {
-        if (isValid) {
+        if (isValid && !this._authStore.$isTokenNearExpiry()) {
           const token = this._authStore
             .getSession()
             .tokens?.accessToken?.toString();
@@ -79,6 +80,7 @@ export class AuthTokenService {
     interval(TOKEN_CHECK_INTERVAL_MS)
       .pipe(
         filter(() => !this._authStore.$isLoggingOut()),
+        filter(() => !this._authStore.$refreshInProgress()),
         filter(
           () =>
             !this._route.snapshot.children?.[0]?.routeConfig?.path?.includes(
@@ -91,24 +93,51 @@ export class AuthTokenService {
       .subscribe();
   }
 
-  private _runTokenCheck$(): Observable<void> {
-    if (this._authStore.$isLoggingOut()) {
+  private _runTokenCheck$(): Observable<string> {
+    if (
+      this._authStore.$isLoggingOut() ||
+      this._authStore.$refreshInProgress()
+    ) {
       return EMPTY;
     }
 
     return this._authStore.getSession$().pipe(
       switchMap((session) => {
-        if (!session.tokens?.accessToken && session.isAuthenticated === false) {
+        if (!session.tokens?.accessToken && !session.isAuthenticated) {
           if (!this._authStore.$isLoggingOut()) {
-            return this._sessionService.logout$();
+            return this._sessionService.logout$().pipe(switchMap(() => EMPTY));
           }
+          return EMPTY;
         }
-        return EMPTY;
-      })
+
+        if (this._isTokenExpired()) {
+          this._authStore.setTokenStatus('expired');
+          return this._refreshToken$();
+        }
+
+        if (this._authStore.$isTokenNearExpiry()) {
+          this._authStore.setTokenStatus('near-expiry');
+          return this._refreshToken$();
+        }
+
+        const currentToken = session.tokens?.accessToken?.toString();
+        return currentToken ? of(currentToken) : EMPTY;
+      }),
+      catchError(() => EMPTY)
     );
   }
 
   private _refreshToken$(): Observable<string> {
+    if (this._authStore.$refreshInProgress()) {
+      const currentToken = this._authStore
+        .getSession()
+        .tokens?.accessToken?.toString();
+      return of(currentToken || '');
+    }
+
+    this._authStore.setRefreshInProgress(true);
+    this._authStore.setTokenStatus('refreshing');
+
     return from(fetchAuthSession({ forceRefresh: true })).pipe(
       tap((session) => {
         this._authStore.updateSession({
@@ -116,6 +145,9 @@ export class AuthTokenService {
           isAuthenticated: !!session.tokens?.accessToken,
           lastFetched: Date.now(),
         });
+        this._authStore.setTokenStatus(
+          !!session.tokens?.accessToken ? 'valid' : 'invalid'
+        );
       }),
       map((session) => session.tokens?.accessToken?.toString() || ''),
       catchError((error) => {
@@ -124,8 +156,20 @@ export class AuthTokenService {
           isAuthenticated: false,
           lastFetched: Date.now(),
         });
+        this._authStore.setTokenStatus('invalid');
         return throwError(() => error);
+      }),
+      finalize(() => {
+        this._authStore.setRefreshInProgress(false);
       })
     );
+  }
+
+  private _isTokenExpired(): boolean {
+    const sessionExpiry = this._authStore.$sessionExpiry();
+    if (!sessionExpiry) {
+      return false;
+    }
+    return Date.now() >= sessionExpiry;
   }
 }

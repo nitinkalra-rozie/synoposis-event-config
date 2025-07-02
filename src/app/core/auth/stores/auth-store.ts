@@ -59,8 +59,17 @@ export class AuthStore {
   public readonly $isLoggingOut = state.isLoggingOut.asReadonly();
 
   public readonly $isTokenValid = computed(() =>
-    ['valid', 'refreshing'].includes(state.tokenStatus())
+    ['valid', 'refreshing', 'near-expiry'].includes(state.tokenStatus())
   );
+
+  public readonly $isTokenNearExpiry = computed(() => {
+    const sessionExpiry = state.sessionExpiry();
+    if (!sessionExpiry) {
+      return false;
+    }
+    const twoMinutesInMs = 2 * 60 * 1000;
+    return Date.now() >= sessionExpiry - twoMinutesInMs;
+  });
 
   private readonly _cacheDurationMs = 5000;
 
