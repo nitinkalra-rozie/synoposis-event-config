@@ -56,7 +56,7 @@ const state = {
   refreshFailureCount: signal<number>(initialState.refreshFailureCount),
 };
 
-const twoMinutesInMs = 2 * 60 * 1000;
+const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
 
 @Injectable({
   providedIn: 'root',
@@ -82,7 +82,7 @@ export class AuthStore {
     if (!sessionExpiry) {
       return false;
     }
-    return Date.now() >= sessionExpiry - twoMinutesInMs;
+    return Date.now() >= sessionExpiry - TWO_MINUTES_IN_MS;
   });
 
   private readonly _cacheDurationMs = 5000;

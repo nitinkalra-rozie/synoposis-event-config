@@ -137,7 +137,7 @@ export class AuthTokenService {
       const currentToken = this._authStore
         .getSession()
         .tokens?.accessToken?.toString();
-      return of(currentToken || '');
+      return currentToken ? of(currentToken) : EMPTY;
     }
 
     this._authStore.setRefreshInProgress(true);
