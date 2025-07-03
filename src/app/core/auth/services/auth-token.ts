@@ -97,12 +97,12 @@ export class AuthTokenService {
             )
         ),
         takeUntilDestroyed(this._destroyRef),
-        tap(() => this._runTokenCheck$())
+        tap(() => this._runTokenCheck())
       )
       .subscribe();
   }
 
-  private _runTokenCheck$(): void {
+  private _runTokenCheck(): void {
     if (
       this._authStore.$isLoggingOut() ||
       this._authStore.$refreshInProgress()
