@@ -7,10 +7,19 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize, take, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  finalize,
+  forkJoin,
+  Observable,
+  take,
+  tap,
+  throwError,
+} from 'rxjs';
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
 import {
   EventStage,
+  StageSessionsResponseData,
   StageStatusType,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
@@ -101,6 +110,7 @@ export class EventStagesDataStore {
     this._updateEntity(stageId, (entity) => ({
       ...entity,
       status: status,
+      isOnline: status === 'ONLINE',
       lastUpdatedAt: Date.now(),
     }));
   }
@@ -142,6 +152,7 @@ export class EventStagesDataStore {
         tap((response) => {
           if (response.success && response.data) {
             this._setEntities(response.data);
+            this._setActiveSessions(response.data);
           } else {
             state.error.set('Failed to fetch stages');
           }
@@ -170,52 +181,7 @@ export class EventStagesDataStore {
       return;
     }
 
-    const newLoadingStates = new Map(currentLoadingStates);
-    newLoadingStates.set(stage, true);
-    state.sessionLoadingStates.set(newLoadingStates);
-
-    const currentErrors = new Map(state.sessionErrors());
-    currentErrors.delete(stage);
-    state.sessionErrors.set(currentErrors);
-
-    this._eventStagesDataService
-      .getStageSessions({ action: 'getSessionListForStage', eventName, stage })
-      .pipe(
-        take(1),
-        tap((response) => {
-          if (response.success && response.data) {
-            const sessionsWithOptions: SessionWithDropdownOptions[] =
-              response.data.map((session) => ({
-                value: session.SessionId,
-                label: session.SessionTitle,
-                session: session,
-              }));
-
-            const currentSessions = new Map(state.sessionsByStage());
-            currentSessions.set(stage, sessionsWithOptions);
-            state.sessionsByStage.set(currentSessions);
-          } else {
-            const currentErrors = new Map(state.sessionErrors());
-            currentErrors.set(stage, 'Failed to fetch sessions');
-            state.sessionErrors.set(currentErrors);
-          }
-        }),
-        catchError((error) => {
-          const currentErrors = new Map(state.sessionErrors());
-          currentErrors.set(
-            stage,
-            `Network error: ${error.message || 'Unknown error'}`
-          );
-          state.sessionErrors.set(currentErrors);
-          return throwError(() => error);
-        }),
-        finalize(() => {
-          const currentLoadingStates = new Map(state.sessionLoadingStates());
-          currentLoadingStates.set(stage, false);
-          state.sessionLoadingStates.set(currentLoadingStates);
-        })
-      )
-      .subscribe();
+    this._fetchSingleStageSessions(stage, eventName);
   }
 
   clearSessionsForStage(stage: string): void {
@@ -269,5 +235,98 @@ export class EventStagesDataStore {
     });
 
     state.entityIds.set(entityIds);
+  }
+
+  private _setActiveSessions(entities: EventStage[]): void {
+    const stagesNeedSessions = entities
+      .filter((entity) => !!entity.currentSessionId)
+      .filter((entity) => {
+        const currentSessions = this.$sessionsByStage();
+        return (
+          !currentSessions.has(entity.stage) ||
+          currentSessions.get(entity.stage)?.length === 0
+        );
+      })
+      .map((entity) => entity.stage);
+
+    this._fetchSessionsInParallel(stagesNeedSessions);
+  }
+
+  private _fetchSessionsInParallel(stages: string[]): void {
+    if (stages.length === 0) return;
+
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const currentLoadingStates = new Map(state.sessionLoadingStates());
+    stages.forEach((stage) => currentLoadingStates.set(stage, true));
+    state.sessionLoadingStates.set(currentLoadingStates);
+
+    const currentErrors = new Map(state.sessionErrors());
+    stages.forEach((stage) => currentErrors.delete(stage));
+    state.sessionErrors.set(currentErrors);
+
+    const sessionRequests$ = stages.map((stage) =>
+      this._fetchSingleStageSessions$(stage, eventName)
+    );
+
+    forkJoin(sessionRequests$)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe();
+  }
+
+  private _fetchSingleStageSessions(stage: string, eventName: string): void {
+    const newLoadingStates = new Map(state.sessionLoadingStates());
+    newLoadingStates.set(stage, true);
+    state.sessionLoadingStates.set(newLoadingStates);
+
+    const currentErrors = new Map(state.sessionErrors());
+    currentErrors.delete(stage);
+    state.sessionErrors.set(currentErrors);
+
+    this._fetchSingleStageSessions$(stage, eventName).subscribe();
+  }
+
+  private _fetchSingleStageSessions$(
+    stage: string,
+    eventName: string
+  ): Observable<StageSessionsResponseData> {
+    return this._eventStagesDataService
+      .getStageSessions({ action: 'getSessionListForStage', eventName, stage })
+      .pipe(
+        take(1),
+        tap((response) => {
+          if (response.success && response.data) {
+            const sessionsWithOptions: SessionWithDropdownOptions[] =
+              response.data.map((session) => ({
+                value: session.SessionId,
+                label: session.SessionTitle,
+                session: session,
+              }));
+
+            const currentSessions = new Map(state.sessionsByStage());
+            currentSessions.set(stage, sessionsWithOptions);
+            state.sessionsByStage.set(currentSessions);
+          } else {
+            const currentErrors = new Map(state.sessionErrors());
+            currentErrors.set(stage, 'Failed to fetch sessions');
+            state.sessionErrors.set(currentErrors);
+          }
+        }),
+        catchError((error) => {
+          const currentErrors = new Map(state.sessionErrors());
+          currentErrors.set(
+            stage,
+            `Network error: ${error.message || 'Unknown error'}`
+          );
+          state.sessionErrors.set(currentErrors);
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          const currentLoadingStates = new Map(state.sessionLoadingStates());
+          currentLoadingStates.set(stage, false);
+          state.sessionLoadingStates.set(currentLoadingStates);
+        })
+      );
   }
 }

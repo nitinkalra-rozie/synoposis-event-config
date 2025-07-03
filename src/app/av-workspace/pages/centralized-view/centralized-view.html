@@ -96,8 +96,10 @@
           </th>
           <td *matCellDef="let element" mat-cell>
             <syn-single-select
+              [disabled]="!element.isOnline"
               [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
               [options]="$vm().sessionsByStage().get(element.stage)"
+              [selectedOptionKey]="element.currentSessionId"
               (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
               (selectionChanged)="onSessionSelected($event)"
               appearance="outline"
@@ -131,7 +133,10 @@
                 mat-raised-button
                 class="action-btn mic-btn"
                 [class.active]="true"
-                [disabled]="true">
+                [disabled]="
+                  !(element.status === 'ONLINE') ||
+                  !element.currentSessionId
+                ">
                 <mat-icon svgIcon="syn:mic_outlined" />
               </button>
               <button
