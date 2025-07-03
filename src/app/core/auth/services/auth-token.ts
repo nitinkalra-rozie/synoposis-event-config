@@ -21,7 +21,10 @@ import {
   timer,
 } from 'rxjs';
 import { TOKEN_REFRESH_CONFIG } from 'src/app/core/auth/constants/auth-constants';
-import { classifyTokenRefreshError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
+import {
+  AuthError,
+  classifyTokenRefreshError,
+} from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 
@@ -204,7 +207,7 @@ export class AuthTokenService {
     );
   }
 
-  private _handleTokenRefreshError$(authError: any): Observable<string> {
+  private _handleTokenRefreshError$(authError: AuthError): Observable<string> {
     this._authStore.setLastRefreshError(authError);
 
     switch (authError.type) {

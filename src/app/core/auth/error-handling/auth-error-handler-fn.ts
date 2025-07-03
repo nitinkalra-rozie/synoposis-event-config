@@ -45,7 +45,7 @@ export interface AuthError {
     | 'TOKEN_EXPIRED'
     | 'REFRESH_TOKEN_EXPIRED'
     | 'NETWORK_ERROR'
-    | 'UNKNOWN';
+    | 'UNKNOWN_ERROR';
   message: string;
   originalError?: PossibleError;
   isRetryable?: boolean;
@@ -161,7 +161,7 @@ export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
   }
 
   return {
-    type: 'UNKNOWN',
+    type: 'UNKNOWN_ERROR',
     message: TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR,
     originalError: error,
     isRetryable: false,
@@ -228,7 +228,7 @@ const classifyError = (error: PossibleError): AuthError => {
   }
 
   return {
-    type: 'UNKNOWN',
+    type: 'UNKNOWN_ERROR',
     message: errorMessage || 'An unknown error occurred',
     originalError: error,
     isRetryable: false,

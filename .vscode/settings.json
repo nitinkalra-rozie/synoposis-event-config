@@ -21,7 +21,8 @@
     "Rozie",
     "stylelint",
     "SUPERADMIN",
-    "titlecase"
+    "titlecase",
+    "isRetryable"
   ],
   "json.format.enable": false,
   "[jsonc]": {

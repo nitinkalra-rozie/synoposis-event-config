@@ -2,10 +2,8 @@ import { computed, Injectable, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
-import {
-  AuthSession,
-  TokenRefreshError,
-} from 'src/app/core/auth/models/auth.model';
+import { AuthError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
+import { AuthSession } from 'src/app/core/auth/models/auth.model';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 export type TokenStatus =
@@ -24,7 +22,7 @@ interface AuthState {
   sessionExpiry: number | null;
   refreshInProgress: boolean;
   isLoggingOut: boolean;
-  lastRefreshError: TokenRefreshError | null;
+  lastRefreshError: AuthError | null;
   refreshFailureCount: number;
 }
 
@@ -50,9 +48,7 @@ const state = {
   sessionExpiry: signal<number | null>(initialState.sessionExpiry),
   refreshInProgress: signal<boolean>(initialState.refreshInProgress),
   isLoggingOut: signal<boolean>(initialState.isLoggingOut),
-  lastRefreshError: signal<TokenRefreshError | null>(
-    initialState.lastRefreshError
-  ),
+  lastRefreshError: signal<AuthError | null>(initialState.lastRefreshError),
   refreshFailureCount: signal<number>(initialState.refreshFailureCount),
 };
 
@@ -128,7 +124,7 @@ export class AuthStore {
     state.isLoggingOut.set(value);
   }
 
-  setLastRefreshError(error: TokenRefreshError | null): void {
+  setLastRefreshError(error: AuthError | null): void {
     state.lastRefreshError.set(error);
     if (error) {
       state.refreshFailureCount.update((count) => count + 1);

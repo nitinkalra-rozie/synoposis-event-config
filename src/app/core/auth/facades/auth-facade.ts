@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs/internal/Observable';
+import { Observable } from 'rxjs';
+import { AuthError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import {
   AuthSession,
   CustomChallengeResponse,
-  TokenRefreshError,
 } from 'src/app/core/auth/models/auth.model';
 import { AuthRoleService } from 'src/app/core/auth/services/auth-role';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
@@ -64,7 +64,7 @@ export class AuthFacade {
     return this._authTokenService.isAuthenticated$();
   }
 
-  getLastRefreshError$(): Observable<TokenRefreshError | null> {
+  getLastRefreshError$(): Observable<AuthError | null> {
     return toObservable(this._authStore.$lastRefreshError);
   }
 

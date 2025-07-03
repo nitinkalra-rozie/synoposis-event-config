@@ -16,22 +16,3 @@ export interface AuthSession {
   isAuthenticated: boolean;
   lastFetched: number;
 }
-
-export interface TokenRefreshError {
-  type:
-    | 'REFRESH_TOKEN_EXPIRED'
-    | 'UNAUTHENTICATED'
-    | 'UNAUTHORIZED'
-    | 'NETWORK_ERROR'
-    | 'UNKNOWN_ERROR';
-  originalError: any;
-  message: string;
-  isRetryable: boolean;
-}
-
-export interface TokenRefreshAttempt {
-  attemptNumber: number;
-  maxAttempts: number;
-  error: TokenRefreshError;
-  nextRetryDelayMs?: number;
-}
