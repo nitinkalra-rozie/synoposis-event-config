@@ -30,8 +30,12 @@ export class CentralizedViewWebSocketDataService {
     }
 
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&cms=true`;
+    /**
+     * We've used the most suitable approach for the WebSocket authentication ATM. That's Sec-WebSocket-Protocol
+     * For more context: https://github.com/aws-samples/websocket-api-cognito-auth-sample/issues/15#issuecomment-1173401338
+     */
     const token = this._authService.getAccessToken();
-    this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
+    this._socket = new WebSocket(webSocketUrl, token);
 
     return new Observable((observer) => {
       this._socket.onopen = () => {
