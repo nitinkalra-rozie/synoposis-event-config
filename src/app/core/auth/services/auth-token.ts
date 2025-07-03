@@ -15,6 +15,7 @@ import {
   of,
   retryWhen,
   switchMap,
+  take,
   tap,
   throwError,
   timer,
@@ -93,43 +94,44 @@ export class AuthTokenService {
             )
         ),
         takeUntilDestroyed(this._destroyRef),
-        switchMap(() => this._runTokenCheck$())
+        tap(() => this._runTokenCheck$())
       )
       .subscribe();
   }
 
-  private _runTokenCheck$(): Observable<string> {
+  private _runTokenCheck$(): void {
     if (
       this._authStore.$isLoggingOut() ||
       this._authStore.$refreshInProgress()
     ) {
-      return EMPTY;
+      return;
     }
+    this._authStore
+      .getSession$()
+      .pipe(
+        take(1),
+        switchMap((session) => {
+          if (!session?.tokens?.accessToken || !session.isAuthenticated) {
+            if (!this._authStore.$isLoggingOut()) {
+              return this._sessionService.logout$();
+            }
+            return EMPTY;
+          }
+          if (this._isTokenExpired()) {
+            this._authStore.setTokenStatus('expired');
+            return this._refreshToken$();
+          }
 
-    return this._authStore.getSession$().pipe(
-      switchMap((session) => {
-        if (!session.tokens?.accessToken && !session.isAuthenticated) {
-          if (!this._authStore.$isLoggingOut()) {
-            return this._sessionService.logout$().pipe(switchMap(() => EMPTY));
+          if (this._authStore.$isTokenNearExpiry()) {
+            this._authStore.setTokenStatus('near-expiry');
+            return this._refreshToken$();
           }
           return EMPTY;
-        }
+        }),
 
-        if (this._isTokenExpired()) {
-          this._authStore.setTokenStatus('expired');
-          return this._refreshToken$();
-        }
-
-        if (this._authStore.$isTokenNearExpiry()) {
-          this._authStore.setTokenStatus('near-expiry');
-          return this._refreshToken$();
-        }
-
-        const currentToken = session.tokens?.accessToken?.toString();
-        return currentToken ? of(currentToken) : EMPTY;
-      }),
-      catchError(() => EMPTY)
-    );
+        catchError(() => EMPTY)
+      )
+      .subscribe();
   }
 
   private _refreshToken$(): Observable<string> {
