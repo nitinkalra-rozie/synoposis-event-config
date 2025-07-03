@@ -45,6 +45,8 @@ const state = {
   isLoggingOut: signal<boolean>(initialState.isLoggingOut),
 };
 
+const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -59,8 +61,16 @@ export class AuthStore {
   public readonly $isLoggingOut = state.isLoggingOut.asReadonly();
 
   public readonly $isTokenValid = computed(() =>
-    ['valid', 'refreshing'].includes(state.tokenStatus())
+    ['valid', 'refreshing', 'near-expiry'].includes(state.tokenStatus())
   );
+
+  public readonly $isTokenNearExpiry = computed(() => {
+    const sessionExpiry = state.sessionExpiry();
+    if (!sessionExpiry) {
+      return false;
+    }
+    return Date.now() >= sessionExpiry - TWO_MINUTES_IN_MS;
+  });
 
   private readonly _cacheDurationMs = 5000;
 
