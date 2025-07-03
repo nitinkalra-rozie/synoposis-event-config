@@ -55,7 +55,12 @@
       padding: 0;
       font-size: v.$font-size-xl;
       cursor: pointer;
-      color: v.$primary-bg-color-variant-6 !important;
+      color: v.$primary-bg-color-variant-6;
+
+      &.disabled {
+        cursor: default;
+        color: v.$primary-bg-color-variant-2;
+      }
     }
 
     .single-select {
@@ -72,12 +77,20 @@
         .select-display-value {
           @include m.body-regular;
           @include m.ellipsis();
+
+          &.disabled {
+            color: v.$select-disabled-text-color;
+          }
         }
 
         .select-placeholder-value {
           display: inline-block;
-          font-size: v.$font-size-sm !important;
+          font-size: v.$font-size-sm;
           @include m.ellipsis();
+
+          &.disabled {
+            color: v.$select-disabled-text-color;
+          }
         }
       }
     }
