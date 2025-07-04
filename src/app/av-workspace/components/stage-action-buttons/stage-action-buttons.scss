@@ -1,0 +1,49 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.action-buttons {
+  @include m.d-flex-row;
+  gap: 0.5rem;
+
+  .action-btn {
+    min-width: 4rem;
+    height: 2rem;
+    border-radius: v.$button-border-radius;
+    text-transform: none;
+    box-shadow: none;
+    border: none;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    &.active:hover {
+      opacity: 0.92;
+    }
+
+    &.mic-btn,
+    &.pause-btn {
+      background-color: v.$primary-color-variant-2;
+      color: v.$text-color-white;
+    }
+
+    &.stop-btn {
+      background-color: v.$secondary-color-variant-9;
+      color: v.$text-color-white;
+    }
+
+    &.cc-btn {
+      background-color: v.$primary-bg-color;
+      color: v.$primary-bg-color-variant-6;
+      border: 1px solid v.$primary-bg-color-variant-3;
+    }
+
+    mat-icon {
+      width: 1.125rem;
+      height: 1.125rem;
+      font-size: 1.125rem;
+      margin: auto;
+    }
+  }
+}
