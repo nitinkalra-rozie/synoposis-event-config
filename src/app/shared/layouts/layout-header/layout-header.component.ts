@@ -1,13 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   input,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { Router } from '@angular/router';
+import { catchError, EMPTY } from 'rxjs';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 
 @Component({
@@ -21,8 +25,10 @@ export class LayoutHeaderComponent {
   public readonly title = input.required<string>();
   public readonly showBoxShadow = input.required<boolean>();
 
-  private readonly _authService = inject(AuthService);
   private readonly _modalService = inject(ModalService);
+  private readonly _authFacade = inject(AuthFacade);
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _router = inject(Router);
 
   protected logout(): void {
     this._showModal();
@@ -31,7 +37,7 @@ export class LayoutHeaderComponent {
   private _showModal(): void {
     const handleYesSelect = (): void => {
       this._modalService.close();
-      this._authService.logout$().subscribe();
+      this._performLogout();
     };
 
     const handleNoSelect = (): void => {
@@ -45,5 +51,18 @@ export class LayoutHeaderComponent {
       handleYesSelect,
       handleNoSelect
     );
+  }
+
+  private _performLogout(): void {
+    this._authFacade
+      .logout$()
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        catchError(() => {
+          this._router.navigate(['/login']);
+          return EMPTY;
+        })
+      )
+      .subscribe();
   }
 }

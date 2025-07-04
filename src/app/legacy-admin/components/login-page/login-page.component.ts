@@ -9,7 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { finalize, tap } from 'rxjs/operators';
 import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { FooterMobileComponent } from 'src/app/legacy-admin/components/shared/footer-mobile/footer-mobile.component';
 import { FooterComponent } from 'src/app/legacy-admin/components/shared/footer/footer.component';
 
@@ -28,8 +28,8 @@ import { FooterComponent } from 'src/app/legacy-admin/components/shared/footer/f
 export class LoginPageComponent {
   private readonly _fb = inject(UntypedFormBuilder);
   private readonly _router = inject(Router);
-  private readonly _authService = inject(AuthService);
   private readonly _authApiService = inject(AuthDataService);
+  private readonly _authFacade = inject(AuthFacade);
 
   emailForm: UntypedFormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -56,8 +56,8 @@ export class LoginPageComponent {
       this.processedClicked = true;
       this.errorMessage = '';
 
-      this._authApiService
-        .signUp(email)
+      this._authFacade
+        .signUp$(email)
         .pipe(
           tap((response) => {
             if (response?.success) {

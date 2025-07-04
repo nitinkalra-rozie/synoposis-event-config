@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { interval, Observable, Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import {
   CentralizedViewWebSocketMessage,
   CentralizedViewWebSocketOutgoingMessage,
 } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
-import { AuthService } from 'src/app/core/auth/services/auth-service';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -15,7 +15,7 @@ import { environment } from 'src/environments/environment';
 })
 export class CentralizedViewWebSocketDataService {
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
-  private readonly _authService = inject(AuthService);
+  private readonly _authFacade = inject(AuthFacade);
   private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
 
   private _socket!: WebSocket;
@@ -30,51 +30,61 @@ export class CentralizedViewWebSocketDataService {
     }
 
     const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&cms=true`;
-    /**
-     * We've used the most suitable approach for the WebSocket authentication ATM. That's Sec-WebSocket-Protocol
-     * For more context: https://github.com/aws-samples/websocket-api-cognito-auth-sample/issues/15#issuecomment-1173401338
-     */
-    const token = this._authService.getAccessToken();
-    this._socket = new WebSocket(webSocketUrl, token);
 
-    return new Observable((observer) => {
-      this._socket.onopen = () => {
-        this._webSocketStore.setConnected(true);
-        this._webSocketStore.setConnecting(false);
-        this._sendMessage({
-          eventName: eventName,
-          client: true,
-          event: 'getLastEvent',
-          cms: true,
-        });
-        console.log('Centralized View WebSocket connection established.');
+    return this._authFacade.getAccessToken$().pipe(
+      take(1),
+      switchMap(
+        (token) =>
+          new Observable<CentralizedViewWebSocketMessage>((observer) => {
+            /**
+             * We've used the most suitable approach for the WebSocket authentication ATM. That's Sec-WebSocket-Protocol
+             * For more context: https://github.com/aws-samples/websocket-api-cognito-auth-sample/issues/15#issuecomment-1173401338
+             */
+            this._socket = new WebSocket(webSocketUrl, token);
 
-        this._startPing(eventName);
-      };
+            this._socket.onopen = () => {
+              this._webSocketStore.setConnected(true);
+              this._webSocketStore.setConnecting(false);
+              this._sendMessage({
+                eventName: eventName,
+                client: true,
+                event: 'getLastEvent',
+                cms: true,
+              });
+              console.log('Centralized View WebSocket connection established.');
+              this._startPing(eventName);
+            };
 
-      this._socket.onmessage = (event: MessageEvent) => {
-        try {
-          const parsedMessage: CentralizedViewWebSocketMessage = JSON.parse(
-            event.data
-          );
-          console.log('Parsed WebSocket message:', parsedMessage);
-          observer.next(parsedMessage);
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-          this._webSocketStore.setError('Failed to parse WebSocket message');
-        }
-      };
+            this._socket.onmessage = (event: MessageEvent) => {
+              try {
+                const parsedMessage: CentralizedViewWebSocketMessage =
+                  JSON.parse(event.data);
+                console.log('Parsed WebSocket message:', parsedMessage);
+                observer.next(parsedMessage);
+              } catch (error) {
+                console.error('Error parsing WebSocket message:', error);
+                this._webSocketStore.setError(
+                  'Failed to parse WebSocket message'
+                );
+                observer.error(error);
+              }
+            };
 
-      this._socket.onerror = (error: Event) => {
-        observer.error('Centralized View WebSocket error: ' + error);
-      };
+            this._socket.onerror = (error: Event) => {
+              observer.error('Centralized View WebSocket error: ' + error);
+            };
 
-      this._socket.onclose = (event: CloseEvent) => {
-        console.log('Centralized View WebSocket connection closed:', event);
-        this.disconnect();
-        observer.complete();
-      };
-    });
+            this._socket.onclose = (event: CloseEvent) => {
+              console.log(
+                'Centralized View WebSocket connection closed:',
+                event
+              );
+              this.disconnect();
+              observer.complete();
+            };
+          })
+      )
+    );
   }
 
   disconnect(): void {
