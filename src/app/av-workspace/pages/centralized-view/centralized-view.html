@@ -101,7 +101,7 @@
               [options]="$vm().sessionsByStage().get(element.stage)"
               [selectedOptionKey]="element.currentSessionId"
               (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
-              (selectionChanged)="onSessionSelected($event)"
+              (selectionChanged)="onSessionSelected($event, element.stage)"
               appearance="outline"
               optionsType="Sessions"
               placeholder="Select a session"
@@ -128,39 +128,11 @@
         <ng-container matColumnDef="action">
           <th *matHeaderCellDef mat-header-cell>ACTION</th>
           <td *matCellDef="let element" mat-cell>
-            <div class="action-buttons">
-              <button
-                mat-raised-button
-                class="action-btn mic-btn"
-                [class.active]="true"
-                [disabled]="
-                  !(element.status === 'ONLINE') ||
-                  !element.currentSessionId
-                ">
-                <mat-icon svgIcon="syn:mic_outlined" />
-              </button>
-              <button
-                mat-raised-button
-                class="action-btn pause-btn"
-                [class.active]="true"
-                [disabled]="true">
-                <mat-icon>pause</mat-icon>
-              </button>
-              <button
-                mat-raised-button
-                class="action-btn stop-btn"
-                [class.active]="true"
-                [disabled]="true">
-                <mat-icon svgIcon="syn:stop_outlined" />
-              </button>
-              <button
-                mat-raised-button
-                class="action-btn cc-btn"
-                [class.active]="true"
-                [disabled]="true">
-                <mat-icon svgIcon="syn:closed_caption" />
-              </button>
-            </div>
+            <app-stage-action-buttons
+              [stage]="element"
+              (pauseListening)="onPauseListening($event)"
+              (startListening)="onStartListening($event)"
+              (stopListening)="onStopListening($event)" />
           </td>
         </ng-container>
 
@@ -194,7 +166,7 @@
     [isStartListeningEnabled]="$vm().selection().size > 0"
     [isStopListeningEnabled]="false"
     [selectedCount]="$vm().selection().size"
-    (pauseListening)="onPauseListening()"
-    (startListening)="onStartListening()"
-    (stopListening)="onStopListening()" />
+    (pauseListening)="onBulkPauseListening()"
+    (startListening)="onBulkStartListening()"
+    (stopListening)="onBulkStopListening()" />
 </div>
