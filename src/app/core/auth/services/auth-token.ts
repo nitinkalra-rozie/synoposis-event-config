@@ -22,7 +22,7 @@ import {
 } from 'rxjs';
 import { TOKEN_REFRESH_CONFIG } from 'src/app/core/auth/constants/auth-constants';
 import {
-  AuthError,
+  authErrorHandlerFn,
   classifyError,
 } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
@@ -196,34 +196,19 @@ export class AuthTokenService {
       ),
       catchError((error) => {
         const authError = classifyError(error, 'tokenRefresh');
+        const handleError = authErrorHandlerFn();
+
         this._authStore.updateSession({
           tokens: null,
           isAuthenticated: false,
           lastFetched: Date.now(),
         });
         this._authStore.setTokenStatus('invalid');
-        return this._handleTokenRefreshError$(authError);
+        this._authStore.setLastRefreshError(authError);
+
+        return handleError<string>(authError.originalError || authError, false);
       })
     );
-  }
-
-  private _handleTokenRefreshError$(authError: AuthError): Observable<string> {
-    this._authStore.setLastRefreshError(authError);
-
-    switch (authError.type) {
-      case 'REFRESH_TOKEN_EXPIRED':
-      case 'UNAUTHENTICATED':
-      case 'UNAUTHORIZED':
-        return this._sessionService
-          .logout$()
-          .pipe(switchMap(() => throwError(() => authError)));
-
-      case 'NETWORK_ERROR':
-        return throwError(() => authError);
-
-      default:
-        return throwError(() => authError);
-    }
   }
 
   private _isTokenExpired(): boolean {
