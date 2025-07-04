@@ -171,7 +171,7 @@ export class AuthTokenService {
       retryWhen((errors) =>
         errors.pipe(
           concatMap((error, index) => {
-            const authError = classifyError(error);
+            const authError = classifyError(error, 'tokenRefresh');
             const retryCount = index + 1;
 
             if (retryCount > TOKEN_REFRESH_CONFIG.MAX_RETRY_ATTEMPTS) {
@@ -195,7 +195,7 @@ export class AuthTokenService {
         )
       ),
       catchError((error) => {
-        const authError = classifyError(error);
+        const authError = classifyError(error, 'tokenRefresh');
         this._authStore.updateSession({
           tokens: null,
           isAuthenticated: false,

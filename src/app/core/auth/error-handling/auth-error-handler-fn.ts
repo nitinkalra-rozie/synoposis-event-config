@@ -61,7 +61,7 @@ export const authErrorHandlerFn = (): (<T>(
     error: PossibleError,
     shouldRedirect: boolean = true
   ): Observable<T | null> => {
-    const authError = classifyError(error);
+    const authError = classifyError(error, 'general');
 
     switch (authError.type) {
       case 'UNAUTHENTICATED':
