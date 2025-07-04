@@ -22,6 +22,7 @@ import {
 } from 'rxjs';
 import { TOKEN_REFRESH_CONFIG } from 'src/app/core/auth/constants/auth-constants';
 import {
+  AuthError,
   authErrorHandlerFn,
   classifyError,
 } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
@@ -171,14 +172,19 @@ export class AuthTokenService {
       retryWhen((errors) =>
         errors.pipe(
           concatMap((error, index) => {
-            const authError = classifyError(error, 'tokenRefresh');
+            const authError = classifyError(error);
             const retryCount = index + 1;
+
+            const retryTypes: AuthError['type'][] = [
+              'NETWORK_ERROR',
+              'TOKEN_EXPIRED',
+            ];
 
             if (retryCount > TOKEN_REFRESH_CONFIG.MAX_RETRY_ATTEMPTS) {
               return throwError(() => authError);
             }
 
-            if (!authError.isRetryable) {
+            if (!retryTypes.includes(authError.type)) {
               return throwError(() => authError);
             }
 
@@ -195,7 +201,7 @@ export class AuthTokenService {
         )
       ),
       catchError((error) => {
-        const authError = classifyError(error, 'tokenRefresh');
+        const authError = classifyError(error);
         const handleError = authErrorHandlerFn();
 
         this._authStore.updateSession({

@@ -9,7 +9,7 @@ import {
 import { AuthRoleService } from 'src/app/core/auth/services/auth-role';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthTokenService } from 'src/app/core/auth/services/auth-token';
-import { AuthStore } from 'src/app/core/auth/stores/auth-store';
+import { AuthStore, TokenStatus } from 'src/app/core/auth/stores/auth-store';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 @Injectable({
@@ -76,9 +76,7 @@ export class AuthFacade {
     return toObservable(this._authStore.$refreshInProgress);
   }
 
-  getTokenStatus$(): Observable<
-    'valid' | 'expired' | 'refreshing' | 'invalid' | 'near-expiry'
-  > {
+  getTokenStatus$(): Observable<TokenStatus> {
     return toObservable(this._authStore.$tokenStatus);
   }
 }

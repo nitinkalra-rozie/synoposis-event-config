@@ -21,3 +21,8 @@ export const TOKEN_REFRESH_ERRORS = {
   UNKNOWN_ERROR: 'Unknown error during token refresh',
   MAX_RETRIES_EXCEEDED: 'Maximum retry attempts exceeded for token refresh',
 };
+
+export const HTTP_STATUS_CODE = {
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+};

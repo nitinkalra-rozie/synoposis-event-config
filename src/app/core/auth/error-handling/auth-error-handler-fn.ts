@@ -1,7 +1,10 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, throwError } from 'rxjs';
-import { TOKEN_REFRESH_ERRORS } from 'src/app/core/auth/constants/auth-constants';
+import {
+  HTTP_STATUS_CODE,
+  TOKEN_REFRESH_ERRORS,
+} from 'src/app/core/auth/constants/auth-constants';
 
 export type PossibleError =
   | HttpError
@@ -48,43 +51,42 @@ export interface AuthError {
     | 'UNKNOWN_ERROR';
   message: string;
   originalError?: PossibleError;
-  isRetryable?: boolean;
 }
 
 export const authErrorHandlerFn = (): (<T>(
   error: PossibleError,
-  shouldRedirect: boolean
+  shouldRedirectToLogin: boolean
 ) => Observable<T | null>) => {
   const router = inject(Router);
 
   return <T>(
     error: PossibleError,
-    shouldRedirect: boolean = true
+    shouldRedirectToLogin: boolean = true
   ): Observable<T | null> => {
-    const authError = classifyError(error, 'general');
+    const authError = classifyError(error);
 
     switch (authError.type) {
       case 'UNAUTHENTICATED':
-        if (shouldRedirect) {
+        if (shouldRedirectToLogin) {
           router.navigate(['/login']);
         }
         return EMPTY;
 
       case 'UNAUTHORIZED':
-        if (shouldRedirect) {
+        if (shouldRedirectToLogin) {
           router.navigate(['/unauthorized']);
         }
         return EMPTY;
 
       case 'TOKEN_EXPIRED':
       case 'REFRESH_TOKEN_EXPIRED':
-        if (shouldRedirect) {
+        if (shouldRedirectToLogin) {
           router.navigate(['/login']);
         }
         return EMPTY;
 
       case 'NETWORK_ERROR':
-        if (shouldRedirect && !authError.isRetryable) {
+        if (shouldRedirectToLogin) {
           router.navigate(['/login']);
         }
         return throwError(() => authError);
@@ -95,10 +97,7 @@ export const authErrorHandlerFn = (): (<T>(
   };
 };
 
-export const classifyError = (
-  error: PossibleError,
-  context: 'tokenRefresh' | 'general' = 'general'
-): AuthError => {
+export const classifyError = (error: PossibleError): AuthError => {
   const errorMessage = getErrorMessage(error);
   const status = getErrorStatus(error);
 
@@ -113,11 +112,7 @@ export const classifyError = (
         errorMessage.includes('Refresh Token has expired'),
       result: {
         type: 'REFRESH_TOKEN_EXPIRED',
-        message:
-          context === 'tokenRefresh'
-            ? TOKEN_REFRESH_ERRORS.REFRESH_TOKEN_EXPIRED
-            : 'Refresh token expired',
-        isRetryable: false,
+        message: TOKEN_REFRESH_ERRORS.REFRESH_TOKEN_EXPIRED,
       },
     },
     {
@@ -127,35 +122,26 @@ export const classifyError = (
       result: {
         type: 'TOKEN_EXPIRED',
         message: 'Authentication token has expired',
-        isRetryable: false,
       },
     },
     {
       match: () =>
         errorMessage.includes('UserUnAuthenticatedException') ||
         errorMessage.includes('User needs to be authenticated') ||
-        status === 401,
+        status === HTTP_STATUS_CODE.UNAUTHORIZED,
       result: {
         type: 'UNAUTHENTICATED',
-        message:
-          context === 'tokenRefresh'
-            ? TOKEN_REFRESH_ERRORS.UNAUTHORIZED
-            : 'User is not authenticated',
-        isRetryable: false,
+        message: TOKEN_REFRESH_ERRORS.UNAUTHORIZED,
       },
     },
     {
       match: () =>
         errorMessage.includes('AccessDeniedException') ||
         errorMessage.includes('UnauthorizedException') ||
-        status === 403,
+        status === HTTP_STATUS_CODE.FORBIDDEN,
       result: {
         type: 'UNAUTHORIZED',
-        message:
-          context === 'tokenRefresh'
-            ? TOKEN_REFRESH_ERRORS.UNAUTHORIZED
-            : 'User is not authorized to access this resource',
-        isRetryable: false,
+        message: TOKEN_REFRESH_ERRORS.UNAUTHORIZED,
       },
     },
     {
@@ -167,7 +153,6 @@ export const classifyError = (
       result: {
         type: 'NETWORK_ERROR',
         message: TOKEN_REFRESH_ERRORS.NETWORK_ERROR,
-        isRetryable: true,
       },
     },
   ];
@@ -183,12 +168,8 @@ export const classifyError = (
 
   return {
     type: 'UNKNOWN_ERROR',
-    message:
-      context === 'tokenRefresh'
-        ? TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR
-        : 'An unknown error occurred',
+    message: TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR,
     originalError: error,
-    isRetryable: false,
   };
 };
 
