@@ -159,6 +159,7 @@ export class EventStagesDataStore {
     this._eventStagesDataService
       .getEventStages({ action: 'getStageListWithSessions', eventName })
       .pipe(
+        take(1),
         tap((response) => {
           if (response.success && response.data) {
             this._setEntities(response.data);
@@ -171,8 +172,7 @@ export class EventStagesDataStore {
           state.error.set('Failed to fetch stages');
           return throwError(() => error);
         }),
-        finalize(() => state.loading.set(false)),
-        takeUntilDestroyed(this._destroyRef)
+        finalize(() => state.loading.set(false))
       )
       .subscribe();
   }
