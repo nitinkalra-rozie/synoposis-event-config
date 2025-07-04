@@ -95,7 +95,10 @@ export const authErrorHandlerFn = (): (<T>(
   };
 };
 
-export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
+export const classifyError = (
+  error: PossibleError,
+  context: 'tokenRefresh' | 'general' = 'general'
+): AuthError => {
   const errorMessage = getErrorMessage(error);
   const status = getErrorStatus(error);
 
@@ -105,13 +108,25 @@ export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
   }[] = [
     {
       match: () =>
-        errorMessage.includes('NotAuthorizedException') ||
         errorMessage.includes('RefreshTokenExpiredException') ||
         errorMessage.includes('refresh token has expired') ||
         errorMessage.includes('Refresh Token has expired'),
       result: {
         type: 'REFRESH_TOKEN_EXPIRED',
-        message: TOKEN_REFRESH_ERRORS.REFRESH_TOKEN_EXPIRED,
+        message:
+          context === 'tokenRefresh'
+            ? TOKEN_REFRESH_ERRORS.REFRESH_TOKEN_EXPIRED
+            : 'Refresh token expired',
+        isRetryable: false,
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('TokenExpiredException') ||
+        errorMessage.includes('Token has expired'),
+      result: {
+        type: 'TOKEN_EXPIRED',
+        message: 'Authentication token has expired',
         isRetryable: false,
       },
     },
@@ -122,7 +137,10 @@ export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
         status === 401,
       result: {
         type: 'UNAUTHENTICATED',
-        message: 'User is not authenticated',
+        message:
+          context === 'tokenRefresh'
+            ? TOKEN_REFRESH_ERRORS.UNAUTHORIZED
+            : 'User is not authenticated',
         isRetryable: false,
       },
     },
@@ -133,7 +151,10 @@ export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
         status === 403,
       result: {
         type: 'UNAUTHORIZED',
-        message: TOKEN_REFRESH_ERRORS.UNAUTHORIZED,
+        message:
+          context === 'tokenRefresh'
+            ? TOKEN_REFRESH_ERRORS.UNAUTHORIZED
+            : 'User is not authorized to access this resource',
         isRetryable: false,
       },
     },
@@ -162,74 +183,10 @@ export const classifyTokenRefreshError = (error: PossibleError): AuthError => {
 
   return {
     type: 'UNKNOWN_ERROR',
-    message: TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR,
-    originalError: error,
-    isRetryable: false,
-  };
-};
-
-const classifyError = (error: PossibleError): AuthError => {
-  const errorMessage = getErrorMessage(error);
-  const status = getErrorStatus(error);
-
-  const rules: {
-    match: () => boolean;
-    result: Omit<AuthError, 'originalError'>;
-  }[] = [
-    {
-      match: () =>
-        errorMessage.includes('UserUnAuthenticatedException') ||
-        errorMessage.includes('User needs to be authenticated') ||
-        status === 401,
-      result: {
-        type: 'UNAUTHENTICATED',
-        message: 'User is not authenticated',
-        isRetryable: false,
-      },
-    },
-    {
-      match: () =>
-        errorMessage.includes('AccessDeniedException') ||
-        errorMessage.includes('UnauthorizedException') ||
-        status === 403,
-      result: {
-        type: 'UNAUTHORIZED',
-        message: 'User is not authorized to access this resource',
-        isRetryable: false,
-      },
-    },
-    {
-      match: () =>
-        errorMessage.includes('TokenExpiredException') ||
-        errorMessage.includes('Token has expired'),
-      result: {
-        type: 'TOKEN_EXPIRED',
-        message: 'Authentication token has expired',
-        isRetryable: false,
-      },
-    },
-    {
-      match: () => status === 0,
-      result: {
-        type: 'NETWORK_ERROR',
-        message: 'Network connection error',
-        isRetryable: true,
-      },
-    },
-  ];
-
-  for (const rule of rules) {
-    if (rule.match()) {
-      return {
-        ...rule.result,
-        originalError: error,
-      };
-    }
-  }
-
-  return {
-    type: 'UNKNOWN_ERROR',
-    message: errorMessage || 'An unknown error occurred',
+    message:
+      context === 'tokenRefresh'
+        ? TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR
+        : 'An unknown error occurred',
     originalError: error,
     isRetryable: false,
   };

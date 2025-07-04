@@ -23,7 +23,7 @@ import {
 import { TOKEN_REFRESH_CONFIG } from 'src/app/core/auth/constants/auth-constants';
 import {
   AuthError,
-  classifyTokenRefreshError,
+  classifyError,
 } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
@@ -171,7 +171,7 @@ export class AuthTokenService {
       retryWhen((errors) =>
         errors.pipe(
           concatMap((error, index) => {
-            const authError = classifyTokenRefreshError(error);
+            const authError = classifyError(error);
             const retryCount = index + 1;
 
             if (retryCount > TOKEN_REFRESH_CONFIG.MAX_RETRY_ATTEMPTS) {
@@ -195,7 +195,7 @@ export class AuthTokenService {
         )
       ),
       catchError((error) => {
-        const authError = classifyTokenRefreshError(error);
+        const authError = classifyError(error);
         this._authStore.updateSession({
           tokens: null,
           isAuthenticated: false,
