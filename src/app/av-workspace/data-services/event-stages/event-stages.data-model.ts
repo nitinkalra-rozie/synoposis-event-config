@@ -11,6 +11,11 @@ export type StageStatusType =
   | 'ONLINE'
   | 'ONLINE_AND_PROJECTING';
 
+export type StageActionType =
+  | 'SESSION_LIVE_LISTENING'
+  | 'SESSION_LIVE_LISTENING_PAUSED'
+  | 'SESSION_END';
+
 export interface SpeakerInfo {
   Organization: string;
   isModerator: boolean;
@@ -47,7 +52,7 @@ export interface EventStage {
   sessions: readonly Session[];
   autoAv: boolean;
   currentSessionId: string | null;
-  currentAction: string | null;
+  currentAction: StageActionType | null;
   lastUpdatedAt: number | null;
   location?: string;
 }
@@ -57,18 +62,44 @@ export interface EventStagesResponseData {
   data: EventStage[];
 }
 
+export type EventStagesRequestActionType =
+  | 'getStageListWithSessions'
+  | 'getSessionListForStage'
+  | 'adminStartListening'
+  | 'adminStopListening'
+  | 'adminPauseListening';
+
 export interface EventStagesRequestData {
-  action: string;
+  action: EventStagesRequestActionType;
   eventName: string;
 }
 
-export interface StageSessionsRequestData {
-  action: string;
-  eventName: string;
+export interface StageSessionsRequestData extends EventStagesRequestData {
   stage: string;
 }
 
 export interface StageSessionsResponseData {
   success: boolean;
   data: Session[];
+}
+
+export interface StageProcessSession {
+  stage: string;
+  sessionId: string;
+}
+
+export interface StageSessionActionRequestData extends EventStagesRequestData {
+  processStages: StageProcessSession[];
+}
+
+export interface StageSessionActionResponseData {
+  success: boolean;
+  data: {
+    message: string;
+    results: {
+      stage: string;
+      sessionId: string;
+      success: boolean;
+    }[];
+  };
 }
