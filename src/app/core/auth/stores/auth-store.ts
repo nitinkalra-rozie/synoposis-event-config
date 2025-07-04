@@ -2,6 +2,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { from, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
+import { AuthError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSession } from 'src/app/core/auth/models/auth.model';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
@@ -21,6 +22,8 @@ interface AuthState {
   sessionExpiry: number | null;
   refreshInProgress: boolean;
   isLoggingOut: boolean;
+  lastRefreshError: AuthError | null;
+  refreshFailureCount: number;
 }
 
 const initialState: AuthState = {
@@ -32,6 +35,8 @@ const initialState: AuthState = {
   sessionExpiry: null,
   refreshInProgress: false,
   isLoggingOut: false,
+  lastRefreshError: null,
+  refreshFailureCount: 0,
 };
 
 const state = {
@@ -43,6 +48,8 @@ const state = {
   sessionExpiry: signal<number | null>(initialState.sessionExpiry),
   refreshInProgress: signal<boolean>(initialState.refreshInProgress),
   isLoggingOut: signal<boolean>(initialState.isLoggingOut),
+  lastRefreshError: signal<AuthError | null>(initialState.lastRefreshError),
+  refreshFailureCount: signal<number>(initialState.refreshFailureCount),
 };
 
 const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
@@ -59,6 +66,8 @@ export class AuthStore {
   public readonly $sessionExpiry = state.sessionExpiry.asReadonly();
   public readonly $refreshInProgress = state.refreshInProgress.asReadonly();
   public readonly $isLoggingOut = state.isLoggingOut.asReadonly();
+  public readonly $lastRefreshError = state.lastRefreshError.asReadonly();
+  public readonly $refreshFailureCount = state.refreshFailureCount.asReadonly();
 
   public readonly $isTokenValid = computed(() =>
     ['valid', 'refreshing', 'near-expiry'].includes(state.tokenStatus())
@@ -92,6 +101,11 @@ export class AuthStore {
     state.sessionExpiry.set(this._calculateSessionExpiry(session));
     state.lastActivity.set(Date.now());
     state.tokenStatus.set(!!session.tokens?.accessToken ? 'valid' : 'invalid');
+
+    if (session.tokens?.accessToken) {
+      state.lastRefreshError.set(null);
+      state.refreshFailureCount.set(0);
+    }
   }
 
   setTokenStatus(status: TokenStatus): void {
@@ -108,6 +122,13 @@ export class AuthStore {
 
   setIsLoggingOut(value: boolean): void {
     state.isLoggingOut.set(value);
+  }
+
+  setLastRefreshError(error: AuthError | null): void {
+    state.lastRefreshError.set(error);
+    if (error) {
+      state.refreshFailureCount.update((count) => count + 1);
+    }
   }
 
   getSession$(): Observable<AuthSession> {
@@ -131,6 +152,8 @@ export class AuthStore {
     state.sessionExpiry.set(initialState.sessionExpiry);
     state.refreshInProgress.set(initialState.refreshInProgress);
     state.isLoggingOut.set(initialState.isLoggingOut);
+    state.lastRefreshError.set(initialState.lastRefreshError);
+    state.refreshFailureCount.set(initialState.refreshFailureCount);
   }
 
   private _fetchAndCacheSession$(): Observable<AuthSession> {
