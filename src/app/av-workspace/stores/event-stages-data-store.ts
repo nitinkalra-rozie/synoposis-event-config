@@ -118,12 +118,22 @@ export class EventStagesDataStore {
   updateEntitySession(
     stageId: string,
     sessionId: string,
-    sessionStatus: 'live' | 'paused' | 'ended'
+    sessionStatus: 'selected' | 'live' | 'paused' | 'ended'
   ): void {
     this._updateEntity(stageId, (entity) => ({
       ...entity,
       currentSessionId:
-        sessionStatus === 'live' ? sessionId : entity.currentSessionId,
+        sessionStatus === 'selected' || sessionStatus === 'live'
+          ? sessionId
+          : entity.currentSessionId,
+      currentAction:
+        sessionStatus === 'selected'
+          ? null
+          : sessionStatus === 'live'
+            ? 'SESSION_LIVE_LISTENING'
+            : sessionStatus === 'paused'
+              ? 'SESSION_LIVE_LISTENING_PAUSED'
+              : 'SESSION_END',
       lastUpdatedAt: Date.now(),
     }));
   }
@@ -182,6 +192,84 @@ export class EventStagesDataStore {
     }
 
     this._fetchSingleStageSessions(stage, eventName);
+  }
+
+  startListeningStage(stage: string): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
+
+    this._eventStagesDataService
+      .startListeningSession({
+        action: 'adminStartListening',
+        eventName,
+        processStages: [{ stage, sessionId }],
+      })
+      .pipe(
+        tap((response) => {
+          console.log('startSession response', response);
+          if (response.success) {
+            // TODO:644 notify the user that the stage is listening once the UX is finalized
+            this._updateEntity(stage, (entity) => ({
+              ...entity,
+              currentSessionId: sessionId,
+              lastUpdatedAt: Date.now(),
+            }));
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  pauseListeningStage(stage: string): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
+
+    this._eventStagesDataService
+      .pauseListeningSession({
+        action: 'adminPauseListening',
+        eventName,
+        processStages: [{ stage, sessionId }],
+      })
+      .pipe(
+        tap((response) => {
+          console.log('pauseSession response', response);
+          if (response.success) {
+            // TODO:644 notify the user that the stage is paused once the UX is finalized
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  stopListeningStage(stage: string): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
+
+    // TODO:644 implement the confirmation dialog to stop the ongoing session
+    this._eventStagesDataService
+      .stopListeningSession({
+        action: 'adminStopListening',
+        eventName,
+        processStages: [{ stage, sessionId }],
+      })
+      .pipe(
+        tap((response) => {
+          console.log('stopSession response', response);
+          if (response.success) {
+            // TODO:644 notify the user that the stage is stopped once the UX is finalized
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
   }
 
   clearSessionsForStage(stage: string): void {

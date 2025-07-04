@@ -107,6 +107,10 @@ export class CentralizedViewStore {
     this._uiStore.toggleRow(row);
   }
 
+  setSelectedSession(stage: string, sessionId: string): void {
+    this._dataStore.updateEntitySession(stage, sessionId, 'selected');
+  }
+
   fetchStages(): void {
     this._dataStore.fetchStages();
   }
@@ -121,6 +125,18 @@ export class CentralizedViewStore {
 
   disconnectWebSocket(): void {
     this._webSocketFacade.disconnect();
+  }
+
+  startListeningStage(stage: string): void {
+    this._dataStore.startListeningStage(stage);
+  }
+
+  pauseListeningStage(stage: string): void {
+    this._dataStore.pauseListeningStage(stage);
+  }
+
+  stopListeningStage(stage: string): void {
+    this._dataStore.stopListeningStage(stage);
   }
 
   private _initializeWebSocketSubscriptions(): void {
