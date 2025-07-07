@@ -1,0 +1,33 @@
+<div class="action-buttons">
+  <button
+    mat-raised-button
+    class="action-btn mic-btn"
+    [class.active]="true"
+    [disabled]="!buttonStates().canStart"
+    (click)="onStartListening()">
+    <mat-icon svgIcon="syn:mic_outlined" />
+  </button>
+  <button
+    mat-raised-button
+    class="action-btn pause-btn"
+    [class.active]="true"
+    [disabled]="!buttonStates().canPause"
+    (click)="onPauseListening()">
+    <mat-icon>pause</mat-icon>
+  </button>
+  <button
+    mat-raised-button
+    class="action-btn stop-btn"
+    [class.active]="true"
+    [disabled]="!buttonStates().canStop"
+    (click)="onStopListening()">
+    <mat-icon svgIcon="syn:stop_outlined" />
+  </button>
+  <button
+    mat-raised-button
+    class="action-btn cc-btn"
+    [class.active]="true"
+    [disabled]="true">
+    <mat-icon svgIcon="syn:closed_caption" />
+  </button>
+</div>

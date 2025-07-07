@@ -1,5 +1,6 @@
 import { computed, DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-websocket-facade';
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
@@ -106,6 +107,10 @@ export class CentralizedViewStore {
     this._uiStore.toggleRow(row);
   }
 
+  setSelectedSession(stage: string, sessionId: string): void {
+    this._dataStore.updateEntitySession(stage, sessionId, 'selected');
+  }
+
   fetchStages(): void {
     this._dataStore.fetchStages();
   }
@@ -120,6 +125,18 @@ export class CentralizedViewStore {
 
   disconnectWebSocket(): void {
     this._webSocketFacade.disconnect();
+  }
+
+  startListeningStage(stage: string): void {
+    this._dataStore.startListeningStage(stage);
+  }
+
+  pauseListeningStage(stage: string): void {
+    this._dataStore.pauseListeningStage(stage);
+  }
+
+  stopListeningStage(stage: string): void {
+    this._dataStore.stopListeningStage(stage);
   }
 
   private _initializeWebSocketSubscriptions(): void {
@@ -168,11 +185,13 @@ export class CentralizedViewStore {
       });
 
     this._webSocketFacade.stageStatusUpdate$
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe((message) => {
-        if (message.stage && message.status) {
-          this._dataStore.updateEntityStatus(message.stage, message.status);
-        }
-      });
+      .pipe(
+        filter((message) => !!message.stage && !!message.status),
+        map((message) =>
+          this._dataStore.updateEntityStatus(message.stage, message.status)
+        ),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
   }
 }

@@ -21,13 +21,17 @@
     </div>
     }
 
-    <mat-icon matSuffix class="expand-icon-suffix">
+    <mat-icon
+      matSuffix
+      class="expand-icon-suffix"
+      [class.disabled]="disabled()">
       {{ matSingleSelect.panelOpen ? 'expand_less' : 'expand_more' }}
     </mat-icon>
 
     <mat-select
       #matSingleSelect
       class="single-select"
+      [compareWith]="compareWith"
       [formControl]="selectFormCtrl"
       [placeholder]="placeholder()"
       (openedChange)="onDropdownOpenedChange($event)"
@@ -38,8 +42,9 @@
           matTooltipClass="tooltip-text-only"
           matTooltipPosition="above"
           class="select-display-value"
-          [tooltipOnOverflow]="selectedValue">
-          {{ selectedValue }}
+          [class.disabled]="disabled()"
+          [tooltipOnOverflow]="selectedValue()">
+          {{ selectedValue() }}
         </span>
         } @else {
         <span class="select-placeholder-value">{{ placeholder() }}</span>

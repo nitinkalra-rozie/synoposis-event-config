@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import {
   EventStagesRequestData,
   EventStagesResponseData,
+  StageSessionActionRequestData,
+  StageSessionActionResponseData,
   StageSessionsRequestData,
   StageSessionsResponseData,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
@@ -27,6 +29,33 @@ export class EventStagesDataService {
   ): Observable<StageSessionsResponseData> {
     return this._httpClient.post<StageSessionsResponseData>(
       `${environment.apiBaseUrl}/r2/stage`,
+      requestData
+    );
+  }
+
+  startListeningSession(
+    requestData: StageSessionActionRequestData
+  ): Observable<StageSessionActionResponseData> {
+    return this._httpClient.post<StageSessionActionResponseData>(
+      `${environment.apiBaseUrl}/r3/manage-av`,
+      requestData
+    );
+  }
+
+  pauseListeningSession(
+    requestData: StageSessionActionRequestData
+  ): Observable<StageSessionActionResponseData> {
+    return this._httpClient.post<StageSessionActionResponseData>(
+      `${environment.apiBaseUrl}/r3/manage-av`,
+      requestData
+    );
+  }
+
+  stopListeningSession(
+    requestData: StageSessionActionRequestData
+  ): Observable<StageSessionActionResponseData> {
+    return this._httpClient.post<StageSessionActionResponseData>(
+      `${environment.apiBaseUrl}/r3/manage-av`,
       requestData
     );
   }

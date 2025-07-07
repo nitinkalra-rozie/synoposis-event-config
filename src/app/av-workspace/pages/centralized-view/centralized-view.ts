@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { StageActionButtons } from 'src/app/av-workspace/components/stage-action-buttons/stage-action-buttons';
 import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-header/stage-info-header';
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
 import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
@@ -38,6 +39,7 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
     MatCheckboxModule,
     MatSelectModule,
     MatButtonModule,
+    StageActionButtons,
     StageInfoPlaceholder,
     StageInfoHeader,
     SynSingleSelect,
@@ -108,9 +110,13 @@ export class CentralizedView {
   }
 
   protected onSessionSelected(
-    event: SynSingleSelectOption<string> | string
+    event: SynSingleSelectOption<string> | string,
+    stage: string
   ): void {
-    console.log(event);
+    this._store.setSelectedSession(
+      stage,
+      typeof event === 'string' ? event : event.value
+    );
   }
 
   protected onSessionDropdownOpened(isOpen: boolean, stageName: string): void {
@@ -119,18 +125,27 @@ export class CentralizedView {
     }
   }
 
-  protected onStartListening(): void {
-    console.log('Start listening for selected stages:', this.$vm().selection());
-    // TODO: Implement start listening logic
+  protected onStartListening(stage: string): void {
+    this._store.startListeningStage(stage);
   }
 
-  protected onPauseListening(): void {
-    console.log('Pause listening for selected stages:', this.$vm().selection());
-    // TODO: Implement pause listening logic
+  protected onPauseListening(stage: string): void {
+    this._store.pauseListeningStage(stage);
   }
 
-  protected onStopListening(): void {
-    console.log('Stop listening for selected stages:', this.$vm().selection());
-    // TODO: Implement stop listening logic
+  protected onStopListening(stage: string): void {
+    this._store.stopListeningStage(stage);
+  }
+
+  protected onBulkStartListening(): void {
+    console.log('onBulkStartListening');
+  }
+
+  protected onBulkPauseListening(): void {
+    console.log('onBulkPauseListening');
+  }
+
+  protected onBulkStopListening(): void {
+    console.log('onBulkStopListening');
   }
 }

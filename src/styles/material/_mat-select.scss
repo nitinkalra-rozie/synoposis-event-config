@@ -23,7 +23,7 @@
             display: inline-flex;
 
             .mat-mdc-select-trigger {
-              font-size: v.$font-size-sm;
+              @include m.body-regular;
 
               .mat-mdc-select-arrow-wrapper {
                 display: none;
@@ -58,8 +58,7 @@
   min-height: 22rem !important;
   max-height: 26.25rem !important;
   width: 100%;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-block: 1rem;
   padding-top: 1rem !important;
   padding-bottom: 0 !important;
   overflow: hidden !important;

@@ -36,7 +36,11 @@ export class CentralizedViewWebSocketDataService {
       switchMap(
         (token) =>
           new Observable<CentralizedViewWebSocketMessage>((observer) => {
-            this._socket = new WebSocket(webSocketUrl, token); // TODO:SYN-644: For now sent as subprotocol. Add the proper authentication
+            /**
+             * We've used the most suitable approach for the WebSocket authentication ATM. That's Sec-WebSocket-Protocol
+             * For more context: https://github.com/aws-samples/websocket-api-cognito-auth-sample/issues/15#issuecomment-1173401338
+             */
+            this._socket = new WebSocket(webSocketUrl, token);
 
             this._socket.onopen = () => {
               this._webSocketStore.setConnected(true);

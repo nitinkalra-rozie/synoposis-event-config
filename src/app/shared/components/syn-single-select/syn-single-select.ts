@@ -4,17 +4,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   Injector,
   input,
-  OnChanges,
   output,
   runInInjectionContext,
   signal,
-  SimpleChanges,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,27 +45,58 @@ import { SynSingleSelectPlaceholder } from './syn-single-select-placeholder';
     SynSingleSelectPlaceholder,
   ],
 })
-export class SynSingleSelect<T> implements OnChanges {
+export class SynSingleSelect<T> {
   constructor() {
     this.searchFormCtrl.valueChanges
       .pipe(
-        takeUntilDestroyed(),
         debounceTime(100),
         distinctUntilChanged(),
-        tap((value) => this._filterSearchOptions(value))
+        tap((value) => this._filterSearchOptions(value)),
+        takeUntilDestroyed()
       )
       .subscribe();
+
+    effect(() => {
+      if (this.disabled()) {
+        this.selectFormCtrl.disable();
+      } else {
+        this.selectFormCtrl.enable();
+      }
+    });
+
+    effect(() => {
+      const selectedKey = this.selectedOptionKey();
+      const options = this.options();
+
+      if (!selectedKey) {
+        this.selectFormCtrl.setValue(null, { emitEvent: false });
+        return;
+      }
+
+      const selectedOption = options?.find((option) => {
+        if (typeof option === 'string') {
+          return option === selectedKey;
+        }
+        return option.value === selectedKey;
+      });
+
+      if (selectedOption) {
+        this.selectFormCtrl.setValue(selectedOption);
+      }
+    });
   }
 
   public readonly matSingleSelectRef = viewChild<MatSelect>('matSingleSelect');
 
-  public readonly isLoading = input<boolean>(false);
   public readonly options = input.required<
     SynSingleSelectOption<T>[] | string[]
   >();
   public readonly placeholder = input.required<string>();
   public readonly searchLabel = input.required<string>();
   public readonly optionsType = input.required<string>();
+  public readonly selectedOptionKey = input<string | null>(null);
+  public readonly isLoading = input<boolean>(false);
+  public readonly disabled = input<boolean>(false);
   public readonly labelIcon = input<string>();
   public readonly labelText = input<string>();
   public readonly labelPosition = input<'before' | 'after'>('before');
@@ -80,13 +110,15 @@ export class SynSingleSelect<T> implements OnChanges {
 
   private readonly _injector = inject(Injector);
 
-  protected selectFormCtrl = new FormControl();
-  protected searchFormCtrl = new FormControl();
+  protected selectFormCtrl = new FormControl<
+    SynSingleSelectOption<T> | string | null
+  >(null);
+  protected searchFormCtrl = new FormControl<string>('');
 
   protected filteredOptions = signal<(SynSingleSelectOption<T> | string)[]>([]);
 
   protected displayState = computed(() => {
-    const searchValue = this.searchFormCtrl.value;
+    const searchValue = this.searchFormCtrl.value || '';
     const filtered = this.filteredOptions();
     const allOptions = this.options() ?? [];
 
@@ -98,7 +130,7 @@ export class SynSingleSelect<T> implements OnChanges {
       };
     }
 
-    if (!searchValue) {
+    if (!searchValue.trim()) {
       return {
         options: allOptions,
         showNoSearchResults: false,
@@ -133,14 +165,31 @@ export class SynSingleSelect<T> implements OnChanges {
     return map;
   });
 
-  ngOnChanges(_changes: SimpleChanges): void {
-    this._filterSearchOptions();
-  }
-
-  protected get selectedValue(): string {
-    const value = this.selectFormCtrl.value;
+  protected selectedValue = computed(() => {
+    const value = this._selectFormValueSignal();
     if (!value) return '';
     return typeof value === 'string' ? value : value.label;
+  });
+
+  private _selectFormValueSignal = toSignal(this.selectFormCtrl.valueChanges, {
+    initialValue: null as SynSingleSelectOption<T> | string | null,
+  });
+
+  protected compareWith(
+    o1: SynSingleSelectOption<T> | string,
+    o2: SynSingleSelectOption<T> | string
+  ): boolean {
+    if (!o1 || !o2) return o1 === o2;
+
+    if (typeof o1 === 'string' && typeof o2 === 'string') {
+      return o1 === o2;
+    }
+
+    if (typeof o1 === 'object' && typeof o2 === 'object') {
+      return o1.value === o2.value;
+    }
+
+    return false;
   }
 
   protected onSelectionChange(
@@ -180,7 +229,7 @@ export class SynSingleSelect<T> implements OnChanges {
 
   private _filterSearchOptions(searchValue?: string): void {
     const options = this.options() ?? [];
-    if (!searchValue) {
+    if (!searchValue?.trim()) {
       this.filteredOptions.set(options);
       return;
     }

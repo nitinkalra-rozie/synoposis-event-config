@@ -7,9 +7,21 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize, take, tap, throwError } from 'rxjs';
+import {
+  catchError,
+  finalize,
+  forkJoin,
+  Observable,
+  take,
+  tap,
+  throwError,
+} from 'rxjs';
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import {
+  EventStage,
+  StageSessionsResponseData,
+  StageStatusType,
+} from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 
@@ -94,10 +106,11 @@ export class EventStagesDataStore {
     ];
   });
 
-  updateEntityStatus(stageId: string, status: string): void {
+  updateEntityStatus(stageId: string, status: StageStatusType): void {
     this._updateEntity(stageId, (entity) => ({
       ...entity,
-      status: status as any, // TODO: Map WebSocket status to StageStatus
+      status: status,
+      isOnline: status !== 'OFFLINE',
       lastUpdatedAt: Date.now(),
     }));
   }
@@ -105,12 +118,22 @@ export class EventStagesDataStore {
   updateEntitySession(
     stageId: string,
     sessionId: string,
-    sessionStatus: 'live' | 'paused' | 'ended'
+    sessionStatus: 'selected' | 'live' | 'paused' | 'ended'
   ): void {
     this._updateEntity(stageId, (entity) => ({
       ...entity,
       currentSessionId:
-        sessionStatus === 'live' ? sessionId : entity.currentSessionId,
+        sessionStatus === 'selected' || sessionStatus === 'live'
+          ? sessionId
+          : entity.currentSessionId,
+      currentAction:
+        sessionStatus === 'selected'
+          ? null
+          : sessionStatus === 'live'
+            ? 'SESSION_LIVE_LISTENING'
+            : sessionStatus === 'paused'
+              ? 'SESSION_LIVE_LISTENING_PAUSED'
+              : 'SESSION_END',
       lastUpdatedAt: Date.now(),
     }));
   }
@@ -136,9 +159,11 @@ export class EventStagesDataStore {
     this._eventStagesDataService
       .getEventStages({ action: 'getStageListWithSessions', eventName })
       .pipe(
+        take(1),
         tap((response) => {
           if (response.success && response.data) {
             this._setEntities(response.data);
+            this._setActiveSessions(response.data);
           } else {
             state.error.set('Failed to fetch stages');
           }
@@ -147,8 +172,7 @@ export class EventStagesDataStore {
           state.error.set('Failed to fetch stages');
           return throwError(() => error);
         }),
-        finalize(() => state.loading.set(false)),
-        takeUntilDestroyed(this._destroyRef)
+        finalize(() => state.loading.set(false))
       )
       .subscribe();
   }
@@ -167,50 +191,83 @@ export class EventStagesDataStore {
       return;
     }
 
-    const newLoadingStates = new Map(currentLoadingStates);
-    newLoadingStates.set(stage, true);
-    state.sessionLoadingStates.set(newLoadingStates);
+    this._fetchSingleStageSessions(stage, eventName);
+  }
 
-    const currentErrors = new Map(state.sessionErrors());
-    currentErrors.delete(stage);
-    state.sessionErrors.set(currentErrors);
+  startListeningStage(stage: string): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
 
     this._eventStagesDataService
-      .getStageSessions({ action: 'getSessionListForStage', eventName, stage })
+      .startListeningSession({
+        action: 'adminStartListening',
+        eventName,
+        processStages: [{ stage, sessionId }],
+      })
       .pipe(
-        take(1),
         tap((response) => {
-          if (response.success && response.data) {
-            const sessionsWithOptions: SessionWithDropdownOptions[] =
-              response.data.map((session) => ({
-                value: session.SessionId,
-                label: session.SessionTitle,
-                session: session,
-              }));
-
-            const currentSessions = new Map(state.sessionsByStage());
-            currentSessions.set(stage, sessionsWithOptions);
-            state.sessionsByStage.set(currentSessions);
-          } else {
-            const currentErrors = new Map(state.sessionErrors());
-            currentErrors.set(stage, 'Failed to fetch sessions');
-            state.sessionErrors.set(currentErrors);
+          console.log('startSession response', response);
+          if (response.success) {
+            // TODO:644 notify the user that the stage is listening once the UX is finalized
+            this._updateEntity(stage, (entity) => ({
+              ...entity,
+              currentSessionId: sessionId,
+              lastUpdatedAt: Date.now(),
+            }));
           }
         }),
-        catchError((error) => {
-          const currentErrors = new Map(state.sessionErrors());
-          currentErrors.set(
-            stage,
-            `Network error: ${error.message || 'Unknown error'}`
-          );
-          state.sessionErrors.set(currentErrors);
-          return throwError(() => error);
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  pauseListeningStage(stage: string): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
+
+    this._eventStagesDataService
+      .pauseListeningSession({
+        action: 'adminPauseListening',
+        eventName,
+        processStages: [{ stage, sessionId }],
+      })
+      .pipe(
+        tap((response) => {
+          console.log('pauseSession response', response);
+          if (response.success) {
+            // TODO:644 notify the user that the stage is paused once the UX is finalized
+          }
         }),
-        finalize(() => {
-          const currentLoadingStates = new Map(state.sessionLoadingStates());
-          currentLoadingStates.set(stage, false);
-          state.sessionLoadingStates.set(currentLoadingStates);
-        })
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  stopListeningStage(stage: string): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
+
+    // TODO:644 implement the confirmation dialog to stop the ongoing session
+    this._eventStagesDataService
+      .stopListeningSession({
+        action: 'adminStopListening',
+        eventName,
+        processStages: [{ stage, sessionId }],
+      })
+      .pipe(
+        tap((response) => {
+          console.log('stopSession response', response);
+          if (response.success) {
+            // TODO:644 notify the user that the stage is stopped once the UX is finalized
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -266,5 +323,98 @@ export class EventStagesDataStore {
     });
 
     state.entityIds.set(entityIds);
+  }
+
+  private _setActiveSessions(entities: EventStage[]): void {
+    const stagesNeedSessions = entities
+      .filter((entity) => !!entity.currentSessionId)
+      .filter((entity) => {
+        const currentSessions = this.$sessionsByStage();
+        return (
+          !currentSessions.has(entity.stage) ||
+          currentSessions.get(entity.stage)?.length === 0
+        );
+      })
+      .map((entity) => entity.stage);
+
+    this._fetchSessionsInParallel(stagesNeedSessions);
+  }
+
+  private _fetchSessionsInParallel(stages: string[]): void {
+    if (stages.length === 0) return;
+
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const currentLoadingStates = new Map(state.sessionLoadingStates());
+    stages.forEach((stage) => currentLoadingStates.set(stage, true));
+    state.sessionLoadingStates.set(currentLoadingStates);
+
+    const currentErrors = new Map(state.sessionErrors());
+    stages.forEach((stage) => currentErrors.delete(stage));
+    state.sessionErrors.set(currentErrors);
+
+    const sessionRequests$ = stages.map((stage) =>
+      this._fetchSingleStageSessions$(stage, eventName)
+    );
+
+    forkJoin(sessionRequests$)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe();
+  }
+
+  private _fetchSingleStageSessions(stage: string, eventName: string): void {
+    const newLoadingStates = new Map(state.sessionLoadingStates());
+    newLoadingStates.set(stage, true);
+    state.sessionLoadingStates.set(newLoadingStates);
+
+    const currentErrors = new Map(state.sessionErrors());
+    currentErrors.delete(stage);
+    state.sessionErrors.set(currentErrors);
+
+    this._fetchSingleStageSessions$(stage, eventName).subscribe();
+  }
+
+  private _fetchSingleStageSessions$(
+    stage: string,
+    eventName: string
+  ): Observable<StageSessionsResponseData> {
+    return this._eventStagesDataService
+      .getStageSessions({ action: 'getSessionListForStage', eventName, stage })
+      .pipe(
+        take(1),
+        tap((response) => {
+          if (response.success && response.data) {
+            const sessionsWithOptions: SessionWithDropdownOptions[] =
+              response.data.map((session) => ({
+                value: session.SessionId,
+                label: session.SessionTitle,
+                session: session,
+              }));
+
+            const currentSessions = new Map(state.sessionsByStage());
+            currentSessions.set(stage, sessionsWithOptions);
+            state.sessionsByStage.set(currentSessions);
+          } else {
+            const currentErrors = new Map(state.sessionErrors());
+            currentErrors.set(stage, 'Failed to fetch sessions');
+            state.sessionErrors.set(currentErrors);
+          }
+        }),
+        catchError((error) => {
+          const currentErrors = new Map(state.sessionErrors());
+          currentErrors.set(
+            stage,
+            `Network error: ${error.message || 'Unknown error'}`
+          );
+          state.sessionErrors.set(currentErrors);
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          const currentLoadingStates = new Map(state.sessionLoadingStates());
+          currentLoadingStates.set(stage, false);
+          state.sessionLoadingStates.set(currentLoadingStates);
+        })
+      );
   }
 }
