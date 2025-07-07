@@ -1,6 +1,10 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { EMPTY, Observable, throwError } from 'rxjs';
+import {
+  HTTP_STATUS_CODE,
+  TOKEN_REFRESH_ERRORS,
+} from 'src/app/core/auth/constants/auth-constants';
 
 export type PossibleError =
   | HttpError
@@ -42,46 +46,50 @@ export interface AuthError {
     | 'UNAUTHENTICATED'
     | 'UNAUTHORIZED'
     | 'TOKEN_EXPIRED'
+    | 'REFRESH_TOKEN_EXPIRED'
     | 'NETWORK_ERROR'
-    | 'UNKNOWN';
+    | 'UNKNOWN_ERROR';
   message: string;
   originalError?: PossibleError;
 }
 
 export const authErrorHandlerFn = (): (<T>(
   error: PossibleError,
-  shouldRedirect: boolean
+  shouldRedirectToLogin: boolean
 ) => Observable<T | null>) => {
   const router = inject(Router);
 
   return <T>(
     error: PossibleError,
-    shouldRedirect: boolean = true
+    shouldRedirectToLogin: boolean = true
   ): Observable<T | null> => {
     const authError = classifyError(error);
 
     switch (authError.type) {
       case 'UNAUTHENTICATED':
-        if (shouldRedirect) {
+        if (shouldRedirectToLogin) {
           router.navigate(['/login']);
         }
         return EMPTY;
 
       case 'UNAUTHORIZED':
-        if (shouldRedirect) {
+        if (shouldRedirectToLogin) {
           router.navigate(['/unauthorized']);
         }
         return EMPTY;
 
       case 'TOKEN_EXPIRED':
-        if (shouldRedirect) {
+      case 'REFRESH_TOKEN_EXPIRED':
+        if (shouldRedirectToLogin) {
           router.navigate(['/login']);
         }
         return EMPTY;
 
       case 'NETWORK_ERROR':
-        router.navigate(['/login']);
-        return EMPTY;
+        if (shouldRedirectToLogin) {
+          router.navigate(['/login']);
+        }
+        return throwError(() => authError);
 
       default:
         return throwError(() => authError.originalError);
@@ -89,7 +97,7 @@ export const authErrorHandlerFn = (): (<T>(
   };
 };
 
-const classifyError = (error: PossibleError): AuthError => {
+export const classifyError = (error: PossibleError): AuthError => {
   const errorMessage = getErrorMessage(error);
   const status = getErrorStatus(error);
 
@@ -99,22 +107,12 @@ const classifyError = (error: PossibleError): AuthError => {
   }[] = [
     {
       match: () =>
-        errorMessage.includes('UserUnAuthenticatedException') ||
-        errorMessage.includes('User needs to be authenticated') ||
-        status === 401,
+        errorMessage.includes('RefreshTokenExpiredException') ||
+        errorMessage.includes('refresh token has expired') ||
+        errorMessage.includes('Refresh Token has expired'),
       result: {
-        type: 'UNAUTHENTICATED',
-        message: 'User is not authenticated',
-      },
-    },
-    {
-      match: () =>
-        errorMessage.includes('AccessDeniedException') ||
-        errorMessage.includes('UnauthorizedException') ||
-        status === 403,
-      result: {
-        type: 'UNAUTHORIZED',
-        message: 'User is not authorized to access this resource',
+        type: 'REFRESH_TOKEN_EXPIRED',
+        message: TOKEN_REFRESH_ERRORS.REFRESH_TOKEN_EXPIRED,
       },
     },
     {
@@ -127,10 +125,34 @@ const classifyError = (error: PossibleError): AuthError => {
       },
     },
     {
-      match: () => status === 0,
+      match: () =>
+        errorMessage.includes('UserUnAuthenticatedException') ||
+        errorMessage.includes('User needs to be authenticated') ||
+        status === HTTP_STATUS_CODE.UNAUTHORIZED,
+      result: {
+        type: 'UNAUTHENTICATED',
+        message: TOKEN_REFRESH_ERRORS.UNAUTHORIZED,
+      },
+    },
+    {
+      match: () =>
+        errorMessage.includes('AccessDeniedException') ||
+        errorMessage.includes('UnauthorizedException') ||
+        status === HTTP_STATUS_CODE.FORBIDDEN,
+      result: {
+        type: 'UNAUTHORIZED',
+        message: TOKEN_REFRESH_ERRORS.UNAUTHORIZED,
+      },
+    },
+    {
+      match: () =>
+        status === 0 ||
+        errorMessage.includes('Network Error') ||
+        errorMessage.includes('NetworkError') ||
+        errorMessage.includes('fetch'),
       result: {
         type: 'NETWORK_ERROR',
-        message: 'Network connection error',
+        message: TOKEN_REFRESH_ERRORS.NETWORK_ERROR,
       },
     },
   ];
@@ -145,8 +167,8 @@ const classifyError = (error: PossibleError): AuthError => {
   }
 
   return {
-    type: 'UNKNOWN',
-    message: errorMessage || 'An unknown error occurred',
+    type: 'UNKNOWN_ERROR',
+    message: TOKEN_REFRESH_ERRORS.UNKNOWN_ERROR,
     originalError: error,
   };
 };

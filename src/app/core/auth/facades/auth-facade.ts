@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
+import { AuthError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import {
   AuthSession,
   CustomChallengeResponse,
@@ -7,6 +9,7 @@ import {
 import { AuthRoleService } from 'src/app/core/auth/services/auth-role';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthTokenService } from 'src/app/core/auth/services/auth-token';
+import { AuthStore, TokenStatus } from 'src/app/core/auth/stores/auth-store';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 @Injectable({
@@ -16,6 +19,7 @@ export class AuthFacade {
   private readonly _authSessionService = inject(AuthSessionService);
   private readonly _authTokenService = inject(AuthTokenService);
   private readonly _authRoleService = inject(AuthRoleService);
+  private readonly _authStore = inject(AuthStore);
 
   signUp$(email: string): Observable<CustomChallengeResponse> {
     return this._authSessionService.signUp$(email);
@@ -58,5 +62,21 @@ export class AuthFacade {
 
   isAuthenticated$(): Observable<boolean> {
     return this._authTokenService.isAuthenticated$();
+  }
+
+  getLastRefreshError$(): Observable<AuthError | null> {
+    return toObservable(this._authStore.$lastRefreshError);
+  }
+
+  getRefreshFailureCount$(): Observable<number> {
+    return toObservable(this._authStore.$refreshFailureCount);
+  }
+
+  isRefreshInProgress$(): Observable<boolean> {
+    return toObservable(this._authStore.$refreshInProgress);
+  }
+
+  getTokenStatus$(): Observable<TokenStatus> {
+    return toObservable(this._authStore.$tokenStatus);
   }
 }

@@ -7,6 +7,7 @@ import {
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+import { HTTP_STATUS_CODE } from 'src/app/core/auth/constants/auth-constants';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 import { environment } from 'src/environments/environment';
@@ -83,9 +84,12 @@ export const authInterceptor: HttpInterceptorFn = (
       return next(authorizedRequest);
     }),
     catchError((error) => {
+      if (authStore.$isLoggingOut()) {
+        return throwError(() => error);
+      }
       if (
-        (error.status === 401 || error.status == 0) &&
-        !authStore.$isLoggingOut()
+        error.status === HTTP_STATUS_CODE.UNAUTHORIZED ||
+        error.status === HTTP_STATUS_CODE.FORBIDDEN
       ) {
         return authFacade
           .logout$()
