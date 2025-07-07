@@ -1,5 +1,8 @@
 export interface StageActionButtonState {
-  canStart: boolean;
-  canPause: boolean;
   canStop: boolean;
+  startPauseResumeButton: {
+    isEnabled: boolean;
+    action: 'start' | 'pause' | 'resume';
+    icon: string;
+  };
 }

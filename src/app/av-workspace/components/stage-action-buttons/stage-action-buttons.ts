@@ -29,12 +29,19 @@ export class StageActionButtons {
     return this._calculateButtonState(stage);
   });
 
-  protected onStartListening(): void {
-    this.startListening.emit(this.stage().stage);
-  }
+  protected onStartPauseResume(): void {
+    const action = this.buttonStates().startPauseResumeButton.action;
+    const stageId = this.stage().stage;
 
-  protected onPauseListening(): void {
-    this.pauseListening.emit(this.stage().stage);
+    switch (action) {
+      case 'start':
+      case 'resume':
+        this.startListening.emit(stageId);
+        break;
+      case 'pause':
+        this.pauseListening.emit(stageId);
+        break;
+    }
   }
 
   protected onStopListening(): void {
@@ -47,33 +54,57 @@ export class StageActionButtons {
     const currentAction = entity.currentAction;
 
     return {
-      canStart: this._canStartListening(isOffline, hasNoSession, currentAction),
-      canPause: this._canPauseListening(isOffline, hasNoSession, currentAction),
       canStop: this._canStopListening(isOffline, hasNoSession, currentAction),
+      startPauseResumeButton: this._calculateStartPauseResumeButtonState(
+        isOffline,
+        hasNoSession,
+        currentAction
+      ),
     };
   }
 
-  private _canStartListening(
+  private _calculateStartPauseResumeButtonState(
     isOffline: boolean,
     hasNoSession: boolean,
     currentAction: string | null
-  ): boolean {
-    return (
-      !isOffline &&
-      !hasNoSession &&
-      currentAction !== 'SESSION_LIVE_LISTENING' &&
-      currentAction !== 'SESSION_END'
-    );
-  }
+  ): StageActionButtonState['startPauseResumeButton'] {
+    if (isOffline || hasNoSession) {
+      return {
+        isEnabled: false,
+        action: 'start',
+        icon: 'syn:mic_outlined',
+      };
+    }
 
-  private _canPauseListening(
-    isOffline: boolean,
-    hasNoSession: boolean,
-    currentAction: string | null
-  ): boolean {
-    return (
-      !isOffline && !hasNoSession && currentAction === 'SESSION_LIVE_LISTENING'
-    );
+    switch (currentAction) {
+      case 'SESSION_LIVE_LISTENING':
+        return {
+          isEnabled: true,
+          action: 'pause',
+          icon: 'pause',
+        };
+
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        return {
+          isEnabled: true,
+          action: 'resume',
+          icon: 'syn:mic_outlined',
+        };
+
+      case 'SESSION_END':
+        return {
+          isEnabled: false,
+          action: 'start',
+          icon: 'syn:mic_outlined',
+        };
+
+      default:
+        return {
+          isEnabled: true,
+          action: 'start',
+          icon: 'syn:mic_outlined',
+        };
+    }
   }
 
   private _canStopListening(
