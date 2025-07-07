@@ -9,9 +9,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   catchError,
+  concatMap,
   finalize,
   forkJoin,
   Observable,
+  of,
   take,
   tap,
   throwError,
@@ -24,6 +26,7 @@ import {
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 
 interface EventStagesDataState {
   loading: boolean;
@@ -68,6 +71,7 @@ export class EventStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
 
   private readonly _entitySignals = new Map<
     string,
@@ -235,28 +239,42 @@ export class EventStagesDataStore {
   }
 
   pauseListeningStage(stage: string): void {
-    const eventName = this._legacyBackendApiService.getCurrentEventName();
-    if (!eventName) return;
-
-    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
-
-    this._setActionLoadingState(stage, true);
-
-    this._eventStagesDataService
-      .pauseListeningSession({
-        action: 'adminPauseListening',
-        eventName,
-        processStages: [{ stage, sessionId }],
+    this._confirmDialogFacade
+      .openConfirmDialog({
+        title: 'Pause Listening?',
+        message: 'Do you want to Pause Listening for Stage 04?',
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
       })
       .pipe(
-        take(1),
-        tap((response) => {
-          console.log('pauseSession response', response);
-          if (response.success) {
-            // TODO:644 notify the user that the stage is paused once the UX is finalized
-          }
+        concatMap((result: boolean) => {
+          if (!result) return of();
+
+          const eventName = this._legacyBackendApiService.getCurrentEventName();
+          if (!eventName) return of();
+
+          const sessionId =
+            this._entitySignals.get(stage)?.()?.currentSessionId;
+
+          this._setActionLoadingState(stage, true);
+
+          return this._eventStagesDataService
+            .pauseListeningSession({
+              action: 'adminPauseListening',
+              eventName,
+              processStages: [{ stage, sessionId }],
+            })
+            .pipe(
+              take(1),
+              tap((response) => {
+                console.log('pauseSession response', response);
+                if (response.success) {
+                  // TODO:644 notify the user that the stage is paused once the UX is finalized
+                }
+              }),
+              finalize(() => this._setActionLoadingState(stage, false))
+            );
         }),
-        finalize(() => this._setActionLoadingState(stage, false)),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
