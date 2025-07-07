@@ -19,6 +19,7 @@ import { StageActionButtonState } from 'src/app/av-workspace/models/stage-action
 })
 export class StageActionButtons {
   public readonly stage = input.required<EventStage>();
+  public readonly isStartPauseResumeActionLoading = input.required<boolean>();
 
   public readonly startListening = output<string>();
   public readonly pauseListening = output<string>();
@@ -26,7 +27,8 @@ export class StageActionButtons {
 
   protected readonly buttonStates = computed(() => {
     const stage = this.stage();
-    return this._calculateButtonState(stage);
+    const isLoading = this.isStartPauseResumeActionLoading();
+    return this._calculateButtonState(stage, isLoading);
   });
 
   protected onStartPauseResume(): void {
@@ -48,7 +50,10 @@ export class StageActionButtons {
     this.stopListening.emit(this.stage().stage);
   }
 
-  private _calculateButtonState(entity: EventStage): StageActionButtonState {
+  private _calculateButtonState(
+    entity: EventStage,
+    isLoading: boolean
+  ): StageActionButtonState {
     const isOffline = entity.status === 'OFFLINE';
     const hasNoSession = !entity.currentSessionId;
     const currentAction = entity.currentAction;
@@ -58,7 +63,8 @@ export class StageActionButtons {
       startPauseResumeButton: this._calculateStartPauseResumeButtonState(
         isOffline,
         hasNoSession,
-        currentAction
+        currentAction,
+        isLoading
       ),
     };
   }
@@ -66,11 +72,22 @@ export class StageActionButtons {
   private _calculateStartPauseResumeButtonState(
     isOffline: boolean,
     hasNoSession: boolean,
-    currentAction: string | null
+    currentAction: string | null,
+    isLoading: boolean
   ): StageActionButtonState['startPauseResumeButton'] {
+    if (isLoading) {
+      return {
+        isEnabled: true,
+        isLoading: true,
+        action: this._getCurrentAction(currentAction),
+        icon: 'syn:loading_spinner',
+      };
+    }
+
     if (isOffline || hasNoSession) {
       return {
         isEnabled: false,
+        isLoading: false,
         action: 'start',
         icon: 'syn:mic_outlined',
       };
@@ -80,6 +97,7 @@ export class StageActionButtons {
       case 'SESSION_LIVE_LISTENING':
         return {
           isEnabled: true,
+          isLoading: false,
           action: 'pause',
           icon: 'pause',
         };
@@ -87,6 +105,7 @@ export class StageActionButtons {
       case 'SESSION_LIVE_LISTENING_PAUSED':
         return {
           isEnabled: true,
+          isLoading: false,
           action: 'resume',
           icon: 'syn:mic_outlined',
         };
@@ -94,6 +113,7 @@ export class StageActionButtons {
       case 'SESSION_END':
         return {
           isEnabled: false,
+          isLoading: false,
           action: 'start',
           icon: 'syn:mic_outlined',
         };
@@ -101,9 +121,23 @@ export class StageActionButtons {
       default:
         return {
           isEnabled: true,
+          isLoading: false,
           action: 'start',
           icon: 'syn:mic_outlined',
         };
+    }
+  }
+
+  private _getCurrentAction(
+    currentAction: string | null
+  ): 'start' | 'pause' | 'resume' {
+    switch (currentAction) {
+      case 'SESSION_LIVE_LISTENING':
+        return 'pause';
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        return 'resume';
+      default:
+        return 'start';
     }
   }
 

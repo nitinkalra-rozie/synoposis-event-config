@@ -32,6 +32,7 @@ interface EventStagesDataState {
   sessionsByStage: Map<string, SessionWithDropdownOptions[]>;
   sessionLoadingStates: Map<string, boolean>;
   sessionErrors: Map<string, string | null>;
+  startPauseResumeActionLoadingStates: Map<string, boolean>;
 }
 
 const initialState: EventStagesDataState = {
@@ -41,6 +42,7 @@ const initialState: EventStagesDataState = {
   sessionsByStage: new Map(),
   sessionLoadingStates: new Map(),
   sessionErrors: new Map(),
+  startPauseResumeActionLoadingStates: new Map(),
 };
 
 const state = {
@@ -54,6 +56,9 @@ const state = {
     initialState.sessionLoadingStates
   ),
   sessionErrors: signal<Map<string, string | null>>(initialState.sessionErrors),
+  startPauseResumeActionLoadingStates: signal<Map<string, boolean>>(
+    initialState.startPauseResumeActionLoadingStates
+  ),
 };
 
 @Injectable({
@@ -75,6 +80,8 @@ export class EventStagesDataStore {
   public $sessionsByStage = state.sessionsByStage.asReadonly();
   public $sessionLoadingStates = state.sessionLoadingStates.asReadonly();
   public $sessionErrors = state.sessionErrors.asReadonly();
+  public $startPauseResumeActionLoadingStates =
+    state.startPauseResumeActionLoadingStates.asReadonly();
 
   public $entities = computed(() => {
     const entityIds = state.entityIds();
@@ -200,6 +207,8 @@ export class EventStagesDataStore {
 
     const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
 
+    this._setActionLoadingState(stage, true);
+
     this._eventStagesDataService
       .startListeningSession({
         action: 'adminStartListening',
@@ -207,6 +216,7 @@ export class EventStagesDataStore {
         processStages: [{ stage, sessionId }],
       })
       .pipe(
+        take(1),
         tap((response) => {
           console.log('startSession response', response);
           if (response.success) {
@@ -218,6 +228,7 @@ export class EventStagesDataStore {
             }));
           }
         }),
+        finalize(() => this._setActionLoadingState(stage, false)),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
@@ -229,6 +240,8 @@ export class EventStagesDataStore {
 
     const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
 
+    this._setActionLoadingState(stage, true);
+
     this._eventStagesDataService
       .pauseListeningSession({
         action: 'adminPauseListening',
@@ -236,12 +249,14 @@ export class EventStagesDataStore {
         processStages: [{ stage, sessionId }],
       })
       .pipe(
+        take(1),
         tap((response) => {
           console.log('pauseSession response', response);
           if (response.success) {
             // TODO:644 notify the user that the stage is paused once the UX is finalized
           }
         }),
+        finalize(() => this._setActionLoadingState(stage, false)),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
@@ -299,6 +314,9 @@ export class EventStagesDataStore {
     state.sessionsByStage.set(new Map(initialState.sessionsByStage));
     state.sessionLoadingStates.set(new Map(initialState.sessionLoadingStates));
     state.sessionErrors.set(new Map(initialState.sessionErrors));
+    state.startPauseResumeActionLoadingStates.set(
+      new Map(initialState.startPauseResumeActionLoadingStates)
+    );
     this._entitySignals.clear();
   }
 
@@ -310,6 +328,14 @@ export class EventStagesDataStore {
     if (entitySignal) {
       entitySignal.update(updater);
     }
+  }
+
+  private _setActionLoadingState(stageId: string, isLoading: boolean): void {
+    const currentLoadingStates = new Map(
+      state.startPauseResumeActionLoadingStates()
+    );
+    currentLoadingStates.set(stageId, isLoading);
+    state.startPauseResumeActionLoadingStates.set(currentLoadingStates);
   }
 
   private _setEntities(entities: EventStage[]): void {

@@ -3,6 +3,7 @@
     mat-raised-button
     class="action-btn start-pause-resume-btn"
     [class.active]="true"
+    [class.loading]="buttonStates().startPauseResumeButton.isLoading"
     [disabled]="!buttonStates().startPauseResumeButton.isEnabled"
     (click)="onStartPauseResume()">
     <mat-icon
