@@ -6,11 +6,11 @@
     [class.loading]="buttonStates().startPauseResumeButton.isLoading"
     [disabled]="!buttonStates().startPauseResumeButton.isEnabled"
     (click)="onStartPauseResume()">
-    <mat-icon
-      [svgIcon]="buttonStates().startPauseResumeButton.icon.startsWith('syn:') ? buttonStates().startPauseResumeButton.icon : null">
-      @if (!buttonStates().startPauseResumeButton.icon.startsWith('syn:')) { {{
-      buttonStates().startPauseResumeButton.icon }} }
-    </mat-icon>
+    @if(buttonStates().startPauseResumeButton.icon.startsWith('syn:')) {
+    <mat-icon [svgIcon]="buttonStates().startPauseResumeButton.icon" />
+    } @else {
+    <mat-icon>{{ buttonStates().startPauseResumeButton.icon }}</mat-icon>
+    }
   </button>
   <button
     mat-raised-button
