@@ -49,10 +49,10 @@ export class SynSingleSelect<T> {
   constructor() {
     this.searchFormCtrl.valueChanges
       .pipe(
-        takeUntilDestroyed(),
         debounceTime(100),
         distinctUntilChanged(),
-        tap((value) => this._filterSearchOptions(value))
+        tap((value) => this._filterSearchOptions(value)),
+        takeUntilDestroyed()
       )
       .subscribe();
 

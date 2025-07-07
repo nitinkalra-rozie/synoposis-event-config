@@ -110,7 +110,7 @@ export class EventStagesDataStore {
     this._updateEntity(stageId, (entity) => ({
       ...entity,
       status: status,
-      isOnline: status === 'ONLINE',
+      isOnline: status !== 'OFFLINE',
       lastUpdatedAt: Date.now(),
     }));
   }
