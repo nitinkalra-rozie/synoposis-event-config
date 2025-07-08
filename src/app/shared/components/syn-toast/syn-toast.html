@@ -1,0 +1,38 @@
+<div class="syn-toast-container">
+  @for (toast of toastData(); track toast.id) {
+  <div class="syn-toast" [class]="toast.cssClasses">
+    <div class="toast-content">
+      <div class="toast-icon">
+        @if (toast.iconName.startsWith('syn:')) {
+        <mat-icon [svgIcon]="toast.iconName"></mat-icon>
+        } @else {
+        <mat-icon>{{ toast.iconName }}</mat-icon>
+        }
+      </div>
+
+      <div class="toast-message">{{ toast.message }}</div>
+
+      <div class="toast-actions">
+        @if (toast.action) {
+        <button
+          mat-button
+          class="toast-action-button"
+          (click)="onActionClick(toast)"
+          type="button">
+          {{ toast.action.label }}
+        </button>
+        } @else if (toast.dismissible) {
+        <button
+          mat-icon-button
+          class="toast-dismiss-button"
+          (click)="onDismiss(toast.id)"
+          aria-label="Dismiss"
+          type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+  }
+</div>

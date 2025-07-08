@@ -211,4 +211,10 @@
 			<path d="M12 8.5H10V13.5H12V8.5Z" fill="currentColor" />
 		</svg>
 	</symbol>
+	<symbol id="exclamation" viewBox="0 0 20 21">
+		<svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M9 5.5H11V12.1667H9V5.5Z" fill="currentColor" />
+			<path d="M9 13.5H11V15.5H9V13.5Z" fill="currentColor" />
+		</svg>
+	</symbol>
 </svg>
