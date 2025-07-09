@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -48,8 +48,6 @@ export class AuthTokenService {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
   private readonly _toast = inject(SynToastFacade);
-
-  private _warningShown = signal(false);
 
   getAccessToken(): string | null {
     return this._authStore.getSession().tokens?.accessToken?.toString() || null;
@@ -138,8 +136,8 @@ export class AuthTokenService {
 
           if (isNearExpiry) {
             this._authStore.setTokenStatus('near-expiry');
-            if (!this._warningShown()) {
-              this._warningShown.set(true);
+            if (!this._authStore.$warningShown()) {
+              this._authStore.setWarningShown(true);
 
               this._toast.showWarning(
                 AUTH_SESSION_TOAST.EXPIRY_WARNING,
@@ -148,6 +146,7 @@ export class AuthTokenService {
             }
             return this._refreshToken$();
           }
+
           return EMPTY;
         }),
 
@@ -170,7 +169,7 @@ export class AuthTokenService {
     return this._performTokenRefresh$().pipe(
       finalize(() => {
         this._authStore.setRefreshInProgress(false);
-        this._warningShown.set(false);
+        this._authStore.resetWarningShown();
       })
     );
   }
