@@ -31,7 +31,8 @@ import {
 } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
-import { SnackbarService } from 'src/app/legacy-admin/@data-services/snackbar/snackbar-service';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
+import { ToastRef } from 'src/app/shared/components/syn-toast/syn-toast.model';
 
 const TOKEN_CHECK_INTERVAL_MS = 3000;
 
@@ -47,7 +48,7 @@ export class AuthTokenService {
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
-  private readonly _snackbarService = inject(SnackbarService);
+  private readonly _toastFacade = inject(SynToastFacade);
 
   private _warningShown = false;
 
@@ -141,9 +142,8 @@ export class AuthTokenService {
             if (!this._warningShown) {
               this._warningShown = true;
 
-              this._snackbarService.warning(
+              this._toastFacade.showWarning(
                 SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRY_WARNING,
-                'Dismiss',
                 6000
               );
             }
@@ -228,11 +228,17 @@ export class AuthTokenService {
         });
         this._authStore.setTokenStatus('invalid');
         this._authStore.setLastRefreshError(authError);
-        this._snackbarService.error(
-          SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRED,
-          'Dismiss',
-          6000
-        );
+
+        const toastRef: ToastRef = this._toastFacade.show({
+          type: 'error',
+          message: SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRED,
+          action: {
+            label: 'Ok',
+            handler: () => {
+              this._toastFacade.dismiss(toastRef.id);
+            },
+          },
+        });
 
         return handleError<string>(authError.originalError || authError, false);
       })
