@@ -21,7 +21,7 @@ import {
   timer,
 } from 'rxjs';
 import {
-  SESSION_NOTIFICATION_MESSAGE,
+  AUTH_SESSION_TOAST,
   TOKEN_REFRESH_CONFIG,
 } from 'src/app/core/auth/constants/auth-constants';
 import {
@@ -47,7 +47,7 @@ export class AuthTokenService {
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
-  private readonly _toastFacade = inject(SynToastFacade);
+  private readonly _toast = inject(SynToastFacade);
 
   private _warningShown = signal(false);
 
@@ -141,9 +141,9 @@ export class AuthTokenService {
             if (!this._warningShown()) {
               this._warningShown.set(true);
 
-              this._toastFacade.showWarning(
-                SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRY_WARNING,
-                SESSION_NOTIFICATION_MESSAGE.NOTIFICATION_DURATION_MS
+              this._toast.showWarning(
+                AUTH_SESSION_TOAST.EXPIRY_WARNING,
+                AUTH_SESSION_TOAST.DURATION
               );
             }
             return this._refreshToken$();
@@ -228,9 +228,9 @@ export class AuthTokenService {
         this._authStore.setTokenStatus('invalid');
         this._authStore.setLastRefreshError(authError);
 
-        this._toastFacade.showError(
-          SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRED,
-          SESSION_NOTIFICATION_MESSAGE.NOTIFICATION_DURATION_MS
+        this._toast.showError(
+          AUTH_SESSION_TOAST.EXPIRED,
+          AUTH_SESSION_TOAST.DURATION
         );
 
         return handleError<string>(authError.originalError || authError, false);
