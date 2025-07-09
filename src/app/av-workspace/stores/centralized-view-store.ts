@@ -29,6 +29,8 @@ export class CentralizedViewStore {
     sessionsByStage: this._dataStore.$sessionsByStage,
     sessionLoadingStates: this._dataStore.$sessionLoadingStates,
     sessionErrors: this._dataStore.$sessionErrors,
+    startPauseResumeActionLoadingStates:
+      this._dataStore.$startPauseResumeActionLoadingStates,
 
     // UI state
     searchTerm: this._uiStore.$searchTerm,

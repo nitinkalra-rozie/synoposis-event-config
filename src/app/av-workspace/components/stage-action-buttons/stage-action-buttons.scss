@@ -22,10 +22,15 @@
       opacity: 0.92;
     }
 
-    &.mic-btn,
-    &.pause-btn {
+    &.start-pause-resume-btn {
       background-color: v.$primary-color-variant-2;
       color: v.$text-color-white;
+
+      &.loading {
+        mat-icon {
+          animation: spin 1s linear infinite;
+        }
+      }
     }
 
     &.stop-btn {
@@ -45,5 +50,14 @@
       font-size: 1.125rem;
       margin: auto;
     }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
