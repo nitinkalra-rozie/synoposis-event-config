@@ -53,8 +53,8 @@ import {
   DateRangeValue,
 } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.model';
 import { AnalyticsDataService } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
-import { SnackbarService } from 'src/app/legacy-admin/@data-services/snackbar/snackbar-service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
 @Component({
   selector: 'app-analytics-dashboard',
@@ -591,11 +591,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     { initialValue: null }
   );
 
-  // Services
   private _analyticsService = inject(AnalyticsDataService);
   private _backendApiService = inject(LegacyBackendApiService);
   private _router = inject(Router);
-  private _snackbarService = inject(SnackbarService);
+  private _toastFacade = inject(SynToastFacade);
 
   ngOnInit(): void {
     this.validateEventAccess();
@@ -614,9 +613,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const currentEventName = this._backendApiService.getCurrentEventName();
 
     if (!currentEventName) {
-      this._snackbarService.warning(
+      this._toastFacade.showWarning(
         'No event selected. Redirecting to admin page.',
-        'Dismiss'
+        3000
       );
       this._router.navigate(['/av-workspace']);
       return;
@@ -783,7 +782,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const content = document.getElementById('dashboard-content');
     if (!content) return;
 
-    this._snackbarService.info('Generating PDF...', 'Dismiss');
+    this._toastFacade.showInfo('Generating PDF...', 5000);
 
     const currentEventName = this._backendApiService.getCurrentEventName();
     const eventLogoUrl = this.eventLogo();
@@ -850,7 +849,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       }
 
       pdf.save(`analytics-${new Date().toISOString().slice(0, 10)}.pdf`);
-      this._snackbarService.success('PDF downloaded successfully', 'Dismiss');
+      this._toastFacade.showSuccess('PDF downloaded successfully', 5000);
     });
   }
 
@@ -861,10 +860,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const endDate = this.dateRange.value.end;
 
     if (!startDate || !endDate) {
-      this._snackbarService.error(
-        'Please select a valid date range',
-        'Dismiss'
-      );
+      this._toastFacade.showError('Please select a valid date range', 3000);
       this.isLoading.set(false);
       return;
     }
@@ -892,16 +888,13 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
-          this._snackbarService.success(
-            'CSV downloaded successfully',
-            'Dismiss'
-          );
+          this._toastFacade.showSuccess('CSV downloaded successfully', 3000);
         },
         error: (err) => {
           console.error('Error exporting analytics data:', err);
-          this._snackbarService.error(
+          this._toastFacade.showError(
             `Export error: ${err.message || 'Unknown error'}`,
-            'Dismiss'
+            3000
           );
           this.isLoading.set(false);
         },
@@ -910,19 +903,15 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
   exportReport(): void {
     if (!this.dateRange.value.start || !this.dateRange.value.end) {
-      this._snackbarService.error(
-        'Please select start and end dates',
-        'Dismiss'
-      );
+      this._toastFacade.showError('Please select start and end dates', 5000);
       return;
     }
 
     this.isExporting.set(true);
     this.exportProgress.set(0);
 
-    this._snackbarService.info(
+    this._toastFacade.showInfo(
       'Export Started - Report download in progress...',
-      'Dismiss',
       5000
     );
 
@@ -963,10 +952,11 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           link.click();
           window.URL.revokeObjectURL(url);
 
-          this._snackbarService.success(
+          this._toastFacade.showSuccess(
             'Report downloaded successfully!',
-            'Dismiss'
+            3000
           );
+
           this.isExporting.set(false);
           this.exportProgress.set(0);
         };
@@ -975,9 +965,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         clearInterval(progressInterval);
         console.error('Export failed:', error);
-        this._snackbarService.error(
+        this._toastFacade.showError(
           'Export Failed - Please try again later',
-          'Dismiss'
+          3000
         );
         this.isExporting.set(false);
         this.exportProgress.set(0);
@@ -990,7 +980,7 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   }
 
   showUserDetails(userId: string): void {
-    this._snackbarService.info('User details feature coming soon', 'Dismiss');
+    this._toastFacade.showInfo('User details feature coming soon', 3000);
   }
 
   private formatDateForAPI(date: Date): string {

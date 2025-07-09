@@ -57,6 +57,7 @@ import {
   ThemeOptions,
 } from 'src/app/legacy-admin/shared/enums';
 import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
@@ -89,6 +90,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   private readonly _eventStageWebsocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _toastFacade = inject(SynToastFacade);
 
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;
@@ -320,10 +322,13 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         console.log(data);
-        this.showSuccessMessage(`Theme color is ${this.selectedTheme}`);
+        this._toastFacade.showSuccess(
+          `Theme color is ${this.selectedTheme}`,
+          3000
+        );
       },
       (error: any) => {
-        this.showFailureMessage('Failed to change theme color .', error);
+        this._toastFacade.showError('Failed to change theme color .', 5000);
       }
     );
   }
@@ -437,19 +442,20 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  private showSuccessMessage(message: string): void {
-    this.successMessage = message;
-    setTimeout(() => {
-      this.successMessage = '';
-    }, 3000);
-  }
+  // private showSuccessMessage(message: string): void {
+  //   this.successMessage = message;
+  //   setTimeout(() => {
+  //     this.successMessage = '';
+  //   }, 3000);
+  // }
 
-  private showFailureMessage(message: string, error: any): void {
-    this.failureMessage = message;
-    setTimeout(() => {
-      this.failureMessage = '';
-    }, 5000);
-  }
+  // private showFailureMessage(message: string, error: any): void {
+  //   this.failureMessage = message;
+  //   setTimeout(() => {
+  //     this.failureMessage = '';
+  //   }, 5000);
+  // }
+
   showWelcomeMessageBanner(screenIdentifier: string): void {
     const postData: PostData = {};
     postData.action = 'welcome';
@@ -525,11 +531,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
-        this.showSuccessMessage('Backup message sent successfully!');
+        this._toastFacade.showSuccess(
+          'Backup message sent successfully!',
+          3000
+        );
         console.log(data);
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send backup message.', error);
+        this._toastFacade.showError('Failed to send backup message.', 5000);
       }
     );
   }
@@ -543,11 +552,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
-        this.showSuccessMessage('End event message sent successfully!');
+        this._toastFacade.showSuccess(
+          'End event message sent successfully!',
+          3000
+        );
         console.log(data);
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send end event message.', error);
+        this._toastFacade.showError('Failed to send end event message.', 5000);
       }
     );
   }
@@ -615,14 +627,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
             next: (data: any) => {
               console.log(data);
               this.startListeningClicked = true;
-              this.showSuccessMessage(
-                'Start session message sent successfully!'
+              this._toastFacade.showSuccess(
+                'Start session message sent successfully!',
+                3000
               );
             },
             error: (error: any) => {
-              this.showFailureMessage(
+              this._toastFacade.showError(
                 'Failed to send start session message.',
-                error
+                5000
               );
             },
           });
@@ -746,11 +759,16 @@ export class SessionContentComponent implements OnInit, OnChanges {
     // postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
-        this.showSuccessMessage('End event message sent successfully!');
+        // this.showSuccessMessage('End event message sent successfully!');
+        this._toastFacade.showSuccess(
+          'End event message sent successfully!',
+          3000
+        );
         console.log(data);
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send end event message.', error);
+        this._toastFacade.showError('Failed to send end event message.');
+        // this.showFailureMessage('Failed to send end event message.', error);
       }
     );
   }
@@ -801,14 +819,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.action = 'endBreakoutSession';
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
-          this.showSuccessMessage(
-            'End breakout session message sent successfully!'
+          this._toastFacade.showSuccess(
+            'End breakout session message sent successfully!',
+            3000
           );
         },
         (error: any) => {
-          this.showFailureMessage(
+          this._toastFacade.showError(
             'Failed to send end breakout session message.',
-            error
+            5000
           );
         }
       );
@@ -816,22 +835,34 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.action = 'endPrimarySession';
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
-          this.showSuccessMessage('End session message sent successfully!');
+          this._toastFacade.showSuccess(
+            'End session message sent successfully!',
+            3000
+          );
           this.showPostInsightsLoading(session);
         },
         (error: any) => {
-          this.showFailureMessage('Failed to send end session message.', error);
+          this._toastFacade.showError(
+            'Failed to send end session message.',
+            5000
+          );
         }
       );
     } else {
       postData.action = 'endSession';
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
-          this.showSuccessMessage('End session message sent successfully!');
+          this._toastFacade.showSuccess(
+            'End session message sent successfully!',
+            3000
+          );
           this.showPostInsightsLoading(session);
         },
         (error: any) => {
-          this.showFailureMessage('Failed to send end session message.', error);
+          this._toastFacade.showError(
+            'Failed to send end session message.',
+            5000
+          );
         }
       );
     }
@@ -1228,7 +1259,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
                 console.log(data);
               },
               (error: any) => {
-                this.showFailureMessage('Failed to store transcript', error);
+                this._toastFacade.showError('Failed to store transcript', 5000);
               }
             );
           }
@@ -1318,7 +1349,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe({
       next: () => {
         if (successMessage) {
-          this.showSuccessMessage(successMessage);
+          this._toastFacade.showSuccess(successMessage);
         }
         if (identifier) {
           this._projectionStateService.toggleProjectingState(identifier);
@@ -1326,7 +1357,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       },
       error: (error: any) => {
         if (errorMessage) {
-          this.showFailureMessage(errorMessage, error);
+          this._toastFacade.showError(errorMessage);
         }
         if (identifier) {
           this._projectionStateService.toggleProjectingState(identifier);
