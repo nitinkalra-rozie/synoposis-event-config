@@ -442,20 +442,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  // private showSuccessMessage(message: string): void {
-  //   this.successMessage = message;
-  //   setTimeout(() => {
-  //     this.successMessage = '';
-  //   }, 3000);
-  // }
-
-  // private showFailureMessage(message: string, error: any): void {
-  //   this.failureMessage = message;
-  //   setTimeout(() => {
-  //     this.failureMessage = '';
-  //   }, 5000);
-  // }
-
   showWelcomeMessageBanner(screenIdentifier: string): void {
     const postData: PostData = {};
     postData.action = 'welcome';
@@ -768,7 +754,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
       },
       (error: any) => {
         this._toastFacade.showError('Failed to send end event message.');
-        // this.showFailureMessage('Failed to send end event message.', error);
       }
     );
   }
