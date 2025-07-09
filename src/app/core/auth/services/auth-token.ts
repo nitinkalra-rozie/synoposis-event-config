@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { fetchAuthSession } from 'aws-amplify/auth';
@@ -32,7 +32,6 @@ import {
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
-import { ToastRef } from 'src/app/shared/components/syn-toast/syn-toast.model';
 
 const TOKEN_CHECK_INTERVAL_MS = 3000;
 
@@ -50,7 +49,7 @@ export class AuthTokenService {
   private readonly _authStore = inject(AuthStore);
   private readonly _toastFacade = inject(SynToastFacade);
 
-  private _warningShown = false;
+  private _warningShown = signal(false);
 
   getAccessToken(): string | null {
     return this._authStore.getSession().tokens?.accessToken?.toString() || null;
@@ -139,12 +138,12 @@ export class AuthTokenService {
 
           if (isNearExpiry) {
             this._authStore.setTokenStatus('near-expiry');
-            if (!this._warningShown) {
-              this._warningShown = true;
+            if (!this._warningShown()) {
+              this._warningShown.set(true);
 
               this._toastFacade.showWarning(
                 SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRY_WARNING,
-                6000
+                SESSION_NOTIFICATION_MESSAGE.NOTIFICATION_DURATION_MS
               );
             }
             return this._refreshToken$();
@@ -171,7 +170,7 @@ export class AuthTokenService {
     return this._performTokenRefresh$().pipe(
       finalize(() => {
         this._authStore.setRefreshInProgress(false);
-        this._warningShown = false;
+        this._warningShown.set(false);
       })
     );
   }
@@ -229,16 +228,10 @@ export class AuthTokenService {
         this._authStore.setTokenStatus('invalid');
         this._authStore.setLastRefreshError(authError);
 
-        const toastRef: ToastRef = this._toastFacade.show({
-          type: 'error',
-          message: SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRED,
-          action: {
-            label: 'Ok',
-            handler: () => {
-              this._toastFacade.dismiss(toastRef.id);
-            },
-          },
-        });
+        this._toastFacade.showError(
+          SESSION_NOTIFICATION_MESSAGE.SESSION_EXPIRED,
+          SESSION_NOTIFICATION_MESSAGE.NOTIFICATION_DURATION_MS
+        );
 
         return handleError<string>(authError.originalError || authError, false);
       })
