@@ -19,6 +19,7 @@ import { StageActionButtonState } from 'src/app/av-workspace/models/stage-action
 })
 export class StageActionButtons {
   public readonly stage = input.required<EventStage>();
+  public readonly isStartPauseResumeActionLoading = input.required<boolean>();
 
   public readonly startListening = output<string>();
   public readonly pauseListening = output<string>();
@@ -26,54 +27,118 @@ export class StageActionButtons {
 
   protected readonly buttonStates = computed(() => {
     const stage = this.stage();
-    return this._calculateButtonState(stage);
+    const isLoading = this.isStartPauseResumeActionLoading();
+    return this._calculateButtonState(stage, isLoading);
   });
 
-  protected onStartListening(): void {
-    this.startListening.emit(this.stage().stage);
-  }
+  protected onStartPauseResume(): void {
+    const action = this.buttonStates().startPauseResumeButton.action;
+    const stageId = this.stage().stage;
 
-  protected onPauseListening(): void {
-    this.pauseListening.emit(this.stage().stage);
+    switch (action) {
+      case 'start':
+      case 'resume':
+        this.startListening.emit(stageId);
+        break;
+      case 'pause':
+        this.pauseListening.emit(stageId);
+        break;
+    }
   }
 
   protected onStopListening(): void {
     this.stopListening.emit(this.stage().stage);
   }
 
-  private _calculateButtonState(entity: EventStage): StageActionButtonState {
+  private _calculateButtonState(
+    entity: EventStage,
+    isLoading: boolean
+  ): StageActionButtonState {
     const isOffline = entity.status === 'OFFLINE';
     const hasNoSession = !entity.currentSessionId;
     const currentAction = entity.currentAction;
 
     return {
-      canStart: this._canStartListening(isOffline, hasNoSession, currentAction),
-      canPause: this._canPauseListening(isOffline, hasNoSession, currentAction),
       canStop: this._canStopListening(isOffline, hasNoSession, currentAction),
+      startPauseResumeButton: this._calculateStartPauseResumeButtonState(
+        isOffline,
+        hasNoSession,
+        currentAction,
+        isLoading
+      ),
     };
   }
 
-  private _canStartListening(
+  private _calculateStartPauseResumeButtonState(
     isOffline: boolean,
     hasNoSession: boolean,
-    currentAction: string | null
-  ): boolean {
-    return (
-      !isOffline &&
-      !hasNoSession &&
-      currentAction !== 'SESSION_LIVE_LISTENING' &&
-      currentAction !== 'SESSION_END'
-    );
+    currentAction: string | null,
+    isLoading: boolean
+  ): StageActionButtonState['startPauseResumeButton'] {
+    if (isLoading) {
+      return {
+        isEnabled: true,
+        isLoading: true,
+        action: this._getCurrentAction(currentAction),
+        icon: 'syn:loading_spinner',
+      };
+    }
+
+    if (isOffline || hasNoSession) {
+      return {
+        isEnabled: false,
+        isLoading: false,
+        action: 'start',
+        icon: 'syn:mic_outlined',
+      };
+    }
+
+    switch (currentAction) {
+      case 'SESSION_LIVE_LISTENING':
+        return {
+          isEnabled: true,
+          isLoading: false,
+          action: 'pause',
+          icon: 'pause',
+        };
+
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        return {
+          isEnabled: true,
+          isLoading: false,
+          action: 'resume',
+          icon: 'syn:mic_outlined',
+        };
+
+      case 'SESSION_END':
+        return {
+          isEnabled: false,
+          isLoading: false,
+          action: 'start',
+          icon: 'syn:mic_outlined',
+        };
+
+      default:
+        return {
+          isEnabled: true,
+          isLoading: false,
+          action: 'start',
+          icon: 'syn:mic_outlined',
+        };
+    }
   }
 
-  private _canPauseListening(
-    isOffline: boolean,
-    hasNoSession: boolean,
+  private _getCurrentAction(
     currentAction: string | null
-  ): boolean {
-    return (
-      !isOffline && !hasNoSession && currentAction === 'SESSION_LIVE_LISTENING'
-    );
+  ): 'start' | 'pause' | 'resume' {
+    switch (currentAction) {
+      case 'SESSION_LIVE_LISTENING':
+        return 'pause';
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        return 'resume';
+      default:
+        return 'start';
+    }
   }
 
   private _canStopListening(

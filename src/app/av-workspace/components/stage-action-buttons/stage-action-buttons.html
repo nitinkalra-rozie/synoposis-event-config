@@ -1,19 +1,16 @@
 <div class="action-buttons">
   <button
     mat-raised-button
-    class="action-btn mic-btn"
+    class="action-btn start-pause-resume-btn"
     [class.active]="true"
-    [disabled]="!buttonStates().canStart"
-    (click)="onStartListening()">
-    <mat-icon svgIcon="syn:mic_outlined" />
-  </button>
-  <button
-    mat-raised-button
-    class="action-btn pause-btn"
-    [class.active]="true"
-    [disabled]="!buttonStates().canPause"
-    (click)="onPauseListening()">
-    <mat-icon>pause</mat-icon>
+    [class.loading]="buttonStates().startPauseResumeButton.isLoading"
+    [disabled]="!buttonStates().startPauseResumeButton.isEnabled"
+    (click)="onStartPauseResume()">
+    @if(buttonStates().startPauseResumeButton.icon.startsWith('syn:')) {
+    <mat-icon [svgIcon]="buttonStates().startPauseResumeButton.icon" />
+    } @else {
+    <mat-icon>{{ buttonStates().startPauseResumeButton.icon }}</mat-icon>
+    }
   </button>
   <button
     mat-raised-button

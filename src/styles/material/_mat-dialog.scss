@@ -1,0 +1,32 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use '@angular/material' as mat;
+
+.syn-confirm-dialog-panel {
+  .mat-mdc-dialog-container {
+    @include mat.dialog-overrides(
+      (
+        headline-padding: 0,
+        content-padding: 0,
+        actions-padding: 0,
+      )
+    );
+
+    .mat-mdc-dialog-inner-container {
+      .mat-mdc-dialog-surface {
+        border-radius: v.$button-border-radius;
+        box-shadow: v.$elevation-6dp;
+
+        .mat-mdc-dialog-title {
+          &::before {
+            height: auto;
+          }
+        }
+
+        .mat-mdc-dialog-content {
+          padding: 0;
+        }
+      }
+    }
+  }
+}

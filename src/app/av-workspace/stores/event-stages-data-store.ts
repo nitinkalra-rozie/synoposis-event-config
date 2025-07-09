@@ -9,9 +9,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   catchError,
+  concatMap,
   finalize,
   forkJoin,
   Observable,
+  of,
   take,
   tap,
   throwError,
@@ -24,6 +26,7 @@ import {
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 
 interface EventStagesDataState {
   loading: boolean;
@@ -32,6 +35,7 @@ interface EventStagesDataState {
   sessionsByStage: Map<string, SessionWithDropdownOptions[]>;
   sessionLoadingStates: Map<string, boolean>;
   sessionErrors: Map<string, string | null>;
+  startPauseResumeActionLoadingStates: Map<string, boolean>;
 }
 
 const initialState: EventStagesDataState = {
@@ -41,6 +45,7 @@ const initialState: EventStagesDataState = {
   sessionsByStage: new Map(),
   sessionLoadingStates: new Map(),
   sessionErrors: new Map(),
+  startPauseResumeActionLoadingStates: new Map(),
 };
 
 const state = {
@@ -54,6 +59,9 @@ const state = {
     initialState.sessionLoadingStates
   ),
   sessionErrors: signal<Map<string, string | null>>(initialState.sessionErrors),
+  startPauseResumeActionLoadingStates: signal<Map<string, boolean>>(
+    initialState.startPauseResumeActionLoadingStates
+  ),
 };
 
 @Injectable({
@@ -63,6 +71,7 @@ export class EventStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
 
   private readonly _entitySignals = new Map<
     string,
@@ -75,6 +84,8 @@ export class EventStagesDataStore {
   public $sessionsByStage = state.sessionsByStage.asReadonly();
   public $sessionLoadingStates = state.sessionLoadingStates.asReadonly();
   public $sessionErrors = state.sessionErrors.asReadonly();
+  public $startPauseResumeActionLoadingStates =
+    state.startPauseResumeActionLoadingStates.asReadonly();
 
   public $entities = computed(() => {
     const entityIds = state.entityIds();
@@ -200,6 +211,8 @@ export class EventStagesDataStore {
 
     const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
 
+    this._setActionLoadingState(stage, true);
+
     this._eventStagesDataService
       .startListeningSession({
         action: 'adminStartListening',
@@ -207,6 +220,7 @@ export class EventStagesDataStore {
         processStages: [{ stage, sessionId }],
       })
       .pipe(
+        take(1),
         tap((response) => {
           console.log('startSession response', response);
           if (response.success) {
@@ -218,29 +232,48 @@ export class EventStagesDataStore {
             }));
           }
         }),
+        finalize(() => this._setActionLoadingState(stage, false)),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
 
   pauseListeningStage(stage: string): void {
-    const eventName = this._legacyBackendApiService.getCurrentEventName();
-    if (!eventName) return;
-
-    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
-
-    this._eventStagesDataService
-      .pauseListeningSession({
-        action: 'adminPauseListening',
-        eventName,
-        processStages: [{ stage, sessionId }],
+    this._confirmDialogFacade
+      .openConfirmDialog({
+        title: 'Pause Listening?',
+        message: 'Do you want to Pause Listening for Stage 04?',
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
       })
       .pipe(
-        tap((response) => {
-          console.log('pauseSession response', response);
-          if (response.success) {
-            // TODO:644 notify the user that the stage is paused once the UX is finalized
-          }
+        concatMap((result: boolean) => {
+          if (!result) return of();
+
+          const eventName = this._legacyBackendApiService.getCurrentEventName();
+          if (!eventName) return of();
+
+          const sessionId =
+            this._entitySignals.get(stage)?.()?.currentSessionId;
+
+          this._setActionLoadingState(stage, true);
+
+          return this._eventStagesDataService
+            .pauseListeningSession({
+              action: 'adminPauseListening',
+              eventName,
+              processStages: [{ stage, sessionId }],
+            })
+            .pipe(
+              take(1),
+              tap((response) => {
+                console.log('pauseSession response', response);
+                if (response.success) {
+                  // TODO:644 notify the user that the stage is paused once the UX is finalized
+                }
+              }),
+              finalize(() => this._setActionLoadingState(stage, false))
+            );
         }),
         takeUntilDestroyed(this._destroyRef)
       )
@@ -299,6 +332,9 @@ export class EventStagesDataStore {
     state.sessionsByStage.set(new Map(initialState.sessionsByStage));
     state.sessionLoadingStates.set(new Map(initialState.sessionLoadingStates));
     state.sessionErrors.set(new Map(initialState.sessionErrors));
+    state.startPauseResumeActionLoadingStates.set(
+      new Map(initialState.startPauseResumeActionLoadingStates)
+    );
     this._entitySignals.clear();
   }
 
@@ -310,6 +346,14 @@ export class EventStagesDataStore {
     if (entitySignal) {
       entitySignal.update(updater);
     }
+  }
+
+  private _setActionLoadingState(stageId: string, isLoading: boolean): void {
+    const currentLoadingStates = new Map(
+      state.startPauseResumeActionLoadingStates()
+    );
+    currentLoadingStates.set(stageId, isLoading);
+    state.startPauseResumeActionLoadingStates.set(currentLoadingStates);
   }
 
   private _setEntities(entities: EventStage[]): void {

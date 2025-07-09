@@ -129,6 +129,9 @@
           <th *matHeaderCellDef mat-header-cell>ACTION</th>
           <td *matCellDef="let element" mat-cell>
             <app-stage-action-buttons
+              [isStartPauseResumeActionLoading]="
+                $vm().startPauseResumeActionLoadingStates().get(element.stage)
+              "
               [stage]="element"
               (pauseListening)="onPauseListening($event)"
               (startListening)="onStartListening($event)"
