@@ -47,7 +47,7 @@ export class AuthTokenService {
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
-  private readonly _toast = inject(SynToastFacade);
+  private readonly _toastFacade = inject(SynToastFacade);
 
   getAccessToken(): string | null {
     return this._authStore.getSession().tokens?.accessToken?.toString() || null;
@@ -139,7 +139,7 @@ export class AuthTokenService {
             if (!this._authStore.$isWarningShown()) {
               this._authStore.setWarningShown(true);
 
-              this._toast.showWarning(
+              this._toastFacade.showWarning(
                 AUTH_SESSION_TOAST.EXPIRY_WARNING,
                 AUTH_SESSION_TOAST.DURATION
               );
@@ -227,7 +227,7 @@ export class AuthTokenService {
         this._authStore.setTokenStatus('invalid');
         this._authStore.setLastRefreshError(authError);
 
-        this._toast.showError(
+        this._toastFacade.showError(
           AUTH_SESSION_TOAST.EXPIRED,
           AUTH_SESSION_TOAST.DURATION
         );
