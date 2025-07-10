@@ -50,7 +50,7 @@ const state = {
   isLoggingOut: signal<boolean>(initialState.isLoggingOut),
   lastRefreshError: signal<AuthError | null>(initialState.lastRefreshError),
   refreshFailureCount: signal<number>(initialState.refreshFailureCount),
-  warningShown: signal<boolean>(false),
+  isWarningShown: signal<boolean>(false),
 };
 
 const TWO_MINUTES_IN_MS = 2 * 60 * 1000;
@@ -69,7 +69,7 @@ export class AuthStore {
   public readonly $isLoggingOut = state.isLoggingOut.asReadonly();
   public readonly $lastRefreshError = state.lastRefreshError.asReadonly();
   public readonly $refreshFailureCount = state.refreshFailureCount.asReadonly();
-  public readonly $warningShown = state.warningShown.asReadonly();
+  public readonly $isWarningShown = state.isWarningShown.asReadonly();
 
   public readonly $isTokenValid = computed(() =>
     ['valid', 'refreshing', 'near-expiry'].includes(state.tokenStatus())
@@ -134,11 +134,11 @@ export class AuthStore {
   }
 
   setWarningShown(value: boolean): void {
-    state.warningShown.set(value);
+    state.isWarningShown.set(value);
   }
 
   resetWarningShown(): void {
-    state.warningShown.set(false);
+    state.isWarningShown.set(false);
   }
 
   getSession$(): Observable<AuthSession> {

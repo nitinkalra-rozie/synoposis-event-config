@@ -136,7 +136,7 @@ export class AuthTokenService {
 
           if (isNearExpiry) {
             this._authStore.setTokenStatus('near-expiry');
-            if (!this._authStore.$warningShown()) {
+            if (!this._authStore.$isWarningShown()) {
               this._authStore.setWarningShown(true);
 
               this._toast.showWarning(
