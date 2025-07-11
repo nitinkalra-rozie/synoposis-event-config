@@ -20,7 +20,10 @@ import {
   throwError,
   timer,
 } from 'rxjs';
-import { TOKEN_REFRESH_CONFIG } from 'src/app/core/auth/constants/auth-constants';
+import {
+  AUTH_SESSION_TOAST,
+  TOKEN_REFRESH_CONFIG,
+} from 'src/app/core/auth/constants/auth-constants';
 import {
   AuthError,
   authErrorHandlerFn,
@@ -28,6 +31,7 @@ import {
 } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import { AuthSessionService } from 'src/app/core/auth/services/auth-session';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
 const TOKEN_CHECK_INTERVAL_MS = 3000;
 
@@ -43,6 +47,7 @@ export class AuthTokenService {
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
+  private readonly _toastFacade = inject(SynToastFacade);
 
   getAccessToken(): string | null {
     return this._authStore.getSession().tokens?.accessToken?.toString() || null;
@@ -121,15 +126,27 @@ export class AuthTokenService {
             }
             return EMPTY;
           }
-          if (this._isTokenExpired()) {
+          const isExpired = this._isTokenExpired();
+          const isNearExpiry = this._authStore.$isTokenNearExpiry();
+
+          if (isExpired) {
             this._authStore.setTokenStatus('expired');
             return this._refreshToken$();
           }
 
-          if (this._authStore.$isTokenNearExpiry()) {
+          if (isNearExpiry) {
             this._authStore.setTokenStatus('near-expiry');
+            if (!this._authStore.$isWarningShown()) {
+              this._authStore.setWarningShown(true);
+
+              this._toastFacade.showWarning(
+                AUTH_SESSION_TOAST.EXPIRY_WARNING,
+                AUTH_SESSION_TOAST.DURATION
+              );
+            }
             return this._refreshToken$();
           }
+
           return EMPTY;
         }),
 
@@ -152,6 +169,7 @@ export class AuthTokenService {
     return this._performTokenRefresh$().pipe(
       finalize(() => {
         this._authStore.setRefreshInProgress(false);
+        this._authStore.resetWarningShown();
       })
     );
   }
@@ -175,10 +193,7 @@ export class AuthTokenService {
             const authError = classifyError(error);
             const retryCount = index + 1;
 
-            const retryTypes: AuthError['type'][] = [
-              'NETWORK_ERROR',
-              'TOKEN_EXPIRED',
-            ];
+            const retryTypes: AuthError['type'][] = ['NETWORK_ERROR'];
 
             if (retryCount > TOKEN_REFRESH_CONFIG.MAX_RETRY_ATTEMPTS) {
               return throwError(() => authError);
@@ -211,6 +226,11 @@ export class AuthTokenService {
         });
         this._authStore.setTokenStatus('invalid');
         this._authStore.setLastRefreshError(authError);
+
+        this._toastFacade.showError(
+          AUTH_SESSION_TOAST.EXPIRED,
+          AUTH_SESSION_TOAST.DURATION
+        );
 
         return handleError<string>(authError.originalError || authError, false);
       })
