@@ -27,8 +27,9 @@ export const HTTP_STATUS_CODE = {
   FORBIDDEN: 403,
 };
 
-export const SESSION_NOTIFICATION_MESSAGE = {
-  SESSION_EXPIRED: 'Your session has expired. Please log in again.',
-  SESSION_EXPIRY_WARNING:
+export const AUTH_SESSION_TOAST = {
+  EXPIRED: 'Your session has expired. Please log in again.',
+  EXPIRY_WARNING:
     'Your session will expire in 5 minutes. Please save your work.',
+  DURATION: 6000,
 };
