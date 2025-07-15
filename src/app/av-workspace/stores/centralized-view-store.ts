@@ -169,7 +169,7 @@ export class CentralizedViewStore {
     this._webSocketFacade.sessionEnd$
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((message) => {
-        if (message.stage) {
+        if (message.stage && message.sessionId) {
           this._dataStore.updateEntitySession(
             message.stage,
             message.sessionId,
