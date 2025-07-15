@@ -96,12 +96,28 @@
           </th>
           <td *matCellDef="let element" mat-cell>
             <syn-single-select
+              matTooltipClass="tooltip-text-only"
+              matTooltipPosition="above"
               [disabled]="
                 !element.isOnline ||
                 element.currentAction === 'SESSION_LIVE_LISTENING' ||
                 element.currentAction === 'SESSION_LIVE_LISTENING_PAUSED'
               "
               [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
+              [matTooltip]="
+                !element.isOnline
+                  ? 'Session selection disabled: Stage is offline'
+                  : element.currentAction === 'SESSION_LIVE_LISTENING'
+                    ? 'Session selection disabled: Currently listening'
+                    : element.currentAction === 'SESSION_LIVE_LISTENING_PAUSED'
+                      ? 'Session selection disabled: Session is paused'
+                      : ''
+              "
+              [matTooltipDisabled]="
+                element.isOnline &&
+                element.currentAction !== 'SESSION_LIVE_LISTENING' &&
+                element.currentAction !== 'SESSION_LIVE_LISTENING_PAUSED'
+              "
               [options]="$vm().sessionsByStage().get(element.stage)"
               [selectedOptionKey]="element.currentSessionId"
               (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"

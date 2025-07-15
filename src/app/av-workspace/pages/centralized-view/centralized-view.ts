@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { StageActionButtons } from 'src/app/av-workspace/components/stage-action-buttons/stage-action-buttons';
 import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-header/stage-info-header';
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
@@ -39,6 +40,7 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
     MatCheckboxModule,
     MatSelectModule,
     MatButtonModule,
+    MatTooltipModule,
     StageActionButtons,
     StageInfoPlaceholder,
     StageInfoHeader,
