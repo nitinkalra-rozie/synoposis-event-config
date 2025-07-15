@@ -87,11 +87,23 @@ export class EventStagesDataStore {
   public $loading = state.loading.asReadonly();
   public $error = state.error.asReadonly();
   public $entityIds = state.entityIds.asReadonly();
-  public $sessionsByStage = state.sessionsByStage.asReadonly();
   public $sessionLoadingStates = state.sessionLoadingStates.asReadonly();
   public $sessionErrors = state.sessionErrors.asReadonly();
   public $startPauseResumeActionLoadingStates =
     state.startPauseResumeActionLoadingStates.asReadonly();
+
+  public $sessionsByStage = computed(() => {
+    const sessionsByStage = state.sessionsByStage();
+    const activeSessionStatuses = new Set(['IN_PROGRESS', 'NOT_STARTED']);
+    return new Map(
+      Array.from(sessionsByStage.entries(), ([stage, sessions]) => [
+        stage,
+        sessions.filter((session) =>
+          activeSessionStatuses.has(session.session.Status)
+        ),
+      ])
+    );
+  });
 
   public $entities = computed(() => {
     const entityIds = state.entityIds();
@@ -199,7 +211,7 @@ export class EventStagesDataStore {
     if (!eventName) return;
 
     const currentSessions = state.sessionsByStage();
-    if (currentSessions.has(stage) && currentSessions.get(stage)!.length > 0) {
+    if (currentSessions.has(stage) && currentSessions.get(stage)?.length > 0) {
       return;
     }
 
