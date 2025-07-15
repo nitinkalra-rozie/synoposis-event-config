@@ -26,3 +26,10 @@ export const HTTP_STATUS_CODE = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
 };
+
+export const AUTH_SESSION_TOAST = {
+  EXPIRED: 'Your session has expired. Please log in again.',
+  EXPIRY_WARNING:
+    'Your session will expire in 5 minutes. Please save your work.',
+  DURATION: 6000,
+};
