@@ -839,7 +839,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
           this.showPostInsightsLoading(session);
         },
         (error: any) => {
-          this._toastFacade.showSuccess(
+          this._toastFacade.showError(
             TOAST_MESSAGES.END_SESSION.ERROR,
             TOAST_MESSAGES.DURATION
           );
@@ -1349,7 +1349,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe({
       next: () => {
         if (successMessage) {
-          this._toastFacade.showSuccess(successMessage);
+          this._toastFacade.showSuccess(
+            successMessage,
+            TOAST_MESSAGES.DURATION
+          );
         }
         if (identifier) {
           this._projectionStateService.toggleProjectingState(identifier);
@@ -1357,7 +1360,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       },
       error: (error: any) => {
         if (errorMessage) {
-          this._toastFacade.showError(errorMessage);
+          this._toastFacade.showError(errorMessage, TOAST_MESSAGES.DURATION);
         }
         if (identifier) {
           this._projectionStateService.toggleProjectingState(identifier);
