@@ -169,11 +169,16 @@ export class CentralizedViewStore {
     this._webSocketFacade.sessionEnd$
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((message) => {
-        if (message.sessionId && message.stage) {
+        if (message.stage) {
           this._dataStore.updateEntitySession(
             message.stage,
             message.sessionId,
             'ended'
+          );
+          this._dataStore.updateSessionInStage(
+            message.stage,
+            message.sessionId,
+            'UNDER_REVIEW'
           );
         }
       });

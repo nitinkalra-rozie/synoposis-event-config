@@ -25,6 +25,7 @@ import {
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
 import {
   EventStage,
+  SessionStatusType,
   StageSessionsResponseData,
   StageStatusType,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
@@ -173,6 +174,44 @@ export class EventStagesDataStore {
       autoAv,
       lastUpdatedAt: Date.now(),
     }));
+  }
+
+  updateSessionInStage(
+    stageId: string,
+    sessionId: string,
+    sessionStatus: SessionStatusType
+  ): void {
+    state.sessionsByStage.update((currentMap) => {
+      const sessionsForStage = currentMap.get(stageId);
+
+      if (!sessionsForStage) {
+        return currentMap;
+      }
+
+      const targetSession = sessionsForStage.find(
+        (session) => session.value === sessionId
+      );
+
+      if (targetSession?.session.Status === sessionStatus) {
+        return currentMap;
+      }
+
+      const updatedSessions = sessionsForStage.map((session) =>
+        session.value === sessionId
+          ? {
+              ...session,
+              session: {
+                ...session.session,
+                Status: sessionStatus,
+              },
+            }
+          : session
+      );
+
+      const newMap = new Map(currentMap);
+      newMap.set(stageId, updatedSessions);
+      return newMap;
+    });
   }
 
   fetchStages(): void {
