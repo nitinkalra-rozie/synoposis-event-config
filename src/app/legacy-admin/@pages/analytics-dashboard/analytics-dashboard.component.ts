@@ -46,6 +46,7 @@ import {
   switchMap,
 } from 'rxjs';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
+import { TOAST_MESSAGES } from 'src/app/legacy-admin/@constants/toast-message';
 import {
   AnalyticsData,
   ChartConfig,
@@ -53,8 +54,8 @@ import {
   DateRangeValue,
 } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.model';
 import { AnalyticsDataService } from 'src/app/legacy-admin/@data-services/analytics/analytics-data.service';
-import { SnackbarService } from 'src/app/legacy-admin/@data-services/snackbar/snackbar-service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
 @Component({
   selector: 'app-analytics-dashboard',
@@ -591,11 +592,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     { initialValue: null }
   );
 
-  // Services
   private _analyticsService = inject(AnalyticsDataService);
   private _backendApiService = inject(LegacyBackendApiService);
   private _router = inject(Router);
-  private _snackbarService = inject(SnackbarService);
+  private _toastFacade = inject(SynToastFacade);
 
   ngOnInit(): void {
     this.validateEventAccess();
@@ -614,9 +614,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const currentEventName = this._backendApiService.getCurrentEventName();
 
     if (!currentEventName) {
-      this._snackbarService.warning(
-        'No event selected. Redirecting to admin page.',
-        'Dismiss'
+      this._toastFacade.showWarning(
+        TOAST_MESSAGES.ANALYTICS.NO_EVENT_SELECTED,
+        TOAST_MESSAGES.DURATION
       );
       this._router.navigate(['/av-workspace']);
       return;
@@ -783,7 +783,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const content = document.getElementById('dashboard-content');
     if (!content) return;
 
-    this._snackbarService.info('Generating PDF...', 'Dismiss');
+    this._toastFacade.showInfo(
+      TOAST_MESSAGES.ANALYTICS.GENERATING_PDF,
+      TOAST_MESSAGES.DURATION
+    );
 
     const currentEventName = this._backendApiService.getCurrentEventName();
     const eventLogoUrl = this.eventLogo();
@@ -850,7 +853,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       }
 
       pdf.save(`analytics-${new Date().toISOString().slice(0, 10)}.pdf`);
-      this._snackbarService.success('PDF downloaded successfully', 'Dismiss');
+      this._toastFacade.showSuccess(
+        TOAST_MESSAGES.ANALYTICS.PDF_SUCCESS,
+        TOAST_MESSAGES.DURATION
+      );
     });
   }
 
@@ -861,9 +867,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     const endDate = this.dateRange.value.end;
 
     if (!startDate || !endDate) {
-      this._snackbarService.error(
-        'Please select a valid date range',
-        'Dismiss'
+      this._toastFacade.showError(
+        TOAST_MESSAGES.ANALYTICS.INVALID_DATE_RANGE,
+        TOAST_MESSAGES.DURATION
       );
       this.isLoading.set(false);
       return;
@@ -892,16 +898,16 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           a.click();
           document.body.removeChild(a);
           window.URL.revokeObjectURL(url);
-          this._snackbarService.success(
-            'CSV downloaded successfully',
-            'Dismiss'
+          this._toastFacade.showSuccess(
+            TOAST_MESSAGES.ANALYTICS.CSV_SUCCESS,
+            TOAST_MESSAGES.DURATION
           );
         },
         error: (err) => {
           console.error('Error exporting analytics data:', err);
-          this._snackbarService.error(
-            `Export error: ${err.message || 'Unknown error'}`,
-            'Dismiss'
+          this._toastFacade.showError(
+            TOAST_MESSAGES.ANALYTICS.EXPORT_ERROR_WITH_MESSAGE(err.messages),
+            TOAST_MESSAGES.DURATION
           );
           this.isLoading.set(false);
         },
@@ -910,9 +916,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
 
   exportReport(): void {
     if (!this.dateRange.value.start || !this.dateRange.value.end) {
-      this._snackbarService.error(
-        'Please select start and end dates',
-        'Dismiss'
+      this._toastFacade.showError(
+        TOAST_MESSAGES.ANALYTICS.MISSING_DATES,
+        TOAST_MESSAGES.DURATION
       );
       return;
     }
@@ -920,10 +926,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
     this.isExporting.set(true);
     this.exportProgress.set(0);
 
-    this._snackbarService.info(
-      'Export Started - Report download in progress...',
-      'Dismiss',
-      5000
+    this._toastFacade.showInfo(
+      TOAST_MESSAGES.ANALYTICS.EXPORT_STARTED,
+      TOAST_MESSAGES.DURATION
     );
 
     const progressInterval = setInterval(() => {
@@ -963,10 +968,11 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
           link.click();
           window.URL.revokeObjectURL(url);
 
-          this._snackbarService.success(
-            'Report downloaded successfully!',
-            'Dismiss'
+          this._toastFacade.showSuccess(
+            TOAST_MESSAGES.ANALYTICS.EXPORT_SUCCESS,
+            TOAST_MESSAGES.DURATION
           );
+
           this.isExporting.set(false);
           this.exportProgress.set(0);
         };
@@ -975,9 +981,9 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         clearInterval(progressInterval);
         console.error('Export failed:', error);
-        this._snackbarService.error(
-          'Export Failed - Please try again later',
-          'Dismiss'
+        this._toastFacade.showError(
+          TOAST_MESSAGES.ANALYTICS.EXPORT_ERROR,
+          TOAST_MESSAGES.DURATION
         );
         this.isExporting.set(false);
         this.exportProgress.set(0);
@@ -990,7 +996,10 @@ export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   }
 
   showUserDetails(userId: string): void {
-    this._snackbarService.info('User details feature coming soon', 'Dismiss');
+    this._toastFacade.showInfo(
+      TOAST_MESSAGES.ANALYTICS.USER_DETAILS_COMING_SOON,
+      TOAST_MESSAGES.DURATION
+    );
   }
 
   private formatDateForAPI(date: Date): string {
