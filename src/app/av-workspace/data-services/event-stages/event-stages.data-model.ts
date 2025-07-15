@@ -66,7 +66,7 @@ export type EventStagesRequestActionType =
   | 'getStageListWithSessions'
   | 'getSessionListForStage'
   | 'adminStartListening'
-  | 'adminStopListening'
+  | 'adminEndListening'
   | 'adminPauseListening';
 
 export interface EventStagesRequestData {

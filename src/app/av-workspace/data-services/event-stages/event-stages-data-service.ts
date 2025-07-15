@@ -51,7 +51,7 @@ export class EventStagesDataService {
     );
   }
 
-  stopListeningSession(
+  endListeningSession(
     requestData: StageSessionActionRequestData
   ): Observable<StageSessionActionResponseData> {
     return this._httpClient.post<StageSessionActionResponseData>(

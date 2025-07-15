@@ -138,7 +138,7 @@ export class CentralizedViewStore {
   }
 
   stopListeningStage(stage: string): void {
-    this._dataStore.stopListeningStage(stage);
+    this._dataStore.endListeningStage(stage);
   }
 
   private _initializeWebSocketSubscriptions(): void {
