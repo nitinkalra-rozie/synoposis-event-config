@@ -149,6 +149,7 @@
           <th *matHeaderCellDef mat-header-cell>ACTION</th>
           <td *matCellDef="let element" mat-cell>
             <app-stage-action-buttons
+              [isMultipleSelectionActive]="$vm().selection().size > 0"
               [isStartPauseResumeActionLoading]="
                 $vm().startPauseResumeActionLoadingStates().get(element.stage)
               "

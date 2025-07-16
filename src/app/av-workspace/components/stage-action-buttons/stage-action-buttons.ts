@@ -20,6 +20,7 @@ import { StageActionButtonState } from 'src/app/av-workspace/models/stage-action
 export class StageActionButtons {
   public readonly stage = input.required<EventStage>();
   public readonly isStartPauseResumeActionLoading = input.required<boolean>();
+  public readonly isMultipleSelectionActive = input.required<boolean>();
 
   public readonly startListening = output<string>();
   public readonly pauseListening = output<string>();
