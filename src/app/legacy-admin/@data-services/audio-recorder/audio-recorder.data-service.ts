@@ -19,6 +19,7 @@ export class AudioRecorderDataService {
       eventName: data.eventName,
       chunkBase64: data.chunkBase64,
       timestamp: data.timestamp,
+      stage: data.stage,
     };
     return this._http.post(environment.audioRecorderUrl, body);
   }

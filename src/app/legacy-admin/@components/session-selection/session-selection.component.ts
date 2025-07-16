@@ -237,6 +237,34 @@ export class SessionSelectionComponent implements OnChanges {
       .subscribe((message: CentralizedViewWebSocketMessage) => {
         this._handleCentralizedSessionCommand(message);
       });
+    this._centralizedWebSocketFacade.sessionPaused$
+      .pipe(takeUntilDestroyed())
+      .subscribe((message: CentralizedViewWebSocketMessage) => {
+        this._handleCentralizedSessionPause(message);
+      });
+  }
+
+  private _handleCentralizedSessionPause(
+    message: CentralizedViewWebSocketMessage
+  ): void {
+    const { stage, sessionId, eventName } = message;
+
+    const currentEventName = this._backendApiService.getCurrentEventName();
+    const currentStage = this.selectedStage();
+    if (
+      eventName !== currentEventName ||
+      !currentStage ||
+      currentStage.label !== stage
+    )
+      return;
+
+    const activeSession = this.activeSession();
+    if (
+      activeSession &&
+      activeSession.metadata['originalContent'].SessionId === sessionId
+    ) {
+      this._stopStream();
+    }
   }
 
   private _handleCentralizedSessionCommand(
