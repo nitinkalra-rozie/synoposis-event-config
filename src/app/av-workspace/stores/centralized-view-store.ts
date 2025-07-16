@@ -138,7 +138,7 @@ export class CentralizedViewStore {
   }
 
   stopListeningStage(stage: string): void {
-    this._dataStore.stopListeningStage(stage);
+    this._dataStore.endListeningStage(stage);
   }
 
   private _initializeWebSocketSubscriptions(): void {
@@ -169,11 +169,16 @@ export class CentralizedViewStore {
     this._webSocketFacade.sessionEnd$
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((message) => {
-        if (message.sessionId && message.stage) {
+        if (message.stage && message.sessionId) {
           this._dataStore.updateEntitySession(
             message.stage,
             message.sessionId,
             'ended'
+          );
+          this._dataStore.updateSessionInStage(
+            message.stage,
+            message.sessionId,
+            'UNDER_REVIEW'
           );
         }
       });

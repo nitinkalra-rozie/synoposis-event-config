@@ -19,10 +19,13 @@
     "itchartford",
     "Lexend",
     "Registerables",
+    "revlab",
     "Rozie",
+    "siso",
     "stylelint",
     "SUPERADMIN",
-    "titlecase"
+    "titlecase",
+    "xcsc"
   ],
   "json.format.enable": false,
   "[jsonc]": {

@@ -18,15 +18,21 @@ import {
   tap,
   throwError,
 } from 'rxjs';
+import {
+  CENTRALIZED_VIEW_DIALOG_MESSAGES,
+  CENTRALIZED_VIEW_TOAST_MESSAGES,
+} from 'src/app/av-workspace/constants/centralized-view-interaction-messages';
 import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
 import {
   EventStage,
+  SessionStatusType,
   StageSessionsResponseData,
   StageStatusType,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
 interface EventStagesDataState {
   loading: boolean;
@@ -72,6 +78,7 @@ export class EventStagesDataStore {
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
   private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
+  private readonly _toastFacade = inject(SynToastFacade);
 
   private readonly _entitySignals = new Map<
     string,
@@ -81,11 +88,23 @@ export class EventStagesDataStore {
   public $loading = state.loading.asReadonly();
   public $error = state.error.asReadonly();
   public $entityIds = state.entityIds.asReadonly();
-  public $sessionsByStage = state.sessionsByStage.asReadonly();
   public $sessionLoadingStates = state.sessionLoadingStates.asReadonly();
   public $sessionErrors = state.sessionErrors.asReadonly();
   public $startPauseResumeActionLoadingStates =
     state.startPauseResumeActionLoadingStates.asReadonly();
+
+  public $sessionsByStage = computed(() => {
+    const sessionsByStage = state.sessionsByStage();
+    const activeSessionStatuses = new Set(['IN_PROGRESS', 'NOT_STARTED']);
+    return new Map(
+      Array.from(sessionsByStage.entries(), ([stage, sessions]) => [
+        stage,
+        sessions.filter((session) =>
+          activeSessionStatuses.has(session.session.Status)
+        ),
+      ])
+    );
+  });
 
   public $entities = computed(() => {
     const entityIds = state.entityIds();
@@ -157,6 +176,44 @@ export class EventStagesDataStore {
     }));
   }
 
+  updateSessionInStage(
+    stageId: string,
+    sessionId: string,
+    sessionStatus: SessionStatusType
+  ): void {
+    state.sessionsByStage.update((currentMap) => {
+      const sessionsForStage = currentMap.get(stageId);
+
+      if (!sessionsForStage) {
+        return currentMap;
+      }
+
+      const targetSession = sessionsForStage.find(
+        (session) => session.value === sessionId
+      );
+
+      if (targetSession?.session.Status === sessionStatus) {
+        return currentMap;
+      }
+
+      const updatedSessions = sessionsForStage.map((session) =>
+        session.value === sessionId
+          ? {
+              ...session,
+              session: {
+                ...session.session,
+                Status: sessionStatus,
+              },
+            }
+          : session
+      );
+
+      const newMap = new Map(currentMap);
+      newMap.set(stageId, updatedSessions);
+      return newMap;
+    });
+  }
+
   fetchStages(): void {
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     if (!eventName) {
@@ -193,7 +250,7 @@ export class EventStagesDataStore {
     if (!eventName) return;
 
     const currentSessions = state.sessionsByStage();
-    if (currentSessions.has(stage) && currentSessions.get(stage)!.length > 0) {
+    if (currentSessions.has(stage) && currentSessions.get(stage)?.length > 0) {
       return;
     }
 
@@ -222,14 +279,16 @@ export class EventStagesDataStore {
       .pipe(
         take(1),
         tap((response) => {
-          console.log('startSession response', response);
           if (response.success) {
-            // TODO:644 notify the user that the stage is listening once the UX is finalized
             this._updateEntity(stage, (entity) => ({
               ...entity,
               currentSessionId: sessionId,
               lastUpdatedAt: Date.now(),
             }));
+            this._toastFacade.showSuccess(
+              CENTRALIZED_VIEW_TOAST_MESSAGES.START_LISTENING,
+              CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+            );
           }
         }),
         finalize(() => this._setActionLoadingState(stage, false)),
@@ -241,8 +300,8 @@ export class EventStagesDataStore {
   pauseListeningStage(stage: string): void {
     this._confirmDialogFacade
       .openConfirmDialog({
-        title: 'Pause Listening?',
-        message: 'Do you want to Pause Listening for Stage 04?',
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE.TITLE,
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE.MESSAGE(stage),
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
       })
@@ -267,9 +326,11 @@ export class EventStagesDataStore {
             .pipe(
               take(1),
               tap((response) => {
-                console.log('pauseSession response', response);
                 if (response.success) {
-                  // TODO:644 notify the user that the stage is paused once the UX is finalized
+                  this._toastFacade.showSuccess(
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.PAUSE_LISTENING,
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+                  );
                 }
               }),
               finalize(() => this._setActionLoadingState(stage, false))
@@ -280,25 +341,49 @@ export class EventStagesDataStore {
       .subscribe();
   }
 
-  stopListeningStage(stage: string): void {
-    const eventName = this._legacyBackendApiService.getCurrentEventName();
-    if (!eventName) return;
-
-    const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
-
-    // TODO:644 implement the confirmation dialog to stop the ongoing session
-    this._eventStagesDataService
-      .stopListeningSession({
-        action: 'adminStopListening',
-        eventName,
-        processStages: [{ stage, sessionId }],
+  endListeningStage(stage: string): void {
+    this._confirmDialogFacade
+      .openConfirmDialog({
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.END.TITLE,
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.END.MESSAGE(stage),
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
       })
       .pipe(
-        tap((response) => {
-          console.log('stopSession response', response);
-          if (response.success) {
-            // TODO:644 notify the user that the stage is stopped once the UX is finalized
-          }
+        concatMap((result: boolean) => {
+          if (!result) return of();
+
+          const eventName = this._legacyBackendApiService.getCurrentEventName();
+          if (!eventName) return of();
+
+          const sessionId =
+            this._entitySignals.get(stage)?.()?.currentSessionId;
+
+          return this._eventStagesDataService
+            .endListeningSession({
+              action: 'adminEndListening',
+              eventName,
+              processStages: [{ stage, sessionId }],
+            })
+            .pipe(
+              take(1),
+              tap((response) => {
+                console.log('endSession response', response);
+                if (response.success) {
+                  this._updateEntity(stage, (entity) => ({
+                    ...entity,
+                    currentSessionId: null,
+                    lastUpdatedAt: Date.now(),
+                    currentAction: 'SESSION_END',
+                    status: 'ONLINE',
+                  }));
+                  this._toastFacade.showSuccess(
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING,
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+                  );
+                }
+              })
+            );
         }),
         takeUntilDestroyed(this._destroyRef)
       )
