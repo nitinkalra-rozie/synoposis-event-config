@@ -109,6 +109,100 @@ export class SessionSelectionComponent implements OnChanges {
     }
   }
 
+  protected get getSessionUrl(): string {
+    const activeSession = this.activeSession();
+    let sessionToUse = activeSession;
+
+    if (!sessionToUse) {
+      const now = new Date().getTime();
+      sessionToUse = this.availableSessions()
+        .filter((session) => {
+          const sessionStartTime = new Date(
+            session.metadata['originalContent'].StartTime
+          ).getTime();
+          return sessionStartTime > now;
+        })
+        .reduce((nearestSession, currentSession) => {
+          const nearestTime = new Date(
+            nearestSession.metadata['originalContent'].StartTime
+          ).getTime();
+          const currentTime = new Date(
+            currentSession.metadata['originalContent'].StartTime
+          ).getTime();
+          return Math.abs(currentTime - now) < Math.abs(nearestTime - now)
+            ? currentSession
+            : nearestSession;
+        }, this.availableSessions()[0]);
+    }
+
+    if (!sessionToUse) {
+      console.warn('No sessions available to generate the session URL.');
+      return '';
+    }
+
+    return `${getInsightsDomainUrl()}/session/${sessionToUse.metadata['originalContent'].PrimarySessionId}?isPrimaryScreen=true`;
+  }
+
+  protected onOptionSelect(selectedOption: DropdownOption): void {
+    this._dashboardFiltersStateService.setActiveSession(selectedOption);
+    this.isProjectOnPhysicalScreen.set(true);
+
+    if (this._eventStageWebSocketState.$autoAvEnabled()) {
+      const sessionId =
+        selectedOption.metadata['originalContent'].PrimarySessionId;
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      this._windowService.openInsightsSessionWindow(newUrl);
+    }
+  }
+
+  protected openSessionInNewWindow(): boolean {
+    this._windowService.openInsightsSessionWindow(this.getSessionUrl);
+    return false;
+  }
+
+  protected copyToClipboard(): void {
+    navigator.clipboard.writeText(this.getSessionUrl);
+  }
+
+  protected onStartListening(): void {
+    if (this._liveEvent()) {
+      this._modalService.open(
+        'End Session?',
+        'You are currently listening to a session. Are you sure you want to end it and project a different screen?',
+        'yes_no',
+        () => {
+          this._modalService.close();
+          this._stopStream();
+          setTimeout(() => {
+            this._startStream();
+          }, 300);
+        },
+        () => {
+          this._modalService.close();
+        }
+      );
+    } else {
+      this._startStream();
+    }
+  }
+
+  protected onDropdownOpen(): void {
+    // fetch latest event details
+    this._dashboardFiltersStateService.setShouldFetchEventDetails(true);
+  }
+
+  protected onProjectToScreen(data: ProjectionData): void {
+    this.screenProjected.emit(data);
+  }
+
+  private _startStream(): void {
+    this.streamStarted.emit();
+  }
+
+  private _stopStream(): void {
+    this.streamStopped.emit();
+  }
+
   private _initializeStageWebSocketListeners(): void {
     toObservable(this._eventStageWebSocketState.$sessionLiveListening)
       .pipe(takeUntilDestroyed())
@@ -218,99 +312,5 @@ export class SessionSelectionComponent implements OnChanges {
       this.isProjectOnPhysicalScreen.set(true);
       this._startStream();
     }
-  }
-
-  protected get getSessionUrl(): string {
-    const activeSession = this.activeSession();
-    let sessionToUse = activeSession;
-
-    if (!sessionToUse) {
-      const now = new Date().getTime();
-      sessionToUse = this.availableSessions()
-        .filter((session) => {
-          const sessionStartTime = new Date(
-            session.metadata['originalContent'].StartTime
-          ).getTime();
-          return sessionStartTime > now;
-        })
-        .reduce((nearestSession, currentSession) => {
-          const nearestTime = new Date(
-            nearestSession.metadata['originalContent'].StartTime
-          ).getTime();
-          const currentTime = new Date(
-            currentSession.metadata['originalContent'].StartTime
-          ).getTime();
-          return Math.abs(currentTime - now) < Math.abs(nearestTime - now)
-            ? currentSession
-            : nearestSession;
-        }, this.availableSessions()[0]);
-    }
-
-    if (!sessionToUse) {
-      console.warn('No sessions available to generate the session URL.');
-      return '';
-    }
-
-    return `${getInsightsDomainUrl()}/session/${sessionToUse.metadata['originalContent'].PrimarySessionId}?isPrimaryScreen=true`;
-  }
-
-  protected onOptionSelect(selectedOption: DropdownOption): void {
-    this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(true);
-
-    if (this._eventStageWebSocketState.$autoAvEnabled()) {
-      const sessionId =
-        selectedOption.metadata['originalContent'].PrimarySessionId;
-      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-      this._windowService.openInsightsSessionWindow(newUrl);
-    }
-  }
-
-  protected openSessionInNewWindow(): boolean {
-    this._windowService.openInsightsSessionWindow(this.getSessionUrl);
-    return false;
-  }
-
-  protected copyToClipboard(): void {
-    navigator.clipboard.writeText(this.getSessionUrl);
-  }
-
-  protected onStartListening(): void {
-    if (this._liveEvent()) {
-      this._modalService.open(
-        'End Session?',
-        'You are currently listening to a session. Are you sure you want to end it and project a different screen?',
-        'yes_no',
-        () => {
-          this._modalService.close();
-          this._stopStream();
-          setTimeout(() => {
-            this._startStream();
-          }, 300);
-        },
-        () => {
-          this._modalService.close();
-        }
-      );
-    } else {
-      this._startStream();
-    }
-  }
-
-  protected onDropdownOpen(): void {
-    // fetch latest event details
-    this._dashboardFiltersStateService.setShouldFetchEventDetails(true);
-  }
-
-  protected onProjectToScreen(data: ProjectionData): void {
-    this.screenProjected.emit(data);
-  }
-
-  private _startStream(): void {
-    this.streamStarted.emit();
-  }
-
-  private _stopStream(): void {
-    this.streamStopped.emit();
   }
 }
