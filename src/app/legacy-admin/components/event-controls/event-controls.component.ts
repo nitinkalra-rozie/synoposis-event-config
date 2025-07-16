@@ -48,10 +48,13 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-websocket-facade';
+import { EventStagesDataStore } from 'src/app/av-workspace/stores/event-stages-data-store';
 import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -87,6 +90,11 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _eventStagesDataStore = inject(EventStagesDataStore);
+  private readonly _centralizedWebSocketFacade = inject(
+    CentralizedViewWebSocketFacade
+  );
+  private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
 
   public PostDataEnum = PostDataEnum;
   // #region old version
@@ -97,7 +105,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   // #endregion
 
   protected selectedFilter = signal<'track' | 'location'>('track');
-  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
 
   @Output() autoAvChanged = new EventEmitter<boolean>();
   @Output() stageChanged = new EventEmitter<string>();
@@ -121,6 +128,10 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
   );
+
+  protected isAutoAvChecked = computed(() => {
+    return this._eventStageWebSocketState.$autoAvEnabled();
+  });
   protected RightSidebarState = RightSidebarState;
   protected showEventSelectionDropdown = signal(false);
 
@@ -134,6 +145,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this.onUpdatePostData = new EventEmitter();
     this.onReset = new EventEmitter();
     this._setupAutoLocationSelection();
+    this._setupCentralizedAutoAvListener();
   }
 
   ngOnInit(): void {
@@ -150,7 +162,11 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       getLocalStorageItem<DropdownOption>('SELECTED_LOCATION');
     if (savedLocation) {
       this._selectLocationOption(savedLocation);
-      this._checkAndConnectWithWebSocket(savedLocation?.label);
+      if (getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED')) {
+        this._checkAndConnectWithWebSocket(savedLocation?.label);
+      } else {
+        this._connectWebSocketForStage(savedLocation.label);
+      }
     }
 
     this._route.queryParamMap
@@ -251,42 +267,57 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   onEventSelect(event: DropdownOption) {
     this._filtersStateService.setSelectedEvent(event);
   }
+  onEventLocationSelect(selectedOption: DropdownOption): void {
+    const currentLocation = this.selectedLocation();
 
-  onEventLocationSelect = (selectedOption: DropdownOption): void => {
-    if (
-      !selectedOption ||
-      selectedOption.label === this.selectedLocation()?.label
-    ) {
+    if (!selectedOption || selectedOption.label === currentLocation?.label) {
       return;
     }
+
+    const proceedToChangeStage = () => {
+      if (currentLocation) {
+        this._eventStagesDataStore.updateEntityStatus(
+          currentLocation.label,
+          'OFFLINE'
+        );
+      }
+      this._eventStageWebsocketDataService.disconnect();
+      this._eventStageWebSocketState.resetState();
+
+      this._selectLocationOption(selectedOption);
+      this.stageChanged.emit(selectedOption.label);
+
+      if (getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED')) {
+        this._checkAndConnectWithWebSocket(selectedOption.label);
+      } else {
+        this._connectWebSocketForStage(selectedOption.label);
+      }
+
+      this._modalService.close();
+    };
 
     if (this.isAutoAvChecked()) {
       this._modalService.open(
         'Warning',
-        'Auto AV is enabled right now. Changing the stage while Auto AV is enabled could cause issues. Please disable Auto AV before changing the stage.',
-        'ok',
-        () => {},
+        'Auto AV is enabled right now. Changing the stage may interrupt ongoing Auto AV operations. Do you want to continue?',
+        'no_yes',
         () => {
-          this._modalService.close();
-        }
+          proceedToChangeStage();
+        },
+        () => this._modalService.close()
       );
-      return;
+    } else {
+      this._modalService.open(
+        'Confirm Stage Selection',
+        'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
+        'no_yes',
+        () => {
+          proceedToChangeStage();
+        },
+        () => this._modalService.close()
+      );
     }
-
-    this._modalService.open(
-      'Confirm Stage Selection',
-      'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
-      'no_yes',
-      () => {
-        this._selectLocationOption(selectedOption);
-        this.stageChanged.emit(selectedOption.label);
-        this._modalService.close();
-      },
-      () => {
-        this._modalService.close();
-      }
-    );
-  };
+  }
 
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
     event.source.checked = this.isAutoAvChecked();
@@ -330,9 +361,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
                 console.log('WebSocket connection initialized.');
               } else {
                 this._eventStageWebsocketDataService.disconnect();
+                this._eventStageWebSocketState.resetState();
                 console.log('WebSocket connection closed.');
               }
-              this._modalService.close();
             }),
             finalize(() => this._modalService.close())
           )
@@ -354,7 +385,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
             this._selectLocationOption(locations[0]);
           }
         }),
-        takeUntilDestroyed()
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -369,11 +400,19 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this._filtersStateService.setEventLocations(locationsCopy);
   }
 
+  private _connectWebSocketForStage(location: string): void {
+    this._eventStageWebsocketDataService.disconnect();
+    this._eventStageWebSocketState.resetState();
+    this._establishConnectionWithWebSocket(location);
+  }
+
   private _checkAndConnectWithWebSocket(location: string | undefined): void {
     const savedAutoAvChecked =
       getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED');
     this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvChecked);
     if (!savedAutoAvChecked) {
+      this._eventStageWebsocketDataService.disconnect();
+      this._eventStageWebSocketState.resetState();
       this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvChecked);
       return;
     }
@@ -408,6 +447,37 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         }),
         retry({ delay: 5000 }),
         takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  private _setupCentralizedAutoAvListener(): void {
+    this._centralizedWebSocketFacade.autoAvSetup$
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        filter((message) => {
+          const currentLocation = this.selectedLocation();
+          const currentEventName =
+            this._legacyBackendApiService.getCurrentEventName();
+
+          return (
+            message.eventName === currentEventName &&
+            currentLocation &&
+            currentLocation.label === message.stage
+          );
+        }),
+        tap((message) => {
+          const { stage, autoAv } = message;
+          this._eventStageWebSocketState.setAutoAvEnabled(autoAv);
+          setLocalStorageItem('IS_AUTO_AV_ENABLED', autoAv);
+          this.autoAvChanged.emit(autoAv);
+          if (autoAv) {
+            this._checkAndConnectWithWebSocket(stage);
+          } else {
+            this._eventStageWebsocketDataService.disconnect();
+            this._eventStageWebSocketState.resetState();
+          }
+        })
       )
       .subscribe();
   }
