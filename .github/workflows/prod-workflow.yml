@@ -36,7 +36,7 @@ jobs:
             'itw2025',
             'afa2025',
             'xcsc2025',
-            'revlab2025'
+            'fff2025'
           ]
     steps:
       - name: Set event environment variable
