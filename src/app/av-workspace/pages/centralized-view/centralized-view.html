@@ -35,9 +35,9 @@
           <th *matHeaderCellDef mat-header-cell [style.text-align]="'center'">
             <mat-checkbox
               [aria-label]="'Select all'"
-              [attr.aria-disabled]="!$vm().isSelectAllEnabled()"
+              [attr.aria-disabled]="$vm().isSelectAllDisabled()"
               [checked]="$vm().isAllSelected()"
-              [disabled]="!$vm().isSelectAllEnabled()"
+              [disabled]="$vm().isSelectAllDisabled()"
               [indeterminate]="$vm().isIndeterminate()"
               (click)="toggleAllRows()"
               noopClickAction>
@@ -94,7 +94,6 @@
           <th
             *matHeaderCellDef
             mat-header-cell
-            mat-sort-header
             sortActionDescription="Sort by session">
             SESSION
           </th>
