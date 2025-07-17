@@ -48,6 +48,7 @@ export interface Session {
 
 export interface EventStage {
   stage: string;
+  isOnline: boolean;
   status: StageStatusType;
   sessions: readonly Session[];
   autoAv: boolean;
