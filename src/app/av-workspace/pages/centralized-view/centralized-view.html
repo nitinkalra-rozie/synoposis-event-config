@@ -35,9 +35,12 @@
           <th *matHeaderCellDef mat-header-cell [style.text-align]="'center'">
             <mat-checkbox
               [aria-label]="'Select all'"
+              [attr.aria-disabled]="!$vm().isSelectAllEnabled()"
               [checked]="$vm().isAllSelected()"
+              [disabled]="!$vm().isSelectAllEnabled()"
               [indeterminate]="$vm().isIndeterminate()"
-              (change)="toggleAllRows()">
+              (click)="toggleAllRows()"
+              noopClickAction>
             </mat-checkbox>
           </th>
           <td *matCellDef="let row" mat-cell [style.text-align]="'center'">
@@ -48,8 +51,9 @@
                   : 'Select row ' + row.stage
               "
               [checked]="$vm().selection().has(row)"
-              (change)="$event ? toggleRow(row) : null"
-              (click)="$event.stopPropagation()">
+              [disabled]="!row.currentSessionId || !row.isOnline"
+              (click)="$event.stopPropagation(); toggleRow(row)"
+              noopClickAction>
             </mat-checkbox>
           </td>
         </ng-container>
@@ -149,7 +153,7 @@
           <th *matHeaderCellDef mat-header-cell>ACTION</th>
           <td *matCellDef="let element" mat-cell>
             <app-stage-action-buttons
-              [isMultipleSelectionActive]="$vm().selection().size > 0"
+              [isMultipleSelectionActive]="$vm().hasSelection()"
               [isStartPauseResumeActionLoading]="
                 $vm().startPauseResumeActionLoadingStates().get(element.stage)
               "
@@ -179,7 +183,8 @@
           mat-header-row></tr>
         <tr
           *matRowDef="let row; columns: $vm().displayedColumns()"
-          mat-row></tr>
+          mat-row
+          [class.selected-row]="$vm().selection().has(row)"></tr>
       </table>
       }
     </div>
@@ -187,9 +192,9 @@
 
   <app-stages-actions
     [isPauseListeningEnabled]="false"
-    [isStartListeningEnabled]="$vm().selection().size > 0"
+    [isStartListeningEnabled]="$vm().hasSelection()"
     [isStopListeningEnabled]="false"
-    [selectedCount]="$vm().selection().size"
+    [selectedCount]="$vm().selectionCount()"
     (pauseListening)="onBulkPauseListening()"
     (startListening)="onBulkStartListening()"
     (stopListening)="onBulkStopListening()" />

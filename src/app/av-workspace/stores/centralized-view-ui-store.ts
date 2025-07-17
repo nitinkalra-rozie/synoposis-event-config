@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 interface CentralizedViewUIState {
   searchTerm: string;
@@ -59,40 +60,62 @@ export class CentralizedViewUIStore {
   }
 
   toggleAllRows(filteredEntities: EventStage[]): void {
-    const currentSelection = state.selectedItems();
-    const isAllSelected =
-      filteredEntities.length > 0 &&
-      filteredEntities.every((entity) => currentSelection.has(entity));
+    const isCurrentlyAllSelected = this.isAllSelected(filteredEntities);
+    const isCurrentlyIndeterminate = this.isIndeterminate(filteredEntities);
 
-    if (isAllSelected) {
-      const newSelected = new Set<EventStage>(
-        [...currentSelection].filter(
-          (entity) => !filteredEntities.includes(entity)
-        )
-      );
-      state.selectedItems.set(newSelected);
+    const selectableEntities = getSelectableEntities(filteredEntities);
+    const currentSelection = state.selectedItems();
+    const newSelected = new Set(currentSelection);
+
+    if (isCurrentlyAllSelected || isCurrentlyIndeterminate) {
+      selectableEntities.forEach((entity) => newSelected.delete(entity));
     } else {
-      const newSelected = new Set<EventStage>([
-        ...currentSelection,
-        ...filteredEntities,
-      ]);
-      state.selectedItems.set(newSelected);
+      selectableEntities.forEach((entity) => newSelected.add(entity));
     }
+
+    state.selectedItems.set(newSelected);
   }
 
   isAllSelected(filteredEntities: EventStage[]): boolean {
-    if (filteredEntities.length === 0) return false;
+    const selectableEntities = getSelectableEntities(filteredEntities);
+    const numSelectable = selectableEntities.length;
+    const numTotal = filteredEntities.length;
+
+    if (numSelectable === 0) {
+      return false;
+    }
+
     const currentSelection = state.selectedItems();
-    return filteredEntities.every((entity) => currentSelection.has(entity));
+    const selectedCount = [...currentSelection].filter((entity) =>
+      selectableEntities.includes(entity)
+    ).length;
+
+    return selectedCount === numSelectable && selectedCount === numTotal;
   }
 
   isIndeterminate(filteredEntities: EventStage[]): boolean {
-    if (filteredEntities.length === 0) return false;
+    const selectableEntities = getSelectableEntities(filteredEntities);
+    const numSelectable = selectableEntities.length;
+    const numTotal = filteredEntities.length;
+
     const currentSelection = state.selectedItems();
-    const selectedCount = filteredEntities.filter((entity) =>
-      currentSelection.has(entity)
+    const selectedCount = [...currentSelection].filter((entity) =>
+      selectableEntities.includes(entity)
     ).length;
-    return selectedCount > 0 && selectedCount < filteredEntities.length;
+
+    if (selectedCount > 0 && selectedCount < numSelectable) {
+      return true;
+    }
+
+    if (
+      numSelectable > 0 &&
+      selectedCount === numSelectable &&
+      numSelectable < numTotal
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   clearSelection(): void {

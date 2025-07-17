@@ -6,6 +6,7 @@ import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/cent
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
 import { EventStagesDataStore } from 'src/app/av-workspace/stores/event-stages-data-store';
+import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +39,7 @@ export class CentralizedViewStore {
     selection: this._uiStore.$selectedItems,
     hasSelection: this._uiStore.$hasSelection,
     selectionCount: this._uiStore.$selectionCount,
+    isSelectAllEnabled: this._isSelectAllEnabled,
 
     // Computed values
     displayedColumns: this._dataStore.$displayedColumns,
@@ -86,6 +88,11 @@ export class CentralizedViewStore {
     }
 
     return filtered;
+  });
+
+  private _isSelectAllEnabled = computed(() => {
+    const selectableEntities = getSelectableEntities(this._filteredEntities());
+    return selectableEntities.length > 0;
   });
 
   setSearchTerm(searchTerm: string): void {

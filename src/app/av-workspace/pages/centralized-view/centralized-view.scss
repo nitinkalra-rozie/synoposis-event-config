@@ -70,6 +70,10 @@
       table {
         width: 100%;
 
+        .selected-row {
+          background-color: v.$selection-variant-1;
+        }
+
         .auto-av-chip {
           display: inline-block;
           padding: 2px 8px;
