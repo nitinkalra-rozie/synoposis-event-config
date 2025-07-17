@@ -59,7 +59,7 @@ export class CentralizedViewUIStore {
     state.selectedItems.set(newSelected);
   }
 
-  toggleAllRows(filteredEntities: EventStage[]): void {
+  toggleAllRows(filteredEntities: readonly EventStage[]): void {
     const isCurrentlyAllSelected = this.isAllSelected(filteredEntities);
     const isCurrentlyIndeterminate = this.isIndeterminate(filteredEntities);
 
@@ -76,7 +76,7 @@ export class CentralizedViewUIStore {
     state.selectedItems.set(newSelected);
   }
 
-  isAllSelected(filteredEntities: EventStage[]): boolean {
+  isAllSelected(filteredEntities: readonly EventStage[]): boolean {
     const selectableEntities = getSelectableEntities(filteredEntities);
     const numSelectable = selectableEntities.length;
     const numTotal = filteredEntities.length;
@@ -86,21 +86,23 @@ export class CentralizedViewUIStore {
     }
 
     const currentSelection = state.selectedItems();
+    const selectableSet = new Set(selectableEntities);
     const selectedCount = [...currentSelection].filter((entity) =>
-      selectableEntities.includes(entity)
+      selectableSet.has(entity)
     ).length;
 
     return selectedCount === numSelectable && selectedCount === numTotal;
   }
 
-  isIndeterminate(filteredEntities: EventStage[]): boolean {
+  isIndeterminate(filteredEntities: readonly EventStage[]): boolean {
     const selectableEntities = getSelectableEntities(filteredEntities);
     const numSelectable = selectableEntities.length;
     const numTotal = filteredEntities.length;
 
     const currentSelection = state.selectedItems();
+    const selectableSet = new Set(selectableEntities);
     const selectedCount = [...currentSelection].filter((entity) =>
-      selectableEntities.includes(entity)
+      selectableSet.has(entity)
     ).length;
 
     if (selectedCount > 0 && selectedCount < numSelectable) {
