@@ -62,6 +62,10 @@ export class CentralizedView {
 
       this.dataSource.data = entities;
 
+      if (!sort) {
+        this.dataSource.sort = null;
+      }
+
       if (entities.length > 0 && sort && !this.dataSource.sort) {
         this.dataSource.sort = this._sort();
       }
