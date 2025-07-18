@@ -146,14 +146,14 @@ export class CentralizedView {
   }
 
   protected onBulkStartListening(): void {
-    console.log('onBulkStartListening');
+    this._store.startListeningMultipleStages();
   }
 
   protected onBulkPauseListening(): void {
-    console.log('onBulkPauseListening');
+    this._store.pauseListeningMultipleStages();
   }
 
   protected onBulkStopListening(): void {
-    console.log('onBulkStopListening');
+    this._store.endListeningMultipleStages();
   }
 }

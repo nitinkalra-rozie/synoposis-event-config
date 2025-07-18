@@ -54,6 +54,10 @@
         color: v.$text-color-white;
       }
 
+      .loading-icon {
+        animation: spin 1s linear infinite;
+      }
+
       mat-icon {
         width: 1.125rem;
         height: 1.125rem;
@@ -64,5 +68,14 @@
         white-space: nowrap;
       }
     }
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
