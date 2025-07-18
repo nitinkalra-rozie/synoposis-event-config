@@ -16,8 +16,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter, orderBy } from 'lodash-es';
-import { CentralizedViewWebSocketMessage } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
-import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-websocket-facade';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
@@ -51,8 +49,55 @@ export class SessionSelectionComponent implements OnChanges {
       this._backendApiService.getCurrentEventName() === 'ITC'
     );
 
-    this._initializeStageWebSocketListeners();
-    this._initializeCentralizedWebSocketListeners();
+    toObservable(this._eventStageWebSocketState.$sessionLiveListening)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
+        const sessionId = data?.sessionId;
+        if (sessionId) {
+          const activeSession =
+            this.activeSession()?.metadata['originalContent'];
+
+          if (activeSession && activeSession.SessionId !== sessionId) {
+            this._stopStream();
+            this._dashboardFiltersStateService.setActiveSession(null);
+            this._dashboardFiltersStateService.setLiveEvent(null);
+            console.log('Current session stopped.');
+          }
+
+          const sessionToSelect = this.availableSessions().find(
+            (session) =>
+              session.metadata['originalContent'].SessionId === sessionId
+          );
+
+          if (sessionToSelect) {
+            this._dashboardFiltersStateService.setActiveSession(
+              sessionToSelect
+            );
+
+            this._startStream();
+          } else {
+            console.warn('Session not found in available sessions:', sessionId);
+          }
+        }
+      });
+
+    toObservable(this._eventStageWebSocketState.$sessionEnd)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
+        const sessionId = data?.sessionId;
+        const activeSession = this.activeSession()?.metadata['originalContent'];
+
+        if (activeSession && activeSession.SessionId === sessionId) {
+          this._stopStream();
+          this._dashboardFiltersStateService.setActiveSession(null);
+          this._dashboardFiltersStateService.setLiveEvent(null);
+          console.log('Listening session stopped due to SESSION_END.');
+        } else {
+          console.log(
+            'Session ID does not match the active session. No action taken.'
+          );
+        }
+      });
   }
 
   public readonly autoAvEnabled = input(false);
@@ -96,9 +141,6 @@ export class SessionSelectionComponent implements OnChanges {
   private readonly _modalService = inject(ModalService);
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
-  );
-  private readonly _centralizedWebSocketFacade = inject(
-    CentralizedViewWebSocketFacade
   );
 
   protected isProjectOnPhysicalScreen = signal(false);
@@ -201,116 +243,5 @@ export class SessionSelectionComponent implements OnChanges {
 
   private _stopStream(): void {
     this.streamStopped.emit();
-  }
-
-  private _initializeStageWebSocketListeners(): void {
-    toObservable(this._eventStageWebSocketState.$sessionLiveListening)
-      .pipe(takeUntilDestroyed())
-      .subscribe((data: EventStageWebSocketMessageData) => {
-        if (!data?.sessionId) return;
-
-        const currentStage = this.selectedStage()?.label;
-        const targetStage = data?.stage;
-
-        if (targetStage && currentStage && targetStage !== currentStage) return;
-
-        this._handleSessionAutoSelection(data.sessionId, 'StageWebSocket');
-      });
-
-    toObservable(this._eventStageWebSocketState.$sessionEnd)
-      .pipe(takeUntilDestroyed())
-      .subscribe((data: EventStageWebSocketMessageData) => {
-        if (!data?.sessionId) return;
-
-        const activeSession = this.activeSession()?.metadata['originalContent'];
-        if (activeSession && activeSession.SessionId === data.sessionId) {
-          this._stopStream();
-          this._dashboardFiltersStateService.setActiveSession(null);
-          this._dashboardFiltersStateService.setLiveEvent(null);
-        }
-      });
-  }
-
-  private _initializeCentralizedWebSocketListeners(): void {
-    this._centralizedWebSocketFacade.sessionLiveListening$
-      .pipe(takeUntilDestroyed())
-      .subscribe((message: CentralizedViewWebSocketMessage) => {
-        this._handleCentralizedSessionCommand(message);
-      });
-  }
-
-  private _handleCentralizedSessionCommand(
-    message: CentralizedViewWebSocketMessage
-  ): void {
-    const { stage, sessionId, eventName } = message;
-    const currentEventName = this._backendApiService.getCurrentEventName();
-    if (eventName !== currentEventName) return;
-
-    const currentStage = this.selectedStage();
-    if (!currentStage || currentStage.label !== stage) return;
-
-    if (!sessionId) return;
-
-    this._handleSessionAutoSelection(sessionId, 'CentralizedView');
-  }
-
-  private _handleSessionAutoSelection(
-    sessionId: string,
-    source: 'StageWebSocket' | 'CentralizedView'
-  ): void {
-    const currentActive = this.activeSession();
-    const currentAvailableSessions = this.availableSessions();
-    const allSessions = this._dashboardFiltersStateService.allSessions();
-
-    if (
-      currentActive &&
-      currentActive.metadata['originalContent'].SessionId !== sessionId
-    ) {
-      this._stopStream();
-      this._dashboardFiltersStateService.setActiveSession(null);
-    }
-
-    let sessionToSelect = currentAvailableSessions.find(
-      (session) => session.metadata['originalContent'].SessionId === sessionId
-    );
-
-    if (!sessionToSelect) {
-      sessionToSelect = allSessions.find(
-        (session) => session.metadata['originalContent'].SessionId === sessionId
-      );
-    }
-
-    if (sessionToSelect) {
-      this._dashboardFiltersStateService.setActiveSession(sessionToSelect);
-      this.isProjectOnPhysicalScreen.set(true);
-
-      if (this._eventStageWebSocketState.$autoAvEnabled()) {
-        const primarySessionId =
-          sessionToSelect.metadata['originalContent'].PrimarySessionId;
-        const newUrl = `${getInsightsDomainUrl()}/session/${primarySessionId}?isPrimaryScreen=true`;
-        this._windowService.openInsightsSessionWindow(newUrl);
-      }
-
-      this._startStream();
-    } else {
-      this._dashboardFiltersStateService.setShouldFetchEventDetails(true);
-      this._retrySessionSelection(sessionId, source);
-    }
-  }
-
-  private _retrySessionSelection(
-    sessionId: string,
-    source: 'StageWebSocket' | 'CentralizedView'
-  ): void {
-    const allSessions = this._dashboardFiltersStateService.allSessions();
-    const sessionToSelect = allSessions.find(
-      (session) => session.metadata['originalContent'].SessionId === sessionId
-    );
-
-    if (sessionToSelect) {
-      this._dashboardFiltersStateService.setActiveSession(sessionToSelect);
-      this.isProjectOnPhysicalScreen.set(true);
-      this._startStream();
-    }
   }
 }
