@@ -48,6 +48,7 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EventStagesDataStore } from 'src/app/av-workspace/stores/event-stages-data-store';
 import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
@@ -86,6 +87,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _eventStagesDataStore = inject(EventStagesDataStore);
 
   public PostDataEnum = PostDataEnum;
   // #region old version
@@ -259,6 +261,12 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     }
 
     const proceedToChangeStage = () => {
+      if (currentLocation) {
+        this._eventStagesDataStore.updateEntityStatus(
+          currentLocation.label,
+          'OFFLINE'
+        );
+      }
       this._selectLocationOption(selectedOption);
       this.stageChanged.emit(selectedOption.label);
       this._checkAndConnectWithWebSocket(selectedOption.label);
