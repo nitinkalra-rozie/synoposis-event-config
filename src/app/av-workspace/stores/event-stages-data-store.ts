@@ -438,24 +438,17 @@ export class EventStagesDataStore {
       return;
     }
 
-    const processStages = validStagesToStartListening.map(
-      ({ stage, sessionId }) => ({
-        stage,
-        sessionId,
-      })
-    );
-
     this._eventStagesDataService
       .startListeningSession({
         action: 'adminStartListening',
         eventName,
-        processStages,
+        processStages: validStagesToStartListening,
       })
       .pipe(
         take(1),
         tap((response) => {
           if (response.success) {
-            processStages.forEach(({ stage, sessionId }) => {
+            validStagesToStartListening.forEach(({ stage, sessionId }) => {
               this._updateEntity(stage, (entity) => ({
                 ...entity,
                 currentSessionId: sessionId,
@@ -465,7 +458,7 @@ export class EventStagesDataStore {
 
             this._toastFacade.showSuccess(
               CENTRALIZED_VIEW_TOAST_MESSAGES.START_LISTENING_MULTIPLE_STAGES(
-                processStages.length
+                validStagesToStartListening.length
               ),
               CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
             );
@@ -474,7 +467,7 @@ export class EventStagesDataStore {
         catchError((error) => {
           this._toastFacade.showError(
             CENTRALIZED_VIEW_TOAST_MESSAGES.START_LISTENING_MULTIPLE_STAGES_ERROR(
-              processStages.length
+              validStagesToStartListening.length
             ),
             CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
           );
@@ -504,16 +497,11 @@ export class EventStagesDataStore {
       return;
     }
 
-    const processStages = validStagesToPause.map(({ stage, sessionId }) => ({
-      stage,
-      sessionId,
-    }));
-
     this._confirmDialogFacade
       .openConfirmDialog({
         title: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE_MULTIPLE.TITLE,
         message: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE_MULTIPLE.MESSAGE(
-          processStages.length
+          validStagesToPause.length
         ),
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
@@ -528,7 +516,7 @@ export class EventStagesDataStore {
             .pauseListeningSession({
               action: 'adminPauseListening',
               eventName,
-              processStages,
+              processStages: validStagesToPause,
             })
             .pipe(
               take(1),
@@ -536,7 +524,7 @@ export class EventStagesDataStore {
                 if (response.success) {
                   this._toastFacade.showSuccess(
                     CENTRALIZED_VIEW_TOAST_MESSAGES.PAUSE_LISTENING_MULTIPLE_STAGES(
-                      processStages.length
+                      validStagesToPause.length
                     ),
                     CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
                   );
@@ -545,7 +533,7 @@ export class EventStagesDataStore {
               catchError((error) => {
                 this._toastFacade.showError(
                   CENTRALIZED_VIEW_TOAST_MESSAGES.PAUSE_LISTENING_MULTIPLE_STAGES_ERROR(
-                    processStages.length
+                    validStagesToPause.length
                   ),
                   CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
                 );
@@ -577,16 +565,11 @@ export class EventStagesDataStore {
       return;
     }
 
-    const processStages = validStagesToEnd.map(({ stage, sessionId }) => ({
-      stage,
-      sessionId,
-    }));
-
     this._confirmDialogFacade
       .openConfirmDialog({
         title: CENTRALIZED_VIEW_DIALOG_MESSAGES.END_MULTIPLE.TITLE,
         message: CENTRALIZED_VIEW_DIALOG_MESSAGES.END_MULTIPLE.MESSAGE(
-          processStages.length
+          validStagesToEnd.length
         ),
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
@@ -601,13 +584,13 @@ export class EventStagesDataStore {
             .endListeningSession({
               action: 'adminEndListening',
               eventName,
-              processStages,
+              processStages: validStagesToEnd,
             })
             .pipe(
               take(1),
               tap((response) => {
                 if (response.success) {
-                  processStages.forEach(({ stage }) => {
+                  validStagesToEnd.forEach(({ stage }) => {
                     this._updateEntity(stage, (entity) => ({
                       ...entity,
                       currentSessionId: null,
@@ -623,7 +606,7 @@ export class EventStagesDataStore {
 
                   this._toastFacade.showSuccess(
                     CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING_MULTIPLE_STAGES(
-                      processStages.length
+                      validStagesToEnd.length
                     ),
                     CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
                   );
@@ -632,7 +615,7 @@ export class EventStagesDataStore {
               catchError((error) => {
                 this._toastFacade.showError(
                   CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING_MULTIPLE_STAGES_ERROR(
-                    processStages.length
+                    validStagesToEnd.length
                   ),
                   CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
                 );
