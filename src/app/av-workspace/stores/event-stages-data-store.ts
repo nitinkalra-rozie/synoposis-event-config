@@ -30,6 +30,7 @@ import {
   StageStatusType,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
+import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/utils/get-valid-process-stages-for-bulk-actions';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
@@ -420,13 +421,10 @@ export class EventStagesDataStore {
 
     state.bulkStartListeningLoading.set(true);
 
-    const validStagesToStartListening = stages.filter(
-      (stage) =>
-        this._entitySignals.get(stage)?.()?.isOnline &&
-        this._entitySignals.get(stage)?.()?.currentSessionId &&
-        this._entitySignals.get(stage)?.()?.currentAction !==
-          'SESSION_LIVE_LISTENING' &&
-        this._entitySignals.get(stage)?.()?.currentAction !== 'SESSION_END'
+    const validStagesToStartListening = getValidProcessStagesForBulkActions(
+      stages,
+      this._entitySignals,
+      'start'
     );
 
     if (validStagesToStartListening.length === 0) {
@@ -438,12 +436,12 @@ export class EventStagesDataStore {
       return;
     }
 
-    const processStages = validStagesToStartListening
-      .map((stage) => ({
+    const processStages = validStagesToStartListening.map(
+      ({ stage, sessionId }) => ({
         stage,
-        sessionId: this._entitySignals.get(stage)?.()?.currentSessionId,
-      }))
-      .filter((processStage) => processStage.sessionId);
+        sessionId,
+      })
+    );
 
     this._eventStagesDataService
       .startListeningSession({
@@ -488,12 +486,10 @@ export class EventStagesDataStore {
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     if (!eventName) return;
 
-    const validStagesToPause = stages.filter(
-      (stage) =>
-        this._entitySignals.get(stage)?.()?.isOnline &&
-        this._entitySignals.get(stage)?.()?.currentSessionId &&
-        this._entitySignals.get(stage)?.()?.currentAction ===
-          'SESSION_LIVE_LISTENING'
+    const validStagesToPause = getValidProcessStagesForBulkActions(
+      stages,
+      this._entitySignals,
+      'pause'
     );
 
     if (validStagesToPause.length === 0) {
@@ -504,12 +500,10 @@ export class EventStagesDataStore {
       return;
     }
 
-    const processStages = validStagesToPause
-      .map((stage) => ({
-        stage,
-        sessionId: this._entitySignals.get(stage)?.()?.currentSessionId,
-      }))
-      .filter((processStage) => processStage.sessionId);
+    const processStages = validStagesToPause.map(({ stage, sessionId }) => ({
+      stage,
+      sessionId,
+    }));
 
     this._confirmDialogFacade
       .openConfirmDialog({
@@ -561,14 +555,10 @@ export class EventStagesDataStore {
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     if (!eventName) return;
 
-    const validStagesToEnd = stages.filter(
-      (stage) =>
-        this._entitySignals.get(stage)?.()?.isOnline &&
-        this._entitySignals.get(stage)?.()?.currentSessionId &&
-        (this._entitySignals.get(stage)?.()?.currentAction ===
-          'SESSION_LIVE_LISTENING' ||
-          this._entitySignals.get(stage)?.()?.currentAction ===
-            'SESSION_LIVE_LISTENING_PAUSED')
+    const validStagesToEnd = getValidProcessStagesForBulkActions(
+      stages,
+      this._entitySignals,
+      'end'
     );
 
     if (validStagesToEnd.length === 0) {
@@ -579,12 +569,10 @@ export class EventStagesDataStore {
       return;
     }
 
-    const processStages = validStagesToEnd
-      .map((stage) => ({
-        stage,
-        sessionId: this._entitySignals.get(stage)?.()?.currentSessionId,
-      }))
-      .filter((processStage) => processStage.sessionId);
+    const processStages = validStagesToEnd.map(({ stage, sessionId }) => ({
+      stage,
+      sessionId,
+    }));
 
     this._confirmDialogFacade
       .openConfirmDialog({
