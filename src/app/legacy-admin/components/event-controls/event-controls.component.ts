@@ -261,14 +261,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     const proceedToChangeStage = () => {
       this._selectLocationOption(selectedOption);
       this.stageChanged.emit(selectedOption.label);
-
-      setTimeout(() => {
-        console.log(
-          `🔗 Connecting WebSocket for new stage: "${selectedOption.label}"`
-        );
-        this._checkAndConnectWithWebSocket(selectedOption.label);
-      }, 100);
-
+      this._checkAndConnectWithWebSocket(selectedOption.label);
       this._modalService.close();
     };
 
