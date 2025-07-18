@@ -471,7 +471,9 @@ export class EventStagesDataStore {
         }),
         catchError((error) => {
           this._toastFacade.showError(
-            'Failed to start listening for selected stages',
+            CENTRALIZED_VIEW_TOAST_MESSAGES.START_LISTENING_MULTIPLE_STAGES_ERROR(
+              processStages.length
+            ),
             CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
           );
           return throwError(() => error);
@@ -507,8 +509,10 @@ export class EventStagesDataStore {
 
     this._confirmDialogFacade
       .openConfirmDialog({
-        title: 'Pause Listening?',
-        message: `Do you want to pause listening for ${processStages.length} selected stages?`,
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE_MULTIPLE.TITLE,
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE_MULTIPLE.MESSAGE(
+          processStages.length
+        ),
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
       })
@@ -538,7 +542,9 @@ export class EventStagesDataStore {
               }),
               catchError((error) => {
                 this._toastFacade.showError(
-                  'Failed to pause listening for selected stages',
+                  CENTRALIZED_VIEW_TOAST_MESSAGES.PAUSE_LISTENING_MULTIPLE_STAGES_ERROR(
+                    processStages.length
+                  ),
                   CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
                 );
                 return throwError(() => error);
@@ -576,8 +582,10 @@ export class EventStagesDataStore {
 
     this._confirmDialogFacade
       .openConfirmDialog({
-        title: 'End Listening?',
-        message: `Do you want to end listening for ${processStages.length} selected stages?`,
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.END_MULTIPLE.TITLE,
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.END_MULTIPLE.MESSAGE(
+          processStages.length
+        ),
         confirmButtonText: 'Confirm',
         cancelButtonText: 'Cancel',
       })
@@ -617,7 +625,9 @@ export class EventStagesDataStore {
               }),
               catchError((error) => {
                 this._toastFacade.showError(
-                  'Failed to end listening for selected stages',
+                  CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING_MULTIPLE_STAGES_ERROR(
+                    processStages.length
+                  ),
                   CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
                 );
                 return throwError(() => error);
