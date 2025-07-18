@@ -8,16 +8,22 @@ export const CENTRALIZED_VIEW_TOAST_MESSAGES = {
     'End Listening command sent. The stage status will update automatically',
   NO_STAGES_TO_START_LISTENING:
     'No stages to start listening. Please select a stage that is online, has a session selected and is not currently listening.',
-  START_LISTENING_MULTIPLE_STAGES: (noOfStages: number) =>
-    `Start Listening command sent for ${noOfStages} selected stages. The stage statuses will update automatically`,
+  START_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
+    `Start Listening command sent for ${numOfStages} selected stage${
+      numOfStages > 1 ? 's' : ''
+    }. The stage statuses will update automatically`,
   NO_STAGES_TO_PAUSE_LISTENING:
     'No stages to pause listening. Please select stages that are currently listening.',
-  PAUSE_LISTENING_MULTIPLE_STAGES: (noOfStages: number) =>
-    `Pause Listening command sent for ${noOfStages} selected stages. The stage statuses will update automatically`,
+  PAUSE_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
+    `Pause Listening command sent for ${numOfStages} selected stage${
+      numOfStages > 1 ? 's' : ''
+    }. The stage statuses will update automatically`,
   NO_STAGES_TO_END_LISTENING:
     'No stages to end listening. Please select stages that are currently listening or paused.',
-  END_LISTENING_MULTIPLE_STAGES: (noOfStages: number) =>
-    `End Listening command sent for ${noOfStages} selected stages. The stage statuses will update automatically`,
+  END_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
+    `End Listening command sent for ${numOfStages} selected stage${
+      numOfStages > 1 ? 's' : ''
+    }. The stage statuses will update automatically`,
 };
 
 export const CENTRALIZED_VIEW_DIALOG_MESSAGES = {
