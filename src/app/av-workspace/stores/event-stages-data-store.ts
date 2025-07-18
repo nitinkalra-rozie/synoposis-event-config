@@ -30,6 +30,7 @@ import {
   StageStatusType,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
+import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
 import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/utils/get-valid-process-stages-for-bulk-actions';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
@@ -93,6 +94,7 @@ export class EventStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _uiStore = inject(CentralizedViewUIStore);
   private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
   private readonly _toastFacade = inject(SynToastFacade);
 
@@ -614,6 +616,10 @@ export class EventStagesDataStore {
                       status: 'ONLINE',
                     }));
                   });
+
+                  this._uiStore.clearAllSelectionsOfDisabledRows(
+                    this.$entities()
+                  );
 
                   this._toastFacade.showSuccess(
                     CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING_MULTIPLE_STAGES(

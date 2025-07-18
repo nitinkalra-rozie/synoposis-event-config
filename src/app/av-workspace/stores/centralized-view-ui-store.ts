@@ -126,6 +126,32 @@ export class CentralizedViewUIStore {
     return false;
   }
 
+  clearAllSelectionsOfDisabledRows(
+    filteredEntities: readonly EventStage[]
+  ): void {
+    const currentSelection = state.selectedStageIds();
+
+    if (currentSelection.size === 0) {
+      return;
+    }
+
+    const newSelected = new Set(currentSelection);
+    let hasChanges = false;
+
+    for (const entity of filteredEntities) {
+      if (currentSelection.has(entity.stage)) {
+        if (!entity.isOnline || !entity.currentSessionId) {
+          newSelected.delete(entity.stage);
+          hasChanges = true;
+        }
+      }
+    }
+
+    if (hasChanges) {
+      state.selectedStageIds.set(newSelected);
+    }
+  }
+
   clearSelection(): void {
     state.selectedStageIds.set(new Set<string>());
   }
