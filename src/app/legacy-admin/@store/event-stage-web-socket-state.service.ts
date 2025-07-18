@@ -7,6 +7,7 @@ const state = {
   autoAvEnabled: signal<boolean>(false),
   sessionLiveListening: signal<EventStageWebSocketMessageData>(null),
   sessionEnd: signal<EventStageWebSocketMessageData>(null),
+  sessionPaused: signal<EventStageWebSocketMessageData>(null),
 };
 
 @Injectable({
@@ -19,6 +20,7 @@ export class EventStageWebSocketStateService {
   public readonly $sessionLiveListening =
     state.sessionLiveListening.asReadonly();
   public readonly $sessionEnd = state.sessionEnd.asReadonly();
+  public readonly $sessionPaused = state.sessionPaused.asReadonly();
 
   setConnected(value: boolean): void {
     state.isConnected.set(value);
@@ -40,11 +42,16 @@ export class EventStageWebSocketStateService {
     state.sessionEnd.set(value);
   }
 
+  setSessionPaused(value: EventStageWebSocketMessageData): void {
+    state.sessionPaused.set(value);
+  }
+
   resetState(): void {
     state.isConnected.set(false);
     state.isConnecting.set(false);
     state.autoAvEnabled.set(false);
     state.sessionLiveListening.set(null);
     state.sessionEnd.set(null);
+    state.sessionPaused.set(null);
   }
 }

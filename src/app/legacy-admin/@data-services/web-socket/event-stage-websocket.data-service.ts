@@ -109,6 +109,10 @@ export class EventStageWebsocketDataService {
           this._eventStageWebSocketState.setSessionLiveListening(parsedMessage);
           this._updateBrowserWindowUrl(sessionId);
           break;
+        case 'SESSION_LIVE_LISTENING_PAUSED':
+          console.log('SESSION_LIVE_LISTENING_PAUSED:', parsedMessage);
+          this._eventStageWebSocketState.setSessionPaused(parsedMessage);
+          break;
         case 'SESSION_END':
           console.log('SESSION_END:', parsedMessage);
           this._eventStageWebSocketState.setSessionEnd(parsedMessage);

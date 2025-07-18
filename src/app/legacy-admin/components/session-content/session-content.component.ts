@@ -247,6 +247,32 @@ export class SessionContentComponent implements OnInit, OnChanges {
         }
       });
 
+    toObservable(this._eventStageWebsocketState.$sessionPaused)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
+        console.log('SESSION_LIVE_LISTENING_PAUSED received:', data);
+        const sessionId = data?.sessionId;
+        console.log('Session ID from WebSocket:', sessionId);
+
+        const activeSession = this.activeSession()?.metadata['originalContent'];
+
+        if (activeSession && activeSession.SessionId === sessionId) {
+          console.log(
+            'Session ID matches the active session. Pausing session automatically.'
+          );
+          this.closeSocket();
+          this.showPausedInsights(activeSession);
+
+          console.log(
+            'Listening session paused due to SESSION_LIVE_LISTENING_PAUSED.'
+          );
+        } else {
+          console.log(
+            'Session ID does not match the active session. No action taken.'
+          );
+        }
+      });
+
     // Create a minimal silent audio chunk (100ms of silence) to maintain the WebSocket connection during periods of inactivity.
     // This is used to send silent audio data to the server to prevent the connection from being closed due to inactivity.
     const sampleRate = 44100;
