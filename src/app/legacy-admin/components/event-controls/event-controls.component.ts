@@ -295,7 +295,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       );
     }
   }
-
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
     event.source.checked = this.isAutoAvChecked();
 
@@ -333,13 +332,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
             }),
             map((res) => {
               console.log('AutoAV setup updated successfully:', res);
-              if (desiredState) {
-                this._checkAndConnectWithWebSocket(selectedLocation.label);
-                console.log('WebSocket connection initialized.');
-              } else {
-                this._eventStageWebsocketDataService.disconnect();
-                console.log('WebSocket connection closed.');
-              }
             }),
             finalize(() => this._modalService.close())
           )
