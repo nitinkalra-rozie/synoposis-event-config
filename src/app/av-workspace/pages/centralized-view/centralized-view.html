@@ -46,11 +46,11 @@
           <td *matCellDef="let row" mat-cell [style.text-align]="'center'">
             <mat-checkbox
               [aria-label]="
-                $vm().selection().has(row)
+                $vm().selectedStageIds().has(row.stage)
                   ? 'Deselect row ' + row.stage
                   : 'Select row ' + row.stage
               "
-              [checked]="$vm().selection().has(row)"
+              [checked]="$vm().selectedStageIds().has(row.stage)"
               [disabled]="!row.currentSessionId || !row.isOnline"
               (click)="$event.stopPropagation(); toggleRow(row)"
               noopClickAction>
@@ -183,17 +183,18 @@
         <tr
           *matRowDef="let row; columns: $vm().displayedColumns()"
           mat-row
-          [class.selected-row]="$vm().selection().has(row)"></tr>
+          [class.selected-row]="$vm().selectedStageIds().has(row.stage)"></tr>
       </table>
       }
     </div>
   </div>
 
   <app-stages-actions
-    [isPauseListeningEnabled]="false"
-    [isStartListeningEnabled]="$vm().hasSelection()"
-    [isStopListeningEnabled]="false"
+    [isBulkActionsDisabled]="!$vm().hasSelection()"
+    [pauseListeningLoading]="$vm().bulkPauseListeningLoading()"
     [selectedCount]="$vm().selectionCount()"
+    [startListeningLoading]="$vm().bulkStartListeningLoading()"
+    [stopListeningLoading]="$vm().bulkEndListeningLoading()"
     (pauseListening)="onBulkPauseListening()"
     (startListening)="onBulkStartListening()"
     (stopListening)="onBulkStopListening()" />

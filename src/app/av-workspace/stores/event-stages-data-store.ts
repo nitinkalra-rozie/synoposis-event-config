@@ -30,6 +30,8 @@ import {
   StageStatusType,
 } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
+import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
+import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/utils/get-valid-process-stages-for-bulk-actions';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
@@ -42,6 +44,9 @@ interface EventStagesDataState {
   sessionLoadingStates: Map<string, boolean>;
   sessionErrors: Map<string, string | null>;
   startPauseResumeActionLoadingStates: Map<string, boolean>;
+  bulkStartListeningLoading: boolean;
+  bulkPauseListeningLoading: boolean;
+  bulkEndListeningLoading: boolean;
 }
 
 const initialState: EventStagesDataState = {
@@ -52,6 +57,9 @@ const initialState: EventStagesDataState = {
   sessionLoadingStates: new Map(),
   sessionErrors: new Map(),
   startPauseResumeActionLoadingStates: new Map(),
+  bulkStartListeningLoading: false,
+  bulkPauseListeningLoading: false,
+  bulkEndListeningLoading: false,
 };
 
 const state = {
@@ -68,6 +76,15 @@ const state = {
   startPauseResumeActionLoadingStates: signal<Map<string, boolean>>(
     initialState.startPauseResumeActionLoadingStates
   ),
+  bulkStartListeningLoading: signal<boolean>(
+    initialState.bulkStartListeningLoading
+  ),
+  bulkPauseListeningLoading: signal<boolean>(
+    initialState.bulkPauseListeningLoading
+  ),
+  bulkEndListeningLoading: signal<boolean>(
+    initialState.bulkEndListeningLoading
+  ),
 };
 
 @Injectable({
@@ -77,6 +94,7 @@ export class EventStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _uiStore = inject(CentralizedViewUIStore);
   private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
   private readonly _toastFacade = inject(SynToastFacade);
 
@@ -92,6 +110,11 @@ export class EventStagesDataStore {
   public $sessionErrors = state.sessionErrors.asReadonly();
   public $startPauseResumeActionLoadingStates =
     state.startPauseResumeActionLoadingStates.asReadonly();
+  public $bulkStartListeningLoading =
+    state.bulkStartListeningLoading.asReadonly();
+  public $bulkPauseListeningLoading =
+    state.bulkPauseListeningLoading.asReadonly();
+  public $bulkEndListeningLoading = state.bulkEndListeningLoading.asReadonly();
 
   public $sessionsByStage = computed(() => {
     const sessionsByStage = state.sessionsByStage();
@@ -268,7 +291,7 @@ export class EventStagesDataStore {
 
     const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
 
-    this._setActionLoadingState(stage, true);
+    this._setStartPauseResumeActionLoadingState(stage, true);
 
     this._eventStagesDataService
       .startListeningSession({
@@ -291,7 +314,9 @@ export class EventStagesDataStore {
             );
           }
         }),
-        finalize(() => this._setActionLoadingState(stage, false)),
+        finalize(() =>
+          this._setStartPauseResumeActionLoadingState(stage, false)
+        ),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
@@ -315,7 +340,7 @@ export class EventStagesDataStore {
           const sessionId =
             this._entitySignals.get(stage)?.()?.currentSessionId;
 
-          this._setActionLoadingState(stage, true);
+          this._setStartPauseResumeActionLoadingState(stage, true);
 
           return this._eventStagesDataService
             .pauseListeningSession({
@@ -333,7 +358,9 @@ export class EventStagesDataStore {
                   );
                 }
               }),
-              finalize(() => this._setActionLoadingState(stage, false))
+              finalize(() =>
+                this._setStartPauseResumeActionLoadingState(stage, false)
+              )
             );
         }),
         takeUntilDestroyed(this._destroyRef)
@@ -390,6 +417,218 @@ export class EventStagesDataStore {
       .subscribe();
   }
 
+  startListeningMultipleStages(stages: string[]): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    state.bulkStartListeningLoading.set(true);
+
+    const validStagesToStartListening = getValidProcessStagesForBulkActions(
+      stages,
+      this._entitySignals,
+      'start'
+    );
+
+    if (validStagesToStartListening.length === 0) {
+      state.bulkStartListeningLoading.set(false);
+      this._toastFacade.showWarning(
+        CENTRALIZED_VIEW_TOAST_MESSAGES.NO_STAGES_TO_START_LISTENING,
+        CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+      );
+      return;
+    }
+
+    this._eventStagesDataService
+      .startListeningSession({
+        action: 'adminStartListening',
+        eventName,
+        processStages: validStagesToStartListening,
+      })
+      .pipe(
+        take(1),
+        tap((response) => {
+          if (response.success) {
+            validStagesToStartListening.forEach(({ stage, sessionId }) => {
+              this._updateEntity(stage, (entity) => ({
+                ...entity,
+                currentSessionId: sessionId,
+                lastUpdatedAt: Date.now(),
+              }));
+            });
+
+            this._toastFacade.showSuccess(
+              CENTRALIZED_VIEW_TOAST_MESSAGES.START_LISTENING_MULTIPLE_STAGES(
+                validStagesToStartListening.length
+              ),
+              CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+            );
+          }
+        }),
+        catchError((error) => {
+          this._toastFacade.showError(
+            CENTRALIZED_VIEW_TOAST_MESSAGES.START_LISTENING_MULTIPLE_STAGES_ERROR(
+              validStagesToStartListening.length
+            ),
+            CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+          );
+          return throwError(() => error);
+        }),
+        finalize(() => state.bulkStartListeningLoading.set(false)),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  pauseListeningMultipleStages(stages: string[]): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const validStagesToPause = getValidProcessStagesForBulkActions(
+      stages,
+      this._entitySignals,
+      'pause'
+    );
+
+    if (validStagesToPause.length === 0) {
+      this._toastFacade.showWarning(
+        CENTRALIZED_VIEW_TOAST_MESSAGES.NO_STAGES_TO_PAUSE_LISTENING,
+        CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+      );
+      return;
+    }
+
+    this._confirmDialogFacade
+      .openConfirmDialog({
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE_MULTIPLE.TITLE,
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.PAUSE_MULTIPLE.MESSAGE(
+          validStagesToPause.length
+        ),
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+      })
+      .pipe(
+        concatMap((result: boolean) => {
+          if (!result) return of();
+
+          state.bulkPauseListeningLoading.set(true);
+
+          return this._eventStagesDataService
+            .pauseListeningSession({
+              action: 'adminPauseListening',
+              eventName,
+              processStages: validStagesToPause,
+            })
+            .pipe(
+              take(1),
+              tap((response) => {
+                if (response.success) {
+                  this._toastFacade.showSuccess(
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.PAUSE_LISTENING_MULTIPLE_STAGES(
+                      validStagesToPause.length
+                    ),
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+                  );
+                }
+              }),
+              catchError((error) => {
+                this._toastFacade.showError(
+                  CENTRALIZED_VIEW_TOAST_MESSAGES.PAUSE_LISTENING_MULTIPLE_STAGES_ERROR(
+                    validStagesToPause.length
+                  ),
+                  CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+                );
+                return throwError(() => error);
+              }),
+              finalize(() => state.bulkPauseListeningLoading.set(false))
+            );
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  endListeningMultipleStages(stages: string[]): void {
+    const eventName = this._legacyBackendApiService.getCurrentEventName();
+    if (!eventName) return;
+
+    const validStagesToEnd = getValidProcessStagesForBulkActions(
+      stages,
+      this._entitySignals,
+      'end'
+    );
+
+    if (validStagesToEnd.length === 0) {
+      this._toastFacade.showWarning(
+        CENTRALIZED_VIEW_TOAST_MESSAGES.NO_STAGES_TO_END_LISTENING,
+        CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+      );
+      return;
+    }
+
+    this._confirmDialogFacade
+      .openConfirmDialog({
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.END_MULTIPLE.TITLE,
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.END_MULTIPLE.MESSAGE(
+          validStagesToEnd.length
+        ),
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+      })
+      .pipe(
+        concatMap((result: boolean) => {
+          if (!result) return of();
+
+          state.bulkEndListeningLoading.set(true);
+
+          return this._eventStagesDataService
+            .endListeningSession({
+              action: 'adminEndListening',
+              eventName,
+              processStages: validStagesToEnd,
+            })
+            .pipe(
+              take(1),
+              tap((response) => {
+                if (response.success) {
+                  validStagesToEnd.forEach(({ stage }) => {
+                    this._updateEntity(stage, (entity) => ({
+                      ...entity,
+                      currentSessionId: null,
+                      lastUpdatedAt: Date.now(),
+                      currentAction: 'SESSION_END',
+                      status: 'ONLINE',
+                    }));
+                  });
+
+                  this._uiStore.clearAllSelectionsOfDisabledRows(
+                    this.$entities()
+                  );
+
+                  this._toastFacade.showSuccess(
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING_MULTIPLE_STAGES(
+                      validStagesToEnd.length
+                    ),
+                    CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+                  );
+                }
+              }),
+              catchError((error) => {
+                this._toastFacade.showError(
+                  CENTRALIZED_VIEW_TOAST_MESSAGES.END_LISTENING_MULTIPLE_STAGES_ERROR(
+                    validStagesToEnd.length
+                  ),
+                  CENTRALIZED_VIEW_TOAST_MESSAGES.DURATION
+                );
+                return throwError(() => error);
+              }),
+              finalize(() => state.bulkEndListeningLoading.set(false))
+            );
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
   clearSessionsForStage(stage: string): void {
     const currentSessions = new Map(state.sessionsByStage());
     currentSessions.delete(stage);
@@ -420,6 +659,9 @@ export class EventStagesDataStore {
     state.startPauseResumeActionLoadingStates.set(
       new Map(initialState.startPauseResumeActionLoadingStates)
     );
+    state.bulkStartListeningLoading.set(initialState.bulkStartListeningLoading);
+    state.bulkPauseListeningLoading.set(initialState.bulkPauseListeningLoading);
+    state.bulkEndListeningLoading.set(initialState.bulkEndListeningLoading);
     this._entitySignals.clear();
   }
 
@@ -433,7 +675,10 @@ export class EventStagesDataStore {
     }
   }
 
-  private _setActionLoadingState(stageId: string, isLoading: boolean): void {
+  private _setStartPauseResumeActionLoadingState(
+    stageId: string,
+    isLoading: boolean
+  ): void {
     const currentLoadingStates = new Map(
       state.startPauseResumeActionLoadingStates()
     );

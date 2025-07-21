@@ -5,19 +5,19 @@ import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable
 interface CentralizedViewUIState {
   searchTerm: string;
   locationFilters: string[];
-  selectedItems: Set<EventStage>;
+  selectedStageIds: Set<string>;
 }
 
 const initialState: CentralizedViewUIState = {
   searchTerm: '',
   locationFilters: [],
-  selectedItems: new Set<EventStage>(),
+  selectedStageIds: new Set<string>(),
 };
 
 const state = {
   searchTerm: signal<string>(initialState.searchTerm),
   locationFilters: signal<string[]>(initialState.locationFilters),
-  selectedItems: signal<Set<EventStage>>(initialState.selectedItems),
+  selectedStageIds: signal<Set<string>>(initialState.selectedStageIds),
 };
 
 @Injectable({
@@ -26,12 +26,14 @@ const state = {
 export class CentralizedViewUIStore {
   public readonly $searchTerm = state.searchTerm.asReadonly();
   public readonly $locationFilters = state.locationFilters.asReadonly();
-  public readonly $selectedItems = state.selectedItems.asReadonly();
+  public readonly $selectedStageIds = state.selectedStageIds.asReadonly();
 
   public readonly $hasSelection = computed(
-    () => state.selectedItems().size > 0
+    () => state.selectedStageIds().size > 0
   );
-  public readonly $selectionCount = computed(() => state.selectedItems().size);
+  public readonly $selectionCount = computed(
+    () => state.selectedStageIds().size
+  );
 
   setSearchTerm(searchTerm: string): void {
     state.searchTerm.set(searchTerm);
@@ -47,16 +49,16 @@ export class CentralizedViewUIStore {
   }
 
   toggleRow(row: EventStage): void {
-    const currentSelection = state.selectedItems();
+    const currentSelection = state.selectedStageIds();
     const newSelected = new Set(currentSelection);
 
-    if (newSelected.has(row)) {
-      newSelected.delete(row);
+    if (newSelected.has(row.stage)) {
+      newSelected.delete(row.stage);
     } else {
-      newSelected.add(row);
+      newSelected.add(row.stage);
     }
 
-    state.selectedItems.set(newSelected);
+    state.selectedStageIds.set(newSelected);
   }
 
   toggleAllRows(filteredEntities: readonly EventStage[]): void {
@@ -64,16 +66,16 @@ export class CentralizedViewUIStore {
     const isCurrentlyIndeterminate = this.isIndeterminate(filteredEntities);
 
     const selectableEntities = getSelectableEntities(filteredEntities);
-    const currentSelection = state.selectedItems();
+    const currentSelection = state.selectedStageIds();
     const newSelected = new Set(currentSelection);
 
     if (isCurrentlyAllSelected || isCurrentlyIndeterminate) {
-      selectableEntities.forEach((entity) => newSelected.delete(entity));
+      selectableEntities.forEach((entity) => newSelected.delete(entity.stage));
     } else {
-      selectableEntities.forEach((entity) => newSelected.add(entity));
+      selectableEntities.forEach((entity) => newSelected.add(entity.stage));
     }
 
-    state.selectedItems.set(newSelected);
+    state.selectedStageIds.set(newSelected);
   }
 
   isAllSelected(filteredEntities: readonly EventStage[]): boolean {
@@ -85,10 +87,12 @@ export class CentralizedViewUIStore {
       return false;
     }
 
-    const currentSelection = state.selectedItems();
-    const selectableSet = new Set(selectableEntities);
-    const selectedCount = [...currentSelection].filter((entity) =>
-      selectableSet.has(entity)
+    const currentSelection = state.selectedStageIds();
+    const selectableStageIds = new Set(
+      selectableEntities.map((entity) => entity.stage)
+    );
+    const selectedCount = [...currentSelection].filter((stageId) =>
+      selectableStageIds.has(stageId)
     ).length;
 
     return selectedCount === numSelectable && selectedCount === numTotal;
@@ -99,10 +103,12 @@ export class CentralizedViewUIStore {
     const numSelectable = selectableEntities.length;
     const numTotal = filteredEntities.length;
 
-    const currentSelection = state.selectedItems();
-    const selectableSet = new Set(selectableEntities);
-    const selectedCount = [...currentSelection].filter((entity) =>
-      selectableSet.has(entity)
+    const currentSelection = state.selectedStageIds();
+    const selectableStageIds = new Set(
+      selectableEntities.map((entity) => entity.stage)
+    );
+    const selectedCount = [...currentSelection].filter((stageId) =>
+      selectableStageIds.has(stageId)
     ).length;
 
     if (selectedCount > 0 && selectedCount < numSelectable) {
@@ -120,7 +126,33 @@ export class CentralizedViewUIStore {
     return false;
   }
 
+  clearAllSelectionsOfDisabledRows(
+    filteredEntities: readonly EventStage[]
+  ): void {
+    const currentSelection = state.selectedStageIds();
+
+    if (currentSelection.size === 0) {
+      return;
+    }
+
+    const newSelected = new Set(currentSelection);
+    let hasChanges = false;
+
+    for (const entity of filteredEntities) {
+      if (currentSelection.has(entity.stage)) {
+        if (!entity.isOnline || !entity.currentSessionId) {
+          newSelected.delete(entity.stage);
+          hasChanges = true;
+        }
+      }
+    }
+
+    if (hasChanges) {
+      state.selectedStageIds.set(newSelected);
+    }
+  }
+
   clearSelection(): void {
-    state.selectedItems.set(new Set<EventStage>());
+    state.selectedStageIds.set(new Set<string>());
   }
 }
