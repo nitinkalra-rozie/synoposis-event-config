@@ -10,25 +10,37 @@
     <button
       mat-raised-button
       class="action-btn mic-btn"
-      [disabled]="!isStartListeningEnabled()"
+      [disabled]="isBulkActionsDisabled() || startListeningLoading()"
       (click)="onStartListening()">
+      @if (startListeningLoading()) {
+      <mat-icon class="loading-icon" svgIcon="syn:loading_spinner" />
+      } @else {
       <mat-icon svgIcon="syn:mic_outlined" />
+      }
       <span>Start Listening</span>
     </button>
     <button
       mat-raised-button
       class="action-btn pause-btn"
-      [disabled]="!isPauseListeningEnabled()"
+      [disabled]="isBulkActionsDisabled() || pauseListeningLoading()"
       (click)="onPauseListening()">
+      @if (pauseListeningLoading()) {
+      <mat-icon class="loading-icon" svgIcon="syn:loading_spinner" />
+      } @else {
       <mat-icon>pause</mat-icon>
+      }
       <span>Pause Listening</span>
     </button>
     <button
       mat-raised-button
       class="action-btn stop-btn"
-      [disabled]="!isStopListeningEnabled()"
+      [disabled]="isBulkActionsDisabled() || stopListeningLoading()"
       (click)="onStopListening()">
+      @if (stopListeningLoading()) {
+      <mat-icon class="loading-icon" svgIcon="syn:loading_spinner" />
+      } @else {
       <mat-icon svgIcon="syn:stop_outlined" />
+      }
       <span>Stop Listening</span>
     </button>
   </div>

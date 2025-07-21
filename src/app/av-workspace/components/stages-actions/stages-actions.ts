@@ -15,29 +15,30 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [MatButtonModule, MatIconModule],
 })
 export class StagesActions {
-  public readonly isStartListeningEnabled = input.required<boolean>();
-  public readonly isPauseListeningEnabled = input.required<boolean>();
-  public readonly isStopListeningEnabled = input.required<boolean>();
+  public readonly isBulkActionsDisabled = input.required<boolean>();
   public readonly selectedCount = input<number>(0);
+  public readonly startListeningLoading = input<boolean>(false);
+  public readonly pauseListeningLoading = input<boolean>(false);
+  public readonly stopListeningLoading = input<boolean>(false);
 
   public readonly startListening = output<void>();
   public readonly pauseListening = output<void>();
   public readonly stopListening = output<void>();
 
   protected onStartListening(): void {
-    if (this.isStartListeningEnabled()) {
+    if (!this.isBulkActionsDisabled() && !this.startListeningLoading()) {
       this.startListening.emit();
     }
   }
 
   protected onPauseListening(): void {
-    if (this.isPauseListeningEnabled()) {
+    if (!this.isBulkActionsDisabled() && !this.pauseListeningLoading()) {
       this.pauseListening.emit();
     }
   }
 
   protected onStopListening(): void {
-    if (this.isStopListeningEnabled()) {
+    if (!this.isBulkActionsDisabled() && !this.stopListeningLoading()) {
       this.stopListening.emit();
     }
   }
