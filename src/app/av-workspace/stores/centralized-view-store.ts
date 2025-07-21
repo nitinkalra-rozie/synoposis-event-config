@@ -6,6 +6,7 @@ import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/cent
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
 import { EventStagesDataStore } from 'src/app/av-workspace/stores/event-stages-data-store';
+import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 @Injectable({
   providedIn: 'root',
@@ -31,13 +32,17 @@ export class CentralizedViewStore {
     sessionErrors: this._dataStore.$sessionErrors,
     startPauseResumeActionLoadingStates:
       this._dataStore.$startPauseResumeActionLoadingStates,
+    bulkStartListeningLoading: this._dataStore.$bulkStartListeningLoading,
+    bulkPauseListeningLoading: this._dataStore.$bulkPauseListeningLoading,
+    bulkEndListeningLoading: this._dataStore.$bulkEndListeningLoading,
 
     // UI state
     searchTerm: this._uiStore.$searchTerm,
     locationFilters: this._uiStore.$locationFilters,
-    selection: this._uiStore.$selectedItems,
+    selectedStageIds: this._uiStore.$selectedStageIds,
     hasSelection: this._uiStore.$hasSelection,
     selectionCount: this._uiStore.$selectionCount,
+    isSelectAllDisabled: this._isSelectAllDisabled,
 
     // Computed values
     displayedColumns: this._dataStore.$displayedColumns,
@@ -87,6 +92,10 @@ export class CentralizedViewStore {
 
     return filtered;
   });
+
+  private _isSelectAllDisabled = computed(
+    () => !getSelectableEntities(this._filteredEntities()).length
+  );
 
   setSearchTerm(searchTerm: string): void {
     this._uiStore.setSearchTerm(searchTerm);
@@ -139,6 +148,24 @@ export class CentralizedViewStore {
 
   stopListeningStage(stage: string): void {
     this._dataStore.endListeningStage(stage);
+  }
+
+  startListeningMultipleStages(): void {
+    this._dataStore.startListeningMultipleStages(
+      Array.from(this._uiStore.$selectedStageIds())
+    );
+  }
+
+  pauseListeningMultipleStages(): void {
+    this._dataStore.pauseListeningMultipleStages(
+      Array.from(this._uiStore.$selectedStageIds())
+    );
+  }
+
+  endListeningMultipleStages(): void {
+    this._dataStore.endListeningMultipleStages(
+      Array.from(this._uiStore.$selectedStageIds())
+    );
   }
 
   private _initializeWebSocketSubscriptions(): void {

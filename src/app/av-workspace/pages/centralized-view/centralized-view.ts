@@ -25,6 +25,7 @@ import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-vi
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
 import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
 import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-select/syn-single-select-option.model';
+import { MatCheckboxNoopClickAction } from 'src/app/shared/directives/mat-checkbox-noop-click-action';
 
 @Component({
   selector: 'app-centralized-view',
@@ -47,6 +48,7 @@ import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-sele
     SynSingleSelect,
     StageStatus,
     StagesActions,
+    MatCheckboxNoopClickAction,
   ],
 })
 export class CentralizedView {
@@ -59,6 +61,10 @@ export class CentralizedView {
       const sort = this._sort();
 
       this.dataSource.data = entities;
+
+      if (!sort) {
+        this.dataSource.sort = null;
+      }
 
       if (entities.length > 0 && sort && !this.dataSource.sort) {
         this.dataSource.sort = this._sort();
@@ -140,14 +146,14 @@ export class CentralizedView {
   }
 
   protected onBulkStartListening(): void {
-    console.log('onBulkStartListening');
+    this._store.startListeningMultipleStages();
   }
 
   protected onBulkPauseListening(): void {
-    console.log('onBulkPauseListening');
+    this._store.pauseListeningMultipleStages();
   }
 
   protected onBulkStopListening(): void {
-    console.log('onBulkStopListening');
+    this._store.endListeningMultipleStages();
   }
 }

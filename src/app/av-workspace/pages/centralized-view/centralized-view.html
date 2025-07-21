@@ -35,21 +35,25 @@
           <th *matHeaderCellDef mat-header-cell [style.text-align]="'center'">
             <mat-checkbox
               [aria-label]="'Select all'"
+              [attr.aria-disabled]="$vm().isSelectAllDisabled()"
               [checked]="$vm().isAllSelected()"
+              [disabled]="$vm().isSelectAllDisabled()"
               [indeterminate]="$vm().isIndeterminate()"
-              (change)="toggleAllRows()">
+              (click)="toggleAllRows()"
+              noopClickAction>
             </mat-checkbox>
           </th>
           <td *matCellDef="let row" mat-cell [style.text-align]="'center'">
             <mat-checkbox
               [aria-label]="
-                $vm().selection().has(row)
+                $vm().selectedStageIds().has(row.stage)
                   ? 'Deselect row ' + row.stage
                   : 'Select row ' + row.stage
               "
-              [checked]="$vm().selection().has(row)"
-              (change)="$event ? toggleRow(row) : null"
-              (click)="$event.stopPropagation()">
+              [checked]="$vm().selectedStageIds().has(row.stage)"
+              [disabled]="!row.currentSessionId || !row.isOnline"
+              (click)="$event.stopPropagation(); toggleRow(row)"
+              noopClickAction>
             </mat-checkbox>
           </td>
         </ng-container>
@@ -90,7 +94,6 @@
           <th
             *matHeaderCellDef
             mat-header-cell
-            mat-sort-header
             sortActionDescription="Sort by session">
             SESSION
           </th>
@@ -149,6 +152,7 @@
           <th *matHeaderCellDef mat-header-cell>ACTION</th>
           <td *matCellDef="let element" mat-cell>
             <app-stage-action-buttons
+              [isMultipleSelectionActive]="$vm().hasSelection()"
               [isStartPauseResumeActionLoading]="
                 $vm().startPauseResumeActionLoadingStates().get(element.stage)
               "
@@ -178,17 +182,19 @@
           mat-header-row></tr>
         <tr
           *matRowDef="let row; columns: $vm().displayedColumns()"
-          mat-row></tr>
+          mat-row
+          [class.selected-row]="$vm().selectedStageIds().has(row.stage)"></tr>
       </table>
       }
     </div>
   </div>
 
   <app-stages-actions
-    [isPauseListeningEnabled]="false"
-    [isStartListeningEnabled]="$vm().selection().size > 0"
-    [isStopListeningEnabled]="false"
-    [selectedCount]="$vm().selection().size"
+    [isBulkActionsDisabled]="!$vm().hasSelection()"
+    [pauseListeningLoading]="$vm().bulkPauseListeningLoading()"
+    [selectedCount]="$vm().selectionCount()"
+    [startListeningLoading]="$vm().bulkStartListeningLoading()"
+    [stopListeningLoading]="$vm().bulkEndListeningLoading()"
     (pauseListening)="onBulkPauseListening()"
     (startListening)="onBulkStartListening()"
     (stopListening)="onBulkStopListening()" />

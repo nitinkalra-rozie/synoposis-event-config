@@ -4,7 +4,10 @@
     class="action-btn start-pause-resume-btn"
     [class.active]="true"
     [class.loading]="buttonStates().startPauseResumeButton.isLoading"
-    [disabled]="!buttonStates().startPauseResumeButton.isEnabled"
+    [disabled]="
+      !buttonStates().startPauseResumeButton.isEnabled ||
+      isMultipleSelectionActive()
+    "
     (click)="onStartPauseResume()">
     @if(buttonStates().startPauseResumeButton.icon.startsWith('syn:')) {
     <mat-icon [svgIcon]="buttonStates().startPauseResumeButton.icon" />
@@ -16,7 +19,10 @@
     mat-raised-button
     class="action-btn stop-btn"
     [class.active]="true"
-    [disabled]="!buttonStates().canStop"
+    [disabled]="
+      !buttonStates().canStop ||
+      isMultipleSelectionActive()
+    "
     (click)="onStopListening()">
     <mat-icon svgIcon="syn:stop_outlined" />
   </button>
