@@ -48,7 +48,6 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EventStagesDataStore } from 'src/app/av-workspace/stores/event-stages-data-store';
 import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
@@ -87,7 +86,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
-  private readonly _eventStagesDataStore = inject(EventStagesDataStore);
 
   public PostDataEnum = PostDataEnum;
   // #region old version
@@ -254,24 +252,12 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   onEventLocationSelect(selectedOption: DropdownOption): void {
-    const currentLocation = this.selectedLocation();
-
-    if (!selectedOption || selectedOption.label === currentLocation?.label) {
+    if (
+      !selectedOption ||
+      selectedOption.label === this.selectedLocation()?.label
+    ) {
       return;
     }
-
-    const proceedToChangeStage = () => {
-      if (currentLocation) {
-        this._eventStagesDataStore.updateEntityStatus(
-          currentLocation.label,
-          'OFFLINE'
-        );
-      }
-      this._selectLocationOption(selectedOption);
-      this.stageChanged.emit(selectedOption.label);
-      this._checkAndConnectWithWebSocket(selectedOption.label);
-      this._modalService.close();
-    };
 
     if (this.isAutoAvChecked()) {
       this._modalService.open(
@@ -279,7 +265,10 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         'Auto AV is enabled right now. Changing the stage may interrupt ongoing Auto AV operations. Do you want to continue?',
         'no_yes',
         () => {
-          proceedToChangeStage();
+          this._selectLocationOption(selectedOption);
+          this.stageChanged.emit(selectedOption.label);
+          this._checkAndConnectWithWebSocket(selectedOption.label);
+          this._modalService.close();
         },
         () => this._modalService.close()
       );
@@ -289,12 +278,16 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
         'no_yes',
         () => {
-          proceedToChangeStage();
+          this._selectLocationOption(selectedOption);
+          this.stageChanged.emit(selectedOption.label);
+          this._checkAndConnectWithWebSocket(selectedOption.label);
+          this._modalService.close();
         },
         () => this._modalService.close()
       );
     }
   }
+
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
     event.source.checked = this.isAutoAvChecked();
 
@@ -373,8 +366,14 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this._eventStageWebsocketDataService.disconnect();
+    if (
+      this._eventStageWebSocketState.$isConnected() ||
+      this._eventStageWebSocketState.$isConnecting()
+    ) {
+      return;
+    }
 
+    this._eventStageWebsocketDataService.disconnect();
     this._establishConnectionWithWebSocket(this.selectedLocation().label);
   }
 
