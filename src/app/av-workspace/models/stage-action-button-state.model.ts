@@ -8,3 +8,8 @@ export interface StageActionButtonState {
     icon: string;
   };
 }
+
+export interface StageAutoAvToggleState {
+  stage: string;
+  isChecked: boolean;
+}
