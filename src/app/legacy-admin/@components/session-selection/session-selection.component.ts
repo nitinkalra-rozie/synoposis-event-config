@@ -91,11 +91,6 @@ export class SessionSelectionComponent implements OnChanges {
           this._stopStream();
           this._dashboardFiltersStateService.setActiveSession(null);
           this._dashboardFiltersStateService.setLiveEvent(null);
-          console.log('Listening session stopped due to SESSION_END.');
-        } else {
-          console.log(
-            'Session ID does not match the active session. No action taken.'
-          );
         }
       });
   }
