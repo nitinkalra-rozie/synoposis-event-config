@@ -90,7 +90,7 @@ const state = {
 @Injectable({
   providedIn: 'root',
 })
-export class EventStagesDataStore {
+export class CentralizedViewStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _eventStagesDataService = inject(EventStagesDataService);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
