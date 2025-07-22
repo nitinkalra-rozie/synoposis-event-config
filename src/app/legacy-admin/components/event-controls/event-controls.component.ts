@@ -56,7 +56,6 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from 'src/app/shared/utils/local-storage-util';
-import { filterEquals } from 'src/app/shared/utils/rxjs';
 
 @Component({
   selector: 'app-event-controls',
@@ -150,7 +149,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       getLocalStorageItem<DropdownOption>('SELECTED_LOCATION');
     if (savedLocation) {
       this._selectLocationOption(savedLocation);
-      this._checkAndConnectWithWebSocket(savedLocation?.label);
+      this._checkAndConnectWithWebSocket(savedLocation.label);
     }
 
     this._route.queryParamMap
@@ -252,7 +251,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this._filtersStateService.setSelectedEvent(event);
   }
 
-  onEventLocationSelect = (selectedOption: DropdownOption): void => {
+  onEventLocationSelect(selectedOption: DropdownOption): void {
     if (
       !selectedOption ||
       selectedOption.label === this.selectedLocation()?.label
@@ -263,30 +262,31 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     if (this.isAutoAvChecked()) {
       this._modalService.open(
         'Warning',
-        'Auto AV is enabled right now. Changing the stage while Auto AV is enabled could cause issues. Please disable Auto AV before changing the stage.',
-        'ok',
-        () => {},
+        'Auto AV is enabled right now. Changing the stage may interrupt ongoing Auto AV operations. Do you want to continue?',
+        'no_yes',
         () => {
+          this._selectLocationOption(selectedOption);
+          this.stageChanged.emit(selectedOption.label);
+          this._checkAndConnectWithWebSocket(selectedOption.label);
           this._modalService.close();
-        }
+        },
+        () => this._modalService.close()
       );
-      return;
+    } else {
+      this._modalService.open(
+        'Confirm Stage Selection',
+        'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
+        'no_yes',
+        () => {
+          this._selectLocationOption(selectedOption);
+          this.stageChanged.emit(selectedOption.label);
+          this._checkAndConnectWithWebSocket(selectedOption.label);
+          this._modalService.close();
+        },
+        () => this._modalService.close()
+      );
     }
-
-    this._modalService.open(
-      'Confirm Stage Selection',
-      'You are about to select a new stage. If this stage is currently active elsewhere, selecting it here may interrupt ongoing operations. Would you like to proceed?',
-      'no_yes',
-      () => {
-        this._selectLocationOption(selectedOption);
-        this.stageChanged.emit(selectedOption.label);
-        this._modalService.close();
-      },
-      () => {
-        this._modalService.close();
-      }
-    );
-  };
+  }
 
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
     event.source.checked = this.isAutoAvChecked();
@@ -325,14 +325,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
             }),
             map((res) => {
               console.log('AutoAV setup updated successfully:', res);
-              if (desiredState) {
-                this._checkAndConnectWithWebSocket(selectedLocation.label);
-                console.log('WebSocket connection initialized.');
-              } else {
-                this._eventStageWebsocketDataService.disconnect();
-                console.log('WebSocket connection closed.');
-              }
-              this._modalService.close();
             }),
             finalize(() => this._modalService.close())
           )
@@ -370,11 +362,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   private _checkAndConnectWithWebSocket(location: string | undefined): void {
-    const savedAutoAvChecked =
-      getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED');
-    this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvChecked);
-    if (!savedAutoAvChecked) {
-      this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvChecked);
+    if (!location) {
       return;
     }
 
@@ -385,16 +373,8 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    toObservable(this._eventStageWebSocketState.$isConnected, {
-      injector: this._injector,
-    })
-      .pipe(
-        filterEquals(false),
-        filter(() => this._eventStageWebSocketState.$autoAvEnabled()),
-        map(() => this._establishConnectionWithWebSocket(location)),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
+    this._eventStageWebsocketDataService.disconnect();
+    this._establishConnectionWithWebSocket(this.selectedLocation().label);
   }
 
   private _establishConnectionWithWebSocket(location: string): void {
