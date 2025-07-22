@@ -417,6 +417,48 @@ export class EventStagesDataStore {
       .subscribe();
   }
 
+  toggleAutoAvStage(stage: string, isChecked: boolean): void {
+    this._confirmDialogFacade
+      .openConfirmDialog({
+        title: CENTRALIZED_VIEW_DIALOG_MESSAGES.AUTO_AV.TITLE(isChecked),
+        message: CENTRALIZED_VIEW_DIALOG_MESSAGES.AUTO_AV.MESSAGE(
+          stage,
+          isChecked
+        ),
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+      })
+      .pipe(
+        concatMap((result: boolean) => {
+          if (!result) return of();
+
+          const eventName = this._legacyBackendApiService.getCurrentEventName();
+          if (!eventName) return of();
+
+          return this._eventStagesDataService
+            .setAutoAvStage({
+              action: 'adminSetAutoAv',
+              eventName,
+              processStages: [{ stage, autoAv: isChecked }],
+            })
+            .pipe(
+              take(1),
+              tap((response) => {
+                if (response.success) {
+                  this._updateEntity(stage, (entity) => ({
+                    ...entity,
+                    autoAv: isChecked,
+                    lastUpdatedAt: Date.now(),
+                  }));
+                }
+              })
+            );
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
   startListeningMultipleStages(stages: string[]): void {
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     if (!eventName) return;
