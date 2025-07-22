@@ -10,10 +10,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   catchError,
   concatMap,
+  EMPTY,
   finalize,
   forkJoin,
   Observable,
-  of,
   take,
   tap,
   throwError,
@@ -332,10 +332,10 @@ export class EventStagesDataStore {
       })
       .pipe(
         concatMap((result: boolean) => {
-          if (!result) return of();
+          if (!result) return EMPTY;
 
           const eventName = this._legacyBackendApiService.getCurrentEventName();
-          if (!eventName) return of();
+          if (!eventName) return EMPTY;
 
           const sessionId =
             this._entitySignals.get(stage)?.()?.currentSessionId;
@@ -378,10 +378,10 @@ export class EventStagesDataStore {
       })
       .pipe(
         concatMap((result: boolean) => {
-          if (!result) return of();
+          if (!result) return EMPTY;
 
           const eventName = this._legacyBackendApiService.getCurrentEventName();
-          if (!eventName) return of();
+          if (!eventName) return EMPTY;
 
           const sessionId =
             this._entitySignals.get(stage)?.()?.currentSessionId;
@@ -430,10 +430,10 @@ export class EventStagesDataStore {
       })
       .pipe(
         concatMap((result: boolean) => {
-          if (!result) return of();
+          if (!result) return EMPTY;
 
           const eventName = this._legacyBackendApiService.getCurrentEventName();
-          if (!eventName) return of();
+          if (!eventName) return EMPTY;
 
           return this._eventStagesDataService
             .setAutoAvStage({
@@ -550,7 +550,7 @@ export class EventStagesDataStore {
       })
       .pipe(
         concatMap((result: boolean) => {
-          if (!result) return of();
+          if (!result) return EMPTY;
 
           state.bulkPauseListeningLoading.set(true);
 
@@ -618,7 +618,7 @@ export class EventStagesDataStore {
       })
       .pipe(
         concatMap((result: boolean) => {
-          if (!result) return of();
+          if (!result) return EMPTY;
 
           state.bulkEndListeningLoading.set(true);
 
