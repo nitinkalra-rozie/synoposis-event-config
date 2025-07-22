@@ -251,9 +251,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       .pipe(takeUntilDestroyed())
       .subscribe((data: EventStageWebSocketMessageData) => {
         const sessionId = data?.sessionId;
-
         const activeSession = this.activeSession()?.metadata['originalContent'];
-
         if (activeSession && activeSession.SessionId === sessionId) {
           this.closeSocket();
           this.showPausedInsights(activeSession);
