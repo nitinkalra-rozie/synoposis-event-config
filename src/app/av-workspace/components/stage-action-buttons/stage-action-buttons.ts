@@ -12,7 +12,10 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
-import { StageActionButtonState } from 'src/app/av-workspace/models/stage-action-button-state.model';
+import {
+  StageActionButtonState,
+  StageAutoAvToggleState,
+} from 'src/app/av-workspace/models/stage-action-button-state.model';
 
 @Component({
   selector: 'app-stage-action-buttons',
@@ -30,7 +33,7 @@ export class StageActionButtons {
   public readonly startListening = output<string>();
   public readonly pauseListening = output<string>();
   public readonly stopListening = output<string>();
-  public readonly toggleAutoAv = output<boolean>();
+  public readonly toggleAutoAv = output<StageAutoAvToggleState>();
 
   protected readonly buttonStates = computed(() => {
     const stage = this.stage();
@@ -59,7 +62,10 @@ export class StageActionButtons {
 
   protected onToggleChange(event: MatSlideToggleChange): void {
     event.source.checked = this.isAutoAvEnabled();
-    this.toggleAutoAv.emit(event.checked);
+    this.toggleAutoAv.emit({
+      stage: this.stage().stage,
+      isChecked: event.checked,
+    });
   }
 
   private _calculateButtonState(
