@@ -20,7 +20,7 @@ import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-head
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
 import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
 import { StagesActions } from 'src/app/av-workspace/components/stages-actions/stages-actions';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
@@ -78,7 +78,7 @@ export class CentralizedView {
   private readonly _liveAnnouncer = inject(LiveAnnouncer);
   private readonly _store = inject(CentralizedViewStore);
 
-  protected dataSource = new MatTableDataSource<EventStage>();
+  protected dataSource = new MatTableDataSource<CentralizedViewStage>();
 
   protected $vm = this._store.$vm;
 
@@ -98,7 +98,7 @@ export class CentralizedView {
     this._store.toggleAllRows();
   }
 
-  protected toggleRow(row: EventStage): void {
+  protected toggleRow(row: CentralizedViewStage): void {
     this._store.toggleRow(row);
   }
 

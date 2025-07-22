@@ -1,7 +1,7 @@
 import { computed, DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-websocket-facade';
 import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStagesDataStore } from 'src/app/av-workspace/stores/centralized-view-stages-data-store';
@@ -115,7 +115,7 @@ export class CentralizedViewStore {
     this._uiStore.toggleAllRows(filteredEntities);
   }
 
-  toggleRow(row: EventStage): void {
+  toggleRow(row: CentralizedViewStage): void {
     this._uiStore.toggleRow(row);
   }
 

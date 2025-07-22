@@ -11,7 +11,7 @@ import {
   MatSlideToggleChange,
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import {
   StageActionButtonState,
   StageAutoAvToggleState,
@@ -25,7 +25,7 @@ import {
   imports: [MatButtonModule, MatIconModule, MatSlideToggleModule],
 })
 export class StageActionButtons {
-  public readonly stage = input.required<EventStage>();
+  public readonly stage = input.required<CentralizedViewStage>();
   public readonly isStartPauseResumeActionLoading = input.required<boolean>();
   public readonly isMultipleSelectionActive = input.required<boolean>();
   public readonly isAutoAvEnabled = input.required<boolean>();
@@ -69,7 +69,7 @@ export class StageActionButtons {
   }
 
   private _calculateButtonState(
-    entity: EventStage,
+    entity: CentralizedViewStage,
     isLoading: boolean
   ): StageActionButtonState {
     const isOffline = entity.status === 'OFFLINE';

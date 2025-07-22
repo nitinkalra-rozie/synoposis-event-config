@@ -1,6 +1,6 @@
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 
 export const getSelectableEntities = (
-  entities: readonly EventStage[]
-): EventStage[] =>
+  entities: readonly CentralizedViewStage[]
+): CentralizedViewStage[] =>
   entities.filter((entity) => entity.isOnline && entity.currentSessionId);

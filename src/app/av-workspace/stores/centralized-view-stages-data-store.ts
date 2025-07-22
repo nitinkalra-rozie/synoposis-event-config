@@ -22,13 +22,13 @@ import {
   CENTRALIZED_VIEW_DIALOG_MESSAGES,
   CENTRALIZED_VIEW_TOAST_MESSAGES,
 } from 'src/app/av-workspace/constants/centralized-view-interaction-messages';
-import { EventStagesDataService } from 'src/app/av-workspace/data-services/event-stages/event-stages-data-service';
+import { CentralizedViewStagesDataService } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages-data-service';
 import {
-  EventStage,
+  CentralizedViewStage,
   SessionStatusType,
   StageSessionsResponseData,
   StageStatusType,
-} from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+} from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
 import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/utils/get-valid-process-stages-for-bulk-actions';
@@ -36,7 +36,7 @@ import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-ba
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
-interface EventStagesDataState {
+interface CentralizedViewStagesDataState {
   loading: boolean;
   error: string | null;
   entityIds: string[];
@@ -49,7 +49,7 @@ interface EventStagesDataState {
   bulkEndListeningLoading: boolean;
 }
 
-const initialState: EventStagesDataState = {
+const initialState: CentralizedViewStagesDataState = {
   loading: false,
   error: null,
   entityIds: [],
@@ -92,7 +92,9 @@ const state = {
 })
 export class CentralizedViewStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
-  private readonly _eventStagesDataService = inject(EventStagesDataService);
+  private readonly _centralizedViewStagesDataService = inject(
+    CentralizedViewStagesDataService
+  );
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
   private readonly _uiStore = inject(CentralizedViewUIStore);
   private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
@@ -100,7 +102,7 @@ export class CentralizedViewStagesDataStore {
 
   private readonly _entitySignals = new Map<
     string,
-    WritableSignal<EventStage>
+    WritableSignal<CentralizedViewStage>
   >();
 
   public $loading = state.loading.asReadonly();
@@ -133,7 +135,7 @@ export class CentralizedViewStagesDataStore {
     const entityIds = state.entityIds();
     return entityIds
       .map((id) => this._entitySignals.get(id)?.())
-      .filter((entity): entity is EventStage => entity !== undefined);
+      .filter((entity): entity is CentralizedViewStage => entity !== undefined);
   });
 
   public $locations = computed(() => {
@@ -247,7 +249,7 @@ export class CentralizedViewStagesDataStore {
     state.loading.set(true);
     state.error.set(null);
 
-    this._eventStagesDataService
+    this._centralizedViewStagesDataService
       .getEventStages({ action: 'getStageListWithSessions', eventName })
       .pipe(
         take(1),
@@ -293,7 +295,7 @@ export class CentralizedViewStagesDataStore {
 
     this._setStartPauseResumeActionLoadingState(stage, true);
 
-    this._eventStagesDataService
+    this._centralizedViewStagesDataService
       .startListeningSession({
         action: 'adminStartListening',
         eventName,
@@ -342,7 +344,7 @@ export class CentralizedViewStagesDataStore {
 
           this._setStartPauseResumeActionLoadingState(stage, true);
 
-          return this._eventStagesDataService
+          return this._centralizedViewStagesDataService
             .pauseListeningSession({
               action: 'adminPauseListening',
               eventName,
@@ -386,7 +388,7 @@ export class CentralizedViewStagesDataStore {
           const sessionId =
             this._entitySignals.get(stage)?.()?.currentSessionId;
 
-          return this._eventStagesDataService
+          return this._centralizedViewStagesDataService
             .endListeningSession({
               action: 'adminEndListening',
               eventName,
@@ -435,7 +437,7 @@ export class CentralizedViewStagesDataStore {
           const eventName = this._legacyBackendApiService.getCurrentEventName();
           if (!eventName) return EMPTY;
 
-          return this._eventStagesDataService
+          return this._centralizedViewStagesDataService
             .setAutoAvStage({
               action: 'adminSetAutoAv',
               eventName,
@@ -480,7 +482,7 @@ export class CentralizedViewStagesDataStore {
       return;
     }
 
-    this._eventStagesDataService
+    this._centralizedViewStagesDataService
       .startListeningSession({
         action: 'adminStartListening',
         eventName,
@@ -554,7 +556,7 @@ export class CentralizedViewStagesDataStore {
 
           state.bulkPauseListeningLoading.set(true);
 
-          return this._eventStagesDataService
+          return this._centralizedViewStagesDataService
             .pauseListeningSession({
               action: 'adminPauseListening',
               eventName,
@@ -622,7 +624,7 @@ export class CentralizedViewStagesDataStore {
 
           state.bulkEndListeningLoading.set(true);
 
-          return this._eventStagesDataService
+          return this._centralizedViewStagesDataService
             .endListeningSession({
               action: 'adminEndListening',
               eventName,
@@ -709,7 +711,7 @@ export class CentralizedViewStagesDataStore {
 
   private _updateEntity(
     stageId: string,
-    updater: (entity: EventStage) => EventStage
+    updater: (entity: CentralizedViewStage) => CentralizedViewStage
   ): void {
     const entitySignal = this._entitySignals.get(stageId);
     if (entitySignal) {
@@ -728,7 +730,7 @@ export class CentralizedViewStagesDataStore {
     state.startPauseResumeActionLoadingStates.set(currentLoadingStates);
   }
 
-  private _setEntities(entities: EventStage[]): void {
+  private _setEntities(entities: CentralizedViewStage[]): void {
     this._entitySignals.clear();
 
     const entityIds: string[] = [];
@@ -741,7 +743,7 @@ export class CentralizedViewStagesDataStore {
     state.entityIds.set(entityIds);
   }
 
-  private _setActiveSessions(entities: EventStage[]): void {
+  private _setActiveSessions(entities: CentralizedViewStage[]): void {
     const stagesNeedSessions = entities
       .filter((entity) => !!entity.currentSessionId)
       .filter((entity) => {
@@ -795,7 +797,7 @@ export class CentralizedViewStagesDataStore {
     stage: string,
     eventName: string
   ): Observable<StageSessionsResponseData> {
-    return this._eventStagesDataService
+    return this._centralizedViewStagesDataService
       .getStageSessions({ action: 'getSessionListForStage', eventName, stage })
       .pipe(
         take(1),

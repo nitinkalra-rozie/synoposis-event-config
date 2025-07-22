@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { StageStatusType } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { StageStatusType } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { StageStatusConfig } from 'src/app/av-workspace/models/stage-statuses.model';
 
 const STAGE_STATUS_CONFIG: Record<StageStatusType, StageStatusConfig> = {

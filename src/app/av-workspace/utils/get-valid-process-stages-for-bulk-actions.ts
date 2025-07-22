@@ -1,9 +1,9 @@
 import { WritableSignal } from '@angular/core';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 
 export const getValidProcessStagesForBulkActions = (
   stages: string[],
-  entitySignals: Map<string, WritableSignal<EventStage>>,
+  entitySignals: Map<string, WritableSignal<CentralizedViewStage>>,
   action: 'start' | 'pause' | 'end'
 ): Array<{ stage: string; sessionId: string }> =>
   stages

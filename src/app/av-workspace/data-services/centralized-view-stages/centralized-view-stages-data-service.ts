@@ -2,25 +2,25 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  EventStagesRequestData,
-  EventStagesResponseData,
+  CentralizedViewStagesRequestData,
+  CentralizedViewStagesResponseData,
   StageAutoAVRequestData,
   StageAutoAVResponseData,
   StageSessionActionRequestData,
   StageSessionActionResponseData,
   StageSessionsRequestData,
   StageSessionsResponseData,
-} from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+} from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
-export class EventStagesDataService {
+export class CentralizedViewStagesDataService {
   private readonly _httpClient = inject(HttpClient);
 
   getEventStages(
-    requestData: EventStagesRequestData
-  ): Observable<EventStagesResponseData> {
-    return this._httpClient.post<EventStagesResponseData>(
+    requestData: CentralizedViewStagesRequestData
+  ): Observable<CentralizedViewStagesResponseData> {
+    return this._httpClient.post<CentralizedViewStagesResponseData>(
       `${environment.apiBaseUrl}/r2/stage`,
       requestData
     );
