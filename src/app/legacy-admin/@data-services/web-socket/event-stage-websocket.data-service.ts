@@ -105,12 +105,13 @@ export class EventStageWebsocketDataService {
 
       switch (eventType) {
         case 'SESSION_LIVE_LISTENING':
-          console.log('SESSION_LIVE_LISTENING:', parsedMessage);
           this._eventStageWebSocketState.setSessionLiveListening(parsedMessage);
           this._updateBrowserWindowUrl(sessionId);
           break;
+        case 'SESSION_LIVE_LISTENING_PAUSED':
+          this._eventStageWebSocketState.setSessionPaused(parsedMessage);
+          break;
         case 'SESSION_END':
-          console.log('SESSION_END:', parsedMessage);
           this._eventStageWebSocketState.setSessionEnd(parsedMessage);
           break;
         case 'SESSION_SPEAKERS_BIOS':

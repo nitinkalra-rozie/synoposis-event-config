@@ -3,6 +3,7 @@ export interface SessionAudioChunk {
   sessionId: string;
   chunkBase64: string;
   timestamp: number;
+  stage: string;
 }
 
 export interface AudioRecorderResponse {

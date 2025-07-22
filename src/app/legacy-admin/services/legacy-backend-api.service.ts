@@ -67,6 +67,7 @@ export class LegacyBackendApiService {
   putTranscript(transcript: any): Observable<Object> {
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
+      stage: localStorage.getItem('currentStage'),
       primarySessionId: localStorage.getItem('currentPrimarySessionId'),
       transcript: transcript,
       eventName: localStorage.getItem('selectedEvent'),
