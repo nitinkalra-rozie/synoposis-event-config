@@ -250,26 +250,13 @@ export class SessionContentComponent implements OnInit, OnChanges {
     toObservable(this._eventStageWebsocketState.$sessionPaused)
       .pipe(takeUntilDestroyed())
       .subscribe((data: EventStageWebSocketMessageData) => {
-        console.log('SESSION_LIVE_LISTENING_PAUSED received:', data);
         const sessionId = data?.sessionId;
-        console.log('Session ID from WebSocket:', sessionId);
 
         const activeSession = this.activeSession()?.metadata['originalContent'];
 
         if (activeSession && activeSession.SessionId === sessionId) {
-          console.log(
-            'Session ID matches the active session. Pausing session automatically.'
-          );
           this.closeSocket();
           this.showPausedInsights(activeSession);
-
-          console.log(
-            'Listening session paused due to SESSION_LIVE_LISTENING_PAUSED.'
-          );
-        } else {
-          console.log(
-            'Session ID does not match the active session. No action taken.'
-          );
         }
       });
 
@@ -345,7 +332,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.primarySessionId = this.currentPrimarySessionId;
-
     postData.theme = this.selectedTheme;
     postData.action = 'updateTheme';
     postData.sessionTitle = this.selectedSessionTitle;

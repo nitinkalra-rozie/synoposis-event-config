@@ -37,13 +37,15 @@ export class AudioRecorderService {
   private _sessionStage: string;
 
   init(eventName: string, sessionId: string, stage: string): void {
+    if (!eventName?.trim() || !sessionId?.trim() || !stage?.trim()) {
+      return;
+    }
+
     this._chunk$ = new Subject<Uint8Array>();
 
-    this._eventName = eventName;
-    this._sessionId = sessionId;
-    this._sessionStage = stage;
-    console.log(`Initialized for ${eventName} ${sessionId}`);
-
+    this._eventName = eventName.trim();
+    this._sessionId = sessionId.trim();
+    this._sessionStage = stage.trim();
     this._ngZone.runOutsideAngular(() => this.buildPipeline());
   }
 
