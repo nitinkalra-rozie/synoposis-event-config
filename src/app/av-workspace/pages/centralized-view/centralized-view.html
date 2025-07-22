@@ -152,6 +152,7 @@
           <th *matHeaderCellDef mat-header-cell>ACTION</th>
           <td *matCellDef="let element" mat-cell>
             <app-stage-action-buttons
+              [isAutoAvEnabled]="element.autoAv"
               [isMultipleSelectionActive]="$vm().hasSelection()"
               [isStartPauseResumeActionLoading]="
                 $vm().startPauseResumeActionLoadingStates().get(element.stage)
@@ -159,7 +160,8 @@
               [stage]="element"
               (pauseListening)="onPauseListening($event)"
               (startListening)="onStartListening($event)"
-              (stopListening)="onStopListening($event)" />
+              (stopListening)="onStopListening($event)"
+              (toggleAutoAv)="onToggleAutoAv($event)" />
           </td>
         </ng-container>
 

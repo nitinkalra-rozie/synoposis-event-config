@@ -21,6 +21,7 @@ import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info
 import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
 import { StagesActions } from 'src/app/av-workspace/components/stages-actions/stages-actions';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
 import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
@@ -143,6 +144,10 @@ export class CentralizedView {
 
   protected onStopListening(stage: string): void {
     this._store.stopListeningStage(stage);
+  }
+
+  protected onToggleAutoAv(payload: StageAutoAvToggleState): void {
+    this._store.toggleAutoAvStage(payload);
   }
 
   protected onBulkStartListening(): void {
