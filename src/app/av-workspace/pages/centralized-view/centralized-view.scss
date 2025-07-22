@@ -73,17 +73,6 @@
         .selected-row {
           background-color: v.$selection-variant-1;
         }
-
-        .auto-av-chip {
-          display: inline-block;
-          padding: 2px 8px;
-          border-radius: 12px;
-          background: linear-gradient(90deg, #ff4081, #ff8c42);
-          color: white;
-          font-size: 10px;
-          font-weight: 600;
-          line-height: 16px;
-        }
       }
     }
   }
