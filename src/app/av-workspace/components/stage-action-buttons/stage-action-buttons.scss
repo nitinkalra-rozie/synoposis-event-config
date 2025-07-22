@@ -1,5 +1,7 @@
 @use 'variables' as v;
 @use 'mixins' as m;
+@use 'functions' as f;
+@use '@angular/material' as mat;
 
 .action-buttons {
   @include m.d-flex-row;
@@ -50,6 +52,32 @@
       font-size: 1.125rem;
       margin: auto;
     }
+  }
+
+  .auto-av-toggle {
+    @include mat.slide-toggle-overrides(
+      (
+        selected-track-color: v.$orange-gradient-2,
+        selected-focus-track-color: v.$orange-gradient-2,
+        selected-hover-track-color: v.$orange-gradient-2,
+        selected-pressed-track-color: v.$orange-gradient-2,
+        selected-track-outline-width: 0,
+        track-height: 1.75rem,
+        handle-height: 1.25rem,
+        unselected-handle-size: 1.375rem,
+        selected-handle-size: 1.375rem,
+        pressed-handle-size: 1.375rem,
+        unselected-handle-horizontal-margin: 0 0.25rem,
+        unselected-pressed-handle-horizontal-margin: 0 0.25rem,
+        selected-handle-horizontal-margin: 0 1.625rem,
+        selected-pressed-handle-horizontal-margin: 0 1.625rem,
+        label-text-color: v.$primary-bg-color-variant-6,
+        disabled-label-text-color: f.color-transparent(
+            0.5,
+            v.$primary-bg-color-variant-6
+          ),
+      )
+    );
   }
 }
 
