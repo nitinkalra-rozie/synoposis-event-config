@@ -346,7 +346,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
             this._selectLocationOption(locations[0]);
           }
         }),
-        takeUntilDestroyed(this._destroyRef)
+        takeUntilDestroyed()
       )
       .subscribe();
   }
