@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import {
   EventStagesRequestData,
   EventStagesResponseData,
+  StageAutoAVRequestData,
+  StageAutoAVResponseData,
   StageSessionActionRequestData,
   StageSessionActionResponseData,
   StageSessionsRequestData,
@@ -55,6 +57,15 @@ export class EventStagesDataService {
     requestData: StageSessionActionRequestData
   ): Observable<StageSessionActionResponseData> {
     return this._httpClient.post<StageSessionActionResponseData>(
+      `${environment.apiBaseUrl}/r3/manage-av`,
+      requestData
+    );
+  }
+
+  setAutoAvStage(
+    requestData: StageAutoAVRequestData
+  ): Observable<StageAutoAVResponseData> {
+    return this._httpClient.post<StageAutoAVResponseData>(
       `${environment.apiBaseUrl}/r3/manage-av`,
       requestData
     );

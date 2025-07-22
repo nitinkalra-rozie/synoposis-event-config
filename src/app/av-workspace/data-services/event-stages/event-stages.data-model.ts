@@ -68,7 +68,8 @@ export type EventStagesRequestActionType =
   | 'getSessionListForStage'
   | 'adminStartListening'
   | 'adminEndListening'
-  | 'adminPauseListening';
+  | 'adminPauseListening'
+  | 'adminSetAutoAv';
 
 export interface EventStagesRequestData {
   action: EventStagesRequestActionType;
@@ -103,4 +104,25 @@ export interface StageSessionActionResponseData {
       success: boolean;
     }[];
   };
+}
+
+export interface StageProcessAutoAV {
+  stage: string;
+  autoAv: boolean;
+}
+
+export interface StageAutoAVRequestData extends EventStagesRequestData {
+  processStages: StageProcessAutoAV[];
+}
+
+export interface StageAutoAVResponseData {
+  success: boolean;
+  data: {
+    message: string;
+  };
+  results: {
+    stage: string;
+    autoAv: boolean;
+    success: boolean;
+  }[];
 }
