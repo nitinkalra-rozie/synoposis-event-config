@@ -26,6 +26,17 @@
     (click)="onStopListening()">
     <mat-icon svgIcon="syn:stop_outlined" />
   </button>
+
+  <mat-slide-toggle
+    class="auto-av-toggle"
+    [checked]="isAutoAvEnabled()"
+    [disabled]="!buttonStates().canToggleAutoAv"
+    (change)="onToggleChange($event)"
+    hideIcon
+    labelPosition="before">
+    AutoAV
+  </mat-slide-toggle>
+
   <button
     mat-raised-button
     class="action-btn cc-btn"

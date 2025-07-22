@@ -7,6 +7,10 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  MatSlideToggleChange,
+  MatSlideToggleModule,
+} from '@angular/material/slide-toggle';
 import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
 import { StageActionButtonState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 
@@ -15,16 +19,18 @@ import { StageActionButtonState } from 'src/app/av-workspace/models/stage-action
   templateUrl: './stage-action-buttons.html',
   styleUrl: './stage-action-buttons.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, MatSlideToggleModule],
 })
 export class StageActionButtons {
   public readonly stage = input.required<EventStage>();
   public readonly isStartPauseResumeActionLoading = input.required<boolean>();
   public readonly isMultipleSelectionActive = input.required<boolean>();
+  public readonly isAutoAvEnabled = input.required<boolean>();
 
   public readonly startListening = output<string>();
   public readonly pauseListening = output<string>();
   public readonly stopListening = output<string>();
+  public readonly toggleAutoAv = output<boolean>();
 
   protected readonly buttonStates = computed(() => {
     const stage = this.stage();
@@ -51,6 +57,11 @@ export class StageActionButtons {
     this.stopListening.emit(this.stage().stage);
   }
 
+  protected onToggleChange(event: MatSlideToggleChange): void {
+    event.source.checked = this.isAutoAvEnabled();
+    this.toggleAutoAv.emit(event.checked);
+  }
+
   private _calculateButtonState(
     entity: EventStage,
     isLoading: boolean
@@ -60,6 +71,7 @@ export class StageActionButtons {
     const currentAction = entity.currentAction;
 
     return {
+      canToggleAutoAv: !isOffline,
       canStop: this._canStopListening(isOffline, hasNoSession, currentAction),
       startPauseResumeButton: this._calculateStartPauseResumeButtonState(
         isOffline,

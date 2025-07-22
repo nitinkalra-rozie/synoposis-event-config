@@ -5,6 +5,7 @@
 
 .action-buttons {
   @include m.d-flex-row;
+  @include m.align-items-center;
   gap: 0.5rem;
 
   .action-btn {

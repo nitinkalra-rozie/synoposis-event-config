@@ -1,4 +1,5 @@
 export interface StageActionButtonState {
+  canToggleAutoAv: boolean;
   canStop: boolean;
   startPauseResumeButton: {
     isEnabled: boolean;
