@@ -117,6 +117,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   transctiptToInsides = '';
   timeoutId: any = '';
   currentSessionId = '';
+  currentStage = '';
   currentPrimarySessionId = '';
   postInsideInterval = 15;
   transcriptTimeOut = 60;
@@ -246,6 +247,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
         }
       });
 
+    toObservable(this._eventStageWebsocketState.$sessionPaused)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
+        const sessionId = data?.sessionId;
+        const activeSession = this.activeSession()?.metadata['originalContent'];
+        if (activeSession && activeSession.SessionId === sessionId) {
+          this.closeSocket();
+          this.showPausedInsights(activeSession);
+        }
+      });
+
     // Create a minimal silent audio chunk (100ms of silence) to maintain the WebSocket connection during periods of inactivity.
     // This is used to send silent audio data to the server to prevent the connection from being closed due to inactivity.
     const sampleRate = 44100;
@@ -263,6 +275,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.selectedSessionType =
       localStorage.getItem('selectedSessionType') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
+    this.currentStage = localStorage.getItem('currentStage') || '';
     this.selectedDomain =
       localStorage.getItem('domain') ||
       this._globalStateService.getSelectedDomain();
@@ -600,6 +613,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       ) {
         localStorage.setItem('currentSessionTitle', this.selectedSessionTitle);
         localStorage.setItem('currentSessionId', session.SessionId);
+        localStorage.setItem('currentStage', session.Location);
         localStorage.setItem(
           'currentPrimarySessionId',
           session.PrimarySessionId
@@ -681,6 +695,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.eventName = this.selectedEvent;
         postData.domain = this.selectedDomain;
         postData.action = 'liveInsightsListening';
+        postData.stage = this.selectedLocationName().label;
         postData.sessionTitle = sessionDetails.SessionSubject;
         this.postData(postData, null, null, null);
       }
@@ -702,6 +717,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'listeningPaused';
+    postData.stage = this.selectedLocationName().label;
     postData.sessionTitle = sessionDetails.SessionSubject;
 
     this.postData(postData);
@@ -752,7 +768,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    // postData.stage = this.selectedLocationName().label;
+    postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         this._toastFacade.showSuccess(
@@ -806,6 +822,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.sessionId = session.SessionId;
+    postData.stage = this.selectedLocationName().label;
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = session.SessionSubject;
     postData.sessionDescription = session.SessionDescription;
@@ -911,7 +928,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionIds = this.sessionIds;
-      postData.stage = this.selectedLocation;
+      postData.stage = this.selectedLocationName().label;
       this.postData(
         postData,
         screenIdentifier,
@@ -937,7 +954,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
-      postData.stage = this.selectedLocation;
+      postData.stage = this.selectedLocationName().label;
       postData.sessionId = '';
       postData.screenTimeout = 60;
       postData.debriefType = 'DAILY';
@@ -1011,6 +1028,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.domain = this.selectedDomain;
     postData.primarySessionId = this.currentPrimarySessionId;
     postData.sessionId = this.currentSessionId;
+    postData.stage = this.selectedLocationName().label;
     postData.action = 'realTimeInsights';
     postData.sessionTitle = sessionDetails.SessionSubject;
     postData.transcript = transcript;
@@ -1080,7 +1098,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     console.log('start streamAudioToWebSocket333333');
     this._audioRecorderService.init(
       getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
-      localStorage.getItem('currentSessionId')
+      localStorage.getItem('currentSessionId'),
+      localStorage.getItem('currentStage')
     );
 
     this.micStream.on('data', (rawAudioChunk) => {
@@ -1208,6 +1227,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('selectedSessionType');
     localStorage.removeItem('currentSessionId');
+    localStorage.removeItem('currentStage');
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');

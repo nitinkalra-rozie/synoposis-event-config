@@ -34,14 +34,18 @@ export class AudioRecorderService {
 
   private _eventName: string;
   private _sessionId: string;
+  private _sessionStage: string;
 
-  init(eventName: string, sessionId: string): void {
+  init(eventName: string, sessionId: string, stage: string): void {
+    if (!eventName?.trim() || !sessionId?.trim() || !stage?.trim()) {
+      return;
+    }
+
     this._chunk$ = new Subject<Uint8Array>();
 
-    this._eventName = eventName;
-    this._sessionId = sessionId;
-    console.log(`Initialized for ${eventName} ${sessionId}`);
-
+    this._eventName = eventName.trim();
+    this._sessionId = sessionId.trim();
+    this._sessionStage = stage.trim();
     this._ngZone.runOutsideAngular(() => this.buildPipeline());
   }
 
@@ -84,7 +88,7 @@ export class AudioRecorderService {
   private uploadMergedBatches(
     chunks: Uint8Array[]
   ): Observable<void | AudioRecorderResponse> {
-    if (!this._eventName || !this._sessionId) {
+    if (!this._eventName || !this._sessionId || !this._sessionStage) {
       console.warn('Skipping upload—missing event/session');
       return EMPTY;
     }
@@ -113,6 +117,7 @@ export class AudioRecorderService {
     const makePayload = (): SessionAudioChunk => ({
       eventName: this._eventName,
       sessionId: this._sessionId,
+      stage: this._sessionStage,
       chunkBase64: this.encodeBase64(slice),
       timestamp: Date.now(),
     });
