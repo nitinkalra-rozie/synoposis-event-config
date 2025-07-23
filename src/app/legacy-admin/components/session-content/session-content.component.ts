@@ -227,23 +227,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     toObservable(this._eventStageWebsocketState.$sessionEnd)
       .pipe(takeUntilDestroyed())
       .subscribe((data: EventStageWebSocketMessageData) => {
-        console.log('SESSION_END received:', data);
-
-        // Extract session ID from the WebSocket message
         const sessionId = data?.sessionId;
-        console.log('Session ID from WebSocket:', sessionId);
-
         const activeSession = this.activeSession()?.metadata['originalContent'];
-
         if (activeSession && activeSession.SessionId === sessionId) {
-          console.log('Session ID matches the active session. Ending session.');
           this.stopTranscriptionForAutoAv();
-
-          console.log('Listening session stopped due to SESSION_END.');
-        } else {
-          console.log(
-            'Session ID does not match the active session. No action taken.'
-          );
         }
       });
 
