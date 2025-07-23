@@ -1,4 +1,4 @@
-import { StageStatusType } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { StageStatusType } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 
 export interface CentralizedViewWebSocketMessage {
   actionType: 'admin' | 'messageStage';

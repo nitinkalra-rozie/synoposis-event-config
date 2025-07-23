@@ -46,7 +46,7 @@ export interface Session {
   Editor?: string;
 }
 
-export interface EventStage {
+export interface CentralizedViewStage {
   stage: string;
   isOnline: boolean;
   status: StageStatusType;
@@ -58,24 +58,26 @@ export interface EventStage {
   location?: string;
 }
 
-export interface EventStagesResponseData {
+export interface CentralizedViewStagesResponseData {
   success: boolean;
-  data: EventStage[];
+  data: CentralizedViewStage[];
 }
 
-export type EventStagesRequestActionType =
+export type CentralizedViewRequestActionType =
   | 'getStageListWithSessions'
   | 'getSessionListForStage'
   | 'adminStartListening'
   | 'adminEndListening'
-  | 'adminPauseListening';
+  | 'adminPauseListening'
+  | 'adminSetAutoAv';
 
-export interface EventStagesRequestData {
-  action: EventStagesRequestActionType;
+export interface CentralizedViewStagesRequestData {
+  action: CentralizedViewRequestActionType;
   eventName: string;
 }
 
-export interface StageSessionsRequestData extends EventStagesRequestData {
+export interface StageSessionsRequestData
+  extends CentralizedViewStagesRequestData {
   stage: string;
 }
 
@@ -89,7 +91,8 @@ export interface StageProcessSession {
   sessionId: string;
 }
 
-export interface StageSessionActionRequestData extends EventStagesRequestData {
+export interface StageSessionActionRequestData
+  extends CentralizedViewStagesRequestData {
   processStages: StageProcessSession[];
 }
 
@@ -103,4 +106,26 @@ export interface StageSessionActionResponseData {
       success: boolean;
     }[];
   };
+}
+
+export interface StageProcessAutoAV {
+  stage: string;
+  autoAv: boolean;
+}
+
+export interface StageAutoAVRequestData
+  extends CentralizedViewStagesRequestData {
+  processStages: StageProcessAutoAV[];
+}
+
+export interface StageAutoAVResponseData {
+  success: boolean;
+  data: {
+    message: string;
+  };
+  results: {
+    stage: string;
+    autoAv: boolean;
+    success: boolean;
+  }[];
 }

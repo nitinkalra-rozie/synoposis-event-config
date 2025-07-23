@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { EventStage } from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 interface CentralizedViewUIState {
@@ -48,7 +48,7 @@ export class CentralizedViewUIStore {
     state.locationFilters.set(initialState.locationFilters);
   }
 
-  toggleRow(row: EventStage): void {
+  toggleRow(row: CentralizedViewStage): void {
     const currentSelection = state.selectedStageIds();
     const newSelected = new Set(currentSelection);
 
@@ -61,7 +61,7 @@ export class CentralizedViewUIStore {
     state.selectedStageIds.set(newSelected);
   }
 
-  toggleAllRows(filteredEntities: readonly EventStage[]): void {
+  toggleAllRows(filteredEntities: readonly CentralizedViewStage[]): void {
     const isCurrentlyAllSelected = this.isAllSelected(filteredEntities);
     const isCurrentlyIndeterminate = this.isIndeterminate(filteredEntities);
 
@@ -78,7 +78,7 @@ export class CentralizedViewUIStore {
     state.selectedStageIds.set(newSelected);
   }
 
-  isAllSelected(filteredEntities: readonly EventStage[]): boolean {
+  isAllSelected(filteredEntities: readonly CentralizedViewStage[]): boolean {
     const selectableEntities = getSelectableEntities(filteredEntities);
     const numSelectable = selectableEntities.length;
     const numTotal = filteredEntities.length;
@@ -98,7 +98,7 @@ export class CentralizedViewUIStore {
     return selectedCount === numSelectable && selectedCount === numTotal;
   }
 
-  isIndeterminate(filteredEntities: readonly EventStage[]): boolean {
+  isIndeterminate(filteredEntities: readonly CentralizedViewStage[]): boolean {
     const selectableEntities = getSelectableEntities(filteredEntities);
     const numSelectable = selectableEntities.length;
     const numTotal = filteredEntities.length;
@@ -127,7 +127,7 @@ export class CentralizedViewUIStore {
   }
 
   clearAllSelectionsOfDisabledRows(
-    filteredEntities: readonly EventStage[]
+    filteredEntities: readonly CentralizedViewStage[]
   ): void {
     const currentSelection = state.selectedStageIds();
 

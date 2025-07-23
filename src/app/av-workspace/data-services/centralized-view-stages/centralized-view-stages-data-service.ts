@@ -2,23 +2,25 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  EventStagesRequestData,
-  EventStagesResponseData,
+  CentralizedViewStagesRequestData,
+  CentralizedViewStagesResponseData,
+  StageAutoAVRequestData,
+  StageAutoAVResponseData,
   StageSessionActionRequestData,
   StageSessionActionResponseData,
   StageSessionsRequestData,
   StageSessionsResponseData,
-} from 'src/app/av-workspace/data-services/event-stages/event-stages.data-model';
+} from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
-export class EventStagesDataService {
+export class CentralizedViewStagesDataService {
   private readonly _httpClient = inject(HttpClient);
 
   getEventStages(
-    requestData: EventStagesRequestData
-  ): Observable<EventStagesResponseData> {
-    return this._httpClient.post<EventStagesResponseData>(
+    requestData: CentralizedViewStagesRequestData
+  ): Observable<CentralizedViewStagesResponseData> {
+    return this._httpClient.post<CentralizedViewStagesResponseData>(
       `${environment.apiBaseUrl}/r2/stage`,
       requestData
     );
@@ -55,6 +57,15 @@ export class EventStagesDataService {
     requestData: StageSessionActionRequestData
   ): Observable<StageSessionActionResponseData> {
     return this._httpClient.post<StageSessionActionResponseData>(
+      `${environment.apiBaseUrl}/r3/manage-av`,
+      requestData
+    );
+  }
+
+  setAutoAvStage(
+    requestData: StageAutoAVRequestData
+  ): Observable<StageAutoAVResponseData> {
+    return this._httpClient.post<StageAutoAVResponseData>(
       `${environment.apiBaseUrl}/r3/manage-av`,
       requestData
     );

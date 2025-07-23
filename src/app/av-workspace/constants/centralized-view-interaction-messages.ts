@@ -47,6 +47,12 @@ export const CENTRALIZED_VIEW_DIALOG_MESSAGES = {
     TITLE: 'End Listening?',
     MESSAGE: (stage: string) => `Do you want to End Listening for ${stage}?`,
   },
+  AUTO_AV: {
+    TITLE: (isChecked: boolean) =>
+      `${isChecked ? 'Enable' : 'Disable'} AutoAV?`,
+    MESSAGE: (stage: string, isChecked: boolean) =>
+      `Do you want to ${isChecked ? 'Enable' : 'Disable'} AutoAV for ${stage}?`,
+  },
   PAUSE_MULTIPLE: {
     TITLE: 'Pause Listening?',
     MESSAGE: (numOfStages: number) =>
