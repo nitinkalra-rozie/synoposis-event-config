@@ -90,6 +90,8 @@ export class EventStageWebsocketDataService {
       this._socket = null as unknown as WebSocket; // ensure the socket doesn't have older references
       this._eventStageWebSocketState.setConnected(false);
       this._eventStageWebSocketState.setConnectedStage(null);
+      this._eventStageWebSocketState.setAutoAvEnabled(false);
+      this._eventStageWebSocketState.setAutoAvSetup(null);
     }
   }
 
@@ -117,6 +119,14 @@ export class EventStageWebsocketDataService {
           break;
         case 'SESSION_END':
           this._eventStageWebSocketState.setSessionEnd(parsedMessage);
+          break;
+        case 'SET_AUTOAV_SETUP':
+          this._eventStageWebSocketState.setAutoAvSetup(parsedMessage);
+          if (parsedMessage.autoAv !== undefined) {
+            this._eventStageWebSocketState.setAutoAvEnabled(
+              parsedMessage.autoAv
+            );
+          }
           break;
         case 'SESSION_SPEAKERS_BIOS':
           this._updateBrowserWindowUrl(sessionId);
