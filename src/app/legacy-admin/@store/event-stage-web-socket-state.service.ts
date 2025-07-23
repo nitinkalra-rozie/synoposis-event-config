@@ -4,6 +4,7 @@ import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-servi
 const state = {
   isConnected: signal<boolean>(false),
   isConnecting: signal<boolean>(false),
+  connectedStage: signal<string | null>(null),
   autoAvEnabled: signal<boolean>(false),
   sessionLiveListening: signal<EventStageWebSocketMessageData>(null),
   sessionEnd: signal<EventStageWebSocketMessageData>(null),
@@ -16,6 +17,7 @@ const state = {
 export class EventStageWebSocketStateService {
   public readonly $isConnected = state.isConnected.asReadonly();
   public readonly $isConnecting = state.isConnecting.asReadonly();
+  public readonly $connectedStage = state.connectedStage.asReadonly();
   public readonly $autoAvEnabled = state.autoAvEnabled.asReadonly();
   public readonly $sessionLiveListening =
     state.sessionLiveListening.asReadonly();
@@ -28,6 +30,10 @@ export class EventStageWebSocketStateService {
 
   setConnecting(value: boolean): void {
     state.isConnecting.set(value);
+  }
+
+  setConnectedStage(stage: string | null): void {
+    state.connectedStage.set(stage);
   }
 
   setAutoAvEnabled(value: boolean): void {
@@ -49,6 +55,7 @@ export class EventStageWebSocketStateService {
   resetState(): void {
     state.isConnected.set(false);
     state.isConnecting.set(false);
+    state.connectedStage.set(null);
     state.autoAvEnabled.set(false);
     state.sessionLiveListening.set(null);
     state.sessionEnd.set(null);

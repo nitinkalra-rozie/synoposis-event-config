@@ -367,13 +367,21 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     }
 
     if (
-      this._eventStageWebSocketState.$isConnected() ||
-      this._eventStageWebSocketState.$isConnecting()
+      this._eventStageWebSocketState.$connectedStage() === location &&
+      (this._eventStageWebSocketState.$isConnecting() ||
+        this._eventStageWebSocketState.$isConnected())
     ) {
       return;
     }
 
-    this._eventStageWebsocketDataService.disconnect();
+    if (
+      (this._eventStageWebSocketState.$isConnected() ||
+        this._eventStageWebSocketState.$isConnecting()) &&
+      this._eventStageWebSocketState.$connectedStage() !== location
+    ) {
+      this._eventStageWebsocketDataService.disconnect();
+    }
+
     this._establishConnectionWithWebSocket(this.selectedLocation().label);
   }
 
