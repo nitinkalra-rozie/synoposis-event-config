@@ -122,7 +122,7 @@ export class EventStageWebsocketDataService {
           break;
         case 'SET_AUTOAV_SETUP':
           this._eventStageWebSocketState.setAutoAvSetup(parsedMessage);
-          if (parsedMessage.autoAv !== undefined) {
+          if (typeof parsedMessage.autoAv === 'boolean') {
             this._eventStageWebSocketState.setAutoAvEnabled(
               parsedMessage.autoAv
             );
