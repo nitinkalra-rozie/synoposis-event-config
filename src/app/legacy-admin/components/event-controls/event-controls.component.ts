@@ -362,27 +362,21 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   private _checkAndConnectWithWebSocket(location: string | undefined): void {
-    if (!location) {
+    if (!location) return;
+
+    const currentStage = this._eventStageWebSocketState.$connectedStage();
+    const isConnecting = this._eventStageWebSocketState.$isConnecting();
+    const isConnected = this._eventStageWebSocketState.$isConnected();
+
+    if (currentStage === location && (isConnecting || isConnected)) {
       return;
     }
 
-    if (
-      this._eventStageWebSocketState.$connectedStage() === location &&
-      (this._eventStageWebSocketState.$isConnecting() ||
-        this._eventStageWebSocketState.$isConnected())
-    ) {
-      return;
-    }
-
-    if (
-      (this._eventStageWebSocketState.$isConnected() ||
-        this._eventStageWebSocketState.$isConnecting()) &&
-      this._eventStageWebSocketState.$connectedStage() !== location
-    ) {
+    if ((isConnected || isConnecting) && currentStage !== location) {
       this._eventStageWebsocketDataService.disconnect();
     }
 
-    this._establishConnectionWithWebSocket(this.selectedLocation().label);
+    this._establishConnectionWithWebSocket(location);
   }
 
   private _establishConnectionWithWebSocket(location: string): void {
