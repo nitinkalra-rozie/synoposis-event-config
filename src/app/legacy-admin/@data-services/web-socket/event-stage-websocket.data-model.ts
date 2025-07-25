@@ -6,6 +6,7 @@ export interface EventStageWebSocketMessageData {
   eventName: string;
   sessionId: string;
   stage: string;
+  autoAv: boolean;
 }
 
 export type EventStageWebSocketEventType =
@@ -13,4 +14,5 @@ export type EventStageWebSocketEventType =
   | 'SESSION_SPEAKERS_BIOS'
   | 'SESSION_LIVE_LISTENING'
   | 'SESSION_LIVE_LISTENING_PAUSED'
-  | 'SESSION_LIVE_TRANSCRIPT';
+  | 'SESSION_LIVE_TRANSCRIPT'
+  | 'SET_AUTOAV_SETUP';
