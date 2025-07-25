@@ -43,6 +43,9 @@ export class EventStageWebsocketDataService {
             this._socket.onopen = () => {
               this._eventStageWebSocketState.setConnected(true);
               this._eventStageWebSocketState.setConnecting(false);
+              this._eventStageWebSocketState.setConnectedStage(
+                selectedLocation
+              );
               this._sendMessage({
                 eventName: eventName,
                 client: true,
@@ -86,6 +89,7 @@ export class EventStageWebsocketDataService {
       this._socket.close();
       this._socket = null as unknown as WebSocket; // ensure the socket doesn't have older references
       this._eventStageWebSocketState.setConnected(false);
+      this._eventStageWebSocketState.setConnectedStage(null);
     }
   }
 
