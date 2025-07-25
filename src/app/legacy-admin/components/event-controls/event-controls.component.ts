@@ -48,7 +48,11 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AutoAvSetupRequest } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
+import {
+  AutoAvSetupData,
+  AutoAvSetupRequest,
+  GetAutoAvSetupRequest,
+} from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
@@ -268,6 +272,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
           this._selectLocationOption(selectedOption);
           this.stageChanged.emit(selectedOption.label);
           this._checkAndConnectWithWebSocket(selectedOption.label);
+          this._getAutoAvSetup(selectedOption.label);
           this._modalService.close();
         },
         () => this._modalService.close()
@@ -281,6 +286,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
           this._selectLocationOption(selectedOption);
           this.stageChanged.emit(selectedOption.label);
           this._checkAndConnectWithWebSocket(selectedOption.label);
+          this._getAutoAvSetup(selectedOption.label);
           this._modalService.close();
         },
         () => this._modalService.close()
@@ -362,27 +368,21 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   private _checkAndConnectWithWebSocket(location: string | undefined): void {
-    if (!location) {
+    if (!location) return;
+
+    const currentStage = this._eventStageWebSocketState.$connectedStage();
+    const isConnecting = this._eventStageWebSocketState.$isConnecting();
+    const isConnected = this._eventStageWebSocketState.$isConnected();
+
+    if (currentStage === location && (isConnecting || isConnected)) {
       return;
     }
 
-    if (
-      this._eventStageWebSocketState.$connectedStage() === location &&
-      (this._eventStageWebSocketState.$isConnecting() ||
-        this._eventStageWebSocketState.$isConnected())
-    ) {
-      return;
-    }
-
-    if (
-      (this._eventStageWebSocketState.$isConnected() ||
-        this._eventStageWebSocketState.$isConnecting()) &&
-      this._eventStageWebSocketState.$connectedStage() !== location
-    ) {
+    if ((isConnected || isConnecting) && currentStage !== location) {
       this._eventStageWebsocketDataService.disconnect();
     }
 
-    this._establishConnectionWithWebSocket(this.selectedLocation().label);
+    this._establishConnectionWithWebSocket(location);
   }
 
   private _establishConnectionWithWebSocket(location: string): void {
@@ -395,6 +395,35 @@ export class EventControlsComponent implements OnInit, OnDestroy {
           throw error;
         }),
         retry({ delay: 5000 }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  private _getAutoAvSetup(stageName: string): void {
+    const selectedEvent = this.selectedEvent();
+
+    if (!selectedEvent || !stageName) {
+      return;
+    }
+
+    const payload: GetAutoAvSetupRequest = {
+      action: 'getAutoAvSetup',
+      eventName: selectedEvent.label,
+      stage: stageName,
+    };
+
+    this._autoAvSetupService
+      .getAutoAvSetup(payload)
+      .pipe(
+        take(1),
+        tap((response) => {
+          const autoAvData: AutoAvSetupData = response.data;
+          const autoAvStatus = autoAvData?.autoAv ?? false;
+          this._eventStageWebSocketState.setAutoAvEnabled(autoAvStatus);
+          setLocalStorageItem('IS_AUTO_AV_ENABLED', autoAvStatus);
+          this.autoAvChanged.emit(autoAvStatus);
+        }),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();

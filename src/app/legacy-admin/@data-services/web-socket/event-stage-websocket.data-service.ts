@@ -91,7 +91,6 @@ export class EventStageWebsocketDataService {
       this._eventStageWebSocketState.setConnected(false);
       this._eventStageWebSocketState.setConnectedStage(null);
       this._eventStageWebSocketState.setAutoAvEnabled(false);
-      this._eventStageWebSocketState.setAutoAvSetup(null);
     }
   }
 
@@ -121,7 +120,6 @@ export class EventStageWebsocketDataService {
           this._eventStageWebSocketState.setSessionEnd(parsedMessage);
           break;
         case 'SET_AUTOAV_SETUP':
-          this._eventStageWebSocketState.setAutoAvSetup(parsedMessage);
           if (typeof parsedMessage.autoAv === 'boolean') {
             this._eventStageWebSocketState.setAutoAvEnabled(
               parsedMessage.autoAv

@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import {
   AutoAvSetupRequest,
   AutoAvSetupResponse,
+  GetAutoAvSetupRequest,
+  GetAutoAvSetupResponse,
 } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-model';
 import { environment } from 'src/environments/environment';
 
@@ -17,6 +19,15 @@ export class AutoAvSetupDataService {
     requestData: AutoAvSetupRequest
   ): Observable<AutoAvSetupResponse> {
     return this._http.post<AutoAvSetupResponse>(
+      environment.setAutoAvSetupUrl,
+      requestData
+    );
+  }
+
+  getAutoAvSetup(
+    requestData: GetAutoAvSetupRequest
+  ): Observable<GetAutoAvSetupResponse> {
+    return this._http.post<GetAutoAvSetupResponse>(
       environment.setAutoAvSetupUrl,
       requestData
     );
