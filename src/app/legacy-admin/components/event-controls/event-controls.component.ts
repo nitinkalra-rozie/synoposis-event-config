@@ -56,6 +56,7 @@ import {
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -90,6 +91,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _toastFacade = inject(SynToastFacade);
 
   public PostDataEnum = PostDataEnum;
   // #region old version
@@ -392,6 +394,10 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         tap(() => console.log('WebSocket _wsSubscription')),
         catchError((error) => {
           console.error('WebSocket error:', error);
+          this._toastFacade.showError(
+            `Failed to connect to stage WebSocket for ${location}`,
+            5000
+          );
           throw error;
         }),
         retry({ delay: 5000 }),

@@ -7,6 +7,7 @@ import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-win
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -19,6 +20,7 @@ export class EventStageWebsocketDataService {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _toastFacade = inject(SynToastFacade);
 
   private _socket!: WebSocket;
   private _pingDestroy$ = new Subject<void>();
@@ -62,6 +64,10 @@ export class EventStageWebsocketDataService {
             };
 
             this._socket.onerror = (error: Event) => {
+              this._toastFacade.showError(
+                `Stage WebSocket connection error for ${selectedLocation}`,
+                5000
+              );
               observer.error('Session WebSocket error: ' + error);
             };
 
@@ -98,7 +104,7 @@ export class EventStageWebsocketDataService {
     if (this._socket?.readyState === WebSocket.OPEN) {
       this._socket.send(JSON.stringify(message));
     } else {
-      console.error('Event WebSocket is not connected.');
+      this._toastFacade.showError('Event WebSocket is not connected.', 5000);
     }
   }
 
@@ -135,9 +141,17 @@ export class EventStageWebsocketDataService {
             eventType,
             parsedMessage
           );
+          this._toastFacade.showWarning(
+            `Unknown stage WebSocket event: ${eventType}`,
+            5000
+          );
       }
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
+      this._toastFacade.showError(
+        'Failed to parse stage WebSocket message',
+        5000
+      );
     }
   }
 
