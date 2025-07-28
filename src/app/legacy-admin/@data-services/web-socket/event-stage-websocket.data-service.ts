@@ -133,7 +133,6 @@ export class EventStageWebsocketDataService {
         this._updateBrowserWindowUrl(sessionId);
         break;
       default:
-        this._toastFacade.showWarning(`Unknown Stage WebSocket event`, 5000);
     }
   }
 
