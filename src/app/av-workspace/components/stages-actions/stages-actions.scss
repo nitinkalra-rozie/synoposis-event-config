@@ -39,7 +39,7 @@
         cursor: default;
       }
 
-      &.active:hover {
+      &:focus {
         opacity: 0.92;
       }
 
