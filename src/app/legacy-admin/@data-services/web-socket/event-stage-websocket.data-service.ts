@@ -7,6 +7,7 @@ import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-win
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -19,6 +20,7 @@ export class EventStageWebsocketDataService {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _toastFacade = inject(SynToastFacade);
 
   private _socket!: WebSocket;
   private _pingDestroy$ = new Subject<void>();
@@ -62,6 +64,10 @@ export class EventStageWebsocketDataService {
             };
 
             this._socket.onerror = (error: Event) => {
+              this._toastFacade.showError(
+                `Stage WebSocket connection error for ${selectedLocation}`,
+                5000
+              );
               observer.error('Session WebSocket error: ' + error);
             };
 
@@ -98,46 +104,36 @@ export class EventStageWebsocketDataService {
     if (this._socket?.readyState === WebSocket.OPEN) {
       this._socket.send(JSON.stringify(message));
     } else {
-      console.error('Event WebSocket is not connected.');
+      this._toastFacade.showError('Stage WebSocket is not connected', 5000);
     }
   }
 
   private _handleWebSocketMessage(message: string): void {
-    try {
-      const parsedMessage: EventStageWebSocketMessageData = JSON.parse(message);
-      const { eventType, sessionId } = parsedMessage;
-      console.log('Parsed WebSocket message:', parsedMessage);
+    const parsedMessage: EventStageWebSocketMessageData = JSON.parse(message);
+    const { eventType, sessionId } = parsedMessage;
+    console.log('Parsed WebSocket message:', parsedMessage);
 
-      switch (eventType) {
-        case 'SESSION_LIVE_LISTENING':
-          this._eventStageWebSocketState.setSessionLiveListening(parsedMessage);
-          this._updateBrowserWindowUrl(sessionId);
-          break;
-        case 'SESSION_LIVE_LISTENING_PAUSED':
-          this._eventStageWebSocketState.setSessionPaused(parsedMessage);
-          break;
-        case 'SESSION_END':
-          this._eventStageWebSocketState.setSessionEnd(parsedMessage);
-          break;
-        case 'SET_AUTOAV_SETUP':
-          if (typeof parsedMessage.autoAv === 'boolean') {
-            this._eventStageWebSocketState.setAutoAvEnabled(
-              parsedMessage.autoAv
-            );
-          }
-          break;
-        case 'SESSION_SPEAKERS_BIOS':
-          this._updateBrowserWindowUrl(sessionId);
-          break;
-        default:
-          console.warn(
-            'Unhandled WebSocket event type:',
-            eventType,
-            parsedMessage
-          );
-      }
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
+    switch (eventType) {
+      case 'SESSION_LIVE_LISTENING':
+        this._eventStageWebSocketState.setSessionLiveListening(parsedMessage);
+        this._updateBrowserWindowUrl(sessionId);
+        break;
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        this._eventStageWebSocketState.setSessionPaused(parsedMessage);
+        break;
+      case 'SESSION_END':
+        this._eventStageWebSocketState.setSessionEnd(parsedMessage);
+        break;
+      case 'SET_AUTOAV_SETUP':
+        if (typeof parsedMessage.autoAv === 'boolean') {
+          this._eventStageWebSocketState.setAutoAvEnabled(parsedMessage.autoAv);
+        }
+        break;
+      case 'SESSION_SPEAKERS_BIOS':
+        this._updateBrowserWindowUrl(sessionId);
+        break;
+      default:
+        this._toastFacade.showWarning(`Unknown Stage WebSocket event`, 5000);
     }
   }
 
