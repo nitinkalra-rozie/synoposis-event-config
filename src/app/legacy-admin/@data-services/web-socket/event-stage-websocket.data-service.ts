@@ -109,40 +109,34 @@ export class EventStageWebsocketDataService {
   }
 
   private _handleWebSocketMessage(message: string): void {
-    try {
-      const parsedMessage: EventStageWebSocketMessageData = JSON.parse(message);
-      const { eventType, sessionId } = parsedMessage;
-      console.log('Parsed WebSocket message:', parsedMessage);
+    const parsedMessage: EventStageWebSocketMessageData = JSON.parse(message);
+    const { eventType, sessionId } = parsedMessage;
+    console.log('Parsed WebSocket message:', parsedMessage);
 
-      switch (eventType) {
-        case 'SESSION_LIVE_LISTENING':
-          this._eventStageWebSocketState.setSessionLiveListening(parsedMessage);
-          this._updateBrowserWindowUrl(sessionId);
-          break;
-        case 'SESSION_LIVE_LISTENING_PAUSED':
-          this._eventStageWebSocketState.setSessionPaused(parsedMessage);
-          break;
-        case 'SESSION_END':
-          this._eventStageWebSocketState.setSessionEnd(parsedMessage);
-          break;
-        case 'SET_AUTOAV_SETUP':
-          if (typeof parsedMessage.autoAv === 'boolean') {
-            this._eventStageWebSocketState.setAutoAvEnabled(
-              parsedMessage.autoAv
-            );
-          }
-          break;
-        case 'SESSION_SPEAKERS_BIOS':
-          this._updateBrowserWindowUrl(sessionId);
-          break;
-        default:
-          this._toastFacade.showWarning(
-            `Unknown stage WebSocket event: ${eventType}`,
-            5000
-          );
-      }
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
+    switch (eventType) {
+      case 'SESSION_LIVE_LISTENING':
+        this._eventStageWebSocketState.setSessionLiveListening(parsedMessage);
+        this._updateBrowserWindowUrl(sessionId);
+        break;
+      case 'SESSION_LIVE_LISTENING_PAUSED':
+        this._eventStageWebSocketState.setSessionPaused(parsedMessage);
+        break;
+      case 'SESSION_END':
+        this._eventStageWebSocketState.setSessionEnd(parsedMessage);
+        break;
+      case 'SET_AUTOAV_SETUP':
+        if (typeof parsedMessage.autoAv === 'boolean') {
+          this._eventStageWebSocketState.setAutoAvEnabled(parsedMessage.autoAv);
+        }
+        break;
+      case 'SESSION_SPEAKERS_BIOS':
+        this._updateBrowserWindowUrl(sessionId);
+        break;
+      default:
+        this._toastFacade.showWarning(
+          `Unknown stage WebSocket event: ${eventType}`,
+          5000
+        );
     }
   }
 
