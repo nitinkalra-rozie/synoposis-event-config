@@ -104,7 +104,7 @@ export class EventStageWebsocketDataService {
     if (this._socket?.readyState === WebSocket.OPEN) {
       this._socket.send(JSON.stringify(message));
     } else {
-      this._toastFacade.showError('Event WebSocket is not connected.', 5000);
+      this._toastFacade.showError('Stage WebSocket is not connected', 5000);
     }
   }
 
@@ -133,10 +133,7 @@ export class EventStageWebsocketDataService {
         this._updateBrowserWindowUrl(sessionId);
         break;
       default:
-        this._toastFacade.showWarning(
-          `Unknown stage WebSocket event: ${eventType}`,
-          5000
-        );
+        this._toastFacade.showWarning(`Unknown Stage WebSocket event`, 5000);
     }
   }
 

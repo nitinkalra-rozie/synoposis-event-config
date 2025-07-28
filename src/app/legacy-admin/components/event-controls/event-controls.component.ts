@@ -394,7 +394,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         tap(() => console.log('WebSocket _wsSubscription')),
         catchError((error) => {
           this._toastFacade.showError(
-            `Failed to connect to stage WebSocket for ${location}`,
+            `Failed to connect to Stage WebSocket. `,
             5000
           );
           throw error;
