@@ -11,6 +11,7 @@
       <button
         mat-icon-button
         class="close-button"
+        [focusOnShow]="isOpen()"
         (click)="panelClose.emit()"
         aria-label="Close transcript panel">
         <mat-icon>close</mat-icon>

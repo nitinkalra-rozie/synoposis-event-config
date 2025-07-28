@@ -6,13 +6,14 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { FocusOnShow } from 'src/app/shared/directives/focus-on-show';
 
 @Component({
   selector: 'syn-right-side-panel',
   templateUrl: './syn-right-side-panel.html',
   styleUrl: './syn-right-side-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, FocusOnShow],
 })
 export class SynRightSidePanel {
   public readonly isOpen = input.required<boolean>();
