@@ -2,7 +2,6 @@
   <button
     mat-raised-button
     class="action-btn start-pause-resume-btn"
-    [class.active]="true"
     [class.loading]="buttonStates().startPauseResumeButton.isLoading"
     [disabled]="
       !buttonStates().startPauseResumeButton.isEnabled ||
@@ -18,7 +17,6 @@
   <button
     mat-raised-button
     class="action-btn stop-btn"
-    [class.active]="true"
     [disabled]="
       !buttonStates().canStop ||
       isMultipleSelectionActive()
@@ -40,8 +38,8 @@
   <button
     mat-raised-button
     class="action-btn cc-btn"
-    [class.active]="true"
-    [disabled]="true">
+    [disabled]="!buttonStates().canOpenTranscriptPanel"
+    (click)="onOpenTranscriptPanel()">
     <mat-icon svgIcon="syn:closed_caption" />
   </button>
 </div>
