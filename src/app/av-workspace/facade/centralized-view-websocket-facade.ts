@@ -9,7 +9,6 @@ import {
 import { CentralizedViewWebSocketDataService } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-service';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
-import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
 type EventTypeSubjects = {
   [K in CentralizedViewEventType]: Subject<CentralizedViewWebSocketMessage>;
@@ -25,7 +24,6 @@ export class CentralizedViewWebSocketFacade {
   );
   private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
   private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
-  private readonly _toastFacade = inject(SynToastFacade);
 
   private readonly _eventSubjects: EventTypeSubjects = {
     SESSION_LIVE_LISTENING: new Subject<CentralizedViewWebSocketMessage>(),
@@ -61,9 +59,9 @@ export class CentralizedViewWebSocketFacade {
 
     const eventName = this._legacyBackendApiService.getCurrentEventName();
     if (!eventName) {
-      const errorMsg = 'No event name available for WebSocket initialization';
-      this._webSocketStore.setError(errorMsg);
-      this._toastFacade.showError(errorMsg, 5000);
+      this._webSocketStore.setError(
+        'No event name available for WebSocket initialization'
+      );
       return;
     }
 
@@ -71,21 +69,15 @@ export class CentralizedViewWebSocketFacade {
       .connect()
       .pipe(
         catchError((error) => {
-          const errorMsg = `WebSocket connection failed: ${error.message || 'Unknown error'}`;
-          this._webSocketStore.setError(errorMsg);
-          this._toastFacade.showError(errorMsg, 5000);
+          this._webSocketStore.setError(
+            `WebSocket connection failed: ${error.message || 'Unknown error'}`
+          );
           throw error;
         }),
         retry({
           count: 5,
           delay: (error, retryCount) => {
             const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 16000);
-            if (retryCount > 2) {
-              this._toastFacade.showWarning(
-                `WebSocket connection issues. Retrying... (attempt ${retryCount}/5)`,
-                5000
-              );
-            }
             return timer(delay);
           },
         }),
@@ -99,9 +91,9 @@ export class CentralizedViewWebSocketFacade {
       )
       .subscribe({
         error: (error) => {
-          const errorMsg = ' WebSocket connection failed after all retries';
-          this._webSocketStore.setError(errorMsg);
-          this._toastFacade.showError(errorMsg, 5000);
+          this._webSocketStore.setError(
+            'WebSocket connection failed after retries'
+          );
         },
       });
   }

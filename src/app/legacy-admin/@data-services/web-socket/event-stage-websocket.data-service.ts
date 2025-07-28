@@ -136,11 +136,6 @@ export class EventStageWebsocketDataService {
           this._updateBrowserWindowUrl(sessionId);
           break;
         default:
-          console.warn(
-            'Unhandled WebSocket event type:',
-            eventType,
-            parsedMessage
-          );
           this._toastFacade.showWarning(
             `Unknown stage WebSocket event: ${eventType}`,
             5000
@@ -148,10 +143,6 @@ export class EventStageWebsocketDataService {
       }
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
-      this._toastFacade.showError(
-        'Failed to parse stage WebSocket message',
-        5000
-      );
     }
   }
 
