@@ -24,9 +24,11 @@ import { CentralizedViewStage } from 'src/app/av-workspace/data-services/central
 import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-view-store';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
+import { SynRightSidePanel } from 'src/app/shared/components/syn-right-side-panel/syn-right-side-panel';
 import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
 import { SynSingleSelectOption } from 'src/app/shared/components/syn-single-select/syn-single-select-option.model';
 import { MatCheckboxNoopClickAction } from 'src/app/shared/directives/mat-checkbox-noop-click-action';
+import { TranscriptSidePanelContent } from '../../components/transcript-side-panel-content/transcript-side-panel-content';
 
 @Component({
   selector: 'app-centralized-view',
@@ -50,6 +52,8 @@ import { MatCheckboxNoopClickAction } from 'src/app/shared/directives/mat-checkb
     StageStatus,
     StagesActions,
     MatCheckboxNoopClickAction,
+    TranscriptSidePanelContent,
+    SynRightSidePanel,
   ],
 })
 export class CentralizedView {
@@ -148,6 +152,14 @@ export class CentralizedView {
 
   protected onToggleAutoAv(payload: StageAutoAvToggleState): void {
     this._store.toggleAutoAvStage(payload);
+  }
+
+  protected onTranscriptPanelOpen(stageId: string): void {
+    this._store.openTranscriptPanel(stageId);
+  }
+
+  protected onTranscriptPanelClose(): void {
+    this._store.closeTranscriptPanel();
   }
 
   protected onBulkStartListening(): void {
