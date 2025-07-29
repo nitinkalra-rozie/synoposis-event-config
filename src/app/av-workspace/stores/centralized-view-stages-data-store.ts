@@ -161,6 +161,16 @@ export class CentralizedViewStagesDataStore {
     ];
   });
 
+  public $selectedSessionName = computed(() => {
+    const stageId = this._uiStore.$transcriptPanel().stageName;
+    const sessions = state.sessionsByStage().get(stageId);
+    const sessionId = this._entitySignals.get(stageId)?.()?.currentSessionId;
+    if (!sessionId) return '';
+    return (
+      sessions?.find((session) => session.value === sessionId)?.label ?? ''
+    );
+  });
+
   updateEntityStatus(stageId: string, status: StageStatusType): void {
     this._updateEntity(stageId, (entity) => ({
       ...entity,

@@ -34,6 +34,7 @@ export class StageActionButtons {
   public readonly pauseListening = output<string>();
   public readonly stopListening = output<string>();
   public readonly toggleAutoAv = output<StageAutoAvToggleState>();
+  public readonly openTranscriptPanel = output<string>();
 
   protected readonly buttonStates = computed(() => {
     const stage = this.stage();
@@ -68,6 +69,10 @@ export class StageActionButtons {
     });
   }
 
+  protected onOpenTranscriptPanel(): void {
+    this.openTranscriptPanel.emit(this.stage().stage);
+  }
+
   private _calculateButtonState(
     entity: CentralizedViewStage,
     isLoading: boolean
@@ -85,6 +90,7 @@ export class StageActionButtons {
         currentAction,
         isLoading
       ),
+      canOpenTranscriptPanel: !isOffline && !hasNoSession,
     };
   }
 
