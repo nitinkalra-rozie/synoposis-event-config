@@ -23,6 +23,7 @@
     width: var(--panel-width, 26rem);
     height: 100%;
     overflow: hidden;
+    @include m.d-flex-column;
 
     .side-panel-header {
       @include m.d-flex;
@@ -32,6 +33,7 @@
       padding: 1rem 1.25rem;
       border-bottom: 1px solid v.$primary-bg-color-variant-2;
       background-color: v.$primary-bg-color;
+      flex-shrink: 0;
 
       .header-content {
         flex: 1;
@@ -67,6 +69,12 @@
           font-size: 0.875rem;
         }
       }
+    }
+
+    .side-panel-body {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
   }
 }
