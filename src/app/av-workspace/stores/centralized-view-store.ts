@@ -29,6 +29,7 @@ export class CentralizedViewStore {
     entities: this._filteredEntities,
     error: this._dataStore.$error,
     sessionsByStage: this._dataStore.$sessionsByStage,
+    selectedSessionName: this._dataStore.$selectedSessionName,
     sessionLoadingStates: this._dataStore.$sessionLoadingStates,
     sessionErrors: this._dataStore.$sessionErrors,
     startPauseResumeActionLoadingStates:
@@ -44,6 +45,7 @@ export class CentralizedViewStore {
     hasSelection: this._uiStore.$hasSelection,
     selectionCount: this._uiStore.$selectionCount,
     isSelectAllDisabled: this._isSelectAllDisabled,
+    transcriptPanel: this._uiStore.$transcriptPanel,
 
     // Computed values
     displayedColumns: this._dataStore.$displayedColumns,
@@ -95,7 +97,9 @@ export class CentralizedViewStore {
   });
 
   private _isSelectAllDisabled = computed(
-    () => !getSelectableEntities(this._filteredEntities()).length
+    () =>
+      !getSelectableEntities(this._filteredEntities()).length ||
+      this._uiStore.$transcriptPanel().isOpen
   );
 
   setSearchTerm(searchTerm: string): void {
@@ -171,6 +175,18 @@ export class CentralizedViewStore {
     this._dataStore.endListeningMultipleStages(
       Array.from(this._uiStore.$selectedStageIds())
     );
+  }
+
+  openTranscriptPanel(stageId: string): void {
+    const stage = this._dataStore
+      .$entities()
+      .find((entity) => entity.stage === stageId);
+    this._uiStore.openTranscriptPanel(stageId, stage.currentAction);
+    this._uiStore.selectRow(stageId);
+  }
+
+  closeTranscriptPanel(): void {
+    this._uiStore.closeTranscriptPanel();
   }
 
   private _initializeWebSocketSubscriptions(): void {
