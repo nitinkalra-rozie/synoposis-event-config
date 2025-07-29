@@ -151,11 +151,17 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     //   localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
     // #endregion
 
+    const savedAutoAvState = getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED');
+    if (savedAutoAvState !== null) {
+      this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvState);
+    }
+
     const savedLocation: DropdownOption =
       getLocalStorageItem<DropdownOption>('SELECTED_LOCATION');
     if (savedLocation) {
       this._selectLocationOption(savedLocation);
       this._checkAndConnectWithWebSocket(savedLocation.label);
+      this._getAutoAvSetup(savedLocation.label);
     }
 
     this._route.queryParamMap
