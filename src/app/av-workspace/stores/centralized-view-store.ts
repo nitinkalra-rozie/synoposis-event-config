@@ -58,6 +58,7 @@ export class CentralizedViewStore {
     isIndeterminate: computed(() =>
       this._uiStore.isIndeterminate(this._filteredEntities())
     ),
+    transcriptPanelCurrentAction: this._transcriptPanelCurrentAction,
 
     // WebSocket state
     websocketConnected: this._webSocketStore.$isConnected,
@@ -101,6 +102,20 @@ export class CentralizedViewStore {
       !getSelectableEntities(this._filteredEntities()).length ||
       this._uiStore.$transcriptPanel().isOpen
   );
+
+  private _transcriptPanelCurrentAction = computed(() => {
+    if (!this._uiStore.$transcriptPanel().isOpen()) {
+      return 'SESSION_NOT_STARTED';
+    }
+
+    const stage = this._dataStore
+      .$entities()
+      .find(
+        (entity) =>
+          entity.stage === this._uiStore.$transcriptPanel().stageName()
+      );
+    return stage?.currentAction;
+  });
 
   setSearchTerm(searchTerm: string): void {
     this._uiStore.setSearchTerm(searchTerm);
@@ -181,7 +196,7 @@ export class CentralizedViewStore {
     const stage = this._dataStore
       .$entities()
       .find((entity) => entity.stage === stageId);
-    this._uiStore.openTranscriptPanel(stageId, stage.currentAction);
+    this._uiStore.openTranscriptPanel(stageId);
     this._uiStore.selectRow(stageId);
   }
 

@@ -1,16 +1,15 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
-import {
-  TranscriptPanelActionType,
-  TranscriptPanelState,
-} from 'src/app/av-workspace/models/transcript-panel-state.model';
 import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 interface CentralizedViewUIState {
   searchTerm: string;
   locationFilters: string[];
   selectedStageIds: Set<string>;
-  transcriptPanel: TranscriptPanelState;
+  transcriptPanel: {
+    isOpen: WritableSignal<boolean>;
+    stageName: WritableSignal<string>;
+  };
 }
 
 const initialState: CentralizedViewUIState = {
@@ -18,9 +17,8 @@ const initialState: CentralizedViewUIState = {
   locationFilters: [],
   selectedStageIds: new Set<string>(),
   transcriptPanel: {
-    isOpen: false,
-    stageName: '',
-    currentAction: 'SESSION_LIVE_LISTENING',
+    isOpen: signal<boolean>(false),
+    stageName: signal<string>(''),
   },
 };
 
@@ -28,7 +26,7 @@ const state = {
   searchTerm: signal<string>(initialState.searchTerm),
   locationFilters: signal<string[]>(initialState.locationFilters),
   selectedStageIds: signal<Set<string>>(initialState.selectedStageIds),
-  transcriptPanel: signal<TranscriptPanelState>(initialState.transcriptPanel),
+  transcriptPanel: signal(initialState.transcriptPanel),
 };
 
 @Injectable({
@@ -175,22 +173,17 @@ export class CentralizedViewUIStore {
     state.selectedStageIds.set(new Set<string>());
   }
 
-  openTranscriptPanel(
-    stageId: string,
-    currentAction: TranscriptPanelActionType
-  ): void {
+  openTranscriptPanel(stageId: string): void {
     state.transcriptPanel.set({
-      isOpen: true,
-      stageName: stageId,
-      currentAction,
+      isOpen: signal<boolean>(true),
+      stageName: signal<string>(stageId),
     });
   }
 
   closeTranscriptPanel(): void {
     state.transcriptPanel.set({
-      isOpen: false,
-      stageName: '',
-      currentAction: 'SESSION_NOT_STARTED',
+      isOpen: signal<boolean>(false),
+      stageName: signal<string>(''),
     });
   }
 }
