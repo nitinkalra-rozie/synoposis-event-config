@@ -1,110 +1,113 @@
-<div class="centralized-view-container">
-  <div class="stage-info-container">
-    <app-stage-info-header
-      [filteredCount]="$vm().filteredCount"
-      [locations]="$vm().locations()"
-      [searchTerm]="$vm().searchTerm()"
-      [totalCount]="$vm().totalCount"
-      [websocketConnected]="$vm().websocketConnected()"
-      [websocketConnecting]="$vm().websocketConnecting()"
-      [websocketError]="$vm().websocketError()"
-      (filterChange)="onFilterSelectionsApplied($event)"
-      (searchChange)="executeSearch($event)" />
+<div
+  class="centralized-view-container"
+  [class.transcript-panel-opened]="$vm().transcriptPanel().isOpen">
+  <div class="centralized-view-content">
+    <div class="stage-info-container">
+      <app-stage-info-header
+        [filteredCount]="$vm().filteredCount"
+        [locations]="$vm().locations()"
+        [searchTerm]="$vm().searchTerm()"
+        [totalCount]="$vm().totalCount"
+        [websocketConnected]="$vm().websocketConnected()"
+        [websocketConnecting]="$vm().websocketConnecting()"
+        [websocketError]="$vm().websocketError()"
+        (filterChange)="onFilterSelectionsApplied($event)"
+        (searchChange)="executeSearch($event)" />
 
-    <div class="table-container">
-      @if ($vm().loading()) {
-      <app-stage-info-table-placeholder />
-      } @else if ($vm().error()) {
-      <div class="error-message">
-        <p>{{ $vm().error() }}</p>
-      </div>
-      } @else if ($vm().entities().length === 0) {
-      <div class="no-stages-message">
-        <p>No stages found.</p>
-      </div>
-      } @else {
-      <!-- TODO:SYN-644: Move the table to a separate dummy component -->
-      <table
-        mat-table
-        matSort
-        [dataSource]="dataSource"
-        (matSortChange)="announceSortChange($event)"
-        aria-label="Stages">
-        <!-- Checkbox Column -->
-        <ng-container matColumnDef="select">
-          <th *matHeaderCellDef mat-header-cell [style.text-align]="'center'">
-            <mat-checkbox
-              [aria-label]="'Select all'"
-              [attr.aria-disabled]="$vm().isSelectAllDisabled()"
-              [checked]="$vm().isAllSelected()"
-              [disabled]="$vm().isSelectAllDisabled()"
-              [indeterminate]="$vm().isIndeterminate()"
-              (click)="toggleAllRows()"
-              noopClickAction>
-            </mat-checkbox>
-          </th>
-          <td *matCellDef="let row" mat-cell [style.text-align]="'center'">
-            <mat-checkbox
-              [aria-label]="
+      <div class="table-container">
+        @if ($vm().loading()) {
+        <app-stage-info-table-placeholder />
+        } @else if ($vm().error()) {
+        <div class="error-message">
+          <p>{{ $vm().error() }}</p>
+        </div>
+        } @else if ($vm().entities().length === 0) {
+        <div class="no-stages-message">
+          <p>No stages found.</p>
+        </div>
+        } @else {
+        <!-- TODO:SYN-644: Move the table to a separate dummy component -->
+        <table
+          mat-table
+          matSort
+          [dataSource]="dataSource"
+          (matSortChange)="announceSortChange($event)"
+          aria-label="Stages">
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th *matHeaderCellDef mat-header-cell [style.text-align]="'center'">
+              <mat-checkbox
+                [aria-label]="'Select all'"
+                [attr.aria-disabled]="$vm().isSelectAllDisabled()"
+                [checked]="$vm().isAllSelected()"
+                [disabled]="$vm().isSelectAllDisabled()"
+                [indeterminate]="$vm().isIndeterminate()"
+                (click)="toggleAllRows()"
+                noopClickAction>
+              </mat-checkbox>
+            </th>
+            <td *matCellDef="let row" mat-cell [style.text-align]="'center'">
+              <mat-checkbox
+                [aria-label]="
                 $vm().selectedStageIds().has(row.stage)
                   ? 'Deselect row ' + row.stage
                   : 'Select row ' + row.stage
               "
-              [checked]="$vm().selectedStageIds().has(row.stage)"
-              [disabled]="!row.currentSessionId || !row.isOnline"
-              (click)="$event.stopPropagation(); toggleRow(row)"
-              noopClickAction>
-            </mat-checkbox>
-          </td>
-        </ng-container>
+                [checked]="$vm().selectedStageIds().has(row.stage)"
+                [disabled]="!row.currentSessionId || !row.isOnline || ($vm().transcriptPanel().isOpen && $vm().transcriptPanel().stageName !== row.stage)"
+                (click)="$event.stopPropagation(); toggleRow(row)"
+                noopClickAction>
+              </mat-checkbox>
+            </td>
+          </ng-container>
 
-        <!-- Stage Column -->
-        <ng-container matColumnDef="stage">
-          <th
-            *matHeaderCellDef
-            mat-header-cell
-            mat-sort-header
-            sortActionDescription="Sort by stage">
-            STAGE
-          </th>
-          <td *matCellDef="let element" mat-cell>
-            <div class="cell-content">
-              <span>{{ element.stage }}</span>
-            </div>
-          </td>
-        </ng-container>
+          <!-- Stage Column -->
+          <ng-container matColumnDef="stage">
+            <th
+              *matHeaderCellDef
+              mat-header-cell
+              mat-sort-header
+              sortActionDescription="Sort by stage">
+              STAGE
+            </th>
+            <td *matCellDef="let element" mat-cell>
+              <div class="cell-content">
+                <span>{{ element.stage }}</span>
+              </div>
+            </td>
+          </ng-container>
 
-        <!-- Location Column -->
-        <ng-container matColumnDef="location">
-          <th
-            *matHeaderCellDef
-            mat-header-cell
-            mat-sort-header
-            sortActionDescription="Sort by location">
-            LOCATION
-          </th>
-          <td *matCellDef="let element" mat-cell>{{ element.location }}</td>
-        </ng-container>
+          <!-- Location Column -->
+          <ng-container matColumnDef="location">
+            <th
+              *matHeaderCellDef
+              mat-header-cell
+              mat-sort-header
+              sortActionDescription="Sort by location">
+              LOCATION
+            </th>
+            <td *matCellDef="let element" mat-cell>{{ element.location }}</td>
+          </ng-container>
 
-        <!-- Session Column -->
-        <ng-container matColumnDef="session">
-          <th
-            *matHeaderCellDef
-            mat-header-cell
-            sortActionDescription="Sort by session">
-            SESSION
-          </th>
-          <td *matCellDef="let element" mat-cell>
-            <syn-single-select
-              matTooltipClass="tooltip-text-only"
-              matTooltipPosition="above"
-              [disabled]="
+          <!-- Session Column -->
+          <ng-container matColumnDef="session">
+            <th
+              *matHeaderCellDef
+              mat-header-cell
+              sortActionDescription="Sort by session">
+              SESSION
+            </th>
+            <td *matCellDef="let element" mat-cell>
+              <syn-single-select
+                matTooltipClass="tooltip-text-only"
+                matTooltipPosition="above"
+                [disabled]="
                 !element.isOnline ||
                 element.currentAction === 'SESSION_LIVE_LISTENING' ||
                 element.currentAction === 'SESSION_LIVE_LISTENING_PAUSED'
               "
-              [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
-              [matTooltip]="
+                [isLoading]="$vm().sessionLoadingStates().get(element.stage)"
+                [matTooltip]="
                 !element.isOnline
                   ? 'Session selection disabled: Stage is offline'
                   : element.currentAction === 'SESSION_LIVE_LISTENING'
@@ -113,58 +116,59 @@
                       ? 'Session selection disabled: Session is paused'
                       : ''
               "
-              [matTooltipDisabled]="
+                [matTooltipDisabled]="
                 element.isOnline &&
                 element.currentAction !== 'SESSION_LIVE_LISTENING' &&
                 element.currentAction !== 'SESSION_LIVE_LISTENING_PAUSED'
               "
-              [options]="$vm().sessionsByStage().get(element.stage)"
-              [selectedOptionKey]="element.currentSessionId"
-              (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
-              (selectionChanged)="onSessionSelected($event, element.stage)"
-              appearance="outline"
-              optionsType="Active Sessions"
-              placeholder="Select a session"
-              searchLabel="Search session"
-              theme="default" />
-          </td>
-        </ng-container>
+                [options]="$vm().sessionsByStage().get(element.stage)"
+                [selectedOptionKey]="element.currentSessionId"
+                (dropdownOpened)="onSessionDropdownOpened($event, element.stage)"
+                (selectionChanged)="onSessionSelected($event, element.stage)"
+                appearance="outline"
+                optionsType="Active Sessions"
+                placeholder="Select a session"
+                searchLabel="Search session"
+                theme="default" />
+            </td>
+          </ng-container>
 
-        <!-- Status Column -->
-        <ng-container matColumnDef="status">
-          <th
-            *matHeaderCellDef
-            mat-header-cell
-            mat-sort-header
-            sortActionDescription="Sort by status">
-            STATUS
-          </th>
-          <td *matCellDef="let element" mat-cell>
-            <app-stage-status [status]="element.status" />
-          </td>
-        </ng-container>
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th
+              *matHeaderCellDef
+              mat-header-cell
+              mat-sort-header
+              sortActionDescription="Sort by status">
+              STATUS
+            </th>
+            <td *matCellDef="let element" mat-cell>
+              <app-stage-status [status]="element.status" />
+            </td>
+          </ng-container>
 
-        <!-- Action Column -->
-        <ng-container matColumnDef="action">
-          <th *matHeaderCellDef mat-header-cell>ACTION</th>
-          <td *matCellDef="let element" mat-cell>
-            <app-stage-action-buttons
-              [isAutoAvEnabled]="element.autoAv"
-              [isMultipleSelectionActive]="$vm().hasSelection()"
-              [isStartPauseResumeActionLoading]="
+          <!-- Action Column -->
+          <ng-container matColumnDef="action">
+            <th *matHeaderCellDef mat-header-cell>ACTION</th>
+            <td *matCellDef="let element" mat-cell>
+              <app-stage-action-buttons
+                [isAutoAvEnabled]="element.autoAv"
+                [isMultipleSelectionActive]="$vm().hasSelection()"
+                [isStartPauseResumeActionLoading]="
                 $vm().startPauseResumeActionLoadingStates().get(element.stage)
               "
-              [stage]="element"
-              (pauseListening)="onPauseListening($event)"
-              (startListening)="onStartListening($event)"
-              (stopListening)="onStopListening($event)"
-              (toggleAutoAv)="onToggleAutoAv($event)" />
-          </td>
-        </ng-container>
+                [stage]="element"
+                (openTranscriptPanel)="onTranscriptPanelOpen($event)"
+                (pauseListening)="onPauseListening($event)"
+                (startListening)="onStartListening($event)"
+                (stopListening)="onStopListening($event)"
+                (toggleAutoAv)="onToggleAutoAv($event)" />
+            </td>
+          </ng-container>
 
-        <!-- Delete Column -->
-        <!-- TODO:@later implement the delete column after the MVP -->
-        <!-- <ng-container matColumnDef="delete">
+          <!-- Delete Column -->
+          <!-- TODO:@later implement the delete column after the MVP -->
+          <!-- <ng-container matColumnDef="delete">
           <th
             *matHeaderCellDef
             mat-header-cell
@@ -176,25 +180,36 @@
           </td>
         </ng-container> -->
 
-        <tr
-          *matHeaderRowDef="$vm().displayedColumns(); sticky: true"
-          mat-header-row></tr>
-        <tr
-          *matRowDef="let row; columns: $vm().displayedColumns()"
-          mat-row
-          [class.selected-row]="$vm().selectedStageIds().has(row.stage)"></tr>
-      </table>
-      }
+          <tr
+            *matHeaderRowDef="$vm().displayedColumns(); sticky: true"
+            mat-header-row></tr>
+          <tr
+            *matRowDef="let row; columns: $vm().displayedColumns()"
+            mat-row
+            [class.selected-row]="$vm().selectedStageIds().has(row.stage)"></tr>
+        </table>
+        }
+      </div>
     </div>
+
+    <app-stages-actions
+      [isBulkActionsDisabled]="!$vm().hasSelection()"
+      [pauseListeningLoading]="$vm().bulkPauseListeningLoading()"
+      [selectedCount]="$vm().selectionCount()"
+      [startListeningLoading]="$vm().bulkStartListeningLoading()"
+      [stopListeningLoading]="$vm().bulkEndListeningLoading()"
+      (pauseListening)="onBulkPauseListening()"
+      (startListening)="onBulkStartListening()"
+      (stopListening)="onBulkStopListening()" />
   </div>
 
-  <app-stages-actions
-    [isBulkActionsDisabled]="!$vm().hasSelection()"
-    [pauseListeningLoading]="$vm().bulkPauseListeningLoading()"
-    [selectedCount]="$vm().selectionCount()"
-    [startListeningLoading]="$vm().bulkStartListeningLoading()"
-    [stopListeningLoading]="$vm().bulkEndListeningLoading()"
-    (pauseListening)="onBulkPauseListening()"
-    (startListening)="onBulkStartListening()"
-    (stopListening)="onBulkStopListening()" />
+  <syn-right-side-panel
+    [isOpen]="$vm().transcriptPanel().isOpen"
+    [width]="'26rem'"
+    (panelClose)="onTranscriptPanelClose()"
+    title="Transcript">
+    <app-transcript-side-panel-content
+      [currentAction]="$vm().transcriptPanel().currentAction"
+      [sessionTitle]="$vm().selectedSessionName()" />
+  </syn-right-side-panel>
 </div>

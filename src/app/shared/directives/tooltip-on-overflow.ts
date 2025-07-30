@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Directive,
+  effect,
   ElementRef,
   inject,
   input,
@@ -18,6 +19,20 @@ import { MatTooltip } from '@angular/material/tooltip';
   ],
 })
 export class TooltipOnOverflow implements AfterViewInit, OnDestroy {
+  constructor() {
+    effect(() => {
+      const tooltipText = this.tooltipText();
+
+      if (!tooltipText) {
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        this._checkOverflow();
+      });
+    });
+  }
+
   public readonly tooltipText = input<string>('', {
     alias: 'tooltipOnOverflow',
   });

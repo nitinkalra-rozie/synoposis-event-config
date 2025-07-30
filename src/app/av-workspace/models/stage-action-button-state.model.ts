@@ -5,8 +5,9 @@ export interface StageActionButtonState {
     isEnabled: boolean;
     isLoading: boolean;
     action: 'start' | 'pause' | 'resume';
-    icon: string;
+    icon: 'syn:loading_spinner' | 'syn:mic_outlined' | 'pause';
   };
+  canOpenTranscriptPanel: boolean;
 }
 
 export interface StageAutoAvToggleState {
