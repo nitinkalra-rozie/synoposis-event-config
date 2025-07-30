@@ -19,7 +19,6 @@ import { ActivatedRoute } from '@angular/router';
 import { combineLatest } from 'rxjs';
 import {
   catchError,
-  debounceTime,
   distinctUntilChanged,
   filter,
   finalize,
@@ -369,7 +368,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     ])
       .pipe(
         filter(([event, location]) => !!event && !!location),
-        debounceTime(100),
         distinctUntilChanged(
           (prev, curr) =>
             prev[0]?.label === curr[0]?.label &&
