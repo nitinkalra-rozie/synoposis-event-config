@@ -10,6 +10,7 @@
     width: 1.5rem;
     height: 1.5rem;
     @include m.flex-center;
+    flex-shrink: 0;
   }
 
   &__text {
