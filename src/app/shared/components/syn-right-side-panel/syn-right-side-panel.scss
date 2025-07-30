@@ -13,14 +13,14 @@
   position: relative;
 
   &.open {
-    width: var(--panel-width, 26rem);
+    width: var(--panel-width, 25vw);
   }
 
   .side-panel-content {
     position: absolute;
     top: 0;
     right: 0;
-    width: var(--panel-width, 26rem);
+    width: var(--panel-width, 25vw);
     height: 100%;
     overflow: hidden;
     @include m.d-flex-column;
