@@ -16,8 +16,10 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { ActivatedRoute } from '@angular/router';
+import { combineLatest } from 'rxjs';
 import {
   catchError,
+  distinctUntilChanged,
   filter,
   finalize,
   map,
@@ -139,6 +141,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this.onUpdatePostData = new EventEmitter();
     this.onReset = new EventEmitter();
     this._setupAutoLocationSelection();
+    this._setupAutoAvSetupWatcher();
   }
 
   ngOnInit(): void {
@@ -150,11 +153,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     // this.postInsideValue =
     //   localStorage.getItem('postInsideValue') || TransitionTimesEnum.Seconds15;
     // #endregion
-
-    const savedAutoAvState = getLocalStorageItem<boolean>('IS_AUTO_AV_ENABLED');
-    if (savedAutoAvState !== null) {
-      this._eventStageWebSocketState.setAutoAvEnabled(savedAutoAvState);
-    }
 
     const savedLocation: DropdownOption =
       getLocalStorageItem<DropdownOption>('SELECTED_LOCATION');
@@ -280,7 +278,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
           this._selectLocationOption(selectedOption);
           this.stageChanged.emit(selectedOption.label);
           this._checkAndConnectWithWebSocket(selectedOption.label);
-          this._getAutoAvSetup(selectedOption.label);
           this._modalService.close();
         },
         () => this._modalService.close()
@@ -294,7 +291,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
           this._selectLocationOption(selectedOption);
           this.stageChanged.emit(selectedOption.label);
           this._checkAndConnectWithWebSocket(selectedOption.label);
-          this._getAutoAvSetup(selectedOption.label);
           this._modalService.close();
         },
         () => this._modalService.close()
@@ -359,6 +355,26 @@ export class EventControlsComponent implements OnInit, OnDestroy {
           if (locations.length === 1) {
             this._selectLocationOption(locations[0]);
           }
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe();
+  }
+
+  private _setupAutoAvSetupWatcher(): void {
+    combineLatest([
+      toObservable(this.selectedEvent),
+      toObservable(this.selectedLocation),
+    ])
+      .pipe(
+        filter(([event, location]) => !!event && !!location),
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev[0]?.label === curr[0]?.label &&
+            prev[1]?.label === curr[1]?.label
+        ),
+        tap(([event, location]) => {
+          this._getAutoAvSetup(location.label);
         }),
         takeUntilDestroyed()
       )

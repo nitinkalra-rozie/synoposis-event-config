@@ -8,7 +8,6 @@ import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/eve
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
-import { setLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -128,7 +127,6 @@ export class EventStageWebsocketDataService {
       case 'SET_AUTOAV_SETUP':
         if (typeof parsedMessage.autoAv === 'boolean') {
           this._eventStageWebSocketState.setAutoAvEnabled(parsedMessage.autoAv);
-          setLocalStorageItem('IS_AUTO_AV_ENABLED', parsedMessage.autoAv);
         }
         break;
       case 'SESSION_SPEAKERS_BIOS':
