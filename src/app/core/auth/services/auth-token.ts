@@ -1,5 +1,5 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import {
@@ -77,18 +77,17 @@ export class AuthTokenService {
   }
 
   getValidToken$(): Observable<string> {
-    return toObservable(this._authStore.$isTokenValid).pipe(
-      switchMap((isValid) => {
-        if (isValid && !this._authStore.$isTokenNearExpiry()) {
-          const token = this._authStore
-            .getSession()
-            .tokens?.accessToken?.toString();
-          return of(token || '');
-        } else {
-          return this._refreshToken$();
-        }
-      })
-    );
+    const isTokenValid = this._authStore.$isTokenValid();
+    const isNearExpiry = this._authStore.$isTokenNearExpiry();
+
+    if (isTokenValid && !isNearExpiry) {
+      const token = this._authStore
+        .getSession()
+        .tokens?.accessToken?.toString();
+      return of(token || '');
+    } else {
+      return this._refreshToken$();
+    }
   }
 
   private _startTokenCheck(): void {
