@@ -47,9 +47,10 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 })
 export class SessionSelectionComponent implements OnChanges, OnDestroy {
   constructor() {
-    this.isProjectOnPhysicalScreen.set(
-      this._backendApiService.getCurrentEventName() === 'ITC'
-    );
+    // # when adding these that time automatic open the projected screen
+    // this.isProjectOnPhysicalScreen.set(
+    //   this._backendApiService.getCurrentEventName() === 'ITC'
+    // );
 
     this.isProjectOnPhysicalScreen.set(false);
 
