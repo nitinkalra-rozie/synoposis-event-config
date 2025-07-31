@@ -81,7 +81,7 @@ export interface Session {
   Type: string;
   Event: string;
   SpeakersInfo: Array<SpeakerDetails>;
-  ShouldHideOnSecondScreen: boolean;
+  ShouldHideOnSecondScreen?: boolean;
 }
 
 interface RealtimeInsight {
