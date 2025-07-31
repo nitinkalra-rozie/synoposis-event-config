@@ -8,6 +8,10 @@
   grid-template-columns: repeat(2, 1fr);
   padding-top: 10px;
   gap: 16px;
+  .hide-on-second-screen-label {
+    font-size: 1rem;
+    font-weight: 400;
+  }
 }
 
 .span-2 {

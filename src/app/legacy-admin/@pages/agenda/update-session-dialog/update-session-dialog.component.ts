@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   inject,
@@ -20,9 +19,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
+  MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,7 +44,6 @@ import {
   styleUrls: ['./update-session-dialog.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatDialogModule,
@@ -117,6 +115,7 @@ export class UpdateSessionDialogComponent {
       Location: [session.Location],
       SessionSubject: [session.SessionSubject],
       StartsAt: [session.StartsAt, Validators.required],
+      ShouldHideOnSecondScreen: [session.ShouldHideOnSecondScreen || false],
       SpeakersInfo: this.fb.array(
         session.SpeakersInfo.map((speaker) => this.createSpeakerForm(speaker))
       ),
