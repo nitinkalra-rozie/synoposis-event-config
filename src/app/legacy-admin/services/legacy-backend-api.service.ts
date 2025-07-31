@@ -117,6 +117,21 @@ export class LegacyBackendApiService {
     return this.http.post(environment.postCurrentSessionId, body);
   }
 
+  setPrimaryScreenProjecting(
+    action: string,
+    eventName: string,
+    isProjecting: boolean,
+    stage: string
+  ): Observable<Object> {
+    const body = {
+      action: action,
+      eventName: eventName,
+      isProjecting: isProjecting,
+      stage: stage,
+    };
+    return this.http.post(environment.setAutoAvSetupUrl, body);
+  }
+
   // TODO:@later move this to a config data service
   private _getEventConfig(): Observable<any> {
     const hostname = window.location.hostname;

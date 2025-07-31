@@ -9,6 +9,8 @@ const state = {
   sessionLiveListening: signal<EventStageWebSocketMessageData>(null),
   sessionEnd: signal<EventStageWebSocketMessageData>(null),
   sessionPaused: signal<EventStageWebSocketMessageData>(null),
+  stageStatusUpdated: signal<any>(null),
+  isProjecting: signal<boolean>(false),
 };
 
 @Injectable({
@@ -23,6 +25,8 @@ export class EventStageWebSocketStateService {
     state.sessionLiveListening.asReadonly();
   public readonly $sessionEnd = state.sessionEnd.asReadonly();
   public readonly $sessionPaused = state.sessionPaused.asReadonly();
+  public readonly $stageStatusUpdated = state.stageStatusUpdated.asReadonly();
+  public readonly $isProjecting = state.isProjecting.asReadonly();
 
   setConnected(value: boolean): void {
     state.isConnected.set(value);
@@ -52,6 +56,14 @@ export class EventStageWebSocketStateService {
     state.sessionPaused.set(value);
   }
 
+  setStageStatusUpdated(value: any): void {
+    state.stageStatusUpdated.set(value);
+  }
+
+  setProjecting(value: boolean): void {
+    state.isProjecting.set(value);
+  }
+
   resetState(): void {
     state.isConnected.set(false);
     state.isConnecting.set(false);
@@ -60,5 +72,7 @@ export class EventStageWebSocketStateService {
     state.sessionLiveListening.set(null);
     state.sessionEnd.set(null);
     state.sessionPaused.set(null);
+    state.stageStatusUpdated.set(null);
+    state.isProjecting.set(false);
   }
 }

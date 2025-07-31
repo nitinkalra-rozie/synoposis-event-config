@@ -31,6 +31,7 @@ import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-s
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
 import { GetMultiSelectOptionFromStringPipe } from 'src/app/legacy-admin/@pipes/get-multi-select-option-from-string.pipe';
+import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
@@ -94,6 +95,11 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     EventStageWebSocketStateService
   );
   private readonly _toastFacade = inject(SynToastFacade);
+  private readonly _browserWindowService = inject(BrowserWindowService);
+
+  // Track previous stage and its status
+  private _previousStage: string | null = null;
+  private _previousStageStatus: string | null = null;
 
   public PostDataEnum = PostDataEnum;
   // #region old version
@@ -142,6 +148,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this.onReset = new EventEmitter();
     this._setupAutoLocationSelection();
     this._setupAutoAvSetupWatcher();
+    this._setupStageStatusMonitoring();
   }
 
   ngOnInit(): void {
@@ -269,6 +276,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Check if previous stage was offline and handle accordingly
+    this._handlePreviousStageStatus();
+
     if (this.isAutoAvChecked()) {
       this._modalService.open(
         'Warning',
@@ -381,6 +391,38 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  private _setupStageStatusMonitoring(): void {
+    // Monitor connected stage changes
+    toObservable(this._eventStageWebSocketState.$connectedStage)
+      .pipe(
+        distinctUntilChanged(),
+        tap((currentStage) => {
+          this._previousStage = currentStage;
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+
+    // Monitor stage status updates
+    toObservable(this._eventStageWebSocketState.$stageStatusUpdated)
+      .pipe(
+        filter((statusData) => !!statusData),
+        distinctUntilChanged(),
+        tap((statusData) => {
+          if (statusData?.status) {
+            this._previousStageStatus = statusData.status;
+            console.log('Stage status updated:', {
+              stage: statusData.stage,
+              status: statusData.status,
+              previous: this._previousStage,
+            });
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
   private _selectLocationOption(option: DropdownOption): void {
     this._filtersStateService.setSelectedLocation(option);
     localStorage.setItem('SELECTED_LOCATION', JSON.stringify(option));
@@ -454,5 +496,53 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
+  }
+
+  private _handlePreviousStageStatus(): void {
+    if (this._previousStage && this._previousStageStatus) {
+      console.log('Checking previous stage status:', {
+        previousStage: this._previousStage,
+        previousStatus: this._previousStageStatus,
+      });
+
+      // If previous stage is offline or not actively projecting, close projection windows
+      // Possible states: 'OFFLINE', 'ONLINE_AND_LISTENING', 'ONLINE_AND_NOT_LISTENING', 'ONLINE_AND_PROJECTING'
+      const isOfflineOrNotProjecting =
+        this._previousStageStatus === 'OFFLINE' ||
+        this._previousStageStatus !== 'ONLINE_AND_PROJECTING';
+
+      if (isOfflineOrNotProjecting) {
+        console.log(
+          '🔴 Previous stage is offline/not projecting - closing projection tabs',
+          {
+            stage: this._previousStage,
+            status: this._previousStageStatus,
+          }
+        );
+
+        // Close all projection windows/tabs
+        this._browserWindowService.closeAllProjectionWindows();
+        this._browserWindowService.clearWindowCloseCallback();
+
+        // Emit stage changed event to notify other components about the status
+        this.stageChanged.emit('PREVIOUS_STAGE_OFFLINE');
+
+        // Show user notification about the action
+        const statusMessage =
+          this._previousStageStatus === 'OFFLINE'
+            ? 'was offline'
+            : 'was not projecting';
+
+        this._toastFacade.showWarning(
+          `Previous stage (${this._previousStage}) ${statusMessage}. Projection tabs have been closed.`,
+          5000
+        );
+      } else {
+        console.log('✅ Previous stage was projecting - no action needed', {
+          stage: this._previousStage,
+          status: this._previousStageStatus,
+        });
+      }
+    }
   }
 }

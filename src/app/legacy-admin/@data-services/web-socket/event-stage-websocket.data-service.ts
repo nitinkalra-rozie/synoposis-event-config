@@ -129,6 +129,14 @@ export class EventStageWebsocketDataService {
           this._eventStageWebSocketState.setAutoAvEnabled(parsedMessage.autoAv);
         }
         break;
+      case 'STAGE_STATUS_UPDATED':
+        this._eventStageWebSocketState.setStageStatusUpdated(parsedMessage);
+        if (parsedMessage.status === 'ONLINE_AND_PROJECTING') {
+          this._eventStageWebSocketState.setProjecting(true);
+        } else {
+          this._eventStageWebSocketState.setProjecting(false);
+        }
+        break;
       case 'SESSION_SPEAKERS_BIOS':
         this._updateBrowserWindowUrl(sessionId);
         break;

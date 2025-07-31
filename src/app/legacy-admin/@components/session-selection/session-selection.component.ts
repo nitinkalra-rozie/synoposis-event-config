@@ -5,6 +5,7 @@ import {
   inject,
   input,
   OnChanges,
+  OnDestroy,
   output,
   signal,
   SimpleChanges,
@@ -16,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter, orderBy } from 'lodash-es';
+import { catchError, EMPTY, finalize, tap } from 'rxjs';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
@@ -43,11 +45,18 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',
 })
-export class SessionSelectionComponent implements OnChanges {
+export class SessionSelectionComponent implements OnChanges, OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(
       this._backendApiService.getCurrentEventName() === 'ITC'
     );
+
+    this.isProjectOnPhysicalScreen.set(false);
+
+    this._previousStage = this.selectedStage()?.key || null;
+
+    this._windowService.closeAllProjectionWindows();
+    this._windowService.clearWindowCloseCallback();
 
     toObservable(this._eventStageWebSocketState.$sessionLiveListening)
       .pipe(takeUntilDestroyed())
@@ -91,6 +100,14 @@ export class SessionSelectionComponent implements OnChanges {
           this._stopStream();
           this._dashboardFiltersStateService.setActiveSession(null);
           this._dashboardFiltersStateService.setLiveEvent(null);
+        }
+      });
+
+    toObservable(this.selectedStage)
+      .pipe(takeUntilDestroyed())
+      .subscribe((newStage) => {
+        if (newStage) {
+          this._handleStageChange(newStage);
         }
       });
   }
@@ -139,11 +156,17 @@ export class SessionSelectionComponent implements OnChanges {
   );
 
   protected isProjectOnPhysicalScreen = signal(false);
+  protected _isToggleProcessing = signal(false);
+  private _previousStage: string | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['autoAvEnabled'].currentValue) {
       this.isProjectOnPhysicalScreen.set(false);
     }
+  }
+
+  ngOnDestroy(): void {
+    this._windowService.clearWindowCloseCallback();
   }
 
   protected get getSessionUrl(): string {
@@ -182,13 +205,9 @@ export class SessionSelectionComponent implements OnChanges {
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(true);
 
-    if (this._eventStageWebSocketState.$autoAvEnabled()) {
-      const sessionId =
-        selectedOption.metadata['originalContent'].PrimarySessionId;
-      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-      this._windowService.openInsightsSessionWindow(newUrl);
+    if (this.isProjectOnPhysicalScreen()) {
+      this._updateProjectionForCurrentSession();
     }
   }
 
@@ -232,11 +251,199 @@ export class SessionSelectionComponent implements OnChanges {
     this.screenProjected.emit(data);
   }
 
+  protected onProjectingToggleChange(): void {
+    if (this._isToggleProcessing()) {
+      return;
+    }
+
+    const currentState = this.isProjectOnPhysicalScreen();
+    const newProjectingState = !currentState;
+    const eventName = this._backendApiService.getCurrentEventName();
+    const stage = this.selectedStage()?.key;
+
+    if (!eventName || !stage) {
+      return;
+    }
+
+    if (!this.activeSession() && newProjectingState) {
+      return;
+    }
+
+    this._isToggleProcessing.set(true);
+
+    this.isProjectOnPhysicalScreen.set(newProjectingState);
+
+    if (newProjectingState) {
+      this._openProjectionWindow();
+      this._setupWindowCloseMonitoring();
+    } else {
+      this._windowService.closeAllProjectionWindows();
+      this._windowService.clearWindowCloseCallback();
+    }
+
+    this._backendApiService
+      .setPrimaryScreenProjecting(
+        'setPrimaryScreenProjecting',
+        eventName,
+        newProjectingState,
+        stage
+      )
+      .pipe(
+        tap(() => {
+          this._isToggleProcessing.set(false);
+        }),
+        catchError(() => {
+          this.isProjectOnPhysicalScreen.set(currentState);
+
+          if (newProjectingState) {
+            this._windowService.closeAllProjectionWindows();
+            this._windowService.clearWindowCloseCallback();
+          } else if (currentState) {
+            this._openProjectionWindow();
+            this._setupWindowCloseMonitoring();
+          }
+
+          this._isToggleProcessing.set(false);
+          return EMPTY;
+        })
+      )
+      .subscribe();
+  }
+
+  private _setupWindowCloseMonitoring(): void {
+    this._windowService.setWindowCloseCallback(() => {
+      this._handleProjectingWindowClosed();
+    });
+  }
+
+  private _handleProjectingWindowClosed(): void {
+    this.isProjectOnPhysicalScreen.set(false);
+    const eventName = this._backendApiService.getCurrentEventName();
+    const stage = this.selectedStage()?.key;
+
+    if (!eventName || !stage) {
+      return;
+    }
+
+    this._backendApiService
+      .setPrimaryScreenProjecting(
+        'setPrimaryScreenProjecting',
+        eventName,
+        false,
+        stage
+      )
+      .pipe(
+        tap(() => {
+          this._windowService.clearWindowCloseCallback();
+        }),
+        catchError(() => EMPTY)
+      )
+      .subscribe();
+  }
+
   private _startStream(): void {
     this.streamStarted.emit();
   }
 
   private _stopStream(): void {
     this.streamStopped.emit();
+  }
+
+  private _openProjectionWindow(): void {
+    const activeSession = this.activeSession();
+
+    if (activeSession) {
+      const sessionId =
+        activeSession.metadata['originalContent'].PrimarySessionId;
+      const projectionUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      this._windowService.openInsightsSessionWindow(projectionUrl);
+    } else {
+      const stage = this.selectedStage()?.key;
+      if (stage) {
+        this._windowService.showInsightsProjectedWindow(stage);
+      }
+    }
+  }
+
+  private _updateProjectionForCurrentSession(): void {
+    const activeSession = this.activeSession();
+    if (activeSession) {
+      const sessionId =
+        activeSession.metadata['originalContent'].PrimarySessionId;
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      this._windowService.openInsightsSessionWindow(newUrl);
+    }
+  }
+
+  private _handleStageChange(newStage: DropdownOption): void {
+    if (this._isToggleProcessing()) {
+      return;
+    }
+
+    const newStageKey = newStage?.key;
+    if (this._previousStage === newStageKey) {
+      return;
+    }
+
+    const wasProjecting = this.isProjectOnPhysicalScreen();
+    const eventName = this._backendApiService.getCurrentEventName();
+
+    if (!eventName) {
+      this._previousStage = newStageKey;
+      return;
+    }
+
+    this._isToggleProcessing.set(true);
+
+    this.isProjectOnPhysicalScreen.set(false);
+    this._windowService.closeAllProjectionWindows();
+    this._windowService.clearWindowCloseCallback();
+
+    if (wasProjecting && this._previousStage) {
+      this._backendApiService
+        .setPrimaryScreenProjecting(
+          'setPrimaryScreenProjecting',
+          eventName,
+          false,
+          this._previousStage
+        )
+        .pipe(
+          tap(() => {
+            this._handleNewStageProjection(newStageKey, eventName);
+          }),
+          catchError(() => EMPTY)
+        )
+        .subscribe();
+    } else {
+      this._handleNewStageProjection(newStageKey, eventName);
+    }
+  }
+
+  private _handleNewStageProjection(
+    newStageKey: string | undefined,
+    eventName: string
+  ): void {
+    if (!newStageKey) {
+      this._isToggleProcessing.set(false);
+      return;
+    }
+
+    this._backendApiService
+      .setPrimaryScreenProjecting(
+        'setPrimaryScreenProjecting',
+        eventName,
+        false,
+        newStageKey
+      )
+      .pipe(
+        tap(() => {
+          this._previousStage = newStageKey;
+        }),
+        catchError(() => EMPTY),
+        finalize(() => {
+          this._isToggleProcessing.set(false);
+        })
+      )
+      .subscribe();
   }
 }

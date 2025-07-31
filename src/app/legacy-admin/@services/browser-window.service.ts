@@ -19,6 +19,9 @@ interface WindowFeatures {
 })
 export class BrowserWindowService {
   private _window: Window | null = null;
+  private _projectionWindows: Set<Window> = new Set();
+  private _windowCloseCallback: (() => void) | null = null;
+  private _windowCloseInterval: number | null = null;
 
   openInsightsSessionWindow(url: string): void {
     if (!this._isWindowValid()) {
@@ -35,6 +38,51 @@ export class BrowserWindowService {
       this._openWindow(projectedUrl);
     } else {
       this._updateWindowUrl(projectedUrl);
+    }
+  }
+
+  closeAllProjectionWindows(): void {
+    if (this._window && !this._window.closed) {
+      this._window.close();
+      this._window = null;
+    }
+
+    this._projectionWindows.forEach((window) => {
+      if (!window.closed) {
+        window.close();
+      }
+    });
+
+    this._projectionWindows.clear();
+  }
+
+  setWindowCloseCallback(callback: () => void): void {
+    this._windowCloseCallback = callback;
+    this._startWindowCloseMonitoring();
+  }
+
+  clearWindowCloseCallback(): void {
+    this._windowCloseCallback = null;
+    this._stopWindowCloseMonitoring();
+  }
+
+  private _startWindowCloseMonitoring(): void {
+    if (this._windowCloseInterval) {
+      clearInterval(this._windowCloseInterval);
+    }
+
+    this._windowCloseInterval = window.setInterval(() => {
+      if (this._window && this._window.closed && this._windowCloseCallback) {
+        this._windowCloseCallback();
+        this._stopWindowCloseMonitoring();
+      }
+    }, 1000) satisfies number;
+  }
+
+  private _stopWindowCloseMonitoring(): void {
+    if (this._windowCloseInterval) {
+      clearInterval(this._windowCloseInterval);
+      this._windowCloseInterval = null;
     }
   }
 
@@ -70,6 +118,7 @@ export class BrowserWindowService {
       newWindow.moveTo(0, 0);
       newWindow.resizeTo(screen.width, screen.height);
       this._window = newWindow;
+      this._projectionWindows.add(newWindow);
     }
 
     return newWindow;
