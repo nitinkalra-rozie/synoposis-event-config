@@ -115,6 +115,7 @@ export class UpdateSessionDialogComponent {
       Location: [session.Location],
       SessionSubject: [session.SessionSubject],
       StartsAt: [session.StartsAt, Validators.required],
+      ShouldHideOnSecondScreen: [session.ShouldHideOnSecondScreen ?? false],
       SpeakersInfo: this.fb.array(
         session.SpeakersInfo.map((speaker) => this.createSpeakerForm(speaker))
       ),
