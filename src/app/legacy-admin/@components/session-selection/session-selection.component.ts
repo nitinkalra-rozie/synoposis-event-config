@@ -107,7 +107,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
             this._stopStream();
             this._dashboardFiltersStateService.setActiveSession(null);
             this._dashboardFiltersStateService.setLiveEvent(null);
-            console.log('Current session stopped.');
           }
 
           const sessionToSelect = this.availableSessions().find(
@@ -121,8 +120,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
             );
 
             this._startStream();
-          } else {
-            console.warn('Session not found in available sessions:', sessionId);
           }
         }
       });
@@ -239,7 +236,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     }
 
     if (!sessionToUse) {
-      console.warn('No sessions available to generate the session URL.');
       return '';
     }
 
