@@ -214,6 +214,7 @@ export class CentralizedViewStore {
             message.sessionId,
             'live'
           );
+          this._dataStore.fetchSessions(message.stage);
         }
       });
 
