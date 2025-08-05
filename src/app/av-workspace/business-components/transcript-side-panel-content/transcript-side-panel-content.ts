@@ -48,9 +48,6 @@ export class TranscriptSidePanelContent implements OnDestroy {
       const connectedStage = this._webSocketStore.$connectedStage();
 
       this._checkAndEstablishConnection(stageName, connectedStage);
-
-      const currentAction = this.currentAction();
-      console.log('currentAction', currentAction);
     });
 
     effect(() => {
@@ -61,6 +58,13 @@ export class TranscriptSidePanelContent implements OnDestroy {
         requestAnimationFrame(() => {
           viewport.scrollToIndex(segments.length, 'smooth');
         });
+      }
+    });
+
+    effect(() => {
+      const currentAction = this.currentAction();
+      if (currentAction === 'SESSION_END') {
+        this._transcriptStore.clearTranscript();
       }
     });
   }
