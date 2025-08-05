@@ -32,11 +32,11 @@ import { TypewriterAnimation } from 'src/app/shared/directives/typewriter-animat
   styleUrl: './transcript-side-panel-content.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    NgTemplateOutlet,
     CdkVirtualForOf,
+    ScrollingModule,
+    NgTemplateOutlet,
     MatButtonModule,
     MatIconModule,
-    ScrollingModule,
     TooltipOnOverflow,
     TypewriterAnimation,
   ],
