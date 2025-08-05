@@ -30,6 +30,15 @@ import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/eve
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
+import {
+  IS_PROJECT_ON_PHYSICAL_SCREEN,
+  SELECTED_SESSION,
+} from 'src/app/legacy-admin/shared/local-storage-key-constants';
+
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from 'src/app/shared/utils/local-storage-util';
 
 @Component({
   selector: 'app-session-selection',
@@ -52,12 +61,39 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     //   this._backendApiService.getCurrentEventName() === 'ITC'
     // );
 
-    this.isProjectOnPhysicalScreen.set(false);
+    const currentStage = this.selectedStage()?.key;
+    let savedToggleState: boolean | null = null;
+
+    if (currentStage) {
+      const stageSpecificKey = `${IS_PROJECT_ON_PHYSICAL_SCREEN}_${currentStage}`;
+      savedToggleState = getLocalStorageItem<boolean>(stageSpecificKey);
+    }
+
+    if (savedToggleState === null || savedToggleState === undefined) {
+      savedToggleState = getLocalStorageItem<boolean>(
+        IS_PROJECT_ON_PHYSICAL_SCREEN
+      );
+    }
+
+    this.isProjectOnPhysicalScreen.set(savedToggleState ?? false);
 
     this._previousStage = this.selectedStage()?.key || null;
 
     this._windowService.closeAllProjectionWindows();
     this._windowService.clearWindowCloseCallback();
+
+    toObservable(this.availableSessions)
+      .pipe(takeUntilDestroyed())
+      .subscribe((sessions) => {
+        if (sessions && sessions.length > 0) {
+          const currentStage = this.selectedStage()?.key;
+          if (currentStage) {
+            this._restoreToggleState(currentStage);
+          }
+
+          this._restoreSelectedSession();
+        }
+      });
 
     toObservable(this._eventStageWebSocketState.$sessionLiveListening)
       .pipe(takeUntilDestroyed())
@@ -109,6 +145,11 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
       .subscribe((newStage) => {
         if (newStage) {
           this._handleStageChange(newStage);
+          this._hasRestoredSession = false;
+          this._restoreToggleState(newStage.key);
+          setTimeout(() => {
+            this._restoreSelectedSession();
+          }, 100);
         }
       });
   }
@@ -159,6 +200,7 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   protected isProjectOnPhysicalScreen = signal(false);
   protected _isToggleProcessing = signal(false);
   private _previousStage: string | null = null;
+  private _hasRestoredSession = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['autoAvEnabled'].currentValue) {
@@ -207,13 +249,18 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
 
+    this._saveSelectedSession(selectedOption);
+
     if (this.isProjectOnPhysicalScreen()) {
       this._updateProjectionForCurrentSession();
     }
   }
 
   protected openSessionInNewWindow(): boolean {
-    this._windowService.openInsightsSessionWindow(this.getSessionUrl);
+    if (this.isProjectOnPhysicalScreen()) {
+      this._openProjectionWindow();
+      this._setupWindowCloseMonitoring();
+    }
     return false;
   }
 
@@ -274,10 +321,14 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
 
     this.isProjectOnPhysicalScreen.set(newProjectingState);
 
-    if (newProjectingState) {
-      this._openProjectionWindow();
-      this._setupWindowCloseMonitoring();
-    } else {
+    const currentStage = this.selectedStage()?.key;
+    const toggleStorageKey = currentStage
+      ? `${IS_PROJECT_ON_PHYSICAL_SCREEN}_${currentStage}`
+      : IS_PROJECT_ON_PHYSICAL_SCREEN;
+
+    setLocalStorageItem(toggleStorageKey, newProjectingState);
+
+    if (!newProjectingState) {
       this._windowService.closeAllProjectionWindows();
       this._windowService.clearWindowCloseCallback();
     }
@@ -296,12 +347,9 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         catchError(() => {
           this.isProjectOnPhysicalScreen.set(currentState);
 
-          if (newProjectingState) {
+          if (newProjectingState && !currentState) {
             this._windowService.closeAllProjectionWindows();
             this._windowService.clearWindowCloseCallback();
-          } else if (currentState) {
-            this._openProjectionWindow();
-            this._setupWindowCloseMonitoring();
           }
 
           this._isToggleProcessing.set(false);
@@ -319,6 +367,13 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
 
   private _handleProjectingWindowClosed(): void {
     this.isProjectOnPhysicalScreen.set(false);
+    const currentStage = this.selectedStage()?.key;
+    const toggleStorageKey = currentStage
+      ? `${IS_PROJECT_ON_PHYSICAL_SCREEN}_${currentStage}`
+      : IS_PROJECT_ON_PHYSICAL_SCREEN;
+
+    setLocalStorageItem(toggleStorageKey, false);
+
     const eventName = this._backendApiService.getCurrentEventName();
     const stage = this.selectedStage()?.key;
 
@@ -446,5 +501,63 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         })
       )
       .subscribe();
+  }
+
+  private _saveSelectedSession(session: DropdownOption): void {
+    const currentStage = this.selectedStage()?.key;
+    const storageKey = currentStage
+      ? `${SELECTED_SESSION}_${currentStage}`
+      : SELECTED_SESSION;
+
+    setLocalStorageItem(storageKey, {
+      key: session.key,
+      label: session.label,
+      metadata: session.metadata,
+    });
+  }
+
+  private _restoreSelectedSession(): void {
+    if (this._hasRestoredSession) {
+      return;
+    }
+
+    const currentStage = this.selectedStage()?.key;
+    if (!currentStage) {
+      return;
+    }
+
+    const stageSpecificKey = `${SELECTED_SESSION}_${currentStage}`;
+    let savedSession = getLocalStorageItem<DropdownOption>(stageSpecificKey);
+
+    if (!savedSession) {
+      savedSession = getLocalStorageItem<DropdownOption>(SELECTED_SESSION);
+    }
+
+    if (!savedSession) {
+      this._hasRestoredSession = true;
+      return;
+    }
+
+    this._restoreToggleState(currentStage);
+
+    const matchingSession = this.availableSessions().find(
+      (session) => session.key === savedSession.key
+    );
+
+    if (matchingSession) {
+      this._dashboardFiltersStateService.setActiveSession(matchingSession);
+      this._hasRestoredSession = true;
+    }
+  }
+
+  private _restoreToggleState(stageKey: string): void {
+    const stageSpecificKey = `${IS_PROJECT_ON_PHYSICAL_SCREEN}_${stageKey}`;
+    let savedToggleState = getLocalStorageItem<boolean>(stageSpecificKey);
+    if (savedToggleState === null || savedToggleState === undefined) {
+      savedToggleState = getLocalStorageItem<boolean>(
+        IS_PROJECT_ON_PHYSICAL_SCREEN
+      );
+    }
+    this.isProjectOnPhysicalScreen.set(!!savedToggleState);
   }
 }
