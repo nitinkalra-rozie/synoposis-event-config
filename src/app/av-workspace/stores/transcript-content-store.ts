@@ -40,6 +40,7 @@ export class TranscriptContentStore {
   private readonly _webSocketStore = inject(
     CentralizedViewTranscriptWebSocketStore
   );
+  private readonly _domParser = new DOMParser();
 
   updateTranscript(
     sessionId: string,
@@ -99,8 +100,7 @@ export class TranscriptContentStore {
   }
 
   private _decodeHtmlEntities(text: string): string {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(
+    const doc = this._domParser.parseFromString(
       `<!doctype html><body>${text}`,
       'text/html'
     );
