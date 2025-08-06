@@ -174,16 +174,18 @@ export class CentralizedViewUIStore {
   }
 
   openTranscriptPanel(stageId: string): void {
-    state.transcriptPanel.set({
+    state.transcriptPanel.update((panel) => ({
+      ...panel,
       isOpen: signal<boolean>(true),
       stageName: signal<string>(stageId),
-    });
+    }));
   }
 
   closeTranscriptPanel(): void {
-    state.transcriptPanel.set({
+    state.transcriptPanel.update((panel) => ({
+      ...panel,
       isOpen: signal<boolean>(false),
       stageName: signal<string>(''),
-    });
+    }));
   }
 }
