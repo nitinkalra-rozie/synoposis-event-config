@@ -1,4 +1,4 @@
-import { computed, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
@@ -6,27 +6,26 @@ interface CentralizedViewUIState {
   searchTerm: string;
   locationFilters: string[];
   selectedStageIds: Set<string>;
-  transcriptPanel: {
-    isOpen: WritableSignal<boolean>;
-    stageName: WritableSignal<string>;
-  };
+  transcriptPanelIsOpen: boolean;
+  transcriptPanelStageName: string;
 }
 
 const initialState: CentralizedViewUIState = {
   searchTerm: '',
   locationFilters: [],
   selectedStageIds: new Set<string>(),
-  transcriptPanel: {
-    isOpen: signal<boolean>(false),
-    stageName: signal<string>(''),
-  },
+  transcriptPanelIsOpen: false,
+  transcriptPanelStageName: '',
 };
 
 const state = {
   searchTerm: signal<string>(initialState.searchTerm),
   locationFilters: signal<string[]>(initialState.locationFilters),
   selectedStageIds: signal<Set<string>>(initialState.selectedStageIds),
-  transcriptPanel: signal(initialState.transcriptPanel),
+  transcriptPanelIsOpen: signal<boolean>(initialState.transcriptPanelIsOpen),
+  transcriptPanelStageName: signal<string>(
+    initialState.transcriptPanelStageName
+  ),
 };
 
 @Injectable({
@@ -36,7 +35,10 @@ export class CentralizedViewUIStore {
   public readonly $searchTerm = state.searchTerm.asReadonly();
   public readonly $locationFilters = state.locationFilters.asReadonly();
   public readonly $selectedStageIds = state.selectedStageIds.asReadonly();
-  public readonly $transcriptPanel = state.transcriptPanel.asReadonly();
+  public readonly $transcriptPanel = computed(() => ({
+    isOpen: () => state.transcriptPanelIsOpen(),
+    stageName: () => state.transcriptPanelStageName(),
+  }));
 
   public readonly $hasSelection = computed(
     () => state.selectedStageIds().size > 0
@@ -174,18 +176,12 @@ export class CentralizedViewUIStore {
   }
 
   openTranscriptPanel(stageId: string): void {
-    state.transcriptPanel.update((panel) => ({
-      ...panel,
-      isOpen: signal<boolean>(true),
-      stageName: signal<string>(stageId),
-    }));
+    state.transcriptPanelIsOpen.set(true);
+    state.transcriptPanelStageName.set(stageId);
   }
 
   closeTranscriptPanel(): void {
-    state.transcriptPanel.update((panel) => ({
-      ...panel,
-      isOpen: signal<boolean>(false),
-      stageName: signal<string>(''),
-    }));
+    state.transcriptPanelIsOpen.set(false);
+    state.transcriptPanelStageName.set('');
   }
 }
