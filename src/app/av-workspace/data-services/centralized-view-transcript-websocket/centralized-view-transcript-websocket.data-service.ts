@@ -5,7 +5,6 @@ import {
   CentralizedViewTranscriptWebSocketMessage,
   CentralizedViewTranscriptWebSocketOutgoingMessage,
 } from 'src/app/av-workspace/data-services/centralized-view-transcript-websocket/centralized-view-transcript-websocket.data-model';
-import {} from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
 import { CentralizedViewTranscriptWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-transcript-websocket-store';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
