@@ -17,6 +17,7 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CentralizedViewTranscriptWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-transcript-websocket-facade';
 import { TranscriptDisplaySegment } from 'src/app/av-workspace/models/transcript-content.model';
 import { TranscriptPanelActionType } from 'src/app/av-workspace/models/transcript-panel-action-type.model';
@@ -37,6 +38,7 @@ import { TypewriterAnimation } from 'src/app/shared/directives/typewriter-animat
     NgTemplateOutlet,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
     TooltipOnOverflow,
     TypewriterAnimation,
   ],
@@ -115,13 +117,6 @@ export class TranscriptSidePanelContent implements OnDestroy {
       viewport.scrollToIndex(this.$vm().transcriptSegments.length, 'smooth');
       this._shouldAutoScroll.set(true);
       this.userScrolledUp.set(false);
-    }
-  }
-
-  protected retryConnection(): void {
-    const stageName = this._uiStore.$transcriptPanel().stageName();
-    if (stageName) {
-      this._webSocketFacade.connect(stageName);
     }
   }
 

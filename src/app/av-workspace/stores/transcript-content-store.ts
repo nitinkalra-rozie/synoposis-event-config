@@ -8,13 +8,11 @@ import { CentralizedViewTranscriptWebSocketStore } from './centralized-view-tran
 interface TranscriptState {
   currentTranscript: TranscriptContent | null;
   isLoading: boolean;
-  error: string | null;
 }
 
 const initialState: TranscriptState = {
   currentTranscript: null,
   isLoading: false,
-  error: null,
 };
 
 const state = {
@@ -22,7 +20,6 @@ const state = {
     initialState.currentTranscript
   ),
   isLoading: signal<boolean>(initialState.isLoading),
-  error: signal<string | null>(initialState.error),
 };
 
 @Injectable({
@@ -84,10 +81,6 @@ export class TranscriptContentStore {
 
   setLoading(loading: boolean): void {
     state.isLoading.set(loading);
-  }
-
-  setError(error: string | null): void {
-    state.error.set(error);
   }
 
   private _getTranscriptDisplaySegments(): TranscriptDisplaySegment[] {

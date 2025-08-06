@@ -73,7 +73,7 @@ export class CentralizedViewTranscriptWebSocketDataService {
 
               this._socket.onerror = (error: Event) => {
                 observer.error(
-                  'Centralized View Transcript WebSocket error: ' + error
+                  'Centralized View Transcript WebSocket error: ' + error.type
                 );
               };
 

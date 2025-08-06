@@ -9,12 +9,30 @@
     </div>
 
     <div class="connection-status">
-      @if ($vm().isConnecting) {
-      <mat-icon class="connecting">sync</mat-icon>
+      @if ($vm().connectionError) {
+      <mat-icon
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="error"
+        [matTooltip]="$vm().connectionError">
+        error_outline
+      </mat-icon>
+      } @else if ($vm().isConnecting) {
+      <mat-icon
+        matTooltip="Connecting to live transcript"
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="connecting">
+        sync
+      </mat-icon>
       } @else if ($vm().isConnected) {
-      <mat-icon class="connected">radio_button_checked</mat-icon>
-      } @else if ($vm().connectionError) {
-      <mat-icon class="error">error_outline</mat-icon>
+      <mat-icon
+        matTooltip="Connected to live transcript"
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="connected">
+        radio_button_checked
+      </mat-icon>
       }
     </div>
   </div>

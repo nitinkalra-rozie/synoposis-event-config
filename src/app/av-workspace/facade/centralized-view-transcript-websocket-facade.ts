@@ -56,10 +56,7 @@ export class CentralizedViewTranscriptWebSocketFacade {
       .pipe(
         catchError((error) => {
           this._webSocketStore.setError(
-            `WebSocket connection failed: ${error.message || 'Unknown error'}`
-          );
-          this._transcriptContentStore.setError(
-            'Failed to connect to transcript feed'
+            `WebSocket connection failed: ${error || 'Unknown error'}`
           );
           this._transcriptContentStore.setLoading(false);
           throw error;
@@ -74,7 +71,6 @@ export class CentralizedViewTranscriptWebSocketFacade {
         tap((message) => {
           if (this._webSocketStore.$error()) {
             this._webSocketStore.setError(null);
-            this._transcriptContentStore.setError(null);
           }
           this._routeMessage(message);
         }),
@@ -83,10 +79,7 @@ export class CentralizedViewTranscriptWebSocketFacade {
       .subscribe({
         error: (error) => {
           this._webSocketStore.setError(
-            'WebSocket connection failed after retries: ' + error.message
-          );
-          this._transcriptContentStore.setError(
-            'Failed to connect to transcript feed: ' + error.message
+            'WebSocket connection failed after retries: ' + error
           );
           this._transcriptContentStore.setLoading(false);
         },
