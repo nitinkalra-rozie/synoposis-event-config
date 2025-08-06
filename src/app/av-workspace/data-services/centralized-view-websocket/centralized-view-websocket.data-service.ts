@@ -71,7 +71,7 @@ export class CentralizedViewWebSocketDataService {
             };
 
             this._socket.onerror = (error: Event) => {
-              observer.error('Centralized View WebSocket error: ' + error);
+              observer.error('Centralized View WebSocket error: ' + error.type);
             };
 
             this._socket.onclose = (event: CloseEvent) => {
