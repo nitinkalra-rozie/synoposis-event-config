@@ -1,34 +1,31 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
-import {
-  TranscriptPanelActionType,
-  TranscriptPanelState,
-} from 'src/app/av-workspace/models/transcript-panel-state.model';
 import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 interface CentralizedViewUIState {
   searchTerm: string;
   locationFilters: string[];
   selectedStageIds: Set<string>;
-  transcriptPanel: TranscriptPanelState;
+  transcriptPanelIsOpen: boolean;
+  transcriptPanelStageName: string;
 }
 
 const initialState: CentralizedViewUIState = {
   searchTerm: '',
   locationFilters: [],
   selectedStageIds: new Set<string>(),
-  transcriptPanel: {
-    isOpen: false,
-    stageName: '',
-    currentAction: 'SESSION_LIVE_LISTENING',
-  },
+  transcriptPanelIsOpen: false,
+  transcriptPanelStageName: '',
 };
 
 const state = {
   searchTerm: signal<string>(initialState.searchTerm),
   locationFilters: signal<string[]>(initialState.locationFilters),
   selectedStageIds: signal<Set<string>>(initialState.selectedStageIds),
-  transcriptPanel: signal<TranscriptPanelState>(initialState.transcriptPanel),
+  transcriptPanelIsOpen: signal<boolean>(initialState.transcriptPanelIsOpen),
+  transcriptPanelStageName: signal<string>(
+    initialState.transcriptPanelStageName
+  ),
 };
 
 @Injectable({
@@ -38,7 +35,10 @@ export class CentralizedViewUIStore {
   public readonly $searchTerm = state.searchTerm.asReadonly();
   public readonly $locationFilters = state.locationFilters.asReadonly();
   public readonly $selectedStageIds = state.selectedStageIds.asReadonly();
-  public readonly $transcriptPanel = state.transcriptPanel.asReadonly();
+  public readonly $transcriptPanel = computed(() => ({
+    isOpen: () => state.transcriptPanelIsOpen(),
+    stageName: () => state.transcriptPanelStageName(),
+  }));
 
   public readonly $hasSelection = computed(
     () => state.selectedStageIds().size > 0
@@ -175,22 +175,13 @@ export class CentralizedViewUIStore {
     state.selectedStageIds.set(new Set<string>());
   }
 
-  openTranscriptPanel(
-    stageId: string,
-    currentAction: TranscriptPanelActionType
-  ): void {
-    state.transcriptPanel.set({
-      isOpen: true,
-      stageName: stageId,
-      currentAction,
-    });
+  openTranscriptPanel(stageId: string): void {
+    state.transcriptPanelIsOpen.set(true);
+    state.transcriptPanelStageName.set(stageId);
   }
 
   closeTranscriptPanel(): void {
-    state.transcriptPanel.set({
-      isOpen: false,
-      stageName: '',
-      currentAction: 'SESSION_NOT_STARTED',
-    });
+    state.transcriptPanelIsOpen.set(false);
+    state.transcriptPanelStageName.set('');
   }
 }

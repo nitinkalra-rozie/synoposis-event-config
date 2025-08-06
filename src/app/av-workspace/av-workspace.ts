@@ -32,7 +32,7 @@ export class AvWorkspace implements OnInit {
   private readonly _route = inject(ActivatedRoute);
   private readonly _router = inject(Router);
 
-  // TODO: Based on the permissions curate the tab links to be displayed
+  // TODO:SYN-644 Based on the permissions curate the tab links to be displayed
   protected displayedTabLinks = computed(() =>
     this.tabLinks().filter((tabLink) =>
       // TODO:SYN-644 Remove this. If the environment is production, we don't want to show the centralized view until it's fully implemented

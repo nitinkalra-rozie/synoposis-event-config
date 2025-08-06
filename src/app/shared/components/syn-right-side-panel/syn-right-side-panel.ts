@@ -18,7 +18,7 @@ import { FocusOnShow } from 'src/app/shared/directives/focus-on-show';
 export class SynRightSidePanel {
   public readonly isOpen = input.required<boolean>();
   public readonly title = input.required<string>();
-  public readonly width = input<string>('26rem');
+  public readonly width = input<string>('25vw');
   public readonly panelClass = input<string>('');
 
   public readonly panelClose = output<void>();

@@ -7,9 +7,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import {
+  MAT_DIALOG_DATA,
   MatDialogModule,
   MatDialogRef,
-  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -477,6 +477,7 @@ export class UploadAgendaDialogComponent {
                       this.convertExcelTimeToReadable(row['Start Time'])
                     )
                   : '',
+              ShouldHideOnSecondScreen: false,
             };
 
             return session;

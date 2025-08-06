@@ -82,6 +82,7 @@ export interface Session {
   Type: string;
   Event: string;
   SpeakersInfo: Array<SpeakerDetails>;
+  ShouldHideOnSecondScreen?: boolean;
 }
 
 interface RealtimeInsight {
@@ -513,6 +514,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       Location: '',
       SessionSubject: '',
       StartsAt: this.getUTCFormattedTime(startTime),
+      ShouldHideOnSecondScreen: false,
     };
     this.openSessionDetailsModal(sessionData, 'NEW');
   };
