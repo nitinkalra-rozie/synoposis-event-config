@@ -100,7 +100,7 @@ export class CentralizedViewStore {
   private _isSelectAllDisabled = computed(
     () =>
       !getSelectableEntities(this._filteredEntities()).length ||
-      this._uiStore.$transcriptPanel().isOpen
+      this._uiStore.$transcriptPanel().isOpen()
   );
 
   private _transcriptPanelCurrentAction = computed(() => {
