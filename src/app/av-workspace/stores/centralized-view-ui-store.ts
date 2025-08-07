@@ -67,6 +67,14 @@ export class CentralizedViewUIStore {
     }
   }
 
+  deselectRow(stageId: string): void {
+    const currentSelection = state.selectedStageIds();
+    if (currentSelection.has(stageId)) {
+      currentSelection.delete(stageId);
+      state.selectedStageIds.set(currentSelection);
+    }
+  }
+
   toggleRow(row: CentralizedViewStage): void {
     const currentSelection = state.selectedStageIds();
     const newSelected = new Set(currentSelection);

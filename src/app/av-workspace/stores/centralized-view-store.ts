@@ -195,10 +195,11 @@ export class CentralizedViewStore {
   openTranscriptPanel(stageId: string): void {
     this._uiStore.selectRow(stageId);
     this._uiStore.openTranscriptPanel(stageId);
-    this._uiStore.selectRow(stageId);
   }
 
   closeTranscriptPanel(): void {
+    this._uiStore.deselectRow(this._uiStore.$transcriptPanel().stageName());
+    this._uiStore.clearSelection();
     this._uiStore.closeTranscriptPanel();
   }
 
