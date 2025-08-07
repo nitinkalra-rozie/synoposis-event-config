@@ -74,7 +74,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.2",
     "prettier-plugin-organize-attributes": "^1.0.0",
     "stylelint": "^16.9.0",
     "stylelint-config-standard-scss": "^13.1.0",

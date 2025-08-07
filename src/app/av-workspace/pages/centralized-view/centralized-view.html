@@ -1,6 +1,6 @@
 <div
   class="centralized-view-container"
-  [class.transcript-panel-opened]="$vm().transcriptPanel().isOpen">
+  [class.transcript-panel-opened]="$vm().transcriptPanel().isOpen()">
   <div class="centralized-view-content">
     <div class="stage-info-container">
       <app-stage-info-header
@@ -33,7 +33,6 @@
           [dataSource]="dataSource"
           (matSortChange)="announceSortChange($event)"
           aria-label="Stages">
-          <!-- Checkbox Column -->
           <ng-container matColumnDef="select">
             <th *matHeaderCellDef mat-header-cell [style.text-align]="'center'">
               <mat-checkbox
@@ -61,7 +60,6 @@
             </td>
           </ng-container>
 
-          <!-- Stage Column -->
           <ng-container matColumnDef="stage">
             <th
               *matHeaderCellDef
@@ -77,7 +75,6 @@
             </td>
           </ng-container>
 
-          <!-- Location Column -->
           <ng-container matColumnDef="location">
             <th
               *matHeaderCellDef
@@ -89,7 +86,6 @@
             <td *matCellDef="let element" mat-cell>{{ element.location }}</td>
           </ng-container>
 
-          <!-- Session Column -->
           <ng-container matColumnDef="session">
             <th
               *matHeaderCellDef
@@ -133,7 +129,6 @@
             </td>
           </ng-container>
 
-          <!-- Status Column -->
           <ng-container matColumnDef="status">
             <th
               *matHeaderCellDef
@@ -147,7 +142,6 @@
             </td>
           </ng-container>
 
-          <!-- Action Column -->
           <ng-container matColumnDef="action">
             <th *matHeaderCellDef mat-header-cell>ACTION</th>
             <td *matCellDef="let element" mat-cell>
@@ -204,12 +198,12 @@
   </div>
 
   <syn-right-side-panel
-    [isOpen]="$vm().transcriptPanel().isOpen"
-    [width]="'26rem'"
+    [isOpen]="$vm().transcriptPanel().isOpen()"
+    [width]="'25vw'"
     (panelClose)="onTranscriptPanelClose()"
     title="Transcript">
     <app-transcript-side-panel-content
-      [currentAction]="$vm().transcriptPanel().currentAction"
+      [currentAction]="$vm().transcriptPanelCurrentAction()"
       [sessionTitle]="$vm().selectedSessionName()" />
   </syn-right-side-panel>
 </div>
