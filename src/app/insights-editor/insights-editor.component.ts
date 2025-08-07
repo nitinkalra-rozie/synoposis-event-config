@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -45,6 +52,7 @@ import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
   selector: 'app-insights-editor',
   templateUrl: './insights-editor.component.html',
   styleUrls: ['./insights-editor.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -71,7 +79,8 @@ export class InsightsEditorComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
-    private domSanitizer: DomSanitizer
+    private domSanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
   ) {
     // Register Material icons
     this.matIconRegistry.addSvgIconSet(
@@ -219,44 +228,25 @@ export class InsightsEditorComponent implements OnInit {
         console.log(response);
         if (response?.data?.[0]?.snapshotData) {
           const responseData = response?.data[0];
-          this.original_debrief = JSON.parse(JSON.stringify(responseData));
-          const data = JSON.parse(responseData.snapshotData);
-          this.summary = data['data']['summary'];
-          this.insights = data['data']['insights'];
-          this._insightsData = clone(this.insights);
-          this.topics = data['data']['topics'];
-          this._topicsData = clone(this.topics);
-          this.keytakeaways = data['data']['key_takeaways'];
-          this._keyTakeawaysData = clone(this.keytakeaways);
-          this.dataLoaded = true;
-          this.title = data['data']['title'];
-          this.postInsightTimestamp = responseData['postInsightTimestamp'];
-          this.trendsTimestamp = responseData['trendsTimestamp'];
-          this.transcript = responseData['transcript'];
-          if (responseData['trendData']) {
-            const trendData = JSON.parse(responseData['trendData']);
-            this.trends = trendData?.data?.trends;
-          } else {
-            this.trends = [];
-          }
 
-          const realtimeinsights = responseData['realtimeinsights'];
-          this.realtimeinsights = [];
-          for (const item of realtimeinsights) {
-            const dataItem = JSON.parse(item.Response);
-            this.realtimeinsights.push({
-              Timestamp: item.Timestamp,
-              Insights: dataItem.data.insights,
-            });
-          }
-          this._realTimeInsightsData = cloneDeep(this.realtimeinsights);
-          console.log(this.realtimeinsights);
+          setTimeout(() => {
+            try {
+              this._processResponseData(responseData);
+            } catch (error) {
+              this.dataLoaded = false;
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            }
+          }, 0);
+        } else {
+          this.isLoading = false;
+          this.cdr.markForCheck();
         }
-        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error fetching data:', error);
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -350,9 +340,12 @@ export class InsightsEditorComponent implements OnInit {
         tap(() => this.getEventDetails()),
         finalize(() => {
           this.isLoading = false;
+          this.cdr.markForCheck();
         }),
         catchError((error) => {
           console.error('Error in changeEventStatus:', error);
+          this.isLoading = false;
+          this.cdr.markForCheck();
           return throwError(() => error);
         }),
         takeUntilDestroyed(this._destroyRef)
@@ -389,10 +382,12 @@ export class InsightsEditorComponent implements OnInit {
         }
         this._updateParallelData();
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error fetching data:', error);
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -427,6 +422,7 @@ export class InsightsEditorComponent implements OnInit {
         }
       }
       this.isLoading = false;
+      this.cdr.markForCheck();
     });
   }
 
@@ -550,6 +546,68 @@ export class InsightsEditorComponent implements OnInit {
       data: data,
       panelClass: 'custom-dialog-container', // Custom CSS class for further styling
     });
+  }
+
+  private _processResponseData(responseData: any): void {
+    this.original_debrief = JSON.parse(JSON.stringify(responseData));
+
+    const parsedSnapshotData = JSON.parse(responseData.snapshotData);
+    const mainData = parsedSnapshotData.data;
+
+    Object.assign(this, {
+      summary: mainData.summary,
+      title: mainData.title,
+      postInsightTimestamp: responseData.postInsightTimestamp,
+      trendsTimestamp: responseData.trendsTimestamp,
+      transcript: responseData.transcript || [],
+    });
+
+    this.insights = mainData.insights || [];
+    this._insightsData = clone(this.insights);
+
+    this.topics = mainData.topics || [];
+    this._topicsData = clone(this.topics);
+
+    this.keytakeaways = mainData.key_takeaways || [];
+    this._keyTakeawaysData = clone(this.keytakeaways);
+
+    this.trends = [];
+    if (responseData.trendData) {
+      const trendData = JSON.parse(responseData.trendData);
+      this.trends = trendData?.data?.trends || [];
+    }
+
+    this._processRealtimeInsights(responseData.realtimeinsights);
+
+    this.dataLoaded = true;
+    this.isLoading = false;
+
+    this.cdr.markForCheck();
+  }
+
+  private _processRealtimeInsights(realtimeinsights: any[]): void {
+    this.realtimeinsights = [];
+
+    if (!realtimeinsights || !Array.isArray(realtimeinsights)) {
+      this._realTimeInsightsData = [];
+      return;
+    }
+
+    this.realtimeinsights = realtimeinsights
+      .map((item) => {
+        try {
+          const dataItem = JSON.parse(item.Response);
+          return {
+            Timestamp: item.Timestamp,
+            Insights: dataItem.data?.insights || [],
+          };
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter((item) => item !== null);
+
+    this._realTimeInsightsData = cloneDeep(this.realtimeinsights);
   }
 
   // Please be mindful that this is a shittiest code so don't rely on this for the new changes
