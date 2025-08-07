@@ -198,7 +198,6 @@ export class CentralizedViewStore {
   }
 
   closeTranscriptPanel(): void {
-    this._uiStore.deselectRow(this._uiStore.$transcriptPanel().stageName());
     this._uiStore.clearSelection();
     this._uiStore.closeTranscriptPanel();
   }
