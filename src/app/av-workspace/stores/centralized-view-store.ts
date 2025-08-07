@@ -193,9 +193,7 @@ export class CentralizedViewStore {
   }
 
   openTranscriptPanel(stageId: string): void {
-    const stage = this._dataStore
-      .$entities()
-      .find((entity) => entity.stage === stageId);
+    this._uiStore.selectRow(stageId);
     this._uiStore.openTranscriptPanel(stageId);
     this._uiStore.selectRow(stageId);
   }
