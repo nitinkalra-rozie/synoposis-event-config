@@ -61,22 +61,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     //   this._backendApiService.getCurrentEventName() === 'ITC'
     // );
 
-    const currentStage = this.selectedStage()?.key;
-    let savedToggleState: boolean | null = null;
-
-    if (currentStage) {
-      const stageSpecificKey = `${IS_PROJECT_ON_PHYSICAL_SCREEN}_${currentStage}`;
-      savedToggleState = getLocalStorageItem<boolean>(stageSpecificKey);
-    }
-
-    if (savedToggleState === null || savedToggleState === undefined) {
-      savedToggleState = getLocalStorageItem<boolean>(
-        IS_PROJECT_ON_PHYSICAL_SCREEN
-      );
-    }
-
-    this.isProjectOnPhysicalScreen.set(savedToggleState ?? false);
-
     this._previousStage = this.selectedStage()?.key || null;
 
     this._windowService.closeAllProjectionWindows();
@@ -141,9 +125,17 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
       .pipe(takeUntilDestroyed())
       .subscribe((newStage) => {
         if (newStage) {
-          this._handleStageChange(newStage);
+          if (!this._hasInitializedToggleState) {
+            this._initializeToggleState(newStage.key);
+            this._hasInitializedToggleState = true;
+          } else {
+            this._handleStageChange(newStage);
+            if (newStage.key !== undefined && newStage.key !== null) {
+              this._restoreToggleState(newStage.key);
+            }
+          }
+
           this._hasRestoredSession = false;
-          this._restoreToggleState(newStage.key);
           setTimeout(() => {
             this._restoreSelectedSession();
           }, 100);
@@ -194,10 +186,13 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     EventStageWebSocketStateService
   );
 
+  private static readonly _stopProjecting = false;
+
   protected isProjectOnPhysicalScreen = signal(false);
   protected _isToggleProcessing = signal(false);
   private _previousStage: string | null = null;
   private _hasRestoredSession = false;
+  private _hasInitializedToggleState = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['autoAvEnabled'].currentValue) {
@@ -381,7 +376,7 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
       .setPrimaryScreenProjecting(
         'setPrimaryScreenProjecting',
         eventName,
-        false,
+        SessionSelectionComponent._stopProjecting,
         stage
       )
       .pipe(
@@ -456,7 +451,7 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         .setPrimaryScreenProjecting(
           'setPrimaryScreenProjecting',
           eventName,
-          false,
+          SessionSelectionComponent._stopProjecting,
           this._previousStage
         )
         .pipe(
@@ -484,7 +479,7 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
       .setPrimaryScreenProjecting(
         'setPrimaryScreenProjecting',
         eventName,
-        false,
+        SessionSelectionComponent._stopProjecting,
         newStageKey
       )
       .pipe(
@@ -544,6 +539,28 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
       this._dashboardFiltersStateService.setActiveSession(matchingSession);
       this._hasRestoredSession = true;
     }
+  }
+
+  private _initializeToggleState(stageKey: string | undefined): void {
+    if (!stageKey) {
+      // Fallback to generic key if no stage key available
+      const savedToggleState = getLocalStorageItem<boolean>(
+        IS_PROJECT_ON_PHYSICAL_SCREEN
+      );
+      this.isProjectOnPhysicalScreen.set(savedToggleState ?? false);
+      return;
+    }
+
+    const stageSpecificKey = `${IS_PROJECT_ON_PHYSICAL_SCREEN}_${stageKey}`;
+    let savedToggleState = getLocalStorageItem<boolean>(stageSpecificKey);
+
+    if (savedToggleState === null || savedToggleState === undefined) {
+      savedToggleState = getLocalStorageItem<boolean>(
+        IS_PROJECT_ON_PHYSICAL_SCREEN
+      );
+    }
+
+    this.isProjectOnPhysicalScreen.set(savedToggleState ?? false);
   }
 
   private _restoreToggleState(stageKey: string): void {

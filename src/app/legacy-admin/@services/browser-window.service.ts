@@ -76,7 +76,7 @@ export class BrowserWindowService {
         this._windowCloseCallback();
         this._stopWindowCloseMonitoring();
       }
-    }, 1000) satisfies number;
+    }, 1000);
   }
 
   private _stopWindowCloseMonitoring(): void {
