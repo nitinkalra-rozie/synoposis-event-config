@@ -7,7 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { FooterMobileComponent } from 'src/app/legacy-admin/components/shared/footer-mobile/footer-mobile.component';
@@ -65,6 +66,13 @@ export class LoginPageComponent {
             } else if (response) {
               this.errorMessage = response.message;
             }
+          }),
+          catchError((error) => {
+            const message =
+              (error && (error.message || error.code)) ||
+              'Failed to initiate sign in. Please try again.';
+            this.errorMessage = message;
+            return of({ success: false, message });
           }),
           finalize(() => {
             this.processedClicked = false;
