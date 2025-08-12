@@ -4,6 +4,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  OnDestroy,
   OnInit,
   signal,
 } from '@angular/core';
@@ -17,9 +18,10 @@ import {
   UrlSegment,
 } from '@angular/router';
 import { filter, map } from 'rxjs';
+import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
+import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { environment } from 'src/environments/environment';
-
 @Component({
   selector: 'app-av-workspace',
   templateUrl: './av-workspace.html',
@@ -27,10 +29,12 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, RouterOutlet, MatTabsModule, LayoutMainComponent],
 })
-export class AvWorkspace implements OnInit {
+export class AvWorkspace implements OnInit, OnDestroy {
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _route = inject(ActivatedRoute);
   private readonly _router = inject(Router);
+  private readonly _stageWs = inject(EventStageWebsocketDataService);
+  private readonly _stageWsState = inject(EventStageWebSocketStateService);
 
   // TODO:SYN-644 Based on the permissions curate the tab links to be displayed
   protected displayedTabLinks = computed(() =>
@@ -76,5 +80,18 @@ export class AvWorkspace implements OnInit {
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this._stageWs.disconnect();
+    this._stageWsState.resetState();
+  }
+
+  protected onTabClick(value: string): void {
+    this.activeTabLink.set(value);
+    if (value === 'centralized') {
+      this._stageWs.disconnect();
+      this._stageWsState.resetState();
+    }
   }
 }
