@@ -77,17 +77,18 @@ export class AuthTokenService {
   }
 
   getValidToken$(): Observable<string> {
-    const isTokenValid = this._authStore.$isTokenValid();
-    const isNearExpiry = this._authStore.$isTokenNearExpiry();
-
-    if (isTokenValid && !isNearExpiry) {
-      const token = this._authStore
-        .getSession()
-        .tokens?.accessToken?.toString();
-      return of(token || '');
-    } else {
-      return this._refreshToken$();
-    }
+    return this._authStore.getSession$().pipe(
+      switchMap((session) => {
+        const isTokenValid = this._authStore.$isTokenValid();
+        const isNearExpiry = this._authStore.$isTokenNearExpiry();
+        if (isTokenValid && !isNearExpiry) {
+          const token = session.tokens?.accessToken?.toString();
+          return of(token || '');
+        } else {
+          return this._refreshToken$();
+        }
+      })
+    );
   }
 
   private _startTokenCheck(): void {
