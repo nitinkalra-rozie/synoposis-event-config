@@ -320,10 +320,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     this.snackBar.open(
       'This session debriefs are not available yet!',
       'Close',
-      {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-      }
+      { duration: 5000, panelClass: ['error-snackbar'] }
     );
   }
 
@@ -402,10 +399,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
               this.snackBar.open(
                 'Another editor already editing this session!',
                 'Close',
-                {
-                  duration: 5000,
-                  panelClass: ['error-snackbar'],
-                }
+                { duration: 5000, panelClass: ['error-snackbar'] }
               );
             }
             this.getEventDetails();
@@ -465,20 +459,87 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       });
   };
 
+  // TODO:@later move this to a service
   public getNextSessionId = (): string => {
+    if (!this.eventName || this.eventName.trim() === '') {
+      console.error('Event name is not set. Cannot generate session ID.');
+      throw new Error('Event name is required to generate session ID');
+    }
+
     let newSessionId;
     if (!this.session_details.length) {
-      console.log('No sessions available. Starting with first session.');
       newSessionId = `${this.eventName}_001`;
     } else {
-      const sessionIds: number[] = this.session_details.map((session) =>
-        parseInt(session.SessionId.split('_')[1], 10)
-      );
-      const maxSessionId = Math.max(...sessionIds, 0); // Default to 0 if empty
-      const newSessionIdNumber = maxSessionId + 1;
-      const prefix = this.eventName;
-      newSessionId = `${prefix}_${newSessionIdNumber.toString().padStart(3, '0')}`;
+      const validSessionIds: string[] = this.session_details
+        .map((session) => {
+          if (!session.SessionId || typeof session.SessionId !== 'string') {
+            console.warn('Invalid SessionId found:', session.SessionId);
+            return null;
+          }
+
+          const parts = session.SessionId.split('_');
+          if (parts.length !== 2) {
+            console.warn(
+              'SessionId format invalid (expected: EventName_Number):',
+              session.SessionId
+            );
+            return null;
+          }
+
+          const numberPart = parts[1];
+          const parsedNumber = parseInt(numberPart, 10);
+
+          if (isNaN(parsedNumber)) {
+            console.warn(
+              'SessionId number part is not a valid number:',
+              numberPart,
+              'from:',
+              session.SessionId
+            );
+            return null;
+          }
+
+          return session.SessionId;
+        })
+        .filter((id): id is string => id !== null);
+
+      if (validSessionIds.length === 0) {
+        console.warn('No valid session IDs found, starting with first session');
+        newSessionId = `${this.eventName}_001`;
+      } else {
+        const sessionNumbers = validSessionIds
+          .map((id) => parseInt(id.split('_')[1], 10))
+          .filter((num) => !isNaN(num));
+
+        const startCounter =
+          sessionNumbers.length > 0 ? Math.max(...sessionNumbers) + 1 : 1;
+
+        let counter = startCounter;
+        const maxAttempts = 1000;
+        let attempts = 0;
+
+        do {
+          newSessionId = `${this.eventName}_${counter.toString().padStart(3, '0')}`;
+          counter++;
+          attempts++;
+
+          if (attempts >= maxAttempts) {
+            console.error(
+              `Failed to generate unique session ID after ${maxAttempts} attempts`
+            );
+            throw new Error(
+              `Failed to generate unique session ID after ${maxAttempts} attempts`
+            );
+          }
+        } while (validSessionIds.includes(newSessionId));
+      }
     }
+
+    if (!newSessionId) {
+      console.error('Failed to generate session ID');
+      throw new Error('Failed to generate session ID');
+    }
+
     return newSessionId;
   };
 
@@ -492,6 +553,15 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   public createNewSession = (): void => {
+    if (!this.eventName || this.eventName.trim() === '') {
+      this.snackBar.open(
+        'Please wait for event details to load before creating sessions',
+        'Close',
+        { duration: 3000, panelClass: ['error-snackbar'] }
+      );
+      return;
+    }
+
     const newSessionId = this.getNextSessionId();
     const startTime = new Date();
     const duration = 20;
