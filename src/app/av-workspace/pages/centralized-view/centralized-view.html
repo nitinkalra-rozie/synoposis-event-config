@@ -53,7 +53,7 @@
                   : 'Select row ' + row.stage
               "
                 [checked]="$vm().selectedStageIds().has(row.stage)"
-                [disabled]="!row.currentSessionId || !row.isOnline || ($vm().transcriptPanel().isOpen && $vm().transcriptPanel().stageName !== row.stage)"
+                [disabled]="!row.currentSessionId || !row.isOnline || ($vm().transcriptPanel().isOpen() && $vm().transcriptPanel().stageName() !== row.stage)"
                 (click)="$event.stopPropagation(); toggleRow(row)"
                 noopClickAction>
               </mat-checkbox>
@@ -147,7 +147,9 @@
             <td *matCellDef="let element" mat-cell>
               <app-stage-action-buttons
                 [isAutoAvEnabled]="element.autoAv"
-                [isMultipleSelectionActive]="$vm().hasSelection()"
+                [isMultipleSelectionActive]="
+                $vm().hasSelection() && $vm().selectionCount() > 1
+              "
                 [isStartPauseResumeActionLoading]="
                 $vm().startPauseResumeActionLoadingStates().get(element.stage)
               "
@@ -201,7 +203,7 @@
     [isOpen]="$vm().transcriptPanel().isOpen()"
     [width]="'25vw'"
     (panelClose)="onTranscriptPanelClose()"
-    title="Transcript">
+    title="Live transcript">
     <app-transcript-side-panel-content
       [currentAction]="$vm().transcriptPanelCurrentAction()"
       [sessionTitle]="$vm().selectedSessionName()" />
