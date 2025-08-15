@@ -7,14 +7,14 @@ import {
 } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
-import { EventConfigStateService } from 'src/app/core/stores/event-config-store';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CentralizedViewWebSocketDataService {
-  private readonly _eventConfigStateService = inject(EventConfigStateService);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _authFacade = inject(AuthFacade);
   private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
 
@@ -24,7 +24,7 @@ export class CentralizedViewWebSocketDataService {
   connect(): Observable<CentralizedViewWebSocketMessage> {
     this._webSocketStore.setConnecting(true);
 
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) {
       throw new Error('No event name available for WebSocket connection');
     }

@@ -17,7 +17,7 @@ const state = {
 @Injectable({
   providedIn: 'root',
 })
-export class EventConfigStateService {
+export class EventConfigStore {
   public readonly $eventIdentifier = state.eventIdentifier.asReadonly();
   public readonly $eventInfo = state.eventInfo.asReadonly();
 

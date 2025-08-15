@@ -8,7 +8,7 @@ import {
 } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
 import { CentralizedViewWebSocketDataService } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-service';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
-import { EventConfigStateService } from 'src/app/core/stores/event-config-store';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 
 type EventTypeSubjects = {
   [K in CentralizedViewEventType]: Subject<CentralizedViewWebSocketMessage>;
@@ -19,7 +19,7 @@ type EventTypeSubjects = {
 })
 export class CentralizedViewWebSocketFacade {
   private readonly _destroyRef = inject(DestroyRef);
-  private readonly _eventConfigStateService = inject(EventConfigStateService);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _webSocketDataService = inject(
     CentralizedViewWebSocketDataService
   );
@@ -57,7 +57,7 @@ export class CentralizedViewWebSocketFacade {
       return;
     }
 
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) {
       this._webSocketStore.setError(
         'No event available for WebSocket initialization'

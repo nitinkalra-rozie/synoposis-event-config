@@ -9,7 +9,7 @@ import {
 import { CentralizedViewTranscriptWebSocketDataService } from 'src/app/av-workspace/data-services/centralized-view-transcript-websocket/centralized-view-transcript-websocket.data-service';
 import { CentralizedViewTranscriptWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-transcript-websocket-store';
 import { TranscriptContentStore } from 'src/app/av-workspace/stores/transcript-content-store';
-import { EventConfigStateService } from 'src/app/core/stores/event-config-store';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 
 type EventTypeSubjects = {
   [K in CentralizedViewTranscriptEventType]: Subject<CentralizedViewTranscriptWebSocketMessage>;
@@ -20,6 +20,7 @@ type EventTypeSubjects = {
 })
 export class CentralizedViewTranscriptWebSocketFacade {
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _webSocketDataService = inject(
     CentralizedViewTranscriptWebSocketDataService
   );
@@ -27,7 +28,6 @@ export class CentralizedViewTranscriptWebSocketFacade {
     CentralizedViewTranscriptWebSocketStore
   );
   private readonly _transcriptContentStore = inject(TranscriptContentStore);
-  private readonly _eventConfigStateService = inject(EventConfigStateService);
 
   private readonly _eventSubjects: EventTypeSubjects = {
     SESSION_LIVE_TRANSCRIPT:
@@ -43,7 +43,7 @@ export class CentralizedViewTranscriptWebSocketFacade {
       return;
     }
 
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) {
       this._webSocketStore.setError(
         'No event available for Transcript WebSocket initialization'

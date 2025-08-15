@@ -32,7 +32,7 @@ import {
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
 import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/utils/get-valid-process-stages-for-bulk-actions';
-import { EventConfigStateService } from 'src/app/core/stores/event-config-store';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 
@@ -92,10 +92,10 @@ const state = {
 })
 export class CentralizedViewStagesDataStore {
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _centralizedViewStagesDataService = inject(
     CentralizedViewStagesDataService
   );
-  private readonly _eventConfigStateService = inject(EventConfigStateService);
   private readonly _uiStore = inject(CentralizedViewUIStore);
   private readonly _confirmDialogFacade = inject(SynConfirmDialogFacade);
   private readonly _toastFacade = inject(SynToastFacade);
@@ -250,7 +250,7 @@ export class CentralizedViewStagesDataStore {
   }
 
   fetchStages(): void {
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) {
       state.error.set('No event available');
       return;
@@ -284,7 +284,7 @@ export class CentralizedViewStagesDataStore {
   }
 
   fetchSessions(stage: string): void {
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) return;
 
     const currentSessions = state.sessionsByStage();
@@ -301,7 +301,7 @@ export class CentralizedViewStagesDataStore {
   }
 
   startListeningStage(stage: string): void {
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) return;
 
     const sessionId = this._entitySignals.get(stage)?.()?.currentSessionId;
@@ -349,8 +349,7 @@ export class CentralizedViewStagesDataStore {
         concatMap((result: boolean) => {
           if (!result) return EMPTY;
 
-          const eventIdentifier =
-            this._eventConfigStateService.$eventIdentifier();
+          const eventIdentifier = this._eventConfigStore.$eventIdentifier();
           if (!eventIdentifier) return EMPTY;
 
           const sessionId =
@@ -396,8 +395,7 @@ export class CentralizedViewStagesDataStore {
         concatMap((result: boolean) => {
           if (!result) return EMPTY;
 
-          const eventIdentifier =
-            this._eventConfigStateService.$eventIdentifier();
+          const eventIdentifier = this._eventConfigStore.$eventIdentifier();
           if (!eventIdentifier) return EMPTY;
 
           const sessionId =
@@ -449,8 +447,7 @@ export class CentralizedViewStagesDataStore {
         concatMap((result: boolean) => {
           if (!result) return EMPTY;
 
-          const eventIdentifier =
-            this._eventConfigStateService.$eventIdentifier();
+          const eventIdentifier = this._eventConfigStore.$eventIdentifier();
           if (!eventIdentifier) return EMPTY;
 
           return this._centralizedViewStagesDataService
@@ -478,7 +475,7 @@ export class CentralizedViewStagesDataStore {
   }
 
   startListeningMultipleStages(stages: string[]): void {
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) return;
 
     state.bulkStartListeningLoading.set(true);
@@ -540,7 +537,7 @@ export class CentralizedViewStagesDataStore {
   }
 
   pauseListeningMultipleStages(stages: string[]): void {
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) return;
 
     const validStagesToPause = getValidProcessStagesForBulkActions(
@@ -608,7 +605,7 @@ export class CentralizedViewStagesDataStore {
   }
 
   endListeningMultipleStages(stages: string[]): void {
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) return;
 
     const validStagesToEnd = getValidProcessStagesForBulkActions(
@@ -777,7 +774,7 @@ export class CentralizedViewStagesDataStore {
   private _fetchSessionsInParallel(stages: string[]): void {
     if (stages.length === 0) return;
 
-    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
     if (!eventIdentifier) return;
 
     const currentLoadingStates = new Map(state.sessionLoadingStates());
