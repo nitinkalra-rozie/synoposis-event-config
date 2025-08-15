@@ -7,12 +7,12 @@ import {
 } from 'src/app/av-workspace/data-services/centralized-view-transcript-websocket/centralized-view-transcript-websocket.data-model';
 import { CentralizedViewTranscriptWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-transcript-websocket-store';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { EventConfigStateService } from 'src/app/core/stores/event-config-store';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CentralizedViewTranscriptWebSocketDataService {
-  private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _eventConfigStateService = inject(EventConfigStateService);
   private readonly _authFacade = inject(AuthFacade);
   private readonly _webSocketStore = inject(
     CentralizedViewTranscriptWebSocketStore
@@ -26,12 +26,12 @@ export class CentralizedViewTranscriptWebSocketDataService {
   ): Observable<CentralizedViewTranscriptWebSocketMessage> {
     this._webSocketStore.setConnecting(true);
 
-    const eventName = this._legacyBackendApiService.getCurrentEventName();
-    if (!eventName) {
+    const eventIdentifier = this._eventConfigStateService.$eventIdentifier();
+    if (!eventIdentifier) {
       throw new Error('No event name available for WebSocket connection');
     }
 
-    const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&stage=${selectedStage}`;
+    const webSocketUrl = `${environment.wsUrl}?eventName=${eventIdentifier}&stage=${selectedStage}`;
 
     return this._authFacade.getAccessToken$().pipe(
       take(1),
@@ -50,11 +50,11 @@ export class CentralizedViewTranscriptWebSocketDataService {
                 this._webSocketStore.setConnecting(false);
                 this._webSocketStore.setConnectedStage(selectedStage);
                 this._sendMessage({
-                  eventName: eventName,
+                  eventName: eventIdentifier,
                   client: true,
                   event: 'getLastEvent',
                 });
-                this._startPing(eventName);
+                this._startPing(eventIdentifier);
               };
 
               this._socket.onmessage = (event: MessageEvent) => {
