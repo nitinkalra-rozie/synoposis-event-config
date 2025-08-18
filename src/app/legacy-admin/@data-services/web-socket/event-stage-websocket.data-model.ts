@@ -6,7 +6,7 @@ export interface EventStageWebSocketMessageData {
   eventName: string;
   sessionId: string;
   stage: string;
-  status: string;
+  status?: string;
   autoAv?: boolean;
   isProjecting?: boolean;
 }

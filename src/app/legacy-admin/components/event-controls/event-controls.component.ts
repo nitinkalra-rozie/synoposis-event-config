@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   EventEmitter,
   inject,
   Injector,
@@ -390,28 +391,17 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   private _setupStageStatusMonitoring(): void {
-    toObservable(this._eventStageWebSocketState.$connectedStage)
-      .pipe(
-        distinctUntilChanged(),
-        tap((currentStage) => {
-          this._previousStage = currentStage;
-        }),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
+    effect(() => {
+      const currentStage = this._eventStageWebSocketState.$connectedStage();
+      this._previousStage = currentStage;
+    });
 
-    toObservable(this._eventStageWebSocketState.$stageStatusUpdated)
-      .pipe(
-        filter((statusData) => !!statusData),
-        distinctUntilChanged(),
-        tap((statusData) => {
-          if (statusData?.status) {
-            this._previousStageStatus = statusData.status;
-          }
-        }),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
+    effect(() => {
+      const statusData = this._eventStageWebSocketState.$stageStatusUpdated();
+      if (statusData?.status) {
+        this._previousStageStatus = statusData.status;
+      }
+    });
   }
 
   private _selectLocationOption(option: DropdownOption): void {

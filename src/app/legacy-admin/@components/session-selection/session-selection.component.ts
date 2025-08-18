@@ -2,6 +2,7 @@ import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   input,
@@ -22,6 +23,8 @@ import { catchError, EMPTY, finalize, Observable, tap } from 'rxjs';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { API_ACTIONS } from 'src/app/legacy-admin/@constants/api-actions';
 import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { SetPrimaryScreenProjectingResponse } from 'src/app/legacy-admin/@data-services/primary-screen-projecting/primary-screen-projecting.data-model';
+import { PrimaryScreenProjectingDataService } from 'src/app/legacy-admin/@data-services/primary-screen-projecting/primary-screen-projecting.data-service';
 import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
@@ -30,7 +33,6 @@ import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/das
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
-import { SetPrimaryScreenProjectingResponse } from 'src/app/legacy-admin/services/legacy-backend-api.data-model';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 
@@ -152,6 +154,10 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _primaryScreenProjectingService = inject(
+    PrimaryScreenProjectingDataService
+  );
+  private readonly _destroyRef = inject(DestroyRef);
 
   private static readonly _stopProjecting = false;
 
@@ -287,7 +293,8 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         catchError(() => {
           this.isToggleProcessing.set(false);
           return EMPTY;
-        })
+        }),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -317,7 +324,8 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         tap(() => {
           this._windowService.clearWindowCloseCallback();
         }),
-        catchError(() => EMPTY)
+        catchError(() => EMPTY),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -329,8 +337,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   private _stopStream(): void {
     this.streamStopped.emit();
   }
-
-  // removed _openProjectionWindow to prevent any unintended auto-opening behaviors
 
   private _updateProjectionForCurrentSession(): void {
     const activeSession = this.activeSession();
@@ -376,7 +382,8 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
           tap(() => {
             this._handleNewStageProjection(newStageKey, eventName);
           }),
-          catchError(() => EMPTY)
+          catchError(() => EMPTY),
+          takeUntilDestroyed(this._destroyRef)
         )
         .subscribe();
     } else {
@@ -389,7 +396,7 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     isProjecting: boolean,
     stage: string
   ): Observable<SetPrimaryScreenProjectingResponse> {
-    return this._backendApiService.setPrimaryScreenProjecting(
+    return this._primaryScreenProjectingService.setPrimaryScreenProjecting(
       API_ACTIONS.SET_PRIMARY_SCREEN_PROJECTING,
       eventName,
       isProjecting,
@@ -418,7 +425,8 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         catchError(() => EMPTY),
         finalize(() => {
           this.isToggleProcessing.set(false);
-        })
+        }),
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }

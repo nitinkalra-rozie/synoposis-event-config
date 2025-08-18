@@ -66,12 +66,13 @@ export class BrowserWindowService {
 
   private _startWindowCloseMonitoring(): void {
     if (this._windowCloseSubscription) {
-      this._windowCloseSubscription.unsubscribe();
+      return;
     }
 
     this._windowCloseSubscription = interval(1000).subscribe(() => {
       if (this._window && this._window.closed && this._windowCloseCallback) {
         this._windowCloseCallback();
+        this._window = null;
         this._stopWindowCloseMonitoring();
       }
     });

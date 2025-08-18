@@ -146,7 +146,7 @@ export class EventStageWebsocketDataService {
 
   private _updateBrowserWindowUrl(sessionId: string): void {
     const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-    this._browserWindowService.updateExistingWindowUrl(newUrl); // Only update URL if projection window is already open - don't auto-open new windows
+    this._browserWindowService.updateExistingWindowUrl(newUrl);
   }
 
   private _startPing(eventName: string, selectedLocation: string): void {

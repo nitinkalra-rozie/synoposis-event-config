@@ -56,7 +56,7 @@ export class EventStageWebSocketStateService {
     state.sessionPaused.set(value);
   }
 
-  setStageStatusUpdated(value: any): void {
+  setStageStatusUpdated(value: EventStageWebSocketMessageData): void {
     state.stageStatusUpdated.set(value);
   }
 

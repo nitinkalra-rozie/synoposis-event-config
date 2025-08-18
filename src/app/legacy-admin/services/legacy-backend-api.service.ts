@@ -9,7 +9,6 @@ import {
 } from 'src/app/shared/utils/local-storage-util';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
-import { SetPrimaryScreenProjectingResponse } from './legacy-backend-api.data-model';
 
 @Injectable({ providedIn: 'root' })
 // TODO:@refactor this service to use defined types instead of objects
@@ -116,23 +115,6 @@ export class LegacyBackendApiService {
       primarySessionId: primarySessionId,
     };
     return this.http.post(environment.postCurrentSessionId, body);
-  }
-
-  setPrimaryScreenProjecting(
-    action: string,
-    eventName: string,
-    isProjecting: boolean,
-    stage: string
-  ): Observable<SetPrimaryScreenProjectingResponse> {
-    return this.http.post<SetPrimaryScreenProjectingResponse>(
-      environment.setAutoAvSetupUrl,
-      {
-        action,
-        eventName,
-        isProjecting,
-        stage,
-      }
-    );
   }
 
   // TODO:@later move this to a config data service
