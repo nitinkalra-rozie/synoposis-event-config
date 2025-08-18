@@ -9,7 +9,7 @@ const state = {
   sessionLiveListening: signal<EventStageWebSocketMessageData>(null),
   sessionEnd: signal<EventStageWebSocketMessageData>(null),
   sessionPaused: signal<EventStageWebSocketMessageData>(null),
-  stageStatusUpdated: signal<any>(null),
+  stageStatusUpdated: signal<EventStageWebSocketMessageData>(null),
   isProjecting: signal<boolean>(false),
 };
 

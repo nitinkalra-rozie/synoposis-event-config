@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 
 interface WindowFeatures {
@@ -19,9 +20,8 @@ interface WindowFeatures {
 })
 export class BrowserWindowService {
   private _window: Window | null = null;
-  private _projectionWindows: Set<Window> = new Set();
   private _windowCloseCallback: (() => void) | null = null;
-  private _windowCloseInterval: number | null = null;
+  private _windowCloseSubscription: Subscription | null = null;
 
   openInsightsSessionWindow(url: string): void {
     if (!this._isWindowValid()) {
@@ -41,19 +41,11 @@ export class BrowserWindowService {
     }
   }
 
-  closeAllProjectionWindows(): void {
+  closeProjectionWindow(): void {
     if (this._window && !this._window.closed) {
       this._window.close();
-      this._window = null;
     }
-
-    this._projectionWindows.forEach((window) => {
-      if (!window.closed) {
-        window.close();
-      }
-    });
-
-    this._projectionWindows.clear();
+    this._window = null;
   }
 
   setWindowCloseCallback(callback: () => void): void {
@@ -66,23 +58,29 @@ export class BrowserWindowService {
     this._stopWindowCloseMonitoring();
   }
 
+  updateExistingWindowUrl(url: string): void {
+    if (this._isWindowValid()) {
+      this._updateWindowUrl(url);
+    }
+  }
+
   private _startWindowCloseMonitoring(): void {
-    if (this._windowCloseInterval) {
-      clearInterval(this._windowCloseInterval);
+    if (this._windowCloseSubscription) {
+      this._windowCloseSubscription.unsubscribe();
     }
 
-    this._windowCloseInterval = window.setInterval(() => {
+    this._windowCloseSubscription = interval(1000).subscribe(() => {
       if (this._window && this._window.closed && this._windowCloseCallback) {
         this._windowCloseCallback();
         this._stopWindowCloseMonitoring();
       }
-    }, 1000);
+    });
   }
 
   private _stopWindowCloseMonitoring(): void {
-    if (this._windowCloseInterval) {
-      clearInterval(this._windowCloseInterval);
-      this._windowCloseInterval = null;
+    if (this._windowCloseSubscription) {
+      this._windowCloseSubscription.unsubscribe();
+      this._windowCloseSubscription = null;
     }
   }
 
@@ -118,7 +116,6 @@ export class BrowserWindowService {
       newWindow.moveTo(0, 0);
       newWindow.resizeTo(screen.width, screen.height);
       this._window = newWindow;
-      this._projectionWindows.add(newWindow);
     }
 
     return newWindow;
