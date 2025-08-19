@@ -8,7 +8,7 @@ import {
 } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
 import { CentralizedViewWebSocketDataService } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-service';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 
 type EventTypeSubjects = {
   [K in CentralizedViewEventType]: Subject<CentralizedViewWebSocketMessage>;
@@ -19,11 +19,11 @@ type EventTypeSubjects = {
 })
 export class CentralizedViewWebSocketFacade {
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _webSocketDataService = inject(
     CentralizedViewWebSocketDataService
   );
   private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
-  private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
 
   private readonly _eventSubjects: EventTypeSubjects = {
     SESSION_LIVE_LISTENING: new Subject<CentralizedViewWebSocketMessage>(),
@@ -57,10 +57,10 @@ export class CentralizedViewWebSocketFacade {
       return;
     }
 
-    const eventName = this._legacyBackendApiService.getCurrentEventName();
-    if (!eventName) {
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
+    if (!eventIdentifier) {
       this._webSocketStore.setError(
-        'No event name available for WebSocket initialization'
+        'No event available for WebSocket initialization'
       );
       return;
     }

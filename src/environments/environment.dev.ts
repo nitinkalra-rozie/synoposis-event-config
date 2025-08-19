@@ -11,7 +11,6 @@ export const environment = {
   postData: 'https://dev.api.synopsis.rozie.ai/r2/config',
   postDebriefData: 'https://dev.api.synopsis.rozie.ai/r4/config',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
-  getEventConfig: 'https://dev.api.synopsis.rozie.ai/r1/getEventConfig',
   updateAgendaUrl: 'https://dev.api.synopsis.rozie.ai/r5/postEventDetails',
   getUploadFilePresignedUrl: 'https://dev.api.synopsis.rozie.ai/r6/config',
   postCurrentSessionId:
