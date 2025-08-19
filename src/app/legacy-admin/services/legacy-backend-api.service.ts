@@ -119,6 +119,8 @@ export class LegacyBackendApiService {
   // TODO:@later move this to a config data service
   private _getEventConfig(): Observable<any> {
     const domain = getEventDomain();
-    return this.http.post(environment.getEventConfig, { domain });
+    return this.http.post(environment.apiBaseUrl + '/r1/getEventConfig', {
+      domain,
+    });
   }
 }
