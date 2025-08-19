@@ -115,7 +115,9 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   public readonly streamStopped = output();
   public readonly screenProjected = output<ProjectionData>();
   public readonly isProjectionToggleDisabled = computed(
-    () => this.activeSession() === null || this.isToggleProcessing()
+    () =>
+      this.isToggleProcessing() ||
+      (!this.autoAvEnabled() && this.activeSession() === null)
   );
 
   protected readonly availableSessions = computed(() =>
@@ -269,10 +271,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     const stage = this.selectedStage()?.key;
 
     if (!eventName || !stage) {
-      return;
-    }
-
-    if (!this.activeSession() && newProjectingState) {
       return;
     }
 
