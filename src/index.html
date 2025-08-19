@@ -27,14 +27,46 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="favicon.ico" rel="icon" type="image/x-icon" />
-    <style></style>
+    <style>
+      .loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loader {
+        border: 4px solid #e3eeff;
+        border-top: 4px solid #534ad8;
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+        animation: spin 2s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet" />
   </head>
   <body id="index-body" class="mat-typography">
     <app-root>
-      <div class="loader"></div>
+      <div class="loader-container">
+        <div class="loader"></div>
+      </div>
     </app-root>
   </body>
 </html>

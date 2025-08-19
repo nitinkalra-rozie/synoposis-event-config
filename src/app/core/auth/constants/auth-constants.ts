@@ -33,3 +33,9 @@ export const AUTH_SESSION_TOAST = {
     'Your session will expire in 5 minutes. Please save your work.',
   DURATION: 6000,
 };
+
+export const DEV_SANDBOX_DOMAIN = 'dev-sbx.synopsis.rozie.ai';
+
+export const AUTH_EXCEPTIONS = {
+  USERNAME_EXISTS_EXCEPTION: 'UsernameExistsException',
+};

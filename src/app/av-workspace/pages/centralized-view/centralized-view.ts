@@ -4,6 +4,7 @@ import {
   Component,
   effect,
   inject,
+  OnDestroy,
   viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -56,7 +57,7 @@ import { MatCheckboxNoopClickAction } from 'src/app/shared/directives/mat-checkb
     TranscriptSidePanelContent,
   ],
 })
-export class CentralizedView {
+export class CentralizedView implements OnDestroy {
   constructor() {
     this._store.fetchStages();
     this._store.initializeWebSocket();
@@ -85,6 +86,10 @@ export class CentralizedView {
   protected dataSource = new MatTableDataSource<CentralizedViewStage>();
 
   protected $vm = this._store.$vm;
+
+  ngOnDestroy(): void {
+    this._store.disconnectWebSocket();
+  }
 
   protected announceSortChange(sortState: Sort): void {
     // This example uses English messages. If your application supports

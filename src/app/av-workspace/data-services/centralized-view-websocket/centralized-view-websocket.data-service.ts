@@ -7,14 +7,14 @@ import {
 } from 'src/app/av-workspace/data-services/centralized-view-websocket/centralized-view-websocket.data-model';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CentralizedViewWebSocketDataService {
-  private readonly _legacyBackendApiService = inject(LegacyBackendApiService);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _authFacade = inject(AuthFacade);
   private readonly _webSocketStore = inject(CentralizedViewWebSocketStore);
 
@@ -24,12 +24,12 @@ export class CentralizedViewWebSocketDataService {
   connect(): Observable<CentralizedViewWebSocketMessage> {
     this._webSocketStore.setConnecting(true);
 
-    const eventName = this._legacyBackendApiService.getCurrentEventName();
-    if (!eventName) {
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
+    if (!eventIdentifier) {
       throw new Error('No event name available for WebSocket connection');
     }
 
-    const webSocketUrl = `${environment.wsUrl}?eventName=${eventName}&cms=true`;
+    const webSocketUrl = `${environment.wsUrl}?eventName=${eventIdentifier}&cms=true`;
 
     return this._authFacade.getAccessToken$().pipe(
       take(1),
@@ -46,13 +46,13 @@ export class CentralizedViewWebSocketDataService {
               this._webSocketStore.setConnected(true);
               this._webSocketStore.setConnecting(false);
               this._sendMessage({
-                eventName: eventName,
+                eventName: eventIdentifier,
                 client: true,
                 event: 'getLastEvent',
                 cms: true,
               });
               console.log('Centralized View WebSocket connection established.');
-              this._startPing(eventName);
+              this._startPing(eventIdentifier);
             };
 
             this._socket.onmessage = (event: MessageEvent) => {
