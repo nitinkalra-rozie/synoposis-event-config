@@ -23,7 +23,9 @@ import {
   throwError,
 } from 'rxjs';
 import {
+  AUTH_EXCEPTIONS,
   AUTH_FLOW_TYPES,
+  DEV_SANDBOX_DOMAIN,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
 import { authErrorHandlerFn } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
@@ -32,8 +34,7 @@ import {
   CustomChallengeResponse,
 } from 'src/app/core/auth/models/auth.model';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
-
-const DEV_SANDBOX_DOMAIN = 'dev-sbx.synopsis.rozie.ai';
+import { generateSecurePassword } from 'src/app/core/auth/utils/auth-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +43,7 @@ export class AuthSessionService {
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
+
   private _lastAuthEmail: string | null = null;
 
   signUp$(email: string): Observable<CustomChallengeResponse> {
@@ -62,7 +64,7 @@ export class AuthSessionService {
         return from(
           signUp({
             username: email,
-            password: 'TempPassword123!',
+            password: generateSecurePassword(),
             options: {
               userAttributes: {
                 email,
@@ -75,7 +77,7 @@ export class AuthSessionService {
           switchMap(() => this._performSignIn$(email)),
           catchError((error) => {
             const errorName = (error && (error.name || error.code)) || '';
-            if (errorName === 'UsernameExistsException') {
+            if (errorName === AUTH_EXCEPTIONS.USERNAME_EXISTS_EXCEPTION) {
               return this._performSignIn$(email);
             }
             return throwError(() => error);
