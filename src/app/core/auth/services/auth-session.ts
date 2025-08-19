@@ -8,6 +8,7 @@ import {
   SignInInput,
   SignInOutput,
   signOut,
+  signUp,
 } from 'aws-amplify/auth';
 import {
   catchError,
@@ -22,7 +23,9 @@ import {
   throwError,
 } from 'rxjs';
 import {
+  AUTH_EXCEPTIONS,
   AUTH_FLOW_TYPES,
+  DEV_SANDBOX_DOMAIN,
   SIGN_IN_STEPS,
 } from 'src/app/core/auth/constants/auth-constants';
 import { authErrorHandlerFn } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
@@ -31,6 +34,7 @@ import {
   CustomChallengeResponse,
 } from 'src/app/core/auth/models/auth.model';
 import { AuthStore } from 'src/app/core/auth/stores/auth-store';
+import { generateSecurePassword } from 'src/app/core/auth/utils/auth-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -39,6 +43,8 @@ export class AuthSessionService {
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _authStore = inject(AuthStore);
+
+  private _lastAuthEmail: string | null = null;
 
   signUp$(email: string): Observable<CustomChallengeResponse> {
     return this._authStore.getSession$().pipe(
@@ -50,13 +56,50 @@ export class AuthSessionService {
             message: 'User already signed in',
           } satisfies CustomChallengeResponse);
         }
-        return this._performSignIn$(email);
+        const resolvedDomain = this._resolveDomainFromHostname(
+          window.location.hostname
+        );
+        this._lastAuthEmail = email;
+
+        return from(
+          signUp({
+            username: email,
+            password: generateSecurePassword(),
+            options: {
+              userAttributes: {
+                email,
+                'custom:domain': resolvedDomain,
+              },
+              clientMetadata: { domain: resolvedDomain },
+            },
+          })
+        ).pipe(
+          switchMap(() => this._performSignIn$(email)),
+          catchError((error) => {
+            const errorName = (error && (error.name || error.code)) || '';
+            if (errorName === AUTH_EXCEPTIONS.USERNAME_EXISTS_EXCEPTION) {
+              return this._performSignIn$(email);
+            }
+            return throwError(() => error);
+          })
+        );
       })
     );
   }
 
   OTPVerification$(otp: string): Observable<boolean> {
-    return from(confirmSignIn({ challengeResponse: otp })).pipe(
+    const hostname = window.location.hostname;
+    const resolvedDomain = this._resolveDomainFromHostname(hostname);
+    const clientMetadata: Record<string, string> = {
+      domain: resolvedDomain,
+      username: this._lastAuthEmail || '',
+    };
+    return from(
+      confirmSignIn({
+        challengeResponse: otp,
+        options: { clientMetadata },
+      })
+    ).pipe(
       takeUntilDestroyed(this._destroyRef),
       tap(() => {
         this._authStore.invalidateCache();
@@ -123,10 +166,17 @@ export class AuthSessionService {
   }
 
   private _performSignIn$(email: string): Observable<CustomChallengeResponse> {
+    this._lastAuthEmail = email;
+    const hostname = window.location.hostname;
+    const resolvedDomain = this._resolveDomainFromHostname(hostname);
     const signInInput: SignInInput = {
       username: email,
       options: {
         authFlowType: AUTH_FLOW_TYPES.CUSTOM_WITHOUT_SRP,
+        clientMetadata: {
+          username: email,
+          domain: resolvedDomain,
+        },
       },
     };
 
@@ -155,5 +205,12 @@ export class AuthSessionService {
         } satisfies CustomChallengeResponse;
       })
     );
+  }
+
+  private _resolveDomainFromHostname(hostname: string): string {
+    if (hostname === 'localhost') {
+      return DEV_SANDBOX_DOMAIN;
+    }
+    return hostname;
   }
 }
