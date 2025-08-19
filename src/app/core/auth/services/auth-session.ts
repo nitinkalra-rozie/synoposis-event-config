@@ -77,7 +77,7 @@ export class AuthSessionService {
           switchMap(() => this._performSignIn$(email)),
           catchError((error) => {
             const errorName = (error && (error.name || error.code)) || '';
-            if (errorName === AUTH_EXCEPTIONS.USERNAME_EXISTS) {
+            if (errorName === AUTH_EXCEPTIONS.USERNAME_EXISTS_EXCEPTION) {
               return this._performSignIn$(email);
             }
             return throwError(() => error);

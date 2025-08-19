@@ -37,5 +37,5 @@ export const AUTH_SESSION_TOAST = {
 export const DEV_SANDBOX_DOMAIN = 'dev-sbx.synopsis.rozie.ai';
 
 export const AUTH_EXCEPTIONS = {
-  USERNAME_EXISTS: 'UsernameExistsException',
+  USERNAME_EXISTS_EXCEPTION: 'UsernameExistsException',
 };
