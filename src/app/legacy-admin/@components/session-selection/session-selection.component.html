@@ -40,11 +40,9 @@
           </div>
           <mat-slide-toggle
             [checked]="isProjectOnPhysicalScreen()"
-            [class.disabled]="!autoAvEnabled() && activeSession() === null"
-            [disabled]="!autoAvEnabled() && activeSession() === null"
-            (change)="
-              isProjectOnPhysicalScreen.set(!isProjectOnPhysicalScreen())
-            ">
+            [class.disabled]="isProjectionToggleDisabled()"
+            [disabled]="isProjectionToggleDisabled()"
+            (change)="onProjectingToggleChange()">
           </mat-slide-toggle>
 
           @if (isProjectOnPhysicalScreen()) {

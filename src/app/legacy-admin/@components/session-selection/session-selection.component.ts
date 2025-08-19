@@ -2,9 +2,12 @@ import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
+  DestroyRef,
+  effect,
   inject,
   input,
   OnChanges,
+  OnDestroy,
   output,
   signal,
   SimpleChanges,
@@ -16,8 +19,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter, orderBy } from 'lodash-es';
+import { catchError, EMPTY, finalize, Observable, tap } from 'rxjs';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
+import { API_ACTIONS } from 'src/app/legacy-admin/@constants/api-actions';
 import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { SetPrimaryScreenProjectingResponse } from 'src/app/legacy-admin/@data-services/primary-screen-projecting/primary-screen-projecting.data-model';
+import { PrimaryScreenProjectingDataService } from 'src/app/legacy-admin/@data-services/primary-screen-projecting/primary-screen-projecting.data-service';
 import { EventStageWebSocketMessageData } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-model';
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
@@ -43,11 +50,14 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',
 })
-export class SessionSelectionComponent implements OnChanges {
+export class SessionSelectionComponent implements OnChanges, OnDestroy {
   constructor() {
-    this.isProjectOnPhysicalScreen.set(
-      this._backendApiService.getCurrentEventName() === 'ITC'
-    );
+    this.isProjectOnPhysicalScreen.set(false);
+
+    this._previousStage.set(this.selectedStage()?.key || null);
+
+    this._windowService.closeProjectionWindow();
+    this._windowService.clearWindowCloseCallback();
 
     toObservable(this._eventStageWebSocketState.$sessionLiveListening)
       .pipe(takeUntilDestroyed())
@@ -61,7 +71,6 @@ export class SessionSelectionComponent implements OnChanges {
             this._stopStream();
             this._dashboardFiltersStateService.setActiveSession(null);
             this._dashboardFiltersStateService.setLiveEvent(null);
-            console.log('Current session stopped.');
           }
 
           const sessionToSelect = this.availableSessions().find(
@@ -75,8 +84,6 @@ export class SessionSelectionComponent implements OnChanges {
             );
 
             this._startStream();
-          } else {
-            console.warn('Session not found in available sessions:', sessionId);
           }
         }
       });
@@ -93,6 +100,13 @@ export class SessionSelectionComponent implements OnChanges {
           this._dashboardFiltersStateService.setLiveEvent(null);
         }
       });
+
+    effect(() => {
+      const newStage = this.selectedStage();
+      if (newStage) {
+        this._handleStageChange(newStage);
+      }
+    });
   }
 
   public readonly autoAvEnabled = input(false);
@@ -100,6 +114,9 @@ export class SessionSelectionComponent implements OnChanges {
   public readonly streamStarted = output();
   public readonly streamStopped = output();
   public readonly screenProjected = output<ProjectionData>();
+  public readonly isProjectionToggleDisabled = computed(
+    () => this.activeSession() === null || this.isToggleProcessing()
+  );
 
   protected readonly availableSessions = computed(() =>
     filter(
@@ -137,13 +154,26 @@ export class SessionSelectionComponent implements OnChanges {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _primaryScreenProjectingService = inject(
+    PrimaryScreenProjectingDataService
+  );
+  private readonly _destroyRef = inject(DestroyRef);
+
+  private static readonly _stopProjecting = false;
 
   protected isProjectOnPhysicalScreen = signal(false);
+  protected isToggleProcessing = signal(false);
+
+  private _previousStage = signal<string | null>(null);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['autoAvEnabled'].currentValue) {
       this.isProjectOnPhysicalScreen.set(false);
     }
+  }
+
+  ngOnDestroy(): void {
+    this._windowService.clearWindowCloseCallback();
   }
 
   protected get getSessionUrl(): string {
@@ -173,7 +203,6 @@ export class SessionSelectionComponent implements OnChanges {
     }
 
     if (!sessionToUse) {
-      console.warn('No sessions available to generate the session URL.');
       return '';
     }
 
@@ -182,18 +211,15 @@ export class SessionSelectionComponent implements OnChanges {
 
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
-    this.isProjectOnPhysicalScreen.set(true);
 
-    if (this._eventStageWebSocketState.$autoAvEnabled()) {
-      const sessionId =
-        selectedOption.metadata['originalContent'].PrimarySessionId;
-      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-      this._windowService.openInsightsSessionWindow(newUrl);
+    if (this.isProjectOnPhysicalScreen()) {
+      this._updateProjectionForCurrentSession();
     }
   }
 
   protected openSessionInNewWindow(): boolean {
     this._windowService.openInsightsSessionWindow(this.getSessionUrl);
+    this._setupWindowCloseMonitoring();
     return false;
   }
 
@@ -232,11 +258,176 @@ export class SessionSelectionComponent implements OnChanges {
     this.screenProjected.emit(data);
   }
 
+  protected onProjectingToggleChange(): void {
+    if (this.isToggleProcessing()) {
+      return;
+    }
+
+    const currentState = this.isProjectOnPhysicalScreen();
+    const newProjectingState = !currentState;
+    const eventName = this._backendApiService.getCurrentEventName();
+    const stage = this.selectedStage()?.key;
+
+    if (!eventName || !stage) {
+      return;
+    }
+
+    if (!this.activeSession() && newProjectingState) {
+      return;
+    }
+
+    this.isToggleProcessing.set(true);
+
+    this._setPrimaryScreenProjection(eventName, newProjectingState, stage)
+      .pipe(
+        tap(() => {
+          this.isProjectOnPhysicalScreen.set(newProjectingState);
+
+          if (!newProjectingState) {
+            this._windowService.closeProjectionWindow();
+            this._windowService.clearWindowCloseCallback();
+          }
+
+          this.isToggleProcessing.set(false);
+        }),
+        catchError(() => {
+          this.isToggleProcessing.set(false);
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
+  private _setupWindowCloseMonitoring(): void {
+    this._windowService.setWindowCloseCallback(() => {
+      this._handleProjectingWindowClosed();
+    });
+  }
+
+  private _handleProjectingWindowClosed(): void {
+    this.isProjectOnPhysicalScreen.set(false);
+
+    const eventName = this._backendApiService.getCurrentEventName();
+    const stage = this.selectedStage()?.key;
+
+    if (!eventName || !stage) {
+      return;
+    }
+
+    this._setPrimaryScreenProjection(
+      eventName,
+      SessionSelectionComponent._stopProjecting,
+      stage
+    )
+      .pipe(
+        tap(() => {
+          this._windowService.clearWindowCloseCallback();
+        }),
+        catchError(() => EMPTY),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+  }
+
   private _startStream(): void {
     this.streamStarted.emit();
   }
 
   private _stopStream(): void {
     this.streamStopped.emit();
+  }
+
+  private _updateProjectionForCurrentSession(): void {
+    const activeSession = this.activeSession();
+    if (activeSession) {
+      const sessionId =
+        activeSession.metadata['originalContent'].PrimarySessionId;
+      const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
+      this._windowService.openInsightsSessionWindow(newUrl);
+    }
+  }
+
+  private _handleStageChange(newStage: DropdownOption): void {
+    if (this.isToggleProcessing()) {
+      return;
+    }
+
+    const newStageKey = newStage?.key;
+    if (this._previousStage() === newStageKey) {
+      return;
+    }
+
+    const wasProjecting = this.isProjectOnPhysicalScreen();
+    const eventName = this._backendApiService.getCurrentEventName();
+
+    if (!eventName) {
+      this._previousStage.set(newStageKey);
+      return;
+    }
+
+    this.isToggleProcessing.set(true);
+
+    this.isProjectOnPhysicalScreen.set(false);
+    this._windowService.closeProjectionWindow();
+    this._windowService.clearWindowCloseCallback();
+
+    if (wasProjecting && this._previousStage()) {
+      this._setPrimaryScreenProjection(
+        eventName,
+        SessionSelectionComponent._stopProjecting,
+        this._previousStage()
+      )
+        .pipe(
+          tap(() => {
+            this._handleNewStageProjection(newStageKey, eventName);
+          }),
+          catchError(() => EMPTY),
+          takeUntilDestroyed(this._destroyRef)
+        )
+        .subscribe();
+    } else {
+      this._handleNewStageProjection(newStageKey, eventName);
+    }
+  }
+
+  private _setPrimaryScreenProjection(
+    eventName: string,
+    isProjecting: boolean,
+    stage: string
+  ): Observable<SetPrimaryScreenProjectingResponse> {
+    return this._primaryScreenProjectingService.setPrimaryScreenProjecting(
+      API_ACTIONS.SET_PRIMARY_SCREEN_PROJECTING,
+      eventName,
+      isProjecting,
+      stage
+    );
+  }
+
+  private _handleNewStageProjection(
+    newStageKey: string | undefined,
+    eventName: string
+  ): void {
+    if (!newStageKey) {
+      this.isToggleProcessing.set(false);
+      return;
+    }
+
+    this._setPrimaryScreenProjection(
+      eventName,
+      SessionSelectionComponent._stopProjecting,
+      newStageKey
+    )
+      .pipe(
+        tap(() => {
+          this._previousStage.set(newStageKey);
+        }),
+        catchError(() => EMPTY),
+        finalize(() => {
+          this.isToggleProcessing.set(false);
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
   }
 }

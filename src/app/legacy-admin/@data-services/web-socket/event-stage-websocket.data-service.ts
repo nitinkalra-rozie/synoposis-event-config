@@ -129,6 +129,14 @@ export class EventStageWebsocketDataService {
           this._eventStageWebSocketState.setAutoAvEnabled(parsedMessage.autoAv);
         }
         break;
+      case 'STAGE_STATUS_UPDATED':
+        this._eventStageWebSocketState.setStageStatusUpdated(parsedMessage);
+        if (parsedMessage.status === 'ONLINE_AND_PROJECTING') {
+          this._eventStageWebSocketState.setProjecting(true);
+        } else {
+          this._eventStageWebSocketState.setProjecting(false);
+        }
+        break;
       case 'SESSION_SPEAKERS_BIOS':
         this._updateBrowserWindowUrl(sessionId);
         break;
@@ -138,7 +146,7 @@ export class EventStageWebsocketDataService {
 
   private _updateBrowserWindowUrl(sessionId: string): void {
     const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-    this._browserWindowService.openInsightsSessionWindow(newUrl);
+    this._browserWindowService.updateExistingWindowUrl(newUrl);
   }
 
   private _startPing(eventName: string, selectedLocation: string): void {

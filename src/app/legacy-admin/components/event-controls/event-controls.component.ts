@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   EventEmitter,
   inject,
   Injector,
@@ -31,6 +32,7 @@ import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-s
 import { DropdownOption } from 'src/app/legacy-admin/@models/dropdown-option';
 import { RightSidebarState } from 'src/app/legacy-admin/@models/global-state';
 import { GetMultiSelectOptionFromStringPipe } from 'src/app/legacy-admin/@pipes/get-multi-select-option-from-string.pipe';
+import { BrowserWindowService } from 'src/app/legacy-admin/@services/browser-window.service';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
@@ -94,6 +96,10 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     EventStageWebSocketStateService
   );
   private readonly _toastFacade = inject(SynToastFacade);
+  private readonly _browserWindowService = inject(BrowserWindowService);
+
+  private _previousStage: string | null = null;
+  private _previousStageStatus: string | null = null;
 
   public PostDataEnum = PostDataEnum;
   // #region old version
@@ -142,6 +148,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this.onReset = new EventEmitter();
     this._setupAutoLocationSelection();
     this._setupAutoAvSetupWatcher();
+    this._setupStageStatusMonitoring();
   }
 
   ngOnInit(): void {
@@ -269,6 +276,8 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this._handlePreviousStageStatus();
+
     if (this.isAutoAvChecked()) {
       this._modalService.open(
         'Warning',
@@ -381,6 +390,20 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  private _setupStageStatusMonitoring(): void {
+    effect(() => {
+      const currentStage = this._eventStageWebSocketState.$connectedStage();
+      this._previousStage = currentStage;
+    });
+
+    effect(() => {
+      const statusData = this._eventStageWebSocketState.$stageStatusUpdated();
+      if (statusData?.status) {
+        this._previousStageStatus = statusData.status;
+      }
+    });
+  }
+
   private _selectLocationOption(option: DropdownOption): void {
     this._filtersStateService.setSelectedLocation(option);
     localStorage.setItem('SELECTED_LOCATION', JSON.stringify(option));
@@ -415,10 +438,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       .pipe(
         tap(() => console.log('WebSocket _wsSubscription')),
         catchError((error) => {
-          this._toastFacade.showError(
-            `Failed to connect to Stage WebSocket. `,
-            5000
-          );
           throw error;
         }),
         retry({ delay: 5000 }),
@@ -454,5 +473,29 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
+  }
+
+  private _handlePreviousStageStatus(): void {
+    if (this._previousStage && this._previousStageStatus) {
+      const isProjecting =
+        this._previousStageStatus === 'ONLINE_AND_PROJECTING';
+
+      if (!isProjecting) {
+        this._browserWindowService.closeProjectionWindow();
+        this._browserWindowService.clearWindowCloseCallback();
+
+        const isOffline = this._previousStageStatus === 'OFFLINE';
+        this.stageChanged.emit(
+          isOffline ? 'PREVIOUS_STAGE_OFFLINE' : 'PREVIOUS_STAGE_NOT_PROJECTING'
+        );
+
+        const statusMessage = isOffline ? 'was offline' : 'was not projecting';
+
+        this._toastFacade.showInfo(
+          `Previous stage (${this._previousStage}) ${statusMessage}. Projection tabs have been closed.`,
+          5000
+        );
+      }
+    }
   }
 }

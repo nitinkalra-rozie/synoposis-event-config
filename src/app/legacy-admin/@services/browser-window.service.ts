@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
 import { getInsightsDomainUrl } from 'src/app/legacy-admin/@utils/get-domain-urls-util';
 
 interface WindowFeatures {
@@ -19,6 +20,8 @@ interface WindowFeatures {
 })
 export class BrowserWindowService {
   private _window: Window | null = null;
+  private _windowCloseCallback: (() => void) | null = null;
+  private _windowCloseSubscription: Subscription | null = null;
 
   openInsightsSessionWindow(url: string): void {
     if (!this._isWindowValid()) {
@@ -35,6 +38,50 @@ export class BrowserWindowService {
       this._openWindow(projectedUrl);
     } else {
       this._updateWindowUrl(projectedUrl);
+    }
+  }
+
+  closeProjectionWindow(): void {
+    if (this._window && !this._window.closed) {
+      this._window.close();
+    }
+    this._window = null;
+  }
+
+  setWindowCloseCallback(callback: () => void): void {
+    this._windowCloseCallback = callback;
+    this._startWindowCloseMonitoring();
+  }
+
+  clearWindowCloseCallback(): void {
+    this._windowCloseCallback = null;
+    this._stopWindowCloseMonitoring();
+  }
+
+  updateExistingWindowUrl(url: string): void {
+    if (this._isWindowValid()) {
+      this._updateWindowUrl(url);
+    }
+  }
+
+  private _startWindowCloseMonitoring(): void {
+    if (this._windowCloseSubscription) {
+      return;
+    }
+
+    this._windowCloseSubscription = interval(1000).subscribe(() => {
+      if (this._window && this._window.closed && this._windowCloseCallback) {
+        this._windowCloseCallback();
+        this._window = null;
+        this._stopWindowCloseMonitoring();
+      }
+    });
+  }
+
+  private _stopWindowCloseMonitoring(): void {
+    if (this._windowCloseSubscription) {
+      this._windowCloseSubscription.unsubscribe();
+      this._windowCloseSubscription = null;
     }
   }
 
