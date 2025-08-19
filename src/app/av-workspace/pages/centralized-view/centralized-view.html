@@ -200,6 +200,7 @@
   </div>
 
   <syn-right-side-panel
+    [closeOnDestroy]="true"
     [isOpen]="$vm().transcriptPanel().isOpen()"
     [width]="'25vw'"
     (panelClose)="onTranscriptPanelClose()"
