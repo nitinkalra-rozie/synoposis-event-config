@@ -317,7 +317,8 @@ export class UploadAgendaDialogComponent {
       (session) =>
         !session.SessionTitle?.trim() ||
         !session.SessionId?.trim() ||
-        !session.StartsAt
+        !session.StartsAt ||
+        !session.Location?.trim()
     );
 
     if (invalidSessions.length > 0) {

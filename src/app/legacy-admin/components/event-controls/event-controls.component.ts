@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   EventEmitter,
   inject,
   Injector,
@@ -390,28 +391,17 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   private _setupStageStatusMonitoring(): void {
-    toObservable(this._eventStageWebSocketState.$connectedStage)
-      .pipe(
-        distinctUntilChanged(),
-        tap((currentStage) => {
-          this._previousStage = currentStage;
-        }),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
+    effect(() => {
+      const currentStage = this._eventStageWebSocketState.$connectedStage();
+      this._previousStage = currentStage;
+    });
 
-    toObservable(this._eventStageWebSocketState.$stageStatusUpdated)
-      .pipe(
-        filter((statusData) => !!statusData),
-        distinctUntilChanged(),
-        tap((statusData) => {
-          if (statusData?.status) {
-            this._previousStageStatus = statusData.status;
-          }
-        }),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
+    effect(() => {
+      const statusData = this._eventStageWebSocketState.$stageStatusUpdated();
+      if (statusData?.status) {
+        this._previousStageStatus = statusData.status;
+      }
+    });
   }
 
   private _selectLocationOption(option: DropdownOption): void {
@@ -487,22 +477,21 @@ export class EventControlsComponent implements OnInit, OnDestroy {
 
   private _handlePreviousStageStatus(): void {
     if (this._previousStage && this._previousStageStatus) {
-      const isOfflineOrNotProjecting =
-        this._previousStageStatus === 'OFFLINE' ||
-        this._previousStageStatus !== 'ONLINE_AND_PROJECTING';
+      const isProjecting =
+        this._previousStageStatus === 'ONLINE_AND_PROJECTING';
 
-      if (isOfflineOrNotProjecting) {
-        this._browserWindowService.closeAllProjectionWindows();
+      if (!isProjecting) {
+        this._browserWindowService.closeProjectionWindow();
         this._browserWindowService.clearWindowCloseCallback();
 
-        this.stageChanged.emit('PREVIOUS_STAGE_OFFLINE');
+        const isOffline = this._previousStageStatus === 'OFFLINE';
+        this.stageChanged.emit(
+          isOffline ? 'PREVIOUS_STAGE_OFFLINE' : 'PREVIOUS_STAGE_NOT_PROJECTING'
+        );
 
-        const statusMessage =
-          this._previousStageStatus === 'OFFLINE'
-            ? 'was offline'
-            : 'was not projecting';
+        const statusMessage = isOffline ? 'was offline' : 'was not projecting';
 
-        this._toastFacade.showWarning(
+        this._toastFacade.showInfo(
           `Previous stage (${this._previousStage}) ${statusMessage}. Projection tabs have been closed.`,
           5000
         );

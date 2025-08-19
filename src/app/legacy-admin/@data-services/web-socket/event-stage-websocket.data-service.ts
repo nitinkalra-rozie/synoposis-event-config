@@ -146,7 +146,7 @@ export class EventStageWebsocketDataService {
 
   private _updateBrowserWindowUrl(sessionId: string): void {
     const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
-    this._browserWindowService.openInsightsSessionWindow(newUrl);
+    this._browserWindowService.updateExistingWindowUrl(newUrl);
   }
 
   private _startPing(eventName: string, selectedLocation: string): void {

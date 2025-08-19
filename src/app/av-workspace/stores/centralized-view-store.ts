@@ -100,7 +100,7 @@ export class CentralizedViewStore {
   private _isSelectAllDisabled = computed(
     () =>
       !getSelectableEntities(this._filteredEntities()).length ||
-      this._uiStore.$transcriptPanel().isOpen
+      this._uiStore.$transcriptPanel().isOpen()
   );
 
   private _transcriptPanelCurrentAction = computed(() => {
@@ -193,14 +193,12 @@ export class CentralizedViewStore {
   }
 
   openTranscriptPanel(stageId: string): void {
-    const stage = this._dataStore
-      .$entities()
-      .find((entity) => entity.stage === stageId);
-    this._uiStore.openTranscriptPanel(stageId);
     this._uiStore.selectRow(stageId);
+    this._uiStore.openTranscriptPanel(stageId);
   }
 
   closeTranscriptPanel(): void {
+    this._uiStore.clearSelection();
     this._uiStore.closeTranscriptPanel();
   }
 
