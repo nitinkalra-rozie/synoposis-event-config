@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthDataService } from 'src/app/core/auth/data-service/auth-data-service';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
@@ -72,7 +72,7 @@ export class LoginPageComponent {
               (error && (error.message || error.code)) ||
               'Failed to initiate sign in. Please try again.';
             this.errorMessage = message;
-            return of({ success: false, message });
+            return throwError(() => new Error(message));
           }),
           finalize(() => {
             this.processedClicked = false;
