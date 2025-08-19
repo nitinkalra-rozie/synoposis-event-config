@@ -9,7 +9,7 @@ const state = {
   sessionLiveListening: signal<EventStageWebSocketMessageData>(null),
   sessionEnd: signal<EventStageWebSocketMessageData>(null),
   sessionPaused: signal<EventStageWebSocketMessageData>(null),
-  stageStatusUpdated: signal<any>(null),
+  stageStatusUpdated: signal<EventStageWebSocketMessageData>(null),
   isProjecting: signal<boolean>(false),
 };
 
@@ -56,7 +56,7 @@ export class EventStageWebSocketStateService {
     state.sessionPaused.set(value);
   }
 
-  setStageStatusUpdated(value: any): void {
+  setStageStatusUpdated(value: EventStageWebSocketMessageData): void {
     state.stageStatusUpdated.set(value);
   }
 
