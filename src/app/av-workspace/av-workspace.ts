@@ -40,8 +40,6 @@ export class AvWorkspace implements OnInit, OnDestroy {
   private readonly _confirmDialog = inject(SynConfirmDialogFacade);
 
   // TODO:SYN-644 Based on the permissions curate the tab links to be displayed
-  // This computed property filters tabs based on user permissions/role
-  // When only 1 tab is shown, no confirmation dialog will appear (handled in onTabLinkClick)
   protected displayedTabLinks = computed(() =>
     this.tabLinks().filter((tabLink) =>
       // TODO:SYN-644 Remove this. If the environment is production, we don't want to show the centralized view until it's fully implemented
