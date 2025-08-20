@@ -129,7 +129,8 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
       ),
       ({ metadata }) =>
         metadata['originalContent'].Status !== 'REVIEW_COMPLETE' &&
-        metadata['originalContent'].Status !== 'UNDER_REVIEW'
+        metadata['originalContent'].Status !== 'UNDER_REVIEW' &&
+        metadata['originalContent'].Status !== 'PROCESSING_INSIGHTS'
     )
   );
   protected readonly activeSession = computed(() =>
