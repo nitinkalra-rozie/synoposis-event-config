@@ -67,4 +67,23 @@ export const CENTRALIZED_VIEW_DIALOG_MESSAGES = {
         numOfStages > 1 ? 's' : ''
       }?`,
   },
+  TAB_SWITCHING: {
+    LEAVE_STAGE_VIEW: {
+      TITLE: 'Leave Stage View?',
+      MESSAGE:
+        'You are currently managing a stage session. Switching to Centralized View may disconnect your active audio stream and interrupt ongoing ' +
+        'session monitoring. Are you sure you want to continue?',
+    },
+    LEAVE_CENTRALIZED_VIEW: {
+      TITLE: 'Leave Centralized View?',
+      MESSAGE:
+        'You may have active sessions or configuration changes. Switching to Stage View will change your current workflow. Continue?',
+    },
+    BUTTON_TEXT: {
+      SWITCH_TO_STAGE_VIEW: 'Switch to Stage View',
+      SWITCH_TO_CENTRALIZED_VIEW: 'Switch to Centralized View',
+      STAY_IN_STAGE_VIEW: 'Stay in Stage View',
+      STAY_IN_CENTRALIZED_VIEW: 'Stay in Centralized View',
+    },
+  },
 };

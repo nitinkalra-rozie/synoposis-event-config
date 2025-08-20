@@ -25,8 +25,6 @@ import { StagesActions } from 'src/app/av-workspace/components/stages-actions/st
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-view-store';
-import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
-import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { SynMenuMultiSelectOption } from 'src/app/shared/components/syn-menu-multi-select/syn-menu-multi-select-option.model';
 import { SynRightSidePanel } from 'src/app/shared/components/syn-right-side-panel/syn-right-side-panel';
 import { SynSingleSelect } from 'src/app/shared/components/syn-single-select/syn-single-select';
@@ -61,10 +59,6 @@ import { MatCheckboxNoopClickAction } from 'src/app/shared/directives/mat-checkb
 })
 export class CentralizedView implements OnDestroy {
   constructor() {
-    const stageWs = inject(EventStageWebsocketDataService);
-    const stageWsState = inject(EventStageWebSocketStateService);
-    stageWs.disconnect();
-    stageWsState.resetState();
     this._store.fetchStages();
     this._store.initializeWebSocket();
 

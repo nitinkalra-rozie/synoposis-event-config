@@ -5,6 +5,7 @@ import {
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
@@ -79,7 +80,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   ],
 })
 // TODO:@later refactor this fully
-export class SessionContentComponent implements OnInit, OnChanges {
+export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
@@ -308,6 +309,72 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.transcriptTimeOut = changes['transcriptTimeOutProp'].currentValue;
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.cleanupWebSocketConnection();
+    this.cleanupMicrophoneStream();
+    this.clearAllIntervals();
+    this.cleanupAudioRecorder();
+    this.cleanupSessionState();
+    this.resetComponentState();
+  }
+
+  private cleanupWebSocketConnection(): void {
+    if (this.socket) {
+      if (
+        this.socket.readyState === WebSocket.OPEN ||
+        this.socket.readyState === WebSocket.CONNECTING
+      ) {
+        const emptyMessage = this.getAudioEventMessage(
+          Buffer.from(new Buffer([]))
+        );
+        // @ts-ignore
+        const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+        this.socket.send(emptyBuffer);
+
+        this.socket.close(1000, 'Component destroyed');
+      }
+      this.socket = null;
+    }
+  }
+
+  private cleanupMicrophoneStream(): void {
+    if (this.micStream) {
+      this.micStream.stop();
+      this.micStream = null;
+    }
+  }
+
+  private clearAllIntervals(): void {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+
+    if (this.silenceIntervalId) {
+      clearInterval(this.silenceIntervalId);
+      this.silenceIntervalId = null;
+    }
+  }
+
+  private cleanupAudioRecorder(): void {
+    this._audioRecorderService.flushAndClose();
+  }
+
+  private resetComponentState(): void {
+    this.isStreaming = false;
+    this.startListeningClicked = false;
+    this.isSessionInProgress = false;
+
+    this.socketError = false;
+    this.transcribeException = false;
+
+    this.transcription = '';
+    this.transctiptToInsides = '';
+    this.lastFiveWords = '';
+
+    this.lastTranscriptTimestamp = Date.now();
   }
 
   onThemeChange() {
