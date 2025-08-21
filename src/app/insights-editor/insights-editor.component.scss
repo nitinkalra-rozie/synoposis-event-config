@@ -313,6 +313,10 @@ mat-chip {
   &.status-complete {
     background-color: #00cc66;
   }
+
+  &.status-processing-insights {
+    background-color: #6366f1; /* Indigo for Processing Insights */
+  }
 }
 
 // Delete icon

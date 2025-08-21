@@ -470,6 +470,8 @@ export class InsightsEditorComponent implements OnInit {
         return 'status-completed';
       case EventStatus.ReviewComplete:
         return 'status-completed';
+      case EventStatus.ProcessingInsights:
+        return 'status-processing-insights';
       default:
         return '';
     }

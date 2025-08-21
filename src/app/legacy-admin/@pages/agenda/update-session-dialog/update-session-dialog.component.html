@@ -45,11 +45,18 @@
       <mat-form-field appearance="outline">
         <mat-label>Status</mat-label>
         <mat-select formControlName="Status" required>
-          <mat-option value="NOT_STARTED">Not Started</mat-option>
+          <mat-option [value]="EventStatus.NotStarted">Not Started</mat-option>
           <mat-option value="NOT_AVAILABLE">Hidden</mat-option>
-          <mat-option value="IN_PROGRESS">Live</mat-option>
-          <mat-option value="UNDER_REVIEW">Under Review</mat-option>
-          <mat-option value="REVIEW_COMPLETE">Review Complete</mat-option>
+          <mat-option [value]="EventStatus.InProgress">Live</mat-option>
+          <mat-option [value]="EventStatus.UnderReview"
+            >Under Review</mat-option
+          >
+          <mat-option [value]="EventStatus.ReviewComplete"
+            >Review Complete</mat-option
+          >
+          <mat-option [value]="EventStatus.ProcessingInsights"
+            >Processing Insights</mat-option
+          >
         </mat-select>
       </mat-form-field>
 

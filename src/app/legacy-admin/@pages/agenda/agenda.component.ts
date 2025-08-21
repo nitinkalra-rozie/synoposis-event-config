@@ -197,6 +197,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
+  public readonly EventStatus = EventStatus;
+
   @ViewChild(MatSort) public sort!: MatSort;
 
   public breadCrumbItems!: Array<{}>;
@@ -615,6 +617,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         return 'status-completed';
       case EventStatus.ReviewComplete:
         return 'status-completed';
+      case EventStatus.ProcessingInsights:
+        return 'status-processing-insights';
       default:
         return '';
     }
