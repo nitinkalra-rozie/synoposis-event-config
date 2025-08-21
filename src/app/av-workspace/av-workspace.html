@@ -10,8 +10,8 @@
       <a
         mat-tab-link
         [active]="activeTabLink() === tabLink.value"
-        [routerLink]="shouldUseRouterLink() ? [tabLink.value] : null"
-        (click)="onTabLinkClick(tabLink.value, $event)">
+        [routerLink]="[tabLink.value]"
+        (click)="activeTabLink.set(tabLink.value)">
         {{tabLink.label}}
       </a>
       }

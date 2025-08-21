@@ -115,7 +115,7 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   sessionIds = [];
   successMessage = '';
   failureMessage = '';
-  transctiptToInsides = '';
+  transcriptToInsides = '';
   timeoutId: any = '';
   currentSessionId = '';
   currentStage = '';
@@ -217,8 +217,8 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
       ) {
         if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
           this.startRecording();
-          this.transctiptToInsides = localStorage.getItem(
-            'transctiptToInsides'
+          this.transcriptToInsides = localStorage.getItem(
+            'transcriptToInsides'
           );
           this.rotateSessionTitles(this.selectedSessionTitle);
         }
@@ -326,11 +326,8 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
         this.socket.readyState === WebSocket.OPEN ||
         this.socket.readyState === WebSocket.CONNECTING
       ) {
-        const emptyMessage = this.getAudioEventMessage(
-          Buffer.from(new Buffer([]))
-        );
-        // @ts-ignore
-        const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+        const emptyMessage = this.getAudioEventMessage(Buffer.from([]));
+        const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage as any);
         this.socket.send(emptyBuffer);
 
         this.socket.close(1000, 'Component destroyed');
@@ -371,7 +368,7 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
     this.transcribeException = false;
 
     this.transcription = '';
-    this.transctiptToInsides = '';
+    this.transcriptToInsides = '';
     this.lastFiveWords = '';
 
     this.lastTranscriptTimestamp = Date.now();
@@ -1023,14 +1020,14 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   realtimeInsides(transcript: string) {
-    if (this.transctiptToInsides === '') {
+    if (this.transcriptToInsides === '') {
       this.setTimerToPushTranscript();
     }
 
-    this.transctiptToInsides += transcript;
-    localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    this.transcriptToInsides += transcript;
+    localStorage.setItem('transcriptToInsides', this.transcriptToInsides);
 
-    const words = this.transctiptToInsides.split(/\s+/);
+    const words = this.transcriptToInsides.split(/\s+/);
     const wordCount = words.length;
 
     if (wordCount > 100) {
@@ -1054,13 +1051,13 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
 
   hitBackendApiAndReset() {
     this.sendTranscriptToBackend(
-      this.lastFiveWords + ' ' + this.transctiptToInsides
+      this.lastFiveWords + ' ' + this.transcriptToInsides
     );
-    const words = this.transctiptToInsides.split(/\s+/);
+    const words = this.transcriptToInsides.split(/\s+/);
     this.lastFiveWords = this.getLastFiveWords(words);
-    this.transctiptToInsides = '';
+    this.transcriptToInsides = '';
     localStorage.setItem('lastFiveWords', this.lastFiveWords);
-    localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    localStorage.setItem('transcriptToInsides', this.transcriptToInsides);
     clearInterval(this.timeoutId);
   }
 
@@ -1234,8 +1231,7 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     //convert the JSON object + headers into a binary event stream message
-    // @ts-ignore
-    const binary = eventStreamMarshaller.marshall(audioEventMessage);
+    const binary = eventStreamMarshaller.marshall(audioEventMessage as any);
 
     return binary;
   };
@@ -1249,11 +1245,8 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      const emptyMessage = this.getAudioEventMessage(
-        Buffer.from(new Buffer([]))
-      );
-      // @ts-ignore
-      const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+      const emptyMessage = this.getAudioEventMessage(Buffer.from([]));
+      const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage as any);
       this.socket.send(emptyBuffer);
     }
     clearInterval(this.timeoutId);
@@ -1285,7 +1278,7 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
-    this.transctiptToInsides = '';
+    this.transcriptToInsides = '';
     this.isStreaming = false;
   };
 
@@ -1528,8 +1521,9 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
         this.socket?.OPEN
       ) {
         const silentMessage = this.getAudioEventMessage(this.silentAudioChunk);
-        // @ts-ignore
-        const silentBinary = eventStreamMarshaller.marshall(silentMessage);
+        const silentBinary = eventStreamMarshaller.marshall(
+          silentMessage as any
+        );
         this.socket.send(silentBinary);
         console.log('Sending silent audio to keep connection alive');
       }
