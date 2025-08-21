@@ -29,7 +29,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { map, startWith } from 'rxjs/operators';
-import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { Session, SpeakerDetails } from '../agenda.component';
 import {
@@ -60,8 +59,6 @@ import {
   ],
 })
 export class UpdateSessionDialogComponent {
-  public readonly EventStatus = EventStatus;
-
   public dialogData = inject(MAT_DIALOG_DATA) as {
     adjustSessionTimesFn: (data: Session[]) => Session[];
     displayErrorMessageFn: (msg: string) => void;

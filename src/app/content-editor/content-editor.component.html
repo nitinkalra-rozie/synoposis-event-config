@@ -77,10 +77,9 @@
                   }
                   @if (session.Status === EventStatus.ProcessingInsights) {
                     <span
-                      class="session-status-badge"
-                      [ngClass]="getStatusClass(session.Status)"
-                      style="background-color: #6366f1">
-                      <mat-icon style="font-size: 14px; margin-right: 4px"
+                      class="session-status-badge processing-insights-badge"
+                      [ngClass]="getStatusClass(session.Status)">
+                      <mat-icon class="processing-insights-icon"
                         >settings</mat-icon
                       >
                       Processing Insights
@@ -219,15 +218,13 @@
                                 EventStatus.ProcessingInsights
                               ) {
                                 <span
-                                  class="session-status-badge"
+                                  class="session-status-badge processing-insights-badge"
                                   [ngClass]="
                                     getStatusClass(
                                       selected_session_details.Status
                                     )
-                                  "
-                                  style="background-color: #6366f1">
-                                  <mat-icon
-                                    style="font-size: 14px; margin-right: 4px"
+                                  ">
+                                  <mat-icon class="processing-insights-icon"
                                     >settings</mat-icon
                                   >
                                   Processing Insights

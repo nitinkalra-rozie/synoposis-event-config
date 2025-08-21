@@ -452,6 +452,15 @@ $spin-kit-spinner-color: #8141ff !default;
   background-color: #00cc66 !important; /* Green for Complete */
 }
 
+.processing-insights-badge {
+  background-color: #6366f1;
+}
+
+.processing-insights-icon {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
 /* Utility classes */
 .flex-grow {
   flex-grow: 1;
