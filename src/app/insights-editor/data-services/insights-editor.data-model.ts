@@ -127,4 +127,5 @@ export enum EventStatus {
   ReviewComplete = 'REVIEW_COMPLETE',
   InReview = 'IN_REVIEW',
   Complete = 'COMPLETE',
+  ProcessingInsights = 'PROCESSING_INSIGHTS',
 }
