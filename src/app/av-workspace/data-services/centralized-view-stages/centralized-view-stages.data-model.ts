@@ -2,7 +2,8 @@ export type SessionStatusType =
   | 'NOT_STARTED'
   | 'UNDER_REVIEW'
   | 'IN_PROGRESS'
-  | 'COMPLETED';
+  | 'COMPLETED'
+  | 'PROCESSING_INSIGHTS';
 
 export type StageStatusType =
   | 'OFFLINE'
