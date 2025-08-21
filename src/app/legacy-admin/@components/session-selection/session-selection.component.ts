@@ -20,6 +20,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { filter, orderBy } from 'lodash-es';
 import { catchError, EMPTY, finalize, Observable, tap } from 'rxjs';
+import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { SynSingleSelectComponent } from 'src/app/legacy-admin/@components/syn-single-select';
 import { API_ACTIONS } from 'src/app/legacy-admin/@constants/api-actions';
 import { ProjectionData } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
@@ -128,9 +129,9 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         'desc'
       ),
       ({ metadata }) =>
-        metadata['originalContent'].Status !== 'REVIEW_COMPLETE' &&
-        metadata['originalContent'].Status !== 'UNDER_REVIEW' &&
-        metadata['originalContent'].Status !== 'PROCESSING_INSIGHTS'
+        metadata['originalContent'].Status !== EventStatus.ReviewComplete &&
+        metadata['originalContent'].Status !== EventStatus.UnderReview &&
+        metadata['originalContent'].Status !== EventStatus.ProcessingInsights
     )
   );
   protected readonly activeSession = computed(() =>
