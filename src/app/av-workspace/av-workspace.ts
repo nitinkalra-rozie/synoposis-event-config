@@ -22,6 +22,7 @@ import {
   AvWorkspaceAccess,
   AvWorkspaceView,
 } from 'src/app/av-workspace/models/av-workspace-view.model';
+import { StageViewDialogCancelledEvent } from 'src/app/av-workspace/models/stage-view-dialog-event.model';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
@@ -64,13 +65,11 @@ export class AvWorkspace implements OnInit, OnDestroy {
         take(1),
         map(([groups, isAdmin]) => getAvWorkspaceAccess(groups, isAdmin)),
         tap((access: AvWorkspaceAccess) => {
-          // Setup available tabs
           const availableTabs = access.availableViews.map(
             (view) => this._tabConfig[view]
           );
           this.tabLinks.set(availableTabs);
 
-          // Set active tab based on route or fallback to first available
           const currentPath = this._route.firstChild?.snapshot.url[0]?.path;
           const isValidPath = availableTabs.some(
             (tab) => tab.value === currentPath
@@ -133,8 +132,9 @@ export class AvWorkspace implements OnInit, OnDestroy {
   }
 
   private setupDialogEventListeners(): void {
-    this._dialogEventListener = ((event: CustomEvent) => {
-      if (event.detail?.stayInStage) {
+    this._dialogEventListener = ((event: Event) => {
+      const customEvent = event as StageViewDialogCancelledEvent;
+      if (customEvent.detail?.stayInStage) {
         this.activeTabLink.set('stage');
       }
     }) satisfies EventListener;

@@ -14,7 +14,7 @@ import {
   getDestinationName,
   handleDialogCancellation,
   pauseCurrentSessionLocally,
-} from 'src/app/av-workspace/helpers/can-deactivate-guard.utils';
+} from 'src/app/av-workspace/helpers/can-deactivate-guard';
 import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
