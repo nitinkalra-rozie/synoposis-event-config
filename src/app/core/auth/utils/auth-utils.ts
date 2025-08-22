@@ -1,6 +1,13 @@
 import { ROUTE_PERMISSIONS } from 'src/app/core/config/permission-config';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
+function getRequiredRolesForRoute(routePath: string): UserRole[] {
+  const permission = ROUTE_PERMISSIONS.find((p) =>
+    routePath.startsWith(p.path)
+  );
+  return permission?.roles || [];
+}
+
 export function hasRoutePermission(
   userRole: UserRole,
   routePath: string
@@ -62,11 +69,4 @@ export function generateSecurePassword(length: number = 16): string {
   }
 
   return passwordArray.join('');
-}
-
-function getRequiredRolesForRoute(routePath: string): UserRole[] {
-  const permission = ROUTE_PERMISSIONS.find((p) =>
-    routePath.startsWith(p.path)
-  );
-  return permission?.roles || [];
 }

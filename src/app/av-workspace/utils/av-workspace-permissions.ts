@@ -4,19 +4,6 @@ import {
 } from 'src/app/av-workspace/models/av-workspace-view.model';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
-export function getAvWorkspaceAccess(
-  userGroups: string[] | null,
-  isAdmin: boolean
-): AvWorkspaceAccess {
-  const availableViews = getAvailableViews(userGroups, isAdmin);
-  const defaultView = getAvWorkspaceDefaultView(userGroups, isAdmin);
-
-  return {
-    availableViews,
-    defaultView,
-  };
-}
-
 function getAvWorkspaceDefaultView(
   userGroups: string[] | null,
   isAdmin: boolean
@@ -77,4 +64,17 @@ function getAvailableViews(
 
 function hasRole(userGroups: string[] | null, role: UserRole): boolean {
   return userGroups?.some((group) => group.includes(role)) ?? false;
+}
+
+export function getAvWorkspaceAccess(
+  userGroups: string[] | null,
+  isAdmin: boolean
+): AvWorkspaceAccess {
+  const availableViews = getAvailableViews(userGroups, isAdmin);
+  const defaultView = getAvWorkspaceDefaultView(userGroups, isAdmin);
+
+  return {
+    availableViews,
+    defaultView,
+  };
 }
