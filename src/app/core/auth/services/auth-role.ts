@@ -11,7 +11,7 @@ const SUPER_ADMIN_EMAIL_DOMAIN = '@rozie.ai';
 export class AuthRoleService {
   private readonly _tokenService = inject(AuthTokenService);
 
-  isUserAdmin$(): Observable<boolean> {
+  isUserSuperAdmin$(): Observable<boolean> {
     return this._tokenService.getAccessToken$().pipe(
       map((accessToken) => {
         if (!accessToken) {

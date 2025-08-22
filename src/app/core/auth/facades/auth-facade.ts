@@ -47,8 +47,8 @@ export class AuthFacade {
     return this._authRoleService.getUserRole$();
   }
 
-  isUserAdmin$(): Observable<boolean> {
-    return this._authRoleService.isUserAdmin$();
+  isUserSuperAdmin$(): Observable<boolean> {
+    return this._authRoleService.isUserSuperAdmin$();
   }
 
   checkSession$(): Observable<AuthSession> {

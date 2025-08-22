@@ -5,10 +5,11 @@ import {
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
 export function getAvWorkspaceAccess(
-  userGroups: string[] | null
+  userGroups: string[] | null,
+  isAdmin: boolean
 ): AvWorkspaceAccess {
-  const availableViews = getAvailableViews(userGroups);
-  const defaultView = getAvWorkspaceDefaultView(userGroups);
+  const availableViews = getAvailableViews(userGroups, isAdmin);
+  const defaultView = getAvWorkspaceDefaultView(userGroups, isAdmin);
 
   return {
     availableViews,
@@ -17,13 +18,15 @@ export function getAvWorkspaceAccess(
 }
 
 function getAvWorkspaceDefaultView(
-  userGroups: string[] | null
+  userGroups: string[] | null,
+  isAdmin: boolean
 ): AvWorkspaceView | null {
   if (!userGroups?.length) return null;
 
   if (
     hasRole(userGroups, UserRole.SuperAdmin) ||
-    hasRole(userGroups, UserRole.CentralizedManager)
+    hasRole(userGroups, UserRole.CentralizedManager) ||
+    isAdmin
   ) {
     return 'centralized';
   }
@@ -35,12 +38,19 @@ function getAvWorkspaceDefaultView(
   return null;
 }
 
-function getAvailableViews(userGroups: string[] | null): AvWorkspaceView[] {
+function getAvailableViews(
+  userGroups: string[] | null,
+  isAdmin: boolean
+): AvWorkspaceView[] {
   if (!userGroups?.length) return [];
 
   const views: AvWorkspaceView[] = [];
 
-  if (hasRole(userGroups, UserRole.SuperAdmin)) {
+  if (
+    hasRole(userGroups, UserRole.SuperAdmin) ||
+    hasRole(userGroups, UserRole.CentralizedManager) ||
+    isAdmin
+  ) {
     return ['centralized', 'stage'];
   }
 

@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
-import { RouterLink, RouterOutlet } from '@angular/router';
-import { map, take, tap } from 'rxjs';
+import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
+import { forkJoin, map, take, tap } from 'rxjs';
 import {
   AvWorkspaceAccess,
   AvWorkspaceView,
@@ -27,6 +27,7 @@ import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-m
 })
 export class AvWorkspace implements OnInit {
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _route = inject(ActivatedRoute);
   private readonly _authFacade = inject(AuthFacade);
 
   private readonly _tabConfig: Record<
@@ -41,13 +42,16 @@ export class AvWorkspace implements OnInit {
   protected activeTabLink = signal<string>('centralized');
 
   ngOnInit(): void {
-    this._authFacade
-      .getUserGroups$()
+    forkJoin([
+      this._authFacade.getUserGroups$(),
+      this._authFacade.isUserSuperAdmin$(),
+    ])
       .pipe(
         take(1),
-        map((groups: string[]) => getAvWorkspaceAccess(groups)),
+        map(([groups, isAdmin]) => getAvWorkspaceAccess(groups, isAdmin)),
         tap((access: AvWorkspaceAccess) => {
-          this.activeTabLink.set(access.defaultView ?? 'centralized');
+          const currentPath = this._route.firstChild?.snapshot.url[0].path;
+          this.activeTabLink.set(currentPath ?? 'centralized');
 
           const availableTabs = access.availableViews.map(
             (view) => this._tabConfig[view]

@@ -42,7 +42,7 @@ export class SideNavComponent implements OnInit {
   private loadNavigationPermissions(): void {
     combineLatest([
       this._authFacade.getUserRole$(),
-      this._authFacade.isUserAdmin$(),
+      this._authFacade.isUserSuperAdmin$(),
     ])
       .pipe(
         takeUntilDestroyed(this._destroyRef),

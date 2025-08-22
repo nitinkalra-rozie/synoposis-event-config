@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { map, Observable } from 'rxjs';
+import { forkJoin, map, Observable } from 'rxjs';
 import { AvWorkspaceView } from 'src/app/av-workspace/models/av-workspace-view.model';
 import { getAvWorkspaceAccess } from 'src/app/av-workspace/utils/av-workspace-permissions';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
@@ -18,9 +18,12 @@ export const avWorkspaceGuard: CanActivateFn = (
   const authFacade = inject(AuthFacade);
   const router = inject(Router);
 
-  return authFacade.getUserGroups$().pipe(
-    map((groups) => {
-      const access = getAvWorkspaceAccess(groups);
+  return forkJoin([
+    authFacade.getUserGroups$(),
+    authFacade.isUserSuperAdmin$(),
+  ]).pipe(
+    map(([groups, isAdmin]) => {
+      const access = getAvWorkspaceAccess(groups, isAdmin);
       const requestedRoute = route.routeConfig?.path as AvWorkspaceView;
 
       if (access.availableViews.includes(requestedRoute)) {
