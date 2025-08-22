@@ -15,7 +15,7 @@ export class PrimaryScreenProjectingDataService {
     stage: string
   ): Observable<SetPrimaryScreenProjectingResponse> {
     return this._http.post<SetPrimaryScreenProjectingResponse>(
-      environment.setAutoAvSetupUrl,
+      `${environment.apiBaseUrl}/r2/stage`,
       {
         action,
         eventName,
