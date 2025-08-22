@@ -190,11 +190,8 @@
                         row.Status === EventStatus.ProcessingInsights
                       ) {
                         <span
-                          class="session-status-badge processing-insights-badge"
+                          class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)">
-                          <mat-icon class="processing-insights-icon"
-                            >settings</mat-icon
-                          >
                           Processing Insights
                         </span>
                       }

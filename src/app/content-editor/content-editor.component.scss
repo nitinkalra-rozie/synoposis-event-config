@@ -249,12 +249,6 @@
             }
           }
 
-          .success {
-            //border: 1px solid #4caf50;
-            //background-color: #e8f5e9;
-            //color: #0e8d67;
-          }
-
           .check-mark {
             color: green;
             font-size: 1.5rem;
@@ -437,28 +431,6 @@ $spin-kit-spinner-color: #8141ff !default;
 .row {
   display: flex;
   flex-direction: row;
-}
-
-/* Status classes */
-.status-not-started {
-  background-color: #ff4d4d !important; /* Red for Not Started */
-}
-
-.status-in-progress {
-  background-color: #ff9900 !important; /* Orange for In Progress */
-}
-
-.status-complete {
-  background-color: #00cc66 !important; /* Green for Complete */
-}
-
-.processing-insights-badge {
-  background-color: #6366f1;
-}
-
-.processing-insights-icon {
-  font-size: 14px;
-  margin-right: 4px;
 }
 
 /* Utility classes */

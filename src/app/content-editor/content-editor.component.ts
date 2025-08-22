@@ -193,7 +193,6 @@ export class ContentEditorComponent {
   // TODO: convert to use signal based variables
   //#region - legacy decorators, variables and etc.
   public readonly EventStatus = EventStatus;
-
   @ViewChild(MatSort) public sort!: MatSort;
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
