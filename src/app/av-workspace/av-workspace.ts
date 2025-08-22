@@ -42,7 +42,6 @@ export class AvWorkspace implements OnInit, OnDestroy {
   ]);
 
   protected readonly activeTabLink = signal<string>('centralized');
-
   // TODO:SYN-644 Based on the permissions curate the tab links to be displayed
   protected readonly displayedTabLinks = computed(() =>
     this.tabLinks().filter((tabLink) =>
