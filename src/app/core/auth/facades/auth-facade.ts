@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { AuthError } from 'src/app/core/auth/error-handling/auth-error-handler-fn';
 import {
@@ -40,6 +39,10 @@ export class AuthFacade {
     return this._authTokenService.getAccessToken$();
   }
 
+  getUserGroups$(): Observable<string[] | null> {
+    return this._authRoleService.getUserGroups$();
+  }
+
   getUserRole$(): Observable<UserRole | null> {
     return this._authRoleService.getUserRole$();
   }
@@ -64,19 +67,19 @@ export class AuthFacade {
     return this._authTokenService.isAuthenticated$();
   }
 
-  getLastRefreshError$(): Observable<AuthError | null> {
-    return toObservable(this._authStore.$lastRefreshError);
+  getLastRefreshError(): AuthError | null {
+    return this._authStore.$lastRefreshError();
   }
 
-  getRefreshFailureCount$(): Observable<number> {
-    return toObservable(this._authStore.$refreshFailureCount);
+  getRefreshFailureCount(): number {
+    return this._authStore.$refreshFailureCount();
   }
 
-  isRefreshInProgress$(): Observable<boolean> {
-    return toObservable(this._authStore.$refreshInProgress);
+  isRefreshInProgress(): boolean {
+    return this._authStore.$refreshInProgress();
   }
 
-  getTokenStatus$(): Observable<TokenStatus> {
-    return toObservable(this._authStore.$tokenStatus);
+  getTokenStatus(): TokenStatus {
+    return this._authStore.$tokenStatus();
   }
 }
