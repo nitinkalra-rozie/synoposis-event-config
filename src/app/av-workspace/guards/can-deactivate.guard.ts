@@ -9,16 +9,16 @@ import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { STAGE_VIEW_DIALOG_MESSAGES } from 'src/app/av-workspace/constants/stage-view-interaction-messages';
 import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactivate-component.interface';
-import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
-import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
-import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import {
   callPauseSessionAPI,
   getDestinationName,
   handleDialogCancellation,
   pauseCurrentSessionLocally,
-} from '../utils/can-deactivate-guard.utils';
+} from 'src/app/av-workspace/helpers/can-deactivate-guard.utils';
+import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 
 export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
   component: CanDeactivateComponent,

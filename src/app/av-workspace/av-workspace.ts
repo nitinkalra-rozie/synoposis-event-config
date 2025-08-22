@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   DestroyRef,
   inject,
   OnDestroy,
@@ -17,16 +16,16 @@ import {
   RouterOutlet,
   UrlSegment,
 } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { filter, forkJoin, map, take, tap } from 'rxjs';
+import { getAvWorkspaceAccess } from 'src/app/av-workspace/helpers/av-workspace-permissions';
+import {
+  AvWorkspaceAccess,
+  AvWorkspaceView,
+} from 'src/app/av-workspace/models/av-workspace-view.model';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
-import { environment } from 'src/environments/environment';
-
-interface TabLink {
-  label: string;
-  value: string;
-}
 
 @Component({
   selector: 'app-av-workspace',
@@ -36,30 +35,61 @@ interface TabLink {
   imports: [RouterLink, RouterOutlet, MatTabsModule, LayoutMainComponent],
 })
 export class AvWorkspace implements OnInit, OnDestroy {
-  protected readonly tabLinks = signal<TabLink[]>([
-    { label: 'Centralized View', value: 'centralized' },
-    { label: 'Stage View', value: 'stage' },
-  ]);
-
-  protected readonly activeTabLink = signal<string>('centralized');
-  // TODO:SYN-644 Based on the permissions curate the tab links to be displayed
-  protected readonly displayedTabLinks = computed(() =>
-    this.tabLinks().filter((tabLink) =>
-      // TODO:SYN-644 Remove this. If the environment is production, we don't want to show the centralized view until it's fully implemented
-      environment.production ? tabLink.value !== 'centralized' : true
-    )
-  );
+  private readonly _tabConfig: Record<
+    AvWorkspaceView,
+    { label: string; value: string }
+  > = {
+    centralized: { label: 'Centralized View', value: 'centralized' },
+    stage: { label: 'Stage View', value: 'stage' },
+  };
 
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _route = inject(ActivatedRoute);
   private readonly _router = inject(Router);
+  private readonly _authFacade = inject(AuthFacade);
   private readonly _stageWs = inject(EventStageWebsocketDataService);
   private readonly _stageWsState = inject(EventStageWebSocketStateService);
 
+  protected tabLinks = signal<{ label: string; value: string }[]>([]);
+  protected activeTabLink = signal<string>('centralized');
+
   private _dialogEventListener?: EventListener;
-  private _previousTabLink = signal<string | null>(null);
 
   ngOnInit(): void {
+    forkJoin([
+      this._authFacade.getUserGroups$(),
+      this._authFacade.isUserSuperAdmin$(),
+    ])
+      .pipe(
+        take(1),
+        map(([groups, isAdmin]) => getAvWorkspaceAccess(groups, isAdmin)),
+        tap((access: AvWorkspaceAccess) => {
+          // Setup available tabs
+          const availableTabs = access.availableViews.map(
+            (view) => this._tabConfig[view]
+          );
+          this.tabLinks.set(availableTabs);
+
+          // Set active tab based on route or fallback to first available
+          const currentPath = this._route.firstChild?.snapshot.url[0]?.path;
+          const isValidPath = availableTabs.some(
+            (tab) => tab.value === currentPath
+          );
+
+          if (isValidPath && currentPath) {
+            this.activeTabLink.set(currentPath);
+          } else {
+            const firstAvailableTab = availableTabs[0]?.value ?? 'centralized';
+            this.activeTabLink.set(firstAvailableTab);
+            this._router.navigate([firstAvailableTab], {
+              relativeTo: this._route,
+            });
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef)
+      )
+      .subscribe();
+
     this.setupRouteNavigation();
     this.setupDialogEventListeners();
   }
@@ -80,30 +110,26 @@ export class AvWorkspace implements OnInit, OnDestroy {
     this._route.firstChild?.url
       .pipe(
         filter((urls: UrlSegment[]) => urls.length > 0),
-        // TODO:SYN-644 Remove this once the centralized view is fully implemented. Ideally the redirection should be handled by the router guard.
-        //#region Set the active tab link based on the available tab links (displayedTabLinks)
-        map((urls: UrlSegment[]) => this.handleRouteChange(urls[0].path)),
+        map((urls: UrlSegment[]) => {
+          const currentPath = urls[0].path;
+          const availableTabs = this.tabLinks();
+          const isValidPath = availableTabs.some(
+            (tab) => tab.value === currentPath
+          );
+
+          if (isValidPath) {
+            this.activeTabLink.set(currentPath);
+          } else {
+            const firstAvailableTab = availableTabs[0]?.value ?? 'centralized';
+            this.activeTabLink.set(firstAvailableTab);
+            this._router.navigate([firstAvailableTab], {
+              relativeTo: this._route,
+            });
+          }
+        }),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
-  }
-
-  private handleRouteChange(currentPath: string): void {
-    const displayedLinks = this.displayedTabLinks();
-    const isValidPath = displayedLinks.some((tab) => tab.value === currentPath);
-
-    if (isValidPath) {
-      this.handleViewSwitch(currentPath);
-      this.activeTabLink.set(currentPath);
-    } else {
-      const firstAvailableTab = displayedLinks[0]?.value;
-      if (firstAvailableTab) {
-        this.handleViewSwitch(firstAvailableTab);
-        this.activeTabLink.set(firstAvailableTab);
-        this._router.navigate([firstAvailableTab], { relativeTo: this._route });
-      }
-    }
-    //#endregion
   }
 
   private setupDialogEventListeners(): void {
@@ -117,9 +143,5 @@ export class AvWorkspace implements OnInit, OnDestroy {
       'stage-view-dialog-cancelled',
       this._dialogEventListener
     );
-  }
-
-  private handleViewSwitch(newPath: string): void {
-    this._previousTabLink.set(newPath);
   }
 }

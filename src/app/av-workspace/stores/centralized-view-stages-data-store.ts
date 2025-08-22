@@ -29,9 +29,9 @@ import {
   StageSessionsResponseData,
   StageStatusType,
 } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
+import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/helpers/get-valid-process-stages-for-bulk-actions';
 import { SessionWithDropdownOptions } from 'src/app/av-workspace/models/sessions.model';
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
-import { getValidProcessStagesForBulkActions } from 'src/app/av-workspace/utils/get-valid-process-stages-for-bulk-actions';
 import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';

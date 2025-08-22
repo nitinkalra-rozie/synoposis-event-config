@@ -21,7 +21,7 @@ export class CentralizedViewStagesDataService {
     requestData: CentralizedViewStagesRequestData
   ): Observable<CentralizedViewStagesResponseData> {
     return this._httpClient.post<CentralizedViewStagesResponseData>(
-      `${environment.apiBaseUrl}/r2/stage`,
+      `${environment.apiBaseUrl}/r3/stage`,
       requestData
     );
   }
@@ -30,7 +30,7 @@ export class CentralizedViewStagesDataService {
     requestData: StageSessionsRequestData
   ): Observable<StageSessionsResponseData> {
     return this._httpClient.post<StageSessionsResponseData>(
-      `${environment.apiBaseUrl}/r2/stage`,
+      `${environment.apiBaseUrl}/r3/stage`,
       requestData
     );
   }

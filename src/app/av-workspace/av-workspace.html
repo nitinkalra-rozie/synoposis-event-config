@@ -6,7 +6,7 @@
       mat-tab-nav-bar
       class="av-workspace-nav"
       [tabPanel]="tabPanel">
-      @for (tabLink of displayedTabLinks(); track tabLink.value) {
+      @for (tabLink of tabLinks(); track tabLink.value) {
       <a
         mat-tab-link
         [active]="activeTabLink() === tabLink.value"
