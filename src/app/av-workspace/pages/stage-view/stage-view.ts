@@ -37,6 +37,6 @@ export class StageView implements CanDeactivateComponent {
   }
 
   private getSessionContentComponent(): SessionContentComponent | null {
-    return null;
+    return this._elsaComponent?.getSessionContentComponent() ?? null;
   }
 }

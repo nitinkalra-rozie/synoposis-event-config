@@ -7,6 +7,7 @@ import {
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+import { STAGE_VIEW_DIALOG_MESSAGES } from 'src/app/av-workspace/constants/stage-view-interaction-messages';
 import { CentralizedViewStagesDataService } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages-data-service';
 import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactivate-component.interface';
 import { EventConfigStore } from 'src/app/core/stores/event-config-store';
@@ -44,16 +45,17 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
   const isSwitchingToCentralized =
     nextState?.url?.includes('centralized') ?? false;
 
+  const dialogMessages = STAGE_VIEW_DIALOG_MESSAGES.LEAVE_STAGE_VIEW;
   const message = isSessionActive
-    ? `You are currently managing an active session. Switching to ${destinationName} will pause your session. Continue?`
-    : `Are you sure you want to switch to ${destinationName}?`;
+    ? dialogMessages.MESSAGE.WITH_ACTIVE_SESSION(destinationName)
+    : dialogMessages.MESSAGE.WITHOUT_ACTIVE_SESSION(destinationName);
 
   return confirmDialog
     .openConfirmDialog({
-      title: 'Leave Stage View?',
+      title: dialogMessages.TITLE,
       message,
-      confirmButtonText: `Switch to ${destinationName}`,
-      cancelButtonText: 'Stay in Stage View',
+      confirmButtonText: dialogMessages.CONFIRM_BUTTON_TEXT(destinationName),
+      cancelButtonText: dialogMessages.CANCEL_BUTTON_TEXT,
     })
     .pipe(
       switchMap((confirmed: boolean | undefined) => {
@@ -67,10 +69,7 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
             dashboardService,
             eventConfigStore,
             stagesDataService
-          ).pipe(
-            switchMap((apiSuccess) => of(apiSuccess)),
-            catchError(() => of(false))
-          );
+          ).pipe(catchError(() => of(false)));
         }
 
         if (isSessionActive) {

@@ -49,6 +49,9 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   @ViewChild('contentContainer')
   protected contentContainer: ElementRef<HTMLDivElement>;
 
+  @ViewChild(SessionContentComponent)
+  private _sessionContentComponent?: SessionContentComponent;
+
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];
   themeOptions: ThemeOptions[] = [ThemeOptions.Dark, ThemeOptions.Light];
@@ -278,6 +281,10 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
         session.Event === event && session.SessionTitle === SessionTitle
     );
     return session ? session : null;
+  }
+
+  getSessionContentComponent(): SessionContentComponent | null {
+    return this._sessionContentComponent ?? null;
   }
 
   onDayChange = () => {
