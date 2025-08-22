@@ -1,9 +1,10 @@
 export enum UserRole {
-  UNAUTHENTICATED = 'UNAUTHENTICATED',
-  EDITOR = 'EDITOR',
-  EVENTORGANIZER = 'EVENT_ORGANIZER',
-  ADMIN = 'ADMIN',
-  SUPERADMIN = 'SUPER_ADMIN',
+  Unauthenticated = 'UNAUTHENTICATED',
+  Editor = 'EDITOR',
+  EventOrganizer = 'EVENT_ORGANIZER',
+  Admin = 'ADMIN',
+  SuperAdmin = 'SUPER_ADMIN',
+  CentralizedManager = 'CENTRALIZED_MANAGER',
 }
 
 export interface MenuItem {

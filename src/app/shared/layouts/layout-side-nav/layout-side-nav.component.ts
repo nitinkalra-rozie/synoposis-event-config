@@ -48,7 +48,7 @@ export class LayoutSideNavComponent implements OnInit {
   private loadUserPermissions(): void {
     combineLatest([
       this._authFacade.getUserRole$(),
-      this._authFacade.isUserAdmin$(),
+      this._authFacade.isUserSuperAdmin$(),
     ])
       .pipe(
         takeUntilDestroyed(this._destroyRef),

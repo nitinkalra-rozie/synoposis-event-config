@@ -4,22 +4,22 @@ import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 export const ROUTE_PERMISSIONS: RoutePermission[] = [
   {
     path: '/av-workspace',
-    roles: [UserRole.SUPERADMIN, UserRole.ADMIN],
+    roles: [UserRole.SuperAdmin, UserRole.CentralizedManager, UserRole.Admin],
   },
   {
     path: '/insights-editor',
-    roles: [UserRole.EDITOR, UserRole.SUPERADMIN],
+    roles: [UserRole.Editor, UserRole.SuperAdmin],
   },
   {
     path: '/content-editor',
-    roles: [UserRole.EDITOR, UserRole.SUPERADMIN],
+    roles: [UserRole.Editor, UserRole.SuperAdmin],
   },
   {
     path: '/agenda',
-    roles: [UserRole.EVENTORGANIZER, UserRole.SUPERADMIN],
+    roles: [UserRole.EventOrganizer, UserRole.SuperAdmin],
   },
   {
     path: '/analytics',
-    roles: [UserRole.EVENTORGANIZER, UserRole.SUPERADMIN],
+    roles: [UserRole.EventOrganizer, UserRole.SuperAdmin],
   },
 ];

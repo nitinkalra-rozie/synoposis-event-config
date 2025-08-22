@@ -19,7 +19,7 @@ export class AutoAvSetupDataService {
     requestData: AutoAvSetupRequest
   ): Observable<AutoAvSetupResponse> {
     return this._http.post<AutoAvSetupResponse>(
-      environment.setAutoAvSetupUrl,
+      `${environment.apiBaseUrl}/r2/stage`,
       requestData
     );
   }
@@ -28,7 +28,7 @@ export class AutoAvSetupDataService {
     requestData: GetAutoAvSetupRequest
   ): Observable<GetAutoAvSetupResponse> {
     return this._http.post<GetAutoAvSetupResponse>(
-      environment.setAutoAvSetupUrl,
+      `${environment.apiBaseUrl}/r2/stage`,
       requestData
     );
   }

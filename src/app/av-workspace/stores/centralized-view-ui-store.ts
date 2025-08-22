@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
-import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
+import { getSelectableEntities } from 'src/app/av-workspace/helpers/get-selectable-entities';
 
 interface CentralizedViewUIState {
   searchTerm: string;
