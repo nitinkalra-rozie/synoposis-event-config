@@ -7,8 +7,8 @@ import {
   UrlTree,
 } from '@angular/router';
 import { forkJoin, map, Observable } from 'rxjs';
+import { getAvWorkspaceAccess } from 'src/app/av-workspace/helpers/av-workspace-permissions';
 import { AvWorkspaceView } from 'src/app/av-workspace/models/av-workspace-view.model';
-import { getAvWorkspaceAccess } from 'src/app/av-workspace/utils/av-workspace-permissions';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 
 export const avWorkspaceGuard: CanActivateFn = (

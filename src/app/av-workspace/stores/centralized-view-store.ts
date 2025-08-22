@@ -3,11 +3,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { CentralizedViewWebSocketFacade } from 'src/app/av-workspace/facade/centralized-view-websocket-facade';
+import { getSelectableEntities } from 'src/app/av-workspace/helpers/get-selectable-entities';
 import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStagesDataStore } from 'src/app/av-workspace/stores/centralized-view-stages-data-store';
 import { CentralizedViewUIStore } from 'src/app/av-workspace/stores/centralized-view-ui-store';
 import { CentralizedViewWebSocketStore } from 'src/app/av-workspace/stores/centralized-view-websocket-store';
-import { getSelectableEntities } from 'src/app/av-workspace/utils/get-selectable-entities';
 
 @Injectable({
   providedIn: 'root',

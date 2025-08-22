@@ -10,11 +10,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
 import { forkJoin, map, take, tap } from 'rxjs';
+import { getAvWorkspaceAccess } from 'src/app/av-workspace/helpers/av-workspace-permissions';
 import {
   AvWorkspaceAccess,
   AvWorkspaceView,
 } from 'src/app/av-workspace/models/av-workspace-view.model';
-import { getAvWorkspaceAccess } from 'src/app/av-workspace/utils/av-workspace-permissions';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 
