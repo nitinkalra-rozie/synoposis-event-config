@@ -57,6 +57,7 @@ export class AvWorkspace implements OnInit, OnDestroy {
   private readonly _stageWsState = inject(EventStageWebSocketStateService);
 
   private _dialogEventListener?: EventListener;
+  private _previousTabLink = signal<string | null>(null);
 
   ngOnInit(): void {
     this.setupRouteNavigation();
@@ -92,10 +93,12 @@ export class AvWorkspace implements OnInit, OnDestroy {
     const isValidPath = displayedLinks.some((tab) => tab.value === currentPath);
 
     if (isValidPath) {
+      this.handleViewSwitch(currentPath);
       this.activeTabLink.set(currentPath);
     } else {
       const firstAvailableTab = displayedLinks[0]?.value;
       if (firstAvailableTab) {
+        this.handleViewSwitch(firstAvailableTab);
         this.activeTabLink.set(firstAvailableTab);
         this._router.navigate([firstAvailableTab], { relativeTo: this._route });
       }
@@ -114,5 +117,9 @@ export class AvWorkspace implements OnInit, OnDestroy {
       'stage-view-dialog-cancelled',
       this._dialogEventListener
     );
+  }
+
+  private handleViewSwitch(newPath: string): void {
+    this._previousTabLink.set(newPath);
   }
 }

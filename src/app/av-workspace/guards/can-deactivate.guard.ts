@@ -8,11 +8,10 @@ import {
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
 import { STAGE_VIEW_DIALOG_MESSAGES } from 'src/app/av-workspace/constants/stage-view-interaction-messages';
-import { CentralizedViewStagesDataService } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages-data-service';
 import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactivate-component.interface';
-import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 import {
   callPauseSessionAPI,
@@ -30,8 +29,7 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
   const router = inject(Router);
   const confirmDialog = inject(SynConfirmDialogFacade);
   const dashboardService = inject(DashboardFiltersStateService);
-  const eventConfigStore = inject(EventConfigStore);
-  const stagesDataService = inject(CentralizedViewStagesDataService);
+  const backendApiService = inject(LegacyBackendApiService);
 
   const isLeavingStageView = currentRoute.routeConfig?.path === 'stage';
 
@@ -65,11 +63,9 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
         }
 
         if (isSessionActive && isSwitchingToCentralized) {
-          return callPauseSessionAPI(
-            dashboardService,
-            eventConfigStore,
-            stagesDataService
-          ).pipe(catchError(() => of(false)));
+          return callPauseSessionAPI(dashboardService, backendApiService).pipe(
+            catchError(() => of(false))
+          );
         }
 
         if (isSessionActive) {

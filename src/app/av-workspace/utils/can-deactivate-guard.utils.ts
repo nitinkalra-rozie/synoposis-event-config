@@ -1,12 +1,11 @@
 import { Router, RouterStateSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { EventConfigStore } from '../../core/stores/event-config-store';
-import { LiveSessionState } from '../../legacy-admin/@data-services/event-details/event-details.data-model';
-import { DashboardFiltersStateService } from '../../legacy-admin/@services/dashboard-filters-state.service';
-import { CentralizedViewStagesDataService } from '../data-services/centralized-view-stages/centralized-view-stages-data-service';
-import { StageSessionActionRequestData } from '../data-services/centralized-view-stages/centralized-view-stages.data-model';
-import { CanDeactivateComponent } from '../guards/can-deactivate-component.interface';
+import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactivate-component.interface';
+import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
+import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
+import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { PostData } from 'src/app/legacy-admin/shared/types';
 
 export function getDestinationName(nextState?: RouterStateSnapshot): string {
   if (!nextState?.url) return 'another view';
@@ -17,33 +16,36 @@ export function getDestinationName(nextState?: RouterStateSnapshot): string {
 
 export function callPauseSessionAPI(
   dashboardService: DashboardFiltersStateService,
-  eventConfigStore: EventConfigStore,
-  stagesDataService: CentralizedViewStagesDataService
+  backendApiService: LegacyBackendApiService
 ): Observable<boolean> {
-  const eventIdentifier = eventConfigStore.$eventIdentifier();
-  if (!eventIdentifier) {
-    return of(false);
-  }
-
   const currentStage = localStorage.getItem('currentStage');
   const currentSessionId = localStorage.getItem('currentSessionId');
+  const selectedEvent = localStorage.getItem('selectedEvent');
+  const domain = localStorage.getItem('domain');
+  const currentDay = localStorage.getItem('currentDay');
+  const currentSessionTitle = localStorage.getItem('currentSessionTitle');
 
-  if (!currentStage || !currentSessionId) {
+  if (!currentStage || !currentSessionId || !selectedEvent || !domain) {
     return of(false);
   }
 
-  const requestData: StageSessionActionRequestData = {
-    action: 'adminPauseListening',
-    eventName: eventIdentifier,
-    processStages: [{ stage: currentStage, sessionId: currentSessionId }],
+  const postData: PostData = {
+    action: 'listeningPaused',
+    sessionId: currentSessionId,
+    eventName: selectedEvent,
+    domain: domain,
+    day: currentDay,
+    stage: currentStage,
+    sessionTitle: currentSessionTitle,
   };
 
-  return stagesDataService.pauseListeningSession(requestData).pipe(
+  return backendApiService.postData(postData).pipe(
     switchMap((response) => {
-      if (response.success) {
+      if (response) {
         dashboardService.setLiveSessionState(LiveSessionState.Paused);
+        return of(true);
       }
-      return of(response.success);
+      return of(false);
     }),
     catchError(() => of(false))
   );
