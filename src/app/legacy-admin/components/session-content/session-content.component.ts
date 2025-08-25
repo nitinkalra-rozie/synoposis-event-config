@@ -29,6 +29,7 @@ import MicrophoneStream from 'microphone-stream'; // collect microphone input as
 import { ControlPanelComponent } from 'src/app/legacy-admin/@components/control-panel/control-panel.component';
 import { ProjectImageSelectionComponent } from 'src/app/legacy-admin/@components/project-image-selection/project-image-selection.component';
 import { SessionSelectionComponent } from 'src/app/legacy-admin/@components/session-selection/session-selection.component';
+import { TOAST_MESSAGES } from 'src/app/legacy-admin/@constants/toast-message';
 import {
   LiveSessionState,
   ProjectionData,
@@ -57,6 +58,7 @@ import {
   ThemeOptions,
 } from 'src/app/legacy-admin/shared/enums';
 import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
+import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 
 const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
@@ -89,6 +91,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   private readonly _eventStageWebsocketState = inject(
     EventStageWebSocketStateService
   );
+  private readonly _toastFacade = inject(SynToastFacade);
 
   isSessionInProgress = false;
   selectedTheme: string = ThemeOptions.Light;
@@ -114,6 +117,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   transctiptToInsides = '';
   timeoutId: any = '';
   currentSessionId = '';
+  currentStage = '';
   currentPrimarySessionId = '';
   postInsideInterval = 15;
   transcriptTimeOut = 60;
@@ -223,23 +227,21 @@ export class SessionContentComponent implements OnInit, OnChanges {
     toObservable(this._eventStageWebsocketState.$sessionEnd)
       .pipe(takeUntilDestroyed())
       .subscribe((data: EventStageWebSocketMessageData) => {
-        console.log('SESSION_END received:', data);
-
-        // Extract session ID from the WebSocket message
         const sessionId = data?.sessionId;
-        console.log('Session ID from WebSocket:', sessionId);
-
         const activeSession = this.activeSession()?.metadata['originalContent'];
-
         if (activeSession && activeSession.SessionId === sessionId) {
-          console.log('Session ID matches the active session. Ending session.');
           this.stopTranscriptionForAutoAv();
+        }
+      });
 
-          console.log('Listening session stopped due to SESSION_END.');
-        } else {
-          console.log(
-            'Session ID does not match the active session. No action taken.'
-          );
+    toObservable(this._eventStageWebsocketState.$sessionPaused)
+      .pipe(takeUntilDestroyed())
+      .subscribe((data: EventStageWebSocketMessageData) => {
+        const sessionId = data?.sessionId;
+        const activeSession = this.activeSession()?.metadata['originalContent'];
+        if (activeSession && activeSession.SessionId === sessionId) {
+          this.closeSocket();
+          this.showPausedInsights(activeSession);
         }
       });
 
@@ -260,6 +262,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this.selectedSessionType =
       localStorage.getItem('selectedSessionType') || '';
     this.currentSessionId = localStorage.getItem('currentSessionId') || '';
+    this.currentStage = localStorage.getItem('currentStage') || '';
     this.selectedDomain =
       localStorage.getItem('domain') ||
       this._globalStateService.getSelectedDomain();
@@ -320,10 +323,16 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
         console.log(data);
-        this.showSuccessMessage(`Theme color is ${this.selectedTheme}`);
+        this._toastFacade.showSuccess(
+          TOAST_MESSAGES.THEME.SUCCESS(this.selectedTheme),
+          TOAST_MESSAGES.DURATION
+        );
       },
       (error: any) => {
-        this.showFailureMessage('Failed to change theme color .', error);
+        this._toastFacade.showError(
+          TOAST_MESSAGES.THEME.ERROR,
+          TOAST_MESSAGES.DURATION
+        );
       }
     );
   }
@@ -437,19 +446,6 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
   }
 
-  private showSuccessMessage(message: string): void {
-    this.successMessage = message;
-    setTimeout(() => {
-      this.successMessage = '';
-    }, 3000);
-  }
-
-  private showFailureMessage(message: string, error: any): void {
-    this.failureMessage = message;
-    setTimeout(() => {
-      this.failureMessage = '';
-    }, 5000);
-  }
   showWelcomeMessageBanner(screenIdentifier: string): void {
     const postData: PostData = {};
     postData.action = 'welcome';
@@ -525,11 +521,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
-        this.showSuccessMessage('Backup message sent successfully!');
+        this._toastFacade.showSuccess(
+          TOAST_MESSAGES.BACKUP.SUCCESS,
+          TOAST_MESSAGES.DURATION
+        );
         console.log(data);
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send backup message.', error);
+        this._toastFacade.showError(
+          TOAST_MESSAGES.BACKUP.ERROR,
+          TOAST_MESSAGES.DURATION
+        );
       }
     );
   }
@@ -543,11 +545,17 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
-        this.showSuccessMessage('End event message sent successfully!');
+        this._toastFacade.showSuccess(
+          TOAST_MESSAGES.END_EVENT.SUCCESS,
+          TOAST_MESSAGES.DURATION
+        );
         console.log(data);
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send end event message.', error);
+        this._toastFacade.showError(
+          TOAST_MESSAGES.END_EVENT.ERROR,
+          TOAST_MESSAGES.DURATION
+        );
       }
     );
   }
@@ -592,6 +600,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       ) {
         localStorage.setItem('currentSessionTitle', this.selectedSessionTitle);
         localStorage.setItem('currentSessionId', session.SessionId);
+        localStorage.setItem('currentStage', session.Location);
         localStorage.setItem(
           'currentPrimarySessionId',
           session.PrimarySessionId
@@ -615,14 +624,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
             next: (data: any) => {
               console.log(data);
               this.startListeningClicked = true;
-              this.showSuccessMessage(
-                'Start session message sent successfully!'
+              this._toastFacade.showSuccess(
+                TOAST_MESSAGES.START_SESSION.SUCCESS,
+                TOAST_MESSAGES.DURATION
               );
             },
             error: (error: any) => {
-              this.showFailureMessage(
-                'Failed to send start session message.',
-                error
+              this._toastFacade.showError(
+                TOAST_MESSAGES.START_SESSION.ERROR,
+                TOAST_MESSAGES.DURATION
               );
             },
           });
@@ -672,6 +682,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
         postData.eventName = this.selectedEvent;
         postData.domain = this.selectedDomain;
         postData.action = 'liveInsightsListening';
+        postData.stage = this.selectedLocationName().label;
         postData.sessionTitle = sessionDetails.SessionSubject;
         this.postData(postData, null, null, null);
       }
@@ -693,6 +704,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.action = 'listeningPaused';
+    postData.stage = this.selectedLocationName().label;
     postData.sessionTitle = sessionDetails.SessionSubject;
 
     this.postData(postData);
@@ -743,14 +755,20 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.day = 'endEvent';
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
-    // postData.stage = this.selectedLocationName().label;
+    postData.stage = this.selectedLocationName().label;
     this._backendApiService.postData(postData).subscribe(
       (data: any) => {
-        this.showSuccessMessage('End event message sent successfully!');
+        this._toastFacade.showSuccess(
+          TOAST_MESSAGES.END_EVENT.SUCCESS,
+          TOAST_MESSAGES.DURATION
+        );
         console.log(data);
       },
       (error: any) => {
-        this.showFailureMessage('Failed to send end event message.', error);
+        this._toastFacade.showError(
+          TOAST_MESSAGES.END_EVENT.ERROR,
+          TOAST_MESSAGES.DURATION
+        );
       }
     );
   }
@@ -791,6 +809,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.eventName = this.selectedEvent;
     postData.domain = this.selectedDomain;
     postData.sessionId = session.SessionId;
+    postData.stage = this.selectedLocationName().label;
     postData.primarySessionId = session.PrimarySessionId;
     postData.sessionTitle = session.SessionSubject;
     postData.sessionDescription = session.SessionDescription;
@@ -801,14 +820,15 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.action = 'endBreakoutSession';
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
-          this.showSuccessMessage(
-            'End breakout session message sent successfully!'
+          this._toastFacade.showSuccess(
+            TOAST_MESSAGES.END_BREAKOUT_SESSION.SUCCESS,
+            TOAST_MESSAGES.DURATION
           );
         },
         (error: any) => {
-          this.showFailureMessage(
-            'Failed to send end breakout session message.',
-            error
+          this._toastFacade.showError(
+            TOAST_MESSAGES.END_BREAKOUT_SESSION.ERROR,
+            TOAST_MESSAGES.DURATION
           );
         }
       );
@@ -816,22 +836,34 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.action = 'endPrimarySession';
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
-          this.showSuccessMessage('End session message sent successfully!');
+          this._toastFacade.showSuccess(
+            TOAST_MESSAGES.END_SESSION.SUCCESS,
+            TOAST_MESSAGES.DURATION
+          );
           this.showPostInsightsLoading(session);
         },
         (error: any) => {
-          this.showFailureMessage('Failed to send end session message.', error);
+          this._toastFacade.showError(
+            TOAST_MESSAGES.END_SESSION.ERROR,
+            TOAST_MESSAGES.DURATION
+          );
         }
       );
     } else {
       postData.action = 'endSession';
       this._backendApiService.postData(postData).subscribe(
         (data: any) => {
-          this.showSuccessMessage('End session message sent successfully!');
+          this._toastFacade.showSuccess(
+            TOAST_MESSAGES.END_SESSION.SUCCESS,
+            TOAST_MESSAGES.DURATION
+          );
           this.showPostInsightsLoading(session);
         },
         (error: any) => {
-          this.showFailureMessage('Failed to send end session message.', error);
+          this._toastFacade.showSuccess(
+            TOAST_MESSAGES.END_SESSION.ERROR,
+            TOAST_MESSAGES.DURATION
+          );
         }
       );
     }
@@ -883,7 +915,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.sessionIds = this.sessionIds;
-      postData.stage = this.selectedLocation;
+      postData.stage = this.selectedLocationName().label;
       this.postData(
         postData,
         screenIdentifier,
@@ -909,7 +941,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       postData.eventName = this.selectedEvent;
       postData.domain = this.selectedDomain;
       postData.debriefFilter = selectedDays;
-      postData.stage = this.selectedLocation;
+      postData.stage = this.selectedLocationName().label;
       postData.sessionId = '';
       postData.screenTimeout = 60;
       postData.debriefType = 'DAILY';
@@ -983,6 +1015,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     postData.domain = this.selectedDomain;
     postData.primarySessionId = this.currentPrimarySessionId;
     postData.sessionId = this.currentSessionId;
+    postData.stage = this.selectedLocationName().label;
     postData.action = 'realTimeInsights';
     postData.sessionTitle = sessionDetails.SessionSubject;
     postData.transcript = transcript;
@@ -1052,7 +1085,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
     console.log('start streamAudioToWebSocket333333');
     this._audioRecorderService.init(
       getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
-      localStorage.getItem('currentSessionId')
+      localStorage.getItem('currentSessionId'),
+      localStorage.getItem('currentStage')
     );
 
     this.micStream.on('data', (rawAudioChunk) => {
@@ -1180,6 +1214,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     localStorage.removeItem('currentSessionTitle');
     localStorage.removeItem('selectedSessionType');
     localStorage.removeItem('currentSessionId');
+    localStorage.removeItem('currentStage');
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
@@ -1228,7 +1263,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
                 console.log(data);
               },
               (error: any) => {
-                this.showFailureMessage('Failed to store transcript', error);
+                this._toastFacade.showError(
+                  TOAST_MESSAGES.TRANSCRIPT.ERROR,
+                  TOAST_MESSAGES.DURATION
+                );
               }
             );
           }
@@ -1318,7 +1356,10 @@ export class SessionContentComponent implements OnInit, OnChanges {
     this._backendApiService.postData(postData).subscribe({
       next: () => {
         if (successMessage) {
-          this.showSuccessMessage(successMessage);
+          this._toastFacade.showSuccess(
+            successMessage,
+            TOAST_MESSAGES.DURATION
+          );
         }
         if (identifier) {
           this._projectionStateService.toggleProjectingState(identifier);
@@ -1326,7 +1367,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
       },
       error: (error: any) => {
         if (errorMessage) {
-          this.showFailureMessage(errorMessage, error);
+          this._toastFacade.showError(errorMessage, TOAST_MESSAGES.DURATION);
         }
         if (identifier) {
           this._projectionStateService.toggleProjectingState(identifier);

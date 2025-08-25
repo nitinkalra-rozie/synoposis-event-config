@@ -20,9 +20,11 @@
               (ngModelChange)="filterTimezones()"
               placeholder="Search..." />
           </mat-form-field>
-          <mat-option *ngFor="let tz of filteredTimezones" [value]="tz.value">
-            {{ tz.label }}
-          </mat-option>
+          @for (tz of filteredTimezones; track tz) {
+            <mat-option [value]="tz.value">
+              {{ tz.label }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
     </div>

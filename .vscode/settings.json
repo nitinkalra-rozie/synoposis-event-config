@@ -9,16 +9,22 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.insertFinalNewline": true,
   "cSpell.words": [
+    "AUTOAV",
     "clarionexec",
     "devkit",
     "downeast",
+    "evenodd",
     "EVENTORGANIZER",
     "HLTH",
     "itchartford",
     "Lexend",
+    "Registerables",
+    "revlab",
     "Rozie",
+    "siso",
     "stylelint",
-    "SUPERADMIN"
+    "titlecase",
+    "xcsc"
   ],
   "json.format.enable": false,
   "[jsonc]": {

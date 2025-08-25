@@ -28,15 +28,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
+import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import {
   findTimeZoneByOffset,
   TIMEZONE_OPTIONS,
 } from 'src/app/legacy-admin/@data-providers/timezone.data-provider';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation.dialog.component';
 import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
@@ -276,7 +277,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   private _backendApiService = inject(BackendApiService);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
-  private _authService = inject(AuthService);
+  private _authFacade = inject(AuthFacade);
 
   // -- Lifecycle and Methods with explicit return types:
   ngOnInit(): void {
@@ -319,10 +320,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     this.snackBar.open(
       'This session debriefs are not available yet!',
       'Close',
-      {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-      }
+      { duration: 5000, panelClass: ['error-snackbar'] }
     );
   }
 
@@ -375,46 +373,62 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     this.changeEventStatus(this.selected_session_details.Status);
   }
 
-  changeEventStatus(status: string): void {
+  changeEventStatus(status): void {
     this.isLoading = true;
-    const debrief = {
-      action: 'changeEventStatus',
-      sessionId: this.selected_session,
-      status: status,
-      changeEditMode: true,
-      editor: this._authService.getUserEmail(),
-    };
-    this._backendApiService.changeEventStatus(debrief).subscribe({
-      next: (response) => {
-        if (response['data'].status === 'SUCCESS') {
-          this.isEditorMode = true;
-        } else {
-          this.snackBar.open(
-            'Another editor already editing this session!',
-            'Close',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
+
+    this._authFacade
+      .getUserEmail$()
+      .pipe(
+        take(1),
+        map((email) => ({
+          action: 'changeEventStatus',
+          sessionId: this.selected_session,
+          status: status,
+          changeEditMode: true,
+          editor: email,
+        })),
+        switchMap((debrief) =>
+          this._backendApiService.changeEventStatus(debrief)
+        ),
+        tap({
+          next: (response) => {
+            console.log(response['data']);
+            if (response['data'].status == 'SUCCESS') {
+              this.isEditorMode = true;
+            } else {
+              this.snackBar.open(
+                'Another editor already editing this session!',
+                'Close',
+                { duration: 5000, panelClass: ['error-snackbar'] }
+              );
             }
-          );
-        }
-        this.getEventDetails();
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-        this.isLoading = false;
-      },
-    });
+            this.getEventDetails();
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error fetching data:', error);
+            this.isLoading = false;
+          },
+        })
+      )
+      .subscribe();
   }
 
-  public checkSessionLocked = (data: any[], session_id: string): boolean => {
-    const exist = data.find(
-      (session) =>
-        session.SessionId === session_id &&
-        session.Editing === this._authService.getUserEmail()
+  public checkSessionLocked = (
+    data: any[],
+    session_id: string
+  ): Observable<boolean> =>
+    this._authFacade.getUserEmail$().pipe(
+      take(1),
+      map((email) =>
+        isUndefined(
+          data.find(
+            (session) =>
+              session.SessionId === session_id && session.Editing === email
+          )
+        )
+      )
     );
-    return isUndefined(exist);
-  };
 
   public getEventDetails = (): void => {
     this.isLoading = true;
@@ -445,20 +459,87 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       });
   };
 
+  // TODO:@later move this to a service
   public getNextSessionId = (): string => {
+    if (!this.eventName || this.eventName.trim() === '') {
+      console.error('Event name is not set. Cannot generate session ID.');
+      throw new Error('Event name is required to generate session ID');
+    }
+
     let newSessionId;
     if (!this.session_details.length) {
-      console.log('No sessions available. Starting with first session.');
       newSessionId = `${this.eventName}_001`;
     } else {
-      const sessionIds: number[] = this.session_details.map((session) =>
-        parseInt(session.SessionId.split('_')[1], 10)
-      );
-      const maxSessionId = Math.max(...sessionIds, 0); // Default to 0 if empty
-      const newSessionIdNumber = maxSessionId + 1;
-      const prefix = this.eventName;
-      newSessionId = `${prefix}_${newSessionIdNumber.toString().padStart(3, '0')}`;
+      const validSessionIds: string[] = this.session_details
+        .map((session) => {
+          if (!session.SessionId || typeof session.SessionId !== 'string') {
+            console.warn('Invalid SessionId found:', session.SessionId);
+            return null;
+          }
+
+          const parts = session.SessionId.split('_');
+          if (parts.length !== 2) {
+            console.warn(
+              'SessionId format invalid (expected: EventName_Number):',
+              session.SessionId
+            );
+            return null;
+          }
+
+          const numberPart = parts[1];
+          const parsedNumber = parseInt(numberPart, 10);
+
+          if (isNaN(parsedNumber)) {
+            console.warn(
+              'SessionId number part is not a valid number:',
+              numberPart,
+              'from:',
+              session.SessionId
+            );
+            return null;
+          }
+
+          return session.SessionId;
+        })
+        .filter((id): id is string => id !== null);
+
+      if (validSessionIds.length === 0) {
+        console.warn('No valid session IDs found, starting with first session');
+        newSessionId = `${this.eventName}_001`;
+      } else {
+        const sessionNumbers = validSessionIds
+          .map((id) => parseInt(id.split('_')[1], 10))
+          .filter((num) => !isNaN(num));
+
+        const startCounter =
+          sessionNumbers.length > 0 ? Math.max(...sessionNumbers) + 1 : 1;
+
+        let counter = startCounter;
+        const maxAttempts = 1000;
+        let attempts = 0;
+
+        do {
+          newSessionId = `${this.eventName}_${counter.toString().padStart(3, '0')}`;
+          counter++;
+          attempts++;
+
+          if (attempts >= maxAttempts) {
+            console.error(
+              `Failed to generate unique session ID after ${maxAttempts} attempts`
+            );
+            throw new Error(
+              `Failed to generate unique session ID after ${maxAttempts} attempts`
+            );
+          }
+        } while (validSessionIds.includes(newSessionId));
+      }
     }
+
+    if (!newSessionId) {
+      console.error('Failed to generate session ID');
+      throw new Error('Failed to generate session ID');
+    }
+
     return newSessionId;
   };
 
@@ -472,6 +553,15 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   public createNewSession = (): void => {
+    if (!this.eventName || this.eventName.trim() === '') {
+      this.snackBar.open(
+        'Please wait for event details to load before creating sessions',
+        'Close',
+        { duration: 3000, panelClass: ['error-snackbar'] }
+      );
+      return;
+    }
+
     const newSessionId = this.getNextSessionId();
     const startTime = new Date();
     const duration = 20;
@@ -517,13 +607,13 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'NOT_AVAILABLE':
-        return 'status-not-available';
-      case 'NOT_STARTED':
+      case EventStatus.NotStarted:
         return 'status-not-started';
-      case 'UNDER_REVIEW':
+      case EventStatus.UnderReview:
         return 'status-in-review';
-      case 'REVIEW_COMPLETED':
+      case EventStatus.Completed:
+        return 'status-completed';
+      case EventStatus.ReviewComplete:
         return 'status-completed';
       default:
         return '';

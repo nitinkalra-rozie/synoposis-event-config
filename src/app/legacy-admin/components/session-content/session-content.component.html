@@ -1,17 +1,3 @@
-<div
-  class="alert-box"
-  [ngClass]="{ success: successMessage, failure: failureMessage }">
-  @if (successMessage) {
-    <div class="alert alert-success" role="alert">
-      {{ successMessage }}
-    </div>
-  }
-  @if (failureMessage) {
-    <div class="alert alert-danger" role="alert">
-      {{ failureMessage }}
-    </div>
-  }
-</div>
 <div id="session-content" class="session-content-container">
   <mat-tab-group
     class="session-content-container-tab-group"

@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
+import { catchError, EMPTY } from 'rxjs';
+import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { SideNavComponent } from 'src/app/legacy-admin/@components/side-nav/side-nav.component';
-import { AuthService } from 'src/app/legacy-admin/services/auth.service';
+import { OutsideClickDirective } from 'src/app/legacy-admin/directives/outside-click.directive';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
-import { OutsideClickDirective } from '../../../legacy-admin/directives/outside-click.directive';
 
 @Component({
   selector: 'app-top-bar',
@@ -18,19 +21,19 @@ import { OutsideClickDirective } from '../../../legacy-admin/directives/outside-
   ],
 })
 export class TopBarComponent {
-  constructor(
-    private authService: AuthService,
-    private modalService: ModalService
-  ) {}
+  private readonly _modalService = inject(ModalService);
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _router = inject(Router);
+  private readonly _authFacade = inject(AuthFacade);
 
-  protected showDropdown = false;
+  public showDropdown = signal(false);
 
   protected toggleDropdown(): void {
-    this.showDropdown = !this.showDropdown;
+    this.showDropdown.set(!this.showDropdown());
   }
 
   protected onOutsideClick(): void {
-    this.showDropdown = false;
+    this.showDropdown.set(false);
   }
 
   protected logout(): void {
@@ -38,16 +41,31 @@ export class TopBarComponent {
   }
 
   private handleNoSelect = (): void => {
-    this.modalService.close();
+    this._modalService.close();
   };
 
   private handleYesSelect = (): void => {
-    this.modalService.close();
-    this.authService.logout();
+    this._modalService.close();
+    this.performLogout();
   };
 
+  private performLogout(): void {
+    this.showDropdown.set(false);
+
+    this._authFacade
+      .logout$()
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        catchError(() => {
+          this._router.navigate(['/login']);
+          return EMPTY;
+        })
+      )
+      .subscribe();
+  }
+
   private showModal(): void {
-    this.modalService.open(
+    this._modalService.open(
       'Confirm Action',
       'Are you sure you want to log out?',
       'yes_no',

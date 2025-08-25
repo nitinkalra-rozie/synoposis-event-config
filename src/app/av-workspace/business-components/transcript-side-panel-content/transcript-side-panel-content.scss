@@ -1,0 +1,268 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use '@angular/material' as mat;
+
+.transcript-side-panel-content-container {
+  width: 100%;
+  height: 100%;
+  background-color: v.$primary-bg-color;
+  @include m.d-flex-column;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 1rem;
+
+  .side-panel-content-header {
+    @include m.d-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0 0.5rem 1rem 0.5rem;
+    border-bottom: 1px solid v.$primary-bg-color-variant-2;
+    color: v.$primary-bg-color-variant-6;
+    font-weight: v.$font-weight-medium;
+
+    .content-header-title {
+      @include m.ellipsis;
+      flex: 1;
+    }
+
+    .connection-status {
+      @include m.d-flex;
+      align-items: center;
+
+      mat-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+
+        &.connecting {
+          color: v.$selection-variant-9;
+          animation: spin 1s linear infinite;
+        }
+
+        &.connected {
+          color: v.$secondary-color-variant-2;
+        }
+
+        &.error {
+          color: v.$secondary-color-variant-9;
+        }
+      }
+    }
+  }
+
+  .side-panel-content-body {
+    flex: 1;
+    overflow: hidden;
+
+    .not-started-content {
+      @include m.d-flex-column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 2rem 1rem;
+      height: 100%;
+
+      .transcript-icon {
+        width: 4rem;
+        height: 4rem;
+        @include m.d-flex;
+        @include m.align-items-center;
+        @include m.justify-content-center;
+        background-color: v.$selection-variant-2;
+        border-radius: 50%;
+
+        mat-icon {
+          width: 1.5rem;
+        }
+      }
+
+      .not-started-content-description {
+        font-weight: v.$font-weight-medium;
+        color: v.$primary-bg-color-variant-6;
+      }
+    }
+
+    .connection-error {
+      @include m.d-flex-column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 2rem 1rem;
+      height: 100%;
+      gap: 1rem;
+
+      .error-icon {
+        width: 4rem;
+        height: 4rem;
+        @include m.d-flex;
+        @include m.align-items-center;
+        @include m.justify-content-center;
+        background-color: v.$selection-variant-2;
+        border-radius: 50%;
+
+        mat-icon {
+          width: 1.5rem;
+          color: v.$secondary-color-variant-9;
+        }
+      }
+
+      .error-message {
+        color: v.$primary-bg-color-variant-6;
+      }
+    }
+
+    .listening-content {
+      .listening-indicator {
+        @include m.d-flex;
+        padding: 1rem 0;
+        gap: 0.5rem;
+
+        .listening-icon {
+          animation: spin 2s infinite;
+        }
+
+        .listening-indicator-text {
+          color: v.$primary-bg-color-variant-6;
+          font-size: v.$font-size-xxs;
+        }
+      }
+    }
+
+    .transcript-container {
+      height: 100%;
+      @include m.d-flex-column;
+      position: relative;
+      padding-top: 1rem;
+      box-sizing: border-box;
+
+      &.paused {
+        opacity: 0.8;
+      }
+
+      .paused-banner {
+        @include m.d-flex;
+        @include m.align-items-center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+        padding: 0.75rem 1rem;
+        background-color: v.$selection-variant-2;
+        border-bottom: 1px solid v.$selection-variant-1;
+        font-size: 0.875rem;
+        font-weight: v.$font-weight-medium;
+        color: v.$primary-bg-color-variant-6;
+
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+          color: v.$selection-variant-9;
+        }
+      }
+
+      .transcript-viewport {
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+
+        .transcript-segment {
+          &.paused {
+            opacity: 0.7;
+          }
+
+          .segment-text {
+            font-size: v.$font-size-xxs;
+            color: v.$primary-bg-color-variant-6;
+            word-break: break-word;
+            transition: opacity 0.2s ease-in-out;
+            padding: 0.125rem 0.5rem;
+
+            &.typewriter-active {
+              color: v.$primary-color-variant-2;
+            }
+          }
+
+          &:last-child {
+            .segment-text {
+              color: v.$primary-color-variant-2;
+              font-weight: v.$font-weight-medium;
+            }
+          }
+        }
+      }
+
+      .scroll-to-bottom-btn {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 10;
+        border-radius: 50%;
+        background-color: v.$primary-bg-color;
+        color: v.$primary-bg-color-variant-5;
+
+        @include mat.fab-overrides(
+          (
+            small-container-elevation-shadow: v.$box-shadow-simple-drop-3,
+            small-focus-container-elevation-shadow: v.$box-shadow-simple-drop-4,
+            small-hover-container-elevation-shadow: v.$box-shadow-simple-drop-3,
+            small-pressed-container-elevation-shadow:
+              v.$box-shadow-simple-drop-4,
+          )
+        );
+
+        &:hover {
+          background-color: v.$selection-variant-1;
+        }
+
+        mat-icon {
+          font-size: 1.25rem;
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+    }
+
+    .paused-content,
+    .ended-content {
+      @include m.d-flex-column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 2rem 1rem;
+      height: 100%;
+      gap: 1rem;
+
+      .content-icon {
+        width: 4rem;
+        height: 4rem;
+        @include m.d-flex;
+        @include m.align-items-center;
+        @include m.justify-content-center;
+        background-color: v.$selection-variant-2;
+        border-radius: 50%;
+
+        mat-icon {
+          color: v.$primary-bg-color-variant-6;
+          width: 1.5rem;
+        }
+      }
+
+      .content-message {
+        color: v.$primary-bg-color-variant-6;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

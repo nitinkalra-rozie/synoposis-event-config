@@ -1,0 +1,93 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use 'functions' as f;
+@use '@angular/material' as mat;
+
+.action-buttons {
+  @include m.d-flex-row;
+  @include m.align-items-center;
+  gap: 0.5rem;
+
+  .action-btn {
+    min-width: 4rem;
+    height: 2rem;
+    border-radius: v.$button-border-radius;
+    text-transform: none;
+    box-shadow: none;
+    border: none;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    &:focus {
+      opacity: 0.92;
+    }
+
+    &.start-pause-resume-btn {
+      background-color: v.$primary-color-variant-2;
+      color: v.$text-color-white;
+
+      &.loading {
+        mat-icon {
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+
+    &.stop-btn {
+      background-color: v.$secondary-color-variant-9;
+      color: v.$text-color-white;
+    }
+
+    &.cc-btn {
+      background-color: v.$primary-bg-color;
+      color: v.$primary-bg-color-variant-6;
+      border: 1px solid v.$primary-bg-color-variant-3;
+    }
+
+    mat-icon {
+      width: 1.125rem;
+      height: 1.125rem;
+      @include m.d-flex;
+      font-size: 1.125rem;
+      margin: auto;
+    }
+  }
+
+  .auto-av-toggle {
+    @include mat.slide-toggle-overrides(
+      (
+        selected-track-color: v.$orange-gradient-2,
+        selected-focus-track-color: v.$orange-gradient-2,
+        selected-hover-track-color: v.$orange-gradient-2,
+        selected-pressed-track-color: v.$orange-gradient-2,
+        selected-track-outline-width: 0,
+        track-height: 1.75rem,
+        handle-height: 1.25rem,
+        unselected-handle-size: 1.375rem,
+        selected-handle-size: 1.375rem,
+        pressed-handle-size: 1.375rem,
+        unselected-handle-horizontal-margin: 0 0.25rem,
+        unselected-pressed-handle-horizontal-margin: 0 0.25rem,
+        selected-handle-horizontal-margin: 0 1.625rem,
+        selected-pressed-handle-horizontal-margin: 0 1.625rem,
+        label-text-color: v.$primary-bg-color-variant-6,
+        disabled-label-text-color: f.color-transparent(
+            0.5,
+            v.$primary-bg-color-variant-6
+          ),
+      )
+    );
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

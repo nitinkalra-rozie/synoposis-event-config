@@ -784,3 +784,90 @@ $error-color: #f44336;
 .dashboard-branding {
   display: none;
 }
+
+// Progress bar styles
+.progress-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.progress-bar {
+  width: 150px;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #66bb6a);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.progress-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  min-width: 35px;
+}
+
+// Export button styles
+.export-section {
+  display: flex;
+  align-items: center;
+  min-width: 180px;
+
+  .export-progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .export-progress-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .export-status {
+    font-weight: 500;
+  }
+
+  .export-percentage {
+    margin-left: auto;
+    font-weight: 600;
+    color: #2196f3;
+  }
+  .export-btn {
+    .spinning {
+      animation: spin 1s linear infinite;
+    }
+  }
+  .spinning {
+    animation: spin 2s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

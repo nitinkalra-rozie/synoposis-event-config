@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
+import { getEventDomain } from 'src/app/shared/utils/get-event-domain-util';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -19,7 +20,6 @@ export class LegacyBackendApiService {
   ) {}
 
   // TODO:@later move these to a config state service
-  private _currentEventName: string = '';
   private _currentEventDomain: string = '';
   private _currentTimezone: string = '';
 
@@ -33,7 +33,6 @@ export class LegacyBackendApiService {
         this.setCurrentTimezone(
           configResponse?.data?.Information?.Timezone || '+0:00'
         );
-        this._currentEventName = eventIdentifier;
         setLocalStorageItem('SELECTED_EVENT_NAME', eventIdentifier);
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
         return this.http.post(environment.getEventDetails, {
@@ -67,6 +66,7 @@ export class LegacyBackendApiService {
   putTranscript(transcript: any): Observable<Object> {
     const body = {
       sessionId: localStorage.getItem('currentSessionId'),
+      stage: localStorage.getItem('currentStage'),
       primarySessionId: localStorage.getItem('currentPrimarySessionId'),
       transcript: transcript,
       eventName: localStorage.getItem('selectedEvent'),
@@ -118,11 +118,9 @@ export class LegacyBackendApiService {
 
   // TODO:@later move this to a config data service
   private _getEventConfig(): Observable<any> {
-    const hostname = window.location.hostname;
-    let domain =
-      hostname === 'localhost' ? 'dev-sbx.synopsis.rozie.ai' : hostname;
-    domain = domain.replace('admin.', '');
-
-    return this.http.post(environment.getEventConfig, { domain });
+    const domain = getEventDomain();
+    return this.http.post(environment.apiBaseUrl + '/r1/getEventConfig', {
+      domain,
+    });
   }
 }

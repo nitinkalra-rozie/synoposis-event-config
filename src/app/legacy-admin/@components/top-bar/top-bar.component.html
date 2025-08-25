@@ -25,7 +25,7 @@
               class="profile-icon"
               alt="icon3"
               src="../../../../../assets/profile-icon.svg" />
-            @if (showDropdown) {
+            @if (showDropdown()) {
               <div class="dropdown">
                 <li (click)="logout()">Log out</li>
               </div>

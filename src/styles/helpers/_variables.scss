@@ -100,6 +100,8 @@ $primary-bg-color-variant-7: #343536;
 $primary-bg-color-variant-8: #1e2225;
 $primary-bg-color-variant-9: #000000;
 
+$primary-bg-hover-color: rgba(0, 0, 0, 0.08);
+
 $building-blocks-yellow: #ffbb00;
 $right-panel-button-yellow: #f49f0a;
 $building-blocks-green: #49be69;
@@ -114,11 +116,7 @@ $transparent-white-20: rgba(255, 255, 255, 0.2);
 
 $table-loader-color: rgba(213, 218, 220, 0.2);
 $shadow: rgba(0, 0, 0, 0.08);
-
-$alerts-success: #49be69;
-$alerts-info: #fa9620;
-$alerts-warning: #ff4a4a;
-$alerts-danger: #d20b0d;
+$select-disabled-text-color: #adadb0;
 
 $selected-concept-icon-color: #ff6060;
 $response-param-highlight-color: #7a879d;
@@ -130,6 +128,9 @@ $selection-variant-4: #00aa40;
 $selection-variant-5: #e71c1c;
 $selection-variant-6: #ebeff5;
 $selection-variant-8: #f2f1ff;
+$selection-variant-9: #fa9620;
+$selection-variant-10: #d20b0d;
+$selection-variant-11: #45a049;
 
 $button-border-radius: 4px;
 $button-circular-border-radius: 100px;
@@ -203,6 +204,7 @@ $right-sidebar-expanded-width: 414px;
 $stepper-content-number-size: 2rem;
 $stepper-content-gap: 2rem;
 $top-bar-height: 4.375rem;
+$top-tabs-height: 3rem;
 $right-sidebar-hidden-content-container-width: calc(
   100vw - $left-sidebar-collapsed-width - 48px
 );

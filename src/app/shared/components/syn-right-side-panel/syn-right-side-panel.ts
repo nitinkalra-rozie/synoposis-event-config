@@ -1,0 +1,33 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  OnDestroy,
+  output,
+} from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { FocusOnShow } from 'src/app/shared/directives/focus-on-show';
+
+@Component({
+  selector: 'syn-right-side-panel',
+  templateUrl: './syn-right-side-panel.html',
+  styleUrl: './syn-right-side-panel.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [MatButtonModule, MatIconModule, FocusOnShow],
+})
+export class SynRightSidePanel implements OnDestroy {
+  public readonly isOpen = input.required<boolean>();
+  public readonly title = input.required<string>();
+  public readonly width = input<string>('25vw');
+  public readonly panelClass = input<string>('');
+  public readonly closeOnDestroy = input<boolean>(false);
+
+  public readonly panelClose = output<void>();
+
+  ngOnDestroy(): void {
+    if (this.closeOnDestroy()) {
+      this.panelClose.emit();
+    }
+  }
+}

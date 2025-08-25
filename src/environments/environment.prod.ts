@@ -1,12 +1,12 @@
 export const environment = {
   production: true,
+  apiBaseUrl: 'https://api.synopsis.rozie.ai',
   getTranscriberPreSignedUrl:
     'https://api.synopsis.rozie.ai/r2/getPreSignedUrl',
   putTranscript: 'https://api.synopsis.rozie.ai/r2/postTranscript',
   postData: 'https://api.synopsis.rozie.ai/r2/config',
   postDebriefData: 'https://api.synopsis.rozie.ai/r4/config',
   getEventDetails: 'https://api.synopsis.rozie.ai/r1/getEventDetails',
-  getEventConfig: 'https://api.synopsis.rozie.ai/r1/getEventConfig',
   updateAgendaUrl: 'https://api.synopsis.rozie.ai/r5/postEventDetails',
   getUploadFilePresignedUrl: 'https://api.synopsis.rozie.ai/r6/config',
   postCurrentSessionId:
@@ -33,7 +33,6 @@ export const environment = {
     'https://ifmrpnrth0.execute-api.ca-central-1.amazonaws.com/prod/request-access',
   REQUEST_ACCESS_API_KEY: '9MitsUZQJ566GezJRZXrz6Tqt64MVWyCh4gZ2M07',
   X_API_KEY: 'zpVl7dR3Cf3l56RsfpfDp4aEvfMFMHFL6ualSok5',
-  setAutoAvSetupUrl: 'https://api.synopsis.rozie.ai/r2/stage',
   wsUrl: 'wss://admin-ws.api.synopsis.rozie.ai/',
   audioRecorderUrl: 'https://api.synopsis.rozie.ai/r2/postAudioChunk',
 };

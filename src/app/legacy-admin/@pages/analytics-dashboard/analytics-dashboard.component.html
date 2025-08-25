@@ -2,17 +2,24 @@
 <div class="main-content">
   <div id="dashboard-content" class="analytics-container">
     <!-- Loading Spinner -->
-    <div *ngIf="isLoading()" class="loading-overlay">
-      <mat-spinner></mat-spinner>
-    </div>
+    @if (isLoading()) {
+      <div class="loading-overlay">
+        <mat-spinner></mat-spinner>
+      </div>
+    }
 
     <!-- Error Message -->
-    <div *ngIf="error()" class="error-container">
-      <p>{{ error() }}</p>
-      <button mat-raised-button (click)="fetchAnalyticsData()" color="primary">
-        Retry
-      </button>
-    </div>
+    @if (error()) {
+      <div class="error-container">
+        <p>{{ error() }}</p>
+        <button
+          mat-raised-button
+          (click)="fetchAnalyticsData()"
+          color="primary">
+          Retry
+        </button>
+      </div>
+    }
 
     <!-- Dashboard Header -->
     <div class="dashboard-header">
@@ -36,12 +43,11 @@
           </button>
 
           <mat-menu #dateRangeMenu="matMenu">
-            <button
-              *ngFor="let range of dateRanges"
-              mat-menu-item
-              (click)="applyDateRange(range)">
-              {{ range.name }}
-            </button>
+            @for (range of dateRanges; track range) {
+              <button mat-menu-item (click)="applyDateRange(range)">
+                {{ range.name }}
+              </button>
+            }
             <div class="custom-date-range">
               <mat-form-field appearance="outline">
                 <mat-label>Custom range</mat-label>
@@ -108,6 +114,38 @@
           [matMenuTriggerFor]="settingsMenu">
           <mat-icon>settings</mat-icon>
         </button>
+
+        <!-- Export Section - Show button OR progress bar -->
+        <div class="export-section">
+          <!-- Export Button - shown when not exporting -->
+          @if (!isExporting()) {
+            <button
+              mat-raised-button
+              matTooltip="Export Report"
+              class="export-btn"
+              (click)="exportReport()"
+              color="primary">
+              <mat-icon>download</mat-icon>
+              <span>Export Report</span>
+            </button>
+          }
+
+          <!-- Progress Bar - shown when exporting -->
+          @if (isExporting()) {
+            <div class="export-progress-container">
+              <div class="export-progress-info">
+                <mat-icon class="spinning">hourglass_empty</mat-icon>
+                <span class="export-status">Exporting Report...</span>
+                <span class="export-percentage">{{ exportProgress() }}%</span>
+              </div>
+              <mat-progress-bar
+                class="export-progress-bar"
+                [value]="exportProgress()"
+                mode="determinate">
+              </mat-progress-bar>
+            </div>
+          }
+        </div>
 
         <mat-menu #settingsMenu="matMenu" class="settings-menu">
           <div class="settings-menu-content">
@@ -176,459 +214,459 @@
     </div>
 
     <!-- Dashboard Content -->
-    <div *ngIf="analyticsData()" class="dashboard-content">
-      <!-- Executive Summary KPI Cards -->
-      <div *ngIf="dashboardSettings().showKPICards" class="widget kpi-widget">
-        <div class="widget-header">
-          <h2>Executive Summary</h2>
-          <button
-            mat-icon-button
-            matTooltip="Hide widget"
-            class="widget-settings"
-            (click)="toggleKPICards()">
-            <mat-icon>visibility_off</mat-icon>
-          </button>
-        </div>
-
-        <div class="kpi-cards">
-          <div class="kpi-card">
-            <div class="kpi-value">{{ totalInteractions() | number }}</div>
-            <div class="kpi-label">Total Interactions</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-value">{{ uniqueUsers() | number }}</div>
-            <div class="kpi-label">Unique Users</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-value">{{ totalPageViews() | number }}</div>
-            <div class="kpi-label">Total Page Views</div>
-          </div>
-
-          <div class="kpi-card">
-            <div class="kpi-value">{{ formatTime(averageTimeSpent()) }}</div>
-            <div class="kpi-label">Avg. Engagement Time</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Time-Based Analysis -->
-      <div
-        *ngIf="dashboardSettings().showTimeAnalysis"
-        class="widget time-analysis-widget">
-        <div class="widget-header">
-          <h2>Time-Based Analysis</h2>
-          <div class="widget-controls">
-            <mat-form-field class="metric-selector" appearance="outline">
-              <mat-label>Metric</mat-label>
-              <mat-select
-                [(value)]="selectedTimeMetric"
-                (selectionChange)="updateTimeAnalysisChart()">
-                <mat-option value="all">All Metrics</mat-option>
-                <mat-option value="interactions">Total Interactions</mat-option>
-                <mat-option value="pageViews">Page Views</mat-option>
-                <mat-option value="users">Unique Users</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <button
-              mat-icon-button
-              matTooltip="Hide widget"
-              class="widget-settings"
-              (click)="toggleTimeAnalysis()">
-              <mat-icon>visibility_off</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="time-analysis-chart">
-          <canvas
-            [data]="timeAnalysisChartData"
-            [options]="barChartOptions"
-            [type]="'bar'"
-            baseChart>
-          </canvas>
-        </div>
-      </div>
-
-      <!-- Top Sessions Widget -->
-      <div
-        *ngIf="dashboardSettings().showTopSessions"
-        class="widget top-sessions-widget">
-        <div class="widget-header">
-          <h2>Top Sessions</h2>
-          <div class="widget-controls">
-            <mat-form-field class="display-count-selector" appearance="outline">
-              <mat-label>Display</mat-label>
-              <mat-select
-                [value]="dashboardSettings().displayCount"
-                (selectionChange)="updateDisplayCount($event.value)">
-                <mat-option [value]="6">6</mat-option>
-                <mat-option [value]="12">12</mat-option>
-                <mat-option [value]="18">18</mat-option>
-                <mat-option [value]="24">24</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <button
-              mat-icon-button
-              matTooltip="Hide widget"
-              class="widget-settings"
-              (click)="toggleTopSessions()">
-              <mat-icon>visibility_off</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="top-sessions-table">
-          <table
-            mat-table
-            class="mat-elevation-z0 sessions-table"
-            [dataSource]="topSessions()">
-            <!-- Session Title Column -->
-            <ng-container matColumnDef="sessionTitle">
-              <th *matHeaderCellDef mat-header-cell>Session Title</th>
-              <td *matCellDef="let session" mat-cell>
-                <div class="session-title">
-                  {{ session.sessionTitle }}
-                </div>
-                <div class="session-id">{{ session.sessionId }}</div>
-              </td>
-            </ng-container>
-
-            <!-- Views Column -->
-            <ng-container matColumnDef="views">
-              <th *matHeaderCellDef mat-header-cell>
-                <div class="sortable-header" (click)="sortSessionsBy('views')">
-                  Views
-                  <mat-icon
-                    *ngIf="
-                      sessionSortField === 'views' &&
-                      sessionSortDirection === 'asc'
-                    "
-                    >arrow_upward</mat-icon
-                  >
-                  <mat-icon
-                    *ngIf="
-                      sessionSortField === 'views' &&
-                      sessionSortDirection === 'desc'
-                    "
-                    >arrow_downward</mat-icon
-                  >
-                </div>
-              </th>
-              <td *matCellDef="let session" mat-cell>{{ session.views }}</td>
-            </ng-container>
-
-            <!-- Users Column -->
-            <ng-container matColumnDef="users">
-              <th *matHeaderCellDef mat-header-cell>
-                <div class="sortable-header" (click)="sortSessionsBy('users')">
-                  Users
-                  <mat-icon
-                    *ngIf="
-                      sessionSortField === 'users' &&
-                      sessionSortDirection === 'asc'
-                    "
-                    >arrow_upward</mat-icon
-                  >
-                  <mat-icon
-                    *ngIf="
-                      sessionSortField === 'users' &&
-                      sessionSortDirection === 'desc'
-                    "
-                    >arrow_downward</mat-icon
-                  >
-                </div>
-              </th>
-              <td *matCellDef="let session" mat-cell>{{ session.users }}</td>
-            </ng-container>
-
-            <tr
-              *matHeaderRowDef="['sessionTitle', 'views', 'users']"
-              mat-header-row></tr>
-            <tr
-              *matRowDef="let row; columns: ['sessionTitle', 'views', 'users']"
-              mat-row
-              class="session-row"></tr>
-          </table>
-        </div>
-
-        <!-- Histogram for all sessions -->
-        <div class="top-sessions-histogram">
-          <h3 class="chart-title">Sessions Distribution</h3>
-          <canvas
-            [data]="sessionsHistogramChartData"
-            [options]="barChartOptions"
-            [type]="'bar'"
-            baseChart>
-          </canvas>
-        </div>
-      </div>
-
-      <!-- User Engagement Widget -->
-      <div
-        *ngIf="dashboardSettings().showUserEngagement"
-        class="widget user-engagement-widget">
-        <div class="widget-header">
-          <h2>User Engagement</h2>
-          <div class="widget-controls">
-            <mat-slide-toggle
-              [checked]="dashboardSettings().anonymizeUsers"
-              (change)="toggleAnonymizeUsers()">
-              Anonymize
-            </mat-slide-toggle>
-
-            <button
-              mat-icon-button
-              matTooltip="Hide widget"
-              class="widget-settings"
-              (click)="toggleUserEngagement()">
-              <mat-icon>visibility_off</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="user-engagement-grid">
-          <div *ngFor="let user of topUsers()" class="user-card">
-            <div class="user-avatar">
-              {{ user.email.charAt(0) | uppercase }}
-            </div>
-
-            <div class="user-info">
-              <div class="user-name">
-                {{ formatUserEmail(user.email) }}
-              </div>
-              <!-- <div *ngIf="user.company !== 'N/A'" class="user-company">
-                {{ user.company }}
-              </div> -->
-              <div class="user-interaction-count">
-                <span
-                  >Interactions: <strong>{{ user.interactions }}</strong></span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Geographic Distribution Widget -->
-      <div
-        *ngIf="
-          dashboardSettings().showGeographicDistribution && geographicData()
-        "
-        class="widget geographic-widget">
-        <div class="widget-header">
-          <h2>Geographic Distribution</h2>
-          <div class="widget-controls">
-            <button
-              mat-button
-              class="toggle-view-btn"
-              (click)="toggleAllGeographic()">
-              {{ showAllGeographic() ? 'Show Top 6' : 'Show All' }}
-            </button>
-            <button
-              mat-icon-button
-              matTooltip="Hide widget"
-              class="widget-settings"
-              (click)="toggleGeographicDistribution()">
-              <mat-icon>visibility_off</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="geographic-content">
-          <div class="chart-section">
-            <div class="chart-container">
-              <canvas
-                [data]="{
-                  labels: geographicData().labels,
-                  datasets: [
-                    {
-                      data: geographicData().data,
-                      backgroundColor: geographicData().colors,
-                    },
-                  ],
-                }"
-                [options]="pieChartOptions"
-                [type]="'doughnut'"
-                baseChart>
-              </canvas>
-            </div>
-            <div class="top-countries">
-              <div class="top-countries-title">Top Countries</div>
-              <div class="countries-list">
-                <div
-                  *ngFor="
-                    let region of geographicData().topCountries;
-                    let i = index
-                  "
-                  class="country-item">
-                  <div class="country-info">
-                    <div class="country-name">{{ region.country }}</div>
-                    <div class="country-progress">
-                      <div
-                        class="progress-bar"
-                        [style.background-color]="geographicData().colors[i]"
-                        [style.width.%]="
-                          (region.count /
-                            geographicData().allRegions[0].count) *
-                          100
-                        "></div>
-                    </div>
-                  </div>
-                  <div class="country-count">{{ region.count }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="countries-table">
-            <table>
-              <thead>
-                <tr>
-                  <th class="col-country">Country</th>
-                  <th class="col-visitors">Visitors</th>
-                  <th class="col-percentage">%</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let region of geographicData().allRegions">
-                  <td class="col-country">{{ region.country }}</td>
-                  <td class="col-visitors">{{ region.count }}</td>
-                  <td class="col-percentage">
-                    {{
-                      (region.count / geographicData().total) * 100
-                        | number: '1.1-1'
-                    }}%
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Device & Browser Distribution -->
-      <div *ngIf="dashboardSettings().showDeviceBrowser" class="widget-row">
-        <!-- Device Distribution -->
-        <div class="widget device-widget">
-          <div class="widget-header">
-            <h2>Device Distribution</h2>
-            <button
-              mat-icon-button
-              matTooltip="Hide widget"
-              class="widget-settings"
-              (click)="toggleDeviceBrowser()">
-              <mat-icon>visibility_off</mat-icon>
-            </button>
-          </div>
-
-          <div class="chart-container">
-            <canvas
-              [data]="{
-                labels: deviceData().labels,
-                datasets: [
-                  {
-                    data: deviceData().data,
-                    backgroundColor: [
-                      'rgba(83, 74, 216, 0.7)',
-                      'rgba(131, 76, 157, 0.7)',
-                      'rgba(34, 135, 225, 0.7)',
-                    ],
-                  },
-                ],
-              }"
-              [options]="pieChartOptions"
-              [type]="'doughnut'"
-              baseChart>
-            </canvas>
-          </div>
-        </div>
-
-        <!-- Browser Distribution -->
-        <div class="widget browser-widget">
-          <div class="widget-header">
-            <h2>Browser Distribution</h2>
-            <div class="widget-controls">
-              <button
-                mat-button
-                class="toggle-view-btn"
-                (click)="toggleAllBrowsers()">
-                {{ showAllBrowsers() ? 'Show Top 3' : 'Show All' }}
-              </button>
+    @if (analyticsData()) {
+      <div class="dashboard-content">
+        <!-- Executive Summary KPI Cards -->
+        @if (dashboardSettings().showKPICards) {
+          <div class="widget kpi-widget">
+            <div class="widget-header">
+              <h2>Executive Summary</h2>
               <button
                 mat-icon-button
                 matTooltip="Hide widget"
                 class="widget-settings"
-                (click)="toggleDeviceBrowser()">
+                (click)="toggleKPICards()">
                 <mat-icon>visibility_off</mat-icon>
               </button>
             </div>
+            <div class="kpi-cards">
+              <div class="kpi-card">
+                <div class="kpi-value">{{ totalInteractions() | number }}</div>
+                <div class="kpi-label">Total Interactions</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-value">{{ uniqueUsers() | number }}</div>
+                <div class="kpi-label">Unique Users</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-value">{{ totalPageViews() | number }}</div>
+                <div class="kpi-label">Total Page Views</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-value">
+                  {{ formatTime(averageTimeSpent()) }}
+                </div>
+                <div class="kpi-label">Avg. Engagement Time</div>
+              </div>
+            </div>
           </div>
-
-          <div class="chart-container">
-            <canvas
-              [data]="{
-                labels: browserData().labels,
-                datasets: [
-                  {
-                    data: browserData().data,
-                    backgroundColor: [
-                      'rgba(83, 74, 216, 0.7)',
-                      'rgba(131, 76, 157, 0.7)',
-                      'rgba(34, 135, 225, 0.7)',
+        }
+        <!-- Time-Based Analysis -->
+        @if (dashboardSettings().showTimeAnalysis) {
+          <div class="widget time-analysis-widget">
+            <div class="widget-header">
+              <h2>Time-Based Analysis</h2>
+              <div class="widget-controls">
+                <mat-form-field class="metric-selector" appearance="outline">
+                  <mat-label>Metric</mat-label>
+                  <mat-select
+                    [(value)]="selectedTimeMetric"
+                    (selectionChange)="updateTimeAnalysisChart()">
+                    <mat-option value="all">All Metrics</mat-option>
+                    <mat-option value="interactions"
+                      >Total Interactions</mat-option
+                    >
+                    <mat-option value="pageViews">Page Views</mat-option>
+                    <mat-option value="users">Unique Users</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  matTooltip="Hide widget"
+                  class="widget-settings"
+                  (click)="toggleTimeAnalysis()">
+                  <mat-icon>visibility_off</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="time-analysis-chart">
+              <canvas
+                [data]="timeAnalysisChartData()"
+                [options]="barChartOptions"
+                [type]="'bar'"
+                baseChart>
+              </canvas>
+            </div>
+          </div>
+        }
+        <!-- Top Sessions Widget -->
+        @if (dashboardSettings().showTopSessions) {
+          <div class="widget top-sessions-widget">
+            <div class="widget-header">
+              <h2>Top Sessions</h2>
+              <div class="widget-controls">
+                <mat-form-field
+                  class="display-count-selector"
+                  appearance="outline">
+                  <mat-label>Display</mat-label>
+                  <mat-select
+                    [value]="dashboardSettings().displayCount"
+                    (selectionChange)="updateDisplayCount($event.value)">
+                    <mat-option [value]="6">6</mat-option>
+                    <mat-option [value]="12">12</mat-option>
+                    <mat-option [value]="18">18</mat-option>
+                    <mat-option [value]="24">24</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <button
+                  mat-icon-button
+                  matTooltip="Hide widget"
+                  class="widget-settings"
+                  (click)="toggleTopSessions()">
+                  <mat-icon>visibility_off</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="top-sessions-table">
+              <table
+                mat-table
+                class="mat-elevation-z0 sessions-table"
+                [dataSource]="topSessions()">
+                <!-- Session Title Column -->
+                <ng-container matColumnDef="sessionTitle">
+                  <th *matHeaderCellDef mat-header-cell>Session Title</th>
+                  <td *matCellDef="let session" mat-cell>
+                    <div class="session-title">
+                      {{ session.sessionTitle }}
+                    </div>
+                    <div class="session-id">{{ session.sessionId }}</div>
+                  </td>
+                </ng-container>
+                <!-- Views Column -->
+                <ng-container matColumnDef="views">
+                  <th *matHeaderCellDef mat-header-cell>
+                    <div
+                      class="sortable-header"
+                      (click)="sortSessionsBy('views')">
+                      Views
+                      @if (
+                        sessionSortField() === 'views' &&
+                        sessionSortDirection() === 'asc'
+                      ) {
+                        <mat-icon>arrow_upward</mat-icon>
+                      }
+                      @if (
+                        sessionSortField() === 'views' &&
+                        sessionSortDirection() === 'desc'
+                      ) {
+                        <mat-icon>arrow_downward</mat-icon>
+                      }
+                    </div>
+                  </th>
+                  <td *matCellDef="let session" mat-cell>
+                    {{ session.views }}
+                  </td>
+                </ng-container>
+                <!-- Users Column -->
+                <ng-container matColumnDef="users">
+                  <th *matHeaderCellDef mat-header-cell>
+                    <div
+                      class="sortable-header"
+                      (click)="sortSessionsBy('users')">
+                      Users
+                      @if (
+                        sessionSortField() === 'users' &&
+                        sessionSortDirection() === 'asc'
+                      ) {
+                        <mat-icon>arrow_upward</mat-icon>
+                      }
+                      @if (
+                        sessionSortField() === 'users' &&
+                        sessionSortDirection() === 'desc'
+                      ) {
+                        <mat-icon>arrow_downward</mat-icon>
+                      }
+                    </div>
+                  </th>
+                  <td *matCellDef="let session" mat-cell>
+                    {{ session.users }}
+                  </td>
+                </ng-container>
+                <tr
+                  *matHeaderRowDef="['sessionTitle', 'views', 'users']"
+                  mat-header-row></tr>
+                <tr
+                  *matRowDef="
+                    let row;
+                    columns: ['sessionTitle', 'views', 'users']
+                  "
+                  mat-row
+                  class="session-row"></tr>
+              </table>
+            </div>
+            <!-- Histogram for all sessions -->
+            <div class="top-sessions-histogram">
+              <h3 class="chart-title">Sessions Distribution</h3>
+              <canvas
+                [data]="sessionsHistogramChartData()"
+                [options]="barChartOptions"
+                [type]="'bar'"
+                baseChart>
+              </canvas>
+            </div>
+          </div>
+        }
+        <!-- User Engagement Widget -->
+        @if (dashboardSettings().showUserEngagement) {
+          <div class="widget user-engagement-widget">
+            <div class="widget-header">
+              <h2>User Engagement</h2>
+              <div class="widget-controls">
+                <mat-slide-toggle
+                  [checked]="dashboardSettings().anonymizeUsers"
+                  (change)="toggleAnonymizeUsers()">
+                  Anonymize
+                </mat-slide-toggle>
+                <button
+                  mat-icon-button
+                  matTooltip="Hide widget"
+                  class="widget-settings"
+                  (click)="toggleUserEngagement()">
+                  <mat-icon>visibility_off</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="user-engagement-grid">
+              @for (user of topUsers(); track user) {
+                <div class="user-card">
+                  <div class="user-avatar">
+                    {{ user.email.charAt(0) | uppercase }}
+                  </div>
+                  <div class="user-info">
+                    <div class="user-name">
+                      {{ formatUserEmail(user.email) }}
+                    </div>
+                    <!-- <div *ngIf="user.company !== 'N/A'" class="user-company">
+                            {{ user.company }}
+                          </div> -->
+                    <div class="user-interaction-count">
+                      <span
+                        >Interactions:
+                        <strong>{{ user.interactions }}</strong></span
+                      >
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        <!-- Geographic Distribution Widget -->
+        @if (
+          dashboardSettings().showGeographicDistribution && geographicData()
+        ) {
+          <div class="widget geographic-widget">
+            <div class="widget-header">
+              <h2>Geographic Distribution</h2>
+              <div class="widget-controls">
+                <button
+                  mat-button
+                  class="toggle-view-btn"
+                  (click)="toggleAllGeographic()">
+                  {{ showAllGeographic() ? 'Show Top 6' : 'Show All' }}
+                </button>
+                <button
+                  mat-icon-button
+                  matTooltip="Hide widget"
+                  class="widget-settings"
+                  (click)="toggleGeographicDistribution()">
+                  <mat-icon>visibility_off</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="geographic-content">
+              <div class="chart-section">
+                <div class="chart-container">
+                  <canvas
+                    [data]="{
+                      labels: geographicData().labels,
+                      datasets: [
+                        {
+                          data: geographicData().data,
+                          backgroundColor: geographicData().colors,
+                        },
+                      ],
+                    }"
+                    [options]="pieChartOptions"
+                    [type]="'doughnut'"
+                    baseChart>
+                  </canvas>
+                </div>
+                <div class="top-countries">
+                  <div class="top-countries-title">Top Countries</div>
+                  <div class="countries-list">
+                    @for (
+                      region of geographicData().topCountries;
+                      track region;
+                      let i = $index
+                    ) {
+                      <div class="country-item">
+                        <div class="country-info">
+                          <div class="country-name">{{ region.country }}</div>
+                          <div class="country-progress">
+                            <div
+                              class="progress-bar"
+                              [style.background-color]="
+                                geographicData().colors[i]
+                              "
+                              [style.width.%]="
+                                (region.count /
+                                  geographicData().allRegions[0].count) *
+                                100
+                              "></div>
+                          </div>
+                        </div>
+                        <div class="country-count">{{ region.count }}</div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="countries-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="col-country">Country</th>
+                      <th class="col-visitors">Visitors</th>
+                      <th class="col-percentage">%</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (region of geographicData().allRegions; track region) {
+                      <tr>
+                        <td class="col-country">{{ region.country }}</td>
+                        <td class="col-visitors">{{ region.count }}</td>
+                        <td class="col-percentage">
+                          {{
+                            (region.count / geographicData().total) * 100
+                              | number: '1.1-1'
+                          }}%
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        }
+        <!-- Device & Browser Distribution -->
+        @if (dashboardSettings().showDeviceBrowser) {
+          <div class="widget-row">
+            <!-- Device Distribution -->
+            <div class="widget device-widget">
+              <div class="widget-header">
+                <h2>Device Distribution</h2>
+                <button
+                  mat-icon-button
+                  matTooltip="Hide widget"
+                  class="widget-settings"
+                  (click)="toggleDeviceBrowser()">
+                  <mat-icon>visibility_off</mat-icon>
+                </button>
+              </div>
+              <div class="chart-container">
+                <canvas
+                  [data]="{
+                    labels: deviceData().labels,
+                    datasets: [
+                      {
+                        data: deviceData().data,
+                        backgroundColor: [
+                          'rgba(83, 74, 216, 0.7)',
+                          'rgba(131, 76, 157, 0.7)',
+                          'rgba(34, 135, 225, 0.7)',
+                        ],
+                      },
                     ],
-                  },
-                ],
-              }"
-              [options]="pieChartOptions"
-              [type]="'doughnut'"
-              baseChart>
-            </canvas>
+                  }"
+                  [options]="pieChartOptions"
+                  [type]="'doughnut'"
+                  baseChart>
+                </canvas>
+              </div>
+            </div>
+            <!-- Browser Distribution -->
+            <div class="widget browser-widget">
+              <div class="widget-header">
+                <h2>Browser Distribution</h2>
+                <div class="widget-controls">
+                  <button
+                    mat-button
+                    class="toggle-view-btn"
+                    (click)="toggleAllBrowsers()">
+                    {{ showAllBrowsers() ? 'Show Top 3' : 'Show All' }}
+                  </button>
+                  <button
+                    mat-icon-button
+                    matTooltip="Hide widget"
+                    class="widget-settings"
+                    (click)="toggleDeviceBrowser()">
+                    <mat-icon>visibility_off</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas
+                  [data]="{
+                    labels: browserData().labels,
+                    datasets: [
+                      {
+                        data: browserData().data,
+                        backgroundColor: [
+                          'rgba(83, 74, 216, 0.7)',
+                          'rgba(131, 76, 157, 0.7)',
+                          'rgba(34, 135, 225, 0.7)',
+                        ],
+                      },
+                    ],
+                  }"
+                  [options]="pieChartOptions"
+                  [type]="'doughnut'"
+                  baseChart>
+                </canvas>
+              </div>
+            </div>
           </div>
-        </div>
+        }
+        <!-- Session Type Engagement -->
+        @if (dashboardSettings().showSessionType && sessionTypeData()) {
+          <div class="widget session-type-widget">
+            <div class="widget-header">
+              <h2>Session Type Engagement</h2>
+              <button
+                mat-icon-button
+                matTooltip="Hide widget"
+                class="widget-settings"
+                (click)="toggleSessionType()">
+                <mat-icon>visibility_off</mat-icon>
+              </button>
+            </div>
+            <div class="chart-container">
+              <canvas
+                [data]="{
+                  labels: sessionTypeData().labels,
+                  datasets: [
+                    {
+                      data: sessionTypeData().avgTimeData,
+                      label: 'Avg. Time (seconds)',
+                      backgroundColor: 'rgba(83, 74, 216, 0.7)',
+                    },
+                    {
+                      data: sessionTypeData().userCountData,
+                      label: 'User Count',
+                      backgroundColor: 'rgba(131, 76, 157, 0.7)',
+                    },
+                  ],
+                }"
+                [options]="barChartOptions"
+                [type]="'bar'"
+                baseChart>
+              </canvas>
+            </div>
+          </div>
+        }
       </div>
-
-      <!-- Session Type Engagement -->
-      <div
-        *ngIf="dashboardSettings().showSessionType && sessionTypeData()"
-        class="widget session-type-widget">
-        <div class="widget-header">
-          <h2>Session Type Engagement</h2>
-          <button
-            mat-icon-button
-            matTooltip="Hide widget"
-            class="widget-settings"
-            (click)="toggleSessionType()">
-            <mat-icon>visibility_off</mat-icon>
-          </button>
-        </div>
-
-        <div class="chart-container">
-          <canvas
-            [data]="{
-              labels: sessionTypeData().labels,
-              datasets: [
-                {
-                  data: sessionTypeData().avgTimeData,
-                  label: 'Avg. Time (seconds)',
-                  backgroundColor: 'rgba(83, 74, 216, 0.7)',
-                },
-                {
-                  data: sessionTypeData().userCountData,
-                  label: 'User Count',
-                  backgroundColor: 'rgba(131, 76, 157, 0.7)',
-                },
-              ],
-            }"
-            [options]="barChartOptions"
-            [type]="'bar'"
-            baseChart>
-          </canvas>
-        </div>
-      </div>
-    </div>
+    }
   </div>
 </div>

@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  apiBaseUrl: '',
   getTranscriberPreSignedUrl: '',
   getContentVersionsUrl: '',
   generateContentUrl: '',
@@ -13,7 +14,6 @@ export const environment = {
   putTranscript: '',
   postData: '',
   getEventDetails: '',
-  getEventConfig: '',
   postCurrentSessionId: '',
   USER_POOL_WEB_CLIENT_ID: '',
   AUTH_API_END_POINT: '',
@@ -23,7 +23,6 @@ export const environment = {
   X_API_KEY: '',
   analyticsApiEndpoint: '',
   postDebriefData: '',
-  setAutoAvSetupUrl: '',
   wsUrl: '',
   audioRecorderUrl: '',
 };

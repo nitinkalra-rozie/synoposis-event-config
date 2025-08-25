@@ -44,14 +44,19 @@
                 (click)="selectSession(session)">
                 <div class="session-info">
                   <span class="session-title">{{ session.SessionTitle }}</span>
-                  @if (session.Status === 'UNDER_REVIEW' && !session.Editor) {
+                  @if (
+                    session.Status === EventStatus.UnderReview &&
+                    !session.Editor
+                  ) {
                     <span
                       class="session-status-badge"
                       [ngClass]="getStatusClass(session.Status)">
                       To Review
                     </span>
                   }
-                  @if (session.Status === 'UNDER_REVIEW' && session.Editor) {
+                  @if (
+                    session.Status === EventStatus.UnderReview && session.Editor
+                  ) {
                     <span
                       class="session-status-badge"
                       [ngClass]="getStatusClass(session.Status)"
@@ -59,7 +64,7 @@
                       In Review
                     </span>
                   }
-                  @if (session.Status === 'REVIEW_COMPLETE') {
+                  @if (session.Status === EventStatus.ReviewComplete) {
                     <span
                       class="session-status-badge"
                       [ngClass]="getStatusClass(session.Status)"
@@ -154,7 +159,7 @@
                               <div style="display: flex">
                                 @if (
                                   selected_session_details.Status ===
-                                    'UNDER_REVIEW' &&
+                                    EventStatus.UnderReview &&
                                   !selected_session_details.Editor
                                 ) {
                                   <span
@@ -169,7 +174,7 @@
                                 }
                                 @if (
                                   selected_session_details.Status ===
-                                    'UNDER_REVIEW' &&
+                                    EventStatus.UnderReview &&
                                   selected_session_details.Editor
                                 ) {
                                   <span
@@ -185,7 +190,7 @@
                                 }
                                 @if (
                                   selected_session_details.Status ===
-                                  'REVIEW_COMPLETE'
+                                  EventStatus.ReviewComplete
                                 ) {
                                   <span
                                     class="session-status-badge"
@@ -448,10 +453,10 @@
                           <mat-label>Editorial Status</mat-label>
                           <mat-select
                             [(value)]="selected_session_details.Status">
-                            <mat-option value="UNDER_REVIEW"
+                            <mat-option [value]="EventStatus.UnderReview"
                               >In Review</mat-option
                             >
-                            <mat-option value="REVIEW_COMPLETE"
+                            <mat-option [value]="EventStatus.ReviewComplete"
                               >Review Complete</mat-option
                             >
                           </mat-select>

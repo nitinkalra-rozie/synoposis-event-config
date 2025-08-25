@@ -1,13 +1,13 @@
 @use 'variables' as v;
 @use 'mixins' as m;
-@use 'functions' as f;
-@use '@angular/material' as mat;
 
 .main-layout-container {
   height: 100dvh;
-  width: 100dvw;
+  width: 100%;
+  max-width: 100vw;
   @include m.d-flex-column;
-  overflow-y: hidden;
+  overflow: hidden;
+  box-sizing: border-box;
 
   .content-wrapper {
     height: calc(100dvh - v.$top-bar-height);
@@ -15,6 +15,7 @@
 
     .content-container {
       width: 100%;
+      overflow: hidden;
     }
   }
 }

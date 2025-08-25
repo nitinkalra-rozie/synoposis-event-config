@@ -14,11 +14,13 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        // temporarily disabled (or off) until the issue is resolved here https://github.com/angular-eslint/angular-eslint/issues/2497
+        "@angular-eslint/component-class-suffix": "off",
         "@angular-eslint/component-selector": [
           "error",
           {
             "type": "element",
-            "prefix": "app",
+            "prefix": ["app", "syn"],
             "style": "kebab-case"
           }
         ],
@@ -26,10 +28,10 @@
           "error",
           {
             "type": "attribute",
-            "prefix": "app",
             "style": "camelCase"
           }
         ],
+        "@angular-eslint/directive-class-suffix": "off",
         "@typescript-eslint/dot-notation": "off",
         "@typescript-eslint/explicit-function-return-type": [
           "error",

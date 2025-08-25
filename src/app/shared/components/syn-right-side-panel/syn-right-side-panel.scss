@@ -1,0 +1,80 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use '@angular/material' as mat;
+
+.syn-right-side-panel-container {
+  height: 100%;
+  width: 0;
+  border-radius: v.$button-border-radius;
+  box-shadow: v.$box-shadow-simple-drop-3;
+  overflow: hidden;
+  transition: width 0.3s ease-in-out;
+  flex-shrink: 0;
+  position: relative;
+
+  &.open {
+    width: var(--panel-width, 25vw);
+  }
+
+  .side-panel-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: var(--panel-width, 25vw);
+    height: 100%;
+    overflow: hidden;
+    @include m.d-flex-column;
+
+    .side-panel-header {
+      @include m.d-flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid v.$primary-bg-color-variant-2;
+      background-color: v.$primary-bg-color;
+      flex-shrink: 0;
+
+      .header-content {
+        flex: 1;
+
+        .panel-title {
+          margin: 0;
+          color: v.$primary-bg-color-variant-6;
+        }
+      }
+
+      .close-button {
+        @include m.d-flex;
+        @include m.align-items-center;
+        @include m.justify-content-center;
+        color: v.$primary-bg-color-variant-6;
+        border: 1px solid v.$secondary-bg-color;
+
+        @include mat.icon-button-overrides(
+          (
+            state-layer-size: 1.25rem,
+            icon-size: 0.875rem,
+          )
+        );
+
+        &:hover {
+          background-color: v.$primary-bg-color-variant-1;
+          color: v.$primary-bg-color-variant-7;
+        }
+
+        mat-icon {
+          width: 0.875rem;
+          height: 0.875rem;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .side-panel-body {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+<div class="syn-confirm-dialog">
+  <div class="dialog-header">
+    <div class="dialog-icon">
+      <mat-icon svgIcon="syn:warning_outlined"></mat-icon>
+    </div>
+    <div class="dialog-title">
+      <div mat-dialog-title class="dialog-title">{{ data.title }}</div>
+    </div>
+  </div>
+
+  <div class="dialog-content">
+    <div class="dialog-message">
+      <p mat-dialog-content class="dialog-message">{{ data.message }}</p>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-raised-button class="confirm-button" (click)="onConfirm()">
+      {{ data.confirmButtonText }}
+    </button>
+    <button mat-button class="cancel-button" (click)="onCancel()">
+      {{ data.cancelButtonText }}
+    </button>
+  </div>
+</div>

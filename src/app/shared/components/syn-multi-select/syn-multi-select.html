@@ -1,0 +1,92 @@
+<div
+  class="syn-multi-select-container"
+  [ngClass]="{ 'theme-transparent': theme() === 'transparent' }">
+  <mat-form-field
+    class="multi-select-form-field"
+    [class.multi-select-panel-open]="
+      matMultiSelect.panelOpen 
+    "
+    subscriptSizing="dynamic">
+    <div class="select-display-label">
+      @if (labelPosition() === 'before') {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      }
+      <span class="label-text">{{ labelText() }}</span>
+      @if ( labelPosition() === 'after' && (!selectFormCtrl.value ||
+      selectFormCtrl.value?.length === 0) ) {
+      <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+      }
+    </div>
+    <mat-select
+      #matMultiSelect
+      class="multi-select"
+      [formControl]="selectFormCtrl"
+      disableOptionCentering
+      multiple
+      panelClass="syn-multi-select-panel">
+      <mat-select-trigger class="select-trigger">
+        <span class="select-display-value"> {{ selectedFirstValue }} </span>
+
+        @if (selectFormCtrl.value?.length > 1) {
+        <span class="select-display-count-wrapper">
+          <mat-icon class="display-count-icon">add</mat-icon>
+          <span class="display-count">
+            {{ matMultiSelect.selected ? selectFormCtrl.value.length - 1 :
+            selectFormCtrl.value.length }}
+          </span>
+        </span>
+        } @if ( labelPosition() === 'after' && selectFormCtrl.value?.length > 0
+        ) {
+        <mat-icon class="label-icon">{{ labelIcon() }}</mat-icon>
+        }
+      </mat-select-trigger>
+
+      <div class="syn-multi-select-panel-content">
+        <!-- https://github.com/angular/components/issues/5697 -->
+        <!-- https://stackblitz.com/edit/angular-mat-select-multi-with-formcontrol-x2tbvo?file=app%2Fselect-search-dropdown.component.html -->
+        <div class="panel-search">
+          <div class="panel-search-label">{{ searchLabel() }}</div>
+
+          <!-- TODO: @later bind the syn-search-input component -->
+          <div class="search-input-container">
+            <mat-icon>search</mat-icon>
+            <input
+              matInput
+              class="panel-search-input"
+              [formControl]="searchFormCtrl"
+              (keydown.space)="$event.stopPropagation()"
+              placeholder="Search"
+              type="text" />
+          </div>
+        </div>
+
+        @if (filteredOptions().length > 0) { @if (filteredOptions().length > 1)
+        {
+        <mat-option
+          #allOptionElement
+          class="multi-select-option"
+          [value]="ALL_OPTION"
+          (onSelectionChange)="toggleAllChange(allOptionElement, $event)">
+          All
+        </mat-option>
+        } @for (option of filteredOptions(); track option) {
+        <mat-option
+          #optionElement
+          class="multi-select-option"
+          [value]="option"
+          (onSelectionChange)="toggleOptionChange(optionElement, $event)">
+          {{ optionDisplayMap().get(option) }}
+        </mat-option>
+        } } @else {
+        <div class="panel-no-options">No options matches the search term</div>
+        }
+      </div>
+
+      <div class="syn-multi-select-panel-footer">
+        <button class="btn-primary-default" (click)="applySelection()">
+          {{ applyFilterButtonText() }}
+        </button>
+      </div>
+    </mat-select>
+  </mat-form-field>
+</div>

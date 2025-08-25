@@ -1,0 +1,64 @@
+<div class="stage-info-header">
+  <div class="stage-info-header__title">
+    <mat-icon svgIcon="syn:podium_outlined" />
+    <span>Stage information</span>
+
+    <div class="stage-info-header__ws-icon-container">
+      @if (websocketError()) {
+      <mat-icon
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="ws-icon error"
+        [matTooltip]="websocketError()"
+        aria-label="Websocket error">
+        error_outline
+      </mat-icon>
+      } @else if (websocketConnecting()) {
+      <mat-icon
+        matTooltip="Connecting to real-time updates..."
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="ws-icon connecting"
+        aria-label="Websocket connecting">
+        sync
+      </mat-icon>
+      } @else if (websocketConnected()) {
+      <mat-icon
+        matTooltip="Connected - Real-time updates active"
+        matTooltipClass="tooltip-text-only"
+        matTooltipPosition="above"
+        class="ws-icon connected"
+        aria-label="Websocket connected">
+        radio_button_checked
+      </mat-icon>
+      }
+    </div>
+  </div>
+  <div class="stage-info-header__actions">
+    <syn-search-input
+      class="stage-info-header__actions-search"
+      [filteredCount]="filteredCount()"
+      [searchValue]="searchTerm()"
+      [totalCount]="totalCount()"
+      (enterPressed)="searchChange.emit($event)"
+      (searchChange)="searchChange.emit($event)"
+      appearance="fill"
+      placeholder="Search"
+      searchIcon="search">
+    </syn-search-input>
+    @if (showFilter() && locations().length > 0) {
+    <syn-menu-multi-select
+      class="stage-info-header__actions-filter"
+      [options]="locations()"
+      [showSelectAllOption]="true"
+      (selectionsApplied)="filterChange.emit($event)"
+      applyFilterButtonText="Apply filter"
+      cancelButtonText="Cancel"
+      labelIcon="filter_list"
+      labelPosition="before"
+      labelText="Filter"
+      searchLabel="Filter by location"
+      searchPlaceholder="Search" />
+    }
+  </div>
+</div>

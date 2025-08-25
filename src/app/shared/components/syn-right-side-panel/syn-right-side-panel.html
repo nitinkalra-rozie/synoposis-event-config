@@ -1,0 +1,24 @@
+<div
+  class="syn-right-side-panel-container"
+  [class.open]="isOpen()"
+  [class]="panelClass()"
+  [style.--panel-width]="width()">
+  <div class="side-panel-content">
+    <div class="side-panel-header">
+      <div class="header-content">
+        <div class="panel-title">{{ title() }}</div>
+      </div>
+      <button
+        mat-icon-button
+        class="close-button"
+        [focusOnShow]="isOpen()"
+        (click)="panelClose.emit()"
+        aria-label="Close transcript panel">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="side-panel-body">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>
