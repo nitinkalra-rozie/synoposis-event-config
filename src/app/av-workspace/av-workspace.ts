@@ -24,8 +24,7 @@ import {
 } from 'src/app/av-workspace/models/av-workspace-view.model';
 import { StageViewDialogCancelledEvent } from 'src/app/av-workspace/models/stage-view-dialog-event.model';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
-import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
-import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
+import { AvWorkspaceLegacyOperationsService } from 'src/app/legacy-admin/@services/av-workspace-legacy-operations.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 
 @Component({
@@ -42,14 +41,15 @@ export class AvWorkspace implements OnInit, OnDestroy {
   > = {
     centralized: { label: 'Centralized View', value: 'centralized' },
     stage: { label: 'Stage View', value: 'stage' },
-  };
+  } as const;
 
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _route = inject(ActivatedRoute);
   private readonly _router = inject(Router);
   private readonly _authFacade = inject(AuthFacade);
-  private readonly _stageWs = inject(EventStageWebsocketDataService);
-  private readonly _stageWsState = inject(EventStageWebSocketStateService);
+  private readonly _legacyOperations = inject(
+    AvWorkspaceLegacyOperationsService
+  );
 
   protected tabLinks = signal<{ label: string; value: string }[]>([]);
   protected activeTabLink = signal<string>('centralized');
@@ -69,27 +69,12 @@ export class AvWorkspace implements OnInit, OnDestroy {
             (view) => this._tabConfig[view]
           );
           this.tabLinks.set(availableTabs);
-
-          const currentPath = this._route.firstChild?.snapshot.url[0]?.path;
-          const isValidPath = availableTabs.some(
-            (tab) => tab.value === currentPath
-          );
-
-          if (isValidPath && currentPath) {
-            this.activeTabLink.set(currentPath);
-          } else {
-            const firstAvailableTab = availableTabs[0]?.value ?? 'centralized';
-            this.activeTabLink.set(firstAvailableTab);
-            this._router.navigate([firstAvailableTab], {
-              relativeTo: this._route,
-            });
-          }
+          this.setupRouteNavigation();
         }),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
 
-    this.setupRouteNavigation();
     this.setupDialogEventListeners();
   }
 
@@ -101,34 +86,37 @@ export class AvWorkspace implements OnInit, OnDestroy {
       );
     }
 
-    this._stageWs.disconnect();
-    this._stageWsState.resetState();
+    this._legacyOperations.performLegacyCleanup();
   }
 
   private setupRouteNavigation(): void {
+    const currentPath = this._route.firstChild?.snapshot.url[0]?.path;
+    this.validateAndNavigateToTab(currentPath);
     this._route.firstChild?.url
       .pipe(
         filter((urls: UrlSegment[]) => urls.length > 0),
-        map((urls: UrlSegment[]) => {
-          const currentPath = urls[0].path;
-          const availableTabs = this.tabLinks();
-          const isValidPath = availableTabs.some(
-            (tab) => tab.value === currentPath
-          );
-
-          if (isValidPath) {
-            this.activeTabLink.set(currentPath);
-          } else {
-            const firstAvailableTab = availableTabs[0]?.value ?? 'centralized';
-            this.activeTabLink.set(firstAvailableTab);
-            this._router.navigate([firstAvailableTab], {
-              relativeTo: this._route,
-            });
-          }
-        }),
+        map((urls: UrlSegment[]) => urls[0].path),
         takeUntilDestroyed(this._destroyRef)
       )
-      .subscribe();
+      .subscribe((path: string) => {
+        this.validateAndNavigateToTab(path);
+      });
+  }
+
+  private validateAndNavigateToTab(currentPath?: string): void {
+    const availableTabs = this.tabLinks();
+    const isValidPath =
+      currentPath && availableTabs.some((tab) => tab.value === currentPath);
+
+    if (isValidPath) {
+      this.activeTabLink.set(currentPath);
+    } else {
+      const firstAvailableTab = availableTabs[0]?.value ?? 'centralized';
+      this.activeTabLink.set(firstAvailableTab);
+      void this._router.navigate([firstAvailableTab], {
+        relativeTo: this._route,
+      });
+    }
   }
 
   private setupDialogEventListeners(): void {

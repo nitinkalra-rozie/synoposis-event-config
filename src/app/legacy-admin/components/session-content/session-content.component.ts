@@ -50,6 +50,7 @@ import { ProjectionStateService } from 'src/app/legacy-admin/@services/projectio
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { generateSHA256HashHex } from 'src/app/legacy-admin/@utils/generate-hash';
 import { generateUniqueId } from 'src/app/legacy-admin/@utils/generate-uuid';
+import { cleanupWebSocketConnectionUtil } from 'src/app/legacy-admin/@utils/websocket-utils';
 import { MicrophoneService } from 'src/app/legacy-admin/services/microphone.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 import {
@@ -321,19 +322,11 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private cleanupWebSocketConnection(): void {
-    if (this.socket) {
-      if (
-        this.socket.readyState === WebSocket.OPEN ||
-        this.socket.readyState === WebSocket.CONNECTING
-      ) {
-        const emptyMessage = this.getAudioEventMessage(Buffer.from([]));
-        const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage as any);
-        this.socket.send(emptyBuffer);
-
-        this.socket.close(1000, 'Component destroyed');
-      }
-      this.socket = null;
-    }
+    this.socket = cleanupWebSocketConnectionUtil(
+      this.socket,
+      eventStreamMarshaller,
+      (buffer: Buffer) => this.getAudioEventMessage(buffer)
+    );
   }
 
   private cleanupMicrophoneStream(): void {

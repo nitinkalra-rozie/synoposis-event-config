@@ -5,19 +5,10 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
-import { STAGE_VIEW_DIALOG_MESSAGES } from 'src/app/av-workspace/constants/stage-view-interaction-messages';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactivate-component.interface';
-import {
-  callPauseSessionAPI,
-  getDestinationName,
-  handleDialogCancellation,
-  pauseCurrentSessionLocally,
-} from 'src/app/av-workspace/helpers/can-deactivate-guard';
-import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
-import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
-import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { AVWorkspaceDeactivationService } from 'src/app/av-workspace/services/av-workspace-deactivation.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 
 export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
@@ -28,8 +19,7 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
 ): Observable<boolean> | boolean => {
   const router = inject(Router);
   const confirmDialog = inject(SynConfirmDialogFacade);
-  const dashboardService = inject(DashboardFiltersStateService);
-  const backendApiService = inject(LegacyBackendApiService);
+  const deactivationService = inject(AVWorkspaceDeactivationService);
 
   const isLeavingStageView = currentRoute.routeConfig?.path === 'stage';
 
@@ -37,43 +27,42 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
     return component.canDeactivate ? component.canDeactivate() : true;
   }
 
-  const isSessionActive =
-    dashboardService.liveEventState() === LiveSessionState.Playing;
-  const destinationName = getDestinationName(nextState);
-  const isSwitchingToCentralized =
-    nextState?.url?.includes('centralized') ?? false;
+  const request = deactivationService.buildDeactivationRequest(
+    isLeavingStageView,
+    nextState
+  );
+  const dialogConfig = deactivationService.getDeactivationDialogConfig(request);
 
-  const dialogMessages = STAGE_VIEW_DIALOG_MESSAGES.LEAVE_STAGE_VIEW;
-  const message = isSessionActive
-    ? dialogMessages.MESSAGE.WITH_ACTIVE_SESSION(destinationName)
-    : dialogMessages.MESSAGE.WITHOUT_ACTIVE_SESSION(destinationName);
+  if (!dialogConfig.requiresConfirmation) {
+    return dialogConfig.canDeactivate;
+  }
 
   return confirmDialog
     .openConfirmDialog({
-      title: dialogMessages.TITLE,
-      message,
-      confirmButtonText: dialogMessages.CONFIRM_BUTTON_TEXT(destinationName),
-      cancelButtonText: dialogMessages.CANCEL_BUTTON_TEXT,
+      title: dialogConfig.dialogTitle!,
+      message: dialogConfig.dialogMessage!,
+      confirmButtonText: dialogConfig.confirmButtonText!,
+      cancelButtonText: dialogConfig.cancelButtonText!,
     })
     .pipe(
-      switchMap((confirmed: boolean | undefined) => {
-        if (!confirmed) {
-          handleDialogCancellation(router, nextState);
-          return of(false);
-        }
-
-        if (isSessionActive && isSwitchingToCentralized) {
-          return callPauseSessionAPI(dashboardService, backendApiService).pipe(
-            catchError(() => of(false))
+      switchMap((isConfirmed: boolean | undefined) => {
+        if (isConfirmed === true) {
+          return deactivationService.executeDeactivation(
+            true,
+            request,
+            component,
+            router,
+            nextState
           );
         }
 
-        if (isSessionActive) {
-          pauseCurrentSessionLocally(component, dashboardService);
-        }
-
-        return of(true);
-      }),
-      catchError(() => of(false))
+        return deactivationService.executeDeactivation(
+          false,
+          request,
+          component,
+          router,
+          nextState
+        );
+      })
     );
 };
