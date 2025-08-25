@@ -23,10 +23,6 @@ export class StageView implements CanDeactivateComponent {
 
   private readonly _elsaComponent = viewChild(ElsaEventAdminV2Component);
 
-  canDeactivate(): boolean {
-    return true;
-  }
-
   pauseCurrentSession(): void {
     if (this._elsaComponent) {
       const sessionContent = this.getSessionContentComponent();
