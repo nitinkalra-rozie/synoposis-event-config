@@ -196,6 +196,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       this.speakers[index] = text;
     });
   }
+
   protected readonly EventStatus = EventStatus;
   protected readonly sort = viewChild.required<MatSort>(MatSort);
 
