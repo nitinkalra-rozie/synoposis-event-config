@@ -27,6 +27,8 @@ export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
     return component.canDeactivate ? component.canDeactivate() : true;
   }
 
+  deactivationService.cleanupNavigationState();
+
   const request = deactivationService.buildDeactivationRequest(
     isLeavingStageView,
     nextState

@@ -30,7 +30,39 @@ export class AVWorkspaceDeactivationService {
 
   getSessionState(): AVWorkspaceSessionState {
     const sessionInfo = this._legacyOperations.getSessionStateInfo();
+
+    const isManualSessionInProgress =
+      localStorage.getItem('isSessionInProgress') === '1';
+
+    if (
+      sessionInfo.sessionState === LiveSessionState.Playing &&
+      isManualSessionInProgress
+    ) {
+      return AVWorkspaceSessionState.Playing;
+    }
+
+    if (
+      sessionInfo.sessionState === LiveSessionState.Playing &&
+      !isManualSessionInProgress
+    ) {
+      this._cleanupInvalidSessionState();
+      return AVWorkspaceSessionState.Stopped;
+    }
+
     return this._mapLegacyStateToAVWorkspaceState(sessionInfo.sessionState);
+  }
+
+  cleanupNavigationState(): void {
+    const sessionInfo = this._legacyOperations.getSessionStateInfo();
+    const isManualSessionInProgress =
+      localStorage.getItem('isSessionInProgress') === '1';
+
+    if (
+      sessionInfo.sessionState === LiveSessionState.Playing &&
+      !isManualSessionInProgress
+    ) {
+      this._cleanupInvalidSessionState();
+    }
   }
 
   buildDeactivationRequest(
@@ -41,7 +73,7 @@ export class AVWorkspaceDeactivationService {
       this.getSessionState() === AVWorkspaceSessionState.Playing;
     const destinationName = this._getDestinationName(nextState);
     const isSwitchingToCentralized =
-      nextState?.url?.includes('centralized') ?? false;
+      nextState?.url?.includes('/centralized') ?? false;
 
     return {
       isLeavingStageView,
@@ -54,7 +86,7 @@ export class AVWorkspaceDeactivationService {
   getDeactivationDialogConfig(
     request: AVWorkspaceDeactivationRequest
   ): AVWorkspaceDeactivationResult {
-    if (!request.isLeavingStageView) {
+    if (!request.isLeavingStageView || !request.isSessionActive) {
       return {
         canDeactivate: true,
         requiresConfirmation: false,
@@ -62,14 +94,13 @@ export class AVWorkspaceDeactivationService {
     }
 
     const dialogMessages = STAGE_VIEW_DIALOG_MESSAGES.LEAVE_STAGE_VIEW;
-    const message = request.isSessionActive
-      ? dialogMessages.MESSAGE.WITH_ACTIVE_SESSION(request.destinationName)
-      : dialogMessages.MESSAGE.WITHOUT_ACTIVE_SESSION(request.destinationName);
 
     return {
       canDeactivate: false,
       requiresConfirmation: true,
-      dialogMessage: message,
+      dialogMessage: dialogMessages.MESSAGE.WITH_ACTIVE_SESSION(
+        request.destinationName
+      ),
       dialogTitle: dialogMessages.TITLE,
       confirmButtonText: dialogMessages.CONFIRM_BUTTON_TEXT(
         request.destinationName
@@ -100,21 +131,18 @@ export class AVWorkspaceDeactivationService {
     component: CanDeactivateComponent
   ): Observable<boolean> {
     this._executeDisconnectOperations();
-
-    if (request.isSessionActive && request.isSwitchingToCentralized) {
+    if (request.isSessionActive) {
+      this._pauseCurrentSession(component);
       return this._legacyOperations
         .pauseSessionViaAPI()
         .pipe(catchError(() => of(false)));
-    } else if (request.isSessionActive) {
-      this._pauseCurrentSession(component);
     }
 
     return of(true);
   }
 
   private _executeDisconnectOperations(): void {
-    const legacyResult = this._legacyOperations.disconnectLegacyWebSockets();
-
+    this._legacyOperations.disconnectLegacyWebSockets();
     this._centralizedViewWebSocketFacade.disconnect();
     this._centralizedViewTranscriptFacade.disconnect();
   }
@@ -131,26 +159,23 @@ export class AVWorkspaceDeactivationService {
     router: Router,
     nextState?: RouterStateSnapshot
   ): void {
-    if (!router.url.includes('/stage')) {
-      router.navigate(['/av-workspace/stage'], { replaceUrl: true });
-    }
-
-    window.dispatchEvent(
-      new CustomEvent('stage-view-dialog-cancelled', {
-        detail: {
-          stayInStage: true,
-          attemptedDestination: this._getDestinationName(nextState),
-          currentUrl: router.url,
-        },
-      })
-    );
+    router.navigate(['/av-workspace/stage'], { replaceUrl: true });
   }
 
   private _getDestinationName(nextState?: RouterStateSnapshot): string {
-    if (!nextState?.url) return 'another view';
-    return nextState.url.includes('centralized')
-      ? 'Centralized View'
-      : 'another view';
+    if (!nextState?.url) return 'another section';
+
+    const url = nextState.url;
+    if (url.includes('/centralized')) return 'Centralized View';
+    if (url.includes('/agenda')) return 'Agenda';
+    if (url.includes('/content-editor')) return 'Content Editor';
+    if (url.includes('/insights-editor')) return 'Insights Editor';
+
+    return 'another section';
+  }
+
+  private _cleanupInvalidSessionState(): void {
+    this._legacyOperations.pauseSessionState();
   }
 
   private _mapLegacyStateToAVWorkspaceState(

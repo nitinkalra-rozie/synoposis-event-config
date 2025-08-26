@@ -3,7 +3,6 @@ import {
   Component,
   DestroyRef,
   inject,
-  OnDestroy,
   OnInit,
   signal,
 } from '@angular/core';
@@ -11,10 +10,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatTabsModule } from '@angular/material/tabs';
 import {
   ActivatedRoute,
+  NavigationCancel,
+  NavigationEnd,
   Router,
   RouterLink,
   RouterOutlet,
-  UrlSegment,
 } from '@angular/router';
 import { filter, forkJoin, map, take, tap } from 'rxjs';
 import { getAvWorkspaceAccess } from 'src/app/av-workspace/helpers/av-workspace-permissions';
@@ -22,9 +22,8 @@ import {
   AvWorkspaceAccess,
   AvWorkspaceView,
 } from 'src/app/av-workspace/models/av-workspace-view.model';
-import { StageViewDialogCancelledEvent } from 'src/app/av-workspace/models/stage-view-dialog-event.model';
+import { AVWorkspaceDeactivationService } from 'src/app/av-workspace/services/av-workspace-deactivation.service';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
-import { AvWorkspaceLegacyOperationsService } from 'src/app/legacy-admin/@services/av-workspace-legacy-operations.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 
 @Component({
@@ -34,27 +33,25 @@ import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-m
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, RouterOutlet, MatTabsModule, LayoutMainComponent],
 })
-export class AvWorkspace implements OnInit, OnDestroy {
+export class AvWorkspace implements OnInit {
+  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _route = inject(ActivatedRoute);
+  private readonly _router = inject(Router);
+  private readonly _authFacade = inject(AuthFacade);
+  private readonly _deactivationService = inject(
+    AVWorkspaceDeactivationService
+  );
+
   private readonly _tabConfig: Record<
     AvWorkspaceView,
     { label: string; value: string }
   > = {
     centralized: { label: 'Centralized View', value: 'centralized' },
     stage: { label: 'Stage View', value: 'stage' },
-  } as const;
-
-  private readonly _destroyRef = inject(DestroyRef);
-  private readonly _route = inject(ActivatedRoute);
-  private readonly _router = inject(Router);
-  private readonly _authFacade = inject(AuthFacade);
-  private readonly _legacyOperations = inject(
-    AvWorkspaceLegacyOperationsService
-  );
+  };
 
   protected tabLinks = signal<{ label: string; value: string }[]>([]);
   protected activeTabLink = signal<string>('centralized');
-
-  private _dialogEventListener?: EventListener;
 
   ngOnInit(): void {
     forkJoin([
@@ -65,71 +62,44 @@ export class AvWorkspace implements OnInit, OnDestroy {
         take(1),
         map(([groups, isAdmin]) => getAvWorkspaceAccess(groups, isAdmin)),
         tap((access: AvWorkspaceAccess) => {
+          const currentPath = this._route.firstChild?.snapshot.url[0]?.path;
+          this.activeTabLink.set(currentPath ?? 'centralized');
+
           const availableTabs = access.availableViews.map(
             (view) => this._tabConfig[view]
           );
           this.tabLinks.set(availableTabs);
-          this.setupRouteNavigation();
+
+          this._setupRouteListener();
         }),
         takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
-
-    this.setupDialogEventListeners();
   }
 
-  ngOnDestroy(): void {
-    if (this._dialogEventListener) {
-      window.removeEventListener(
-        'stage-view-dialog-cancelled',
-        this._dialogEventListener
-      );
-    }
-
-    this._legacyOperations.performLegacyCleanup();
-  }
-
-  private setupRouteNavigation(): void {
-    const currentPath = this._route.firstChild?.snapshot.url[0]?.path;
-    this.validateAndNavigateToTab(currentPath);
-    this._route.firstChild?.url
+  private _setupRouteListener(): void {
+    this._router.events
       .pipe(
-        filter((urls: UrlSegment[]) => urls.length > 0),
-        map((urls: UrlSegment[]) => urls[0].path),
+        filter(
+          (event) =>
+            event instanceof NavigationEnd || event instanceof NavigationCancel
+        ),
+        tap((event) => {
+          const currentUrl =
+            event instanceof NavigationEnd
+              ? event.urlAfterRedirects
+              : this._router.url;
+
+          const currentTab = currentUrl.split('/').pop();
+
+          if (currentTab === 'centralized' || currentTab === 'stage') {
+            this._deactivationService.cleanupNavigationState();
+
+            this.activeTabLink.set(currentTab);
+          }
+        }),
         takeUntilDestroyed(this._destroyRef)
       )
-      .subscribe((path: string) => {
-        this.validateAndNavigateToTab(path);
-      });
-  }
-
-  private validateAndNavigateToTab(currentPath?: string): void {
-    const availableTabs = this.tabLinks();
-    const isValidPath =
-      currentPath && availableTabs.some((tab) => tab.value === currentPath);
-
-    if (isValidPath) {
-      this.activeTabLink.set(currentPath);
-    } else {
-      const firstAvailableTab = availableTabs[0]?.value ?? 'centralized';
-      this.activeTabLink.set(firstAvailableTab);
-      void this._router.navigate([firstAvailableTab], {
-        relativeTo: this._route,
-      });
-    }
-  }
-
-  private setupDialogEventListeners(): void {
-    this._dialogEventListener = ((event: Event) => {
-      const customEvent = event as StageViewDialogCancelledEvent;
-      if (customEvent.detail?.stayInStage) {
-        this.activeTabLink.set('stage');
-      }
-    }) satisfies EventListener;
-
-    window.addEventListener(
-      'stage-view-dialog-cancelled',
-      this._dialogEventListener
-    );
+      .subscribe();
   }
 }

@@ -1,14 +1,13 @@
 export const STAGE_VIEW_DIALOG_MESSAGES = {
   LEAVE_STAGE_VIEW: {
-    TITLE: 'Leave Stage View?',
+    TITLE: 'Active Session in Progress',
     CONFIRM_BUTTON_TEXT: (destinationName: string) =>
       `Switch to ${destinationName}`,
-    CANCEL_BUTTON_TEXT: 'Stay in Stage View',
+    CANCEL_BUTTON_TEXT: 'Continue Session',
     MESSAGE: {
       WITH_ACTIVE_SESSION: (destinationName: string) =>
-        `You are currently managing an active session. Switching to ${destinationName} will pause your session. Continue?`,
-      WITHOUT_ACTIVE_SESSION: (destinationName: string) =>
-        `Are you sure you want to switch to ${destinationName}?`,
+        `You have an active live session running in Stage View. Switching to ${destinationName} will automatically
+       pause your session and may interrupt the live experience for attendees.\n\nDo you want to pause the session and proceed?`,
     },
   },
 };
