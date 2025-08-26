@@ -410,7 +410,6 @@ export class CentralizedViewStagesDataStore {
             .pipe(
               take(1),
               tap((response) => {
-                console.log('endSession response', response);
                 if (response.success) {
                   this._updateEntity(stage, (entity) => ({
                     ...entity,
