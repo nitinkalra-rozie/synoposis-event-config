@@ -51,7 +51,6 @@ export class CentralizedViewWebSocketDataService {
                 event: 'getLastEvent',
                 cms: true,
               });
-              console.log('Centralized View WebSocket connection established.');
               this._startPing(eventIdentifier);
             };
 
@@ -59,10 +58,8 @@ export class CentralizedViewWebSocketDataService {
               try {
                 const parsedMessage: CentralizedViewWebSocketMessage =
                   JSON.parse(event.data);
-                console.log('Parsed WebSocket message:', parsedMessage);
                 observer.next(parsedMessage);
               } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
                 this._webSocketStore.setError(
                   'Failed to parse WebSocket message'
                 );
@@ -75,10 +72,6 @@ export class CentralizedViewWebSocketDataService {
             };
 
             this._socket.onclose = (event: CloseEvent) => {
-              console.log(
-                'Centralized View WebSocket connection closed:',
-                event
-              );
               this.disconnect();
               observer.complete();
             };
@@ -101,7 +94,6 @@ export class CentralizedViewWebSocketDataService {
     if (this._webSocketStore.$isConnected()) {
       this._socket.send(JSON.stringify(message));
     } else {
-      console.error('Centralized View WebSocket is not connected.');
       this._webSocketStore.setError('WebSocket connection lost');
     }
   }
@@ -118,7 +110,6 @@ export class CentralizedViewWebSocketDataService {
               event: 'ping',
               cms: true,
             });
-            console.log('Ping sent to keep Centralized View WebSocket alive');
           }
         }),
         takeUntil(this._pingDestroy$)
