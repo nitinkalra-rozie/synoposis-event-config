@@ -1,39 +1,35 @@
 export const CENTRALIZED_VIEW_TOAST_MESSAGES = {
   DURATION: 5000,
-  START_LISTENING:
-    'Start Listening command sent. The stage status will update automatically',
-  PAUSE_LISTENING:
-    'Pause Listening command sent. The stage status will update automatically',
-  END_LISTENING:
-    'End Listening command sent. The stage status will update automatically',
+  START_LISTENING: 'Stage will start listening shortly.',
+  PAUSE_LISTENING: 'Stage will pause listening shortly.',
+  END_LISTENING: 'Session will end shortly.',
   NO_STAGES_TO_START_LISTENING:
-    'No stages to start listening. Please select a stage that is online, has a session selected and is not currently listening.',
-  START_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
-    `Start Listening command sent for ${numOfStages} selected stage${
-      numOfStages > 1 ? 's' : ''
-    }. The stage statuses will update automatically`,
-  START_LISTENING_MULTIPLE_STAGES_ERROR: (numOfStages: number) =>
-    `Start Listening command failed for ${numOfStages} selected stage${
-      numOfStages > 1 ? 's' : ''
-    }. Please try again.`,
+    'Select an idle stage with an assigned session to start listening.',
   NO_STAGES_TO_PAUSE_LISTENING:
-    'No stages to pause listening. Please select stages that are currently listening.',
-  PAUSE_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
-    `Pause Listening command sent for ${numOfStages} selected stage${
+    'Select a stage that is currently listening to pause.',
+  NO_STAGES_TO_END_LISTENING: 'Select an active stage to end its session.',
+  START_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
+    `Starting listening for ${numOfStages} selected stage${
       numOfStages > 1 ? 's' : ''
-    }. The stage statuses will update automatically`,
-  PAUSE_LISTENING_MULTIPLE_STAGES_ERROR: (numOfStages: number) =>
-    `Pause Listening command failed for ${numOfStages} selected stage${
+    }.`,
+  PAUSE_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
+    `Pausing listening for ${numOfStages} selected stage${
+      numOfStages > 1 ? 's' : ''
+    }.`,
+  END_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
+    `Ending sessions for ${numOfStages} selected stage${
+      numOfStages > 1 ? 's' : ''
+    }.`,
+  START_LISTENING_MULTIPLE_STAGES_ERROR: (numOfStages: number) =>
+    `Couldn't start listening for ${numOfStages} selected stage${
       numOfStages > 1 ? 's' : ''
     }. Please try again.`,
-  NO_STAGES_TO_END_LISTENING:
-    'No stages to end listening. Please select stages that are currently listening or paused.',
-  END_LISTENING_MULTIPLE_STAGES: (numOfStages: number) =>
-    `End Listening command sent for ${numOfStages} selected stage${
+  PAUSE_LISTENING_MULTIPLE_STAGES_ERROR: (numOfStages: number) =>
+    `Couldn't pause listening for ${numOfStages} selected stage${
       numOfStages > 1 ? 's' : ''
-    }. The stage statuses will update automatically`,
+    }. Please try again.`,
   END_LISTENING_MULTIPLE_STAGES_ERROR: (numOfStages: number) =>
-    `End Listening command failed for ${numOfStages} selected stage${
+    `Couldn't end sessions for ${numOfStages} selected stage${
       numOfStages > 1 ? 's' : ''
     }. Please try again.`,
 };
@@ -44,8 +40,8 @@ export const CENTRALIZED_VIEW_DIALOG_MESSAGES = {
     MESSAGE: (stage: string) => `Do you want to Pause Listening for ${stage}?`,
   },
   END: {
-    TITLE: 'End Listening?',
-    MESSAGE: (stage: string) => `Do you want to End Listening for ${stage}?`,
+    TITLE: 'End Session?',
+    MESSAGE: (stage: string) => `Do you want to End Session for ${stage}?`,
   },
   AUTO_AV: {
     TITLE: (isChecked: boolean) =>
@@ -61,9 +57,9 @@ export const CENTRALIZED_VIEW_DIALOG_MESSAGES = {
       }?`,
   },
   END_MULTIPLE: {
-    TITLE: 'End Listening?',
+    TITLE: 'End Sessions?',
     MESSAGE: (numOfStages: number) =>
-      `Do you want to End Listening for ${numOfStages} selected stage${
+      `Do you want to End Session for ${numOfStages} selected stage${
         numOfStages > 1 ? 's' : ''
       }?`,
   },

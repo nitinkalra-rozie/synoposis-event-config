@@ -1,7 +1,7 @@
 import { ROUTE_PERMISSIONS } from 'src/app/core/config/permission-config';
 import { UserRole } from 'src/app/core/enum/auth-roles.enum';
 
-export function getRequiredRolesForRoute(routePath: string): UserRole[] {
+function getRequiredRolesForRoute(routePath: string): UserRole[] {
   const permission = ROUTE_PERMISSIONS.find((p) =>
     routePath.startsWith(p.path)
   );
@@ -12,7 +12,7 @@ export function hasRoutePermission(
   userRole: UserRole,
   routePath: string
 ): boolean {
-  if (userRole === UserRole.UNAUTHENTICATED) {
+  if (userRole === UserRole.Unauthenticated) {
     return false;
   }
   const requiredRoles = getRequiredRolesForRoute(routePath);
@@ -21,15 +21,15 @@ export function hasRoutePermission(
 
 export function getDefaultRedirectUrl(userRole: UserRole): string {
   switch (userRole) {
-    case UserRole.SUPERADMIN:
+    case UserRole.SuperAdmin:
+    case UserRole.CentralizedManager:
+    case UserRole.Admin:
       return '/av-workspace';
-    case UserRole.ADMIN:
-      return '/av-workspace';
-    case UserRole.EDITOR:
+    case UserRole.Editor:
       return '/insights-editor';
-    case UserRole.EVENTORGANIZER:
+    case UserRole.EventOrganizer:
       return '/agenda';
-    case UserRole.UNAUTHENTICATED:
+    case UserRole.Unauthenticated:
       return '/login';
     default:
       return '/unauthorized';
@@ -37,7 +37,7 @@ export function getDefaultRedirectUrl(userRole: UserRole): string {
 }
 
 export function isUserAuthenticated(userRole: UserRole): boolean {
-  return userRole !== UserRole.UNAUTHENTICATED;
+  return userRole !== UserRole.Unauthenticated;
 }
 
 export function generateSecurePassword(length: number = 16): string {

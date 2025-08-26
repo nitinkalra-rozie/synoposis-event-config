@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { authGuard } from 'src/app/core/auth/guards/auth-guard';
+import { avWorkspaceGuard } from 'src/app/av-workspace/guards/av-workspace-guard';
 
 export const avWorkspaceRoutes: Route[] = [
   {
@@ -14,7 +14,7 @@ export const avWorkspaceRoutes: Route[] = [
           import(
             'src/app/av-workspace/pages/centralized-view/centralized-view'
           ).then((c) => c.CentralizedView),
-        canActivate: [authGuard],
+        canActivate: [avWorkspaceGuard],
       },
       {
         path: 'stage',
@@ -22,7 +22,7 @@ export const avWorkspaceRoutes: Route[] = [
           import('src/app/av-workspace/pages/stage-view/stage-view').then(
             (c) => c.StageView
           ),
-        canActivate: [authGuard],
+        canActivate: [avWorkspaceGuard],
       },
       {
         path: '',
@@ -31,7 +31,6 @@ export const avWorkspaceRoutes: Route[] = [
       },
     ],
   },
-
   {
     path: '**',
     redirectTo: 'centralized',
