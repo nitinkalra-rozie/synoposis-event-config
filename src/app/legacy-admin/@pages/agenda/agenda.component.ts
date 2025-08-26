@@ -196,9 +196,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       this.speakers[index] = text;
     });
   }
+  public readonly sort = viewChild.required<MatSort>(MatSort);
   protected readonly EventStatus = EventStatus;
-
-  public sort = viewChild.required<MatSort>(MatSort);
 
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
