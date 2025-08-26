@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -192,9 +192,10 @@ export class ContentEditorComponent {
 
   // TODO: convert to use signal based variables
   //#region - legacy decorators, variables and etc.
-  @ViewChild(MatSort) public sort!: MatSort;
+  protected readonly EventStatus = EventStatus;
 
-  public EventStatus = EventStatus;
+  public sort = viewChild.required<MatSort>(MatSort);
+
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
   public selectedConfig!: SelectedConfig;

@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -196,10 +196,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       this.speakers[index] = text;
     });
   }
+  protected readonly EventStatus = EventStatus;
 
-  @ViewChild(MatSort) public sort!: MatSort;
+  public sort = viewChild.required<MatSort>(MatSort);
 
-  public EventStatus = EventStatus;
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
   public selectedConfig!: SelectedConfig;
@@ -292,7 +292,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
+    this.dataSource.sort = this.sort();
   }
 
   convertDate(dateString: string): string {
