@@ -197,7 +197,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
-  protected readonly sort = viewChild.required<MatSort>(MatSort);
+  protected readonly sort = viewChild.required(MatSort);
 
   protected readonly EventStatus = EventStatus;
 

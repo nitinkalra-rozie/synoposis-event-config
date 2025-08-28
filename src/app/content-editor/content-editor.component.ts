@@ -192,7 +192,7 @@ export class ContentEditorComponent {
 
   // TODO: convert to use signal based variables
   //#region - legacy decorators, variables and etc.
-  protected readonly sort = viewChild.required<MatSort>(MatSort);
+  protected readonly sort = viewChild.required(MatSort);
 
   protected readonly EventStatus = EventStatus;
 
