@@ -72,6 +72,13 @@
                       Completed
                     </span>
                   }
+                  @if (session.Status === EventStatus.ProcessingInsights) {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)">
+                      Processing Insights
+                    </span>
+                  }
                 </div>
                 @if (session.SessionId !== selected_session) {
                   <mat-icon class="session-icon">chevron_right</mat-icon>
@@ -201,6 +208,20 @@
                                     "
                                     style="background-color: rgb(0, 161, 94)">
                                     Completed
+                                  </span>
+                                }
+                                @if (
+                                  selected_session_details.Status ===
+                                  EventStatus.ProcessingInsights
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="
+                                      getStatusClass(
+                                        selected_session_details.Status
+                                      )
+                                    ">
+                                    Processing Insights
                                   </span>
                                 }
                               </div>

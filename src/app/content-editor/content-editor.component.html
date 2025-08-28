@@ -47,14 +47,19 @@
                 (click)="selectSession(session)">
                 <div class="session-info">
                   <span class="session-title">{{ session.SessionTitle }}</span>
-                  @if (session.Status === 'UNDER_REVIEW' && !session.Editor) {
+                  @if (
+                    session.Status === EventStatus.UnderReview &&
+                    !session.Editor
+                  ) {
                     <span
                       class="session-status-badge"
                       [ngClass]="getStatusClass(session.Status)">
                       To Review
                     </span>
                   }
-                  @if (session.Status === 'UNDER_REVIEW' && session.Editor) {
+                  @if (
+                    session.Status === EventStatus.UnderReview && session.Editor
+                  ) {
                     <span
                       class="session-status-badge"
                       [ngClass]="getStatusClass(session.Status)"
@@ -62,12 +67,19 @@
                       In Review
                     </span>
                   }
-                  @if (session.Status === 'REVIEW_COMPLETE') {
+                  @if (session.Status === EventStatus.ReviewComplete) {
                     <span
                       class="session-status-badge"
                       [ngClass]="getStatusClass(session.Status)"
                       style="background-color: rgb(0, 161, 94)">
                       Completed
+                    </span>
+                  }
+                  @if (session.Status === EventStatus.ProcessingInsights) {
+                    <span
+                      class="session-status-badge"
+                      [ngClass]="getStatusClass(session.Status)">
+                      Processing Insights
                     </span>
                   }
                 </div>
@@ -154,7 +166,7 @@
                             <div style="display: flex">
                               @if (
                                 selected_session_details.Status ===
-                                  'UNDER_REVIEW' &&
+                                  EventStatus.UnderReview &&
                                 !selected_session_details.Editor
                               ) {
                                 <span
@@ -169,7 +181,7 @@
                               }
                               @if (
                                 selected_session_details.Status ===
-                                  'UNDER_REVIEW' &&
+                                  EventStatus.UnderReview &&
                                 selected_session_details.Editor
                               ) {
                                 <span
@@ -185,7 +197,7 @@
                               }
                               @if (
                                 selected_session_details.Status ===
-                                'REVIEW_COMPLETE'
+                                EventStatus.ReviewComplete
                               ) {
                                 <span
                                   class="session-status-badge"
@@ -196,6 +208,20 @@
                                   "
                                   style="background-color: rgb(0, 161, 94)">
                                   Completed
+                                </span>
+                              }
+                              @if (
+                                selected_session_details.Status ===
+                                EventStatus.ProcessingInsights
+                              ) {
+                                <span
+                                  class="session-status-badge"
+                                  [ngClass]="
+                                    getStatusClass(
+                                      selected_session_details.Status
+                                    )
+                                  ">
+                                  Processing Insights
                                 </span>
                               }
                             </div>
