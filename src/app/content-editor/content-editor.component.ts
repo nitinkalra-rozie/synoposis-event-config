@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,7 +19,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -192,7 +192,7 @@ export class ContentEditorComponent {
 
   // TODO: convert to use signal based variables
   //#region - legacy decorators, variables and etc.
-  @ViewChild(MatSort) public sort!: MatSort;
+  protected readonly EventStatus = EventStatus;
 
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
@@ -859,6 +859,8 @@ export class ContentEditorComponent {
         return 'status-completed';
       case EventStatus.ReviewComplete:
         return 'status-completed';
+      case EventStatus.ProcessingInsights:
+        return 'status-processing-insights';
       default:
         return '';
     }

@@ -143,13 +143,13 @@
                         align-items: center;
                         text-align: center;
                       ">
-                      @if (row.Status === 'NOT_STARTED') {
+                      @if (row.Status === EventStatus.NotStarted) {
                         <span
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)">
                           Not Started
                         </span>
-                      } @else if (row.Status === 'IN_PROGRESS') {
+                      } @else if (row.Status === EventStatus.InProgress) {
                         <span
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)"
@@ -163,26 +163,36 @@
                           Hidden
                         </span>
                       } @else if (
-                        row.Status === 'UNDER_REVIEW' && !row.Editor
+                        row.Status === EventStatus.UnderReview && !row.Editor
                       ) {
                         <span
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)">
                           To Review
                         </span>
-                      } @else if (row.Status === 'UNDER_REVIEW' && row.Editor) {
+                      } @else if (
+                        row.Status === EventStatus.UnderReview && row.Editor
+                      ) {
                         <span
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)"
                           style="background-color: rgb(156 106 255)">
                           In Review
                         </span>
-                      } @else if (row.Status === 'REVIEW_COMPLETE') {
+                      } @else if (row.Status === EventStatus.ReviewComplete) {
                         <span
                           class="session-status-badge"
                           [ngClass]="getStatusClass(row.Status)"
                           style="background-color: rgb(0, 161, 94)">
                           Completed
+                        </span>
+                      } @else if (
+                        row.Status === EventStatus.ProcessingInsights
+                      ) {
+                        <span
+                          class="session-status-badge"
+                          [ngClass]="getStatusClass(row.Status)">
+                          Processing Insights
                         </span>
                       }
                     </div>

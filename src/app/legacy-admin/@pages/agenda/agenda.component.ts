@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   OnInit,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -197,7 +197,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     });
   }
 
-  @ViewChild(MatSort) public sort!: MatSort;
+  protected readonly sort = viewChild.required(MatSort);
+
+  protected readonly EventStatus = EventStatus;
 
   public breadCrumbItems!: Array<{}>;
   public applicationList!: Application[];
@@ -291,7 +293,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
+    this.dataSource.sort = this.sort();
   }
 
   convertDate(dateString: string): string {
@@ -615,6 +617,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         return 'status-completed';
       case EventStatus.ReviewComplete:
         return 'status-completed';
+      case EventStatus.ProcessingInsights:
+        return 'status-processing-insights';
       default:
         return '';
     }

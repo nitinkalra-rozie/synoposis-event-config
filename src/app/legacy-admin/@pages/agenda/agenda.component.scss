@@ -292,6 +292,10 @@ mat-form-field {
   &.status-complete {
     background-color: #00cc66; /* Green for Complete */
   }
+
+  &.status-processing-insights {
+    background-color: #6366f1;
+  }
 }
 
 /* Chevron Icon for Navigation */
