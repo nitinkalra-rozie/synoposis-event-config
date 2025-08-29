@@ -38,8 +38,9 @@ jobs:
             # 'xcsc2025',
             # 'fff2025',
             # 'dds2025',
-            'fms2025',
-            'slc2025',
+            # 'fms2025',
+            # 'slc2025',
+            'bcs2025',
           ]
     steps:
       - name: Set event environment variable
