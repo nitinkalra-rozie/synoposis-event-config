@@ -49,7 +49,7 @@ export class InsightsEditorDataService {
 
   getEventDetails(): Observable<EventDetailsResponse> {
     return this._http.post<EventDetailsResponse>(environment.getEventDetails, {
-      event: this._backendApiService.getCurrentEventName(),
+      event: this._backendApiService.getCurrentEventName() || '',
     });
   }
 }

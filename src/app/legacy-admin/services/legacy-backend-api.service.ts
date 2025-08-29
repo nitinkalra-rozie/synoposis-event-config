@@ -44,8 +44,9 @@ export class LegacyBackendApiService {
   }
 
   // TODO:@later move these to a config state service
-  getCurrentEventName(): string {
-    return this._globalStateService.getSelectedEventName();
+  getCurrentEventName(): string | null {
+    const eventName = this._globalStateService.getSelectedEventName();
+    return eventName || null;
   }
 
   getCurrentEventDomain(): string | null {
