@@ -60,6 +60,7 @@ export interface ChangeEventStatusRequest {
   action: string;
   sessionId: string;
   status: EventStatus;
+  eventName: string;
   changeEditMode: boolean;
   editor: string;
 }

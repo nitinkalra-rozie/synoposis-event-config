@@ -316,6 +316,7 @@ export class InsightsEditorComponent implements OnInit {
             action: 'changeEventStatus',
             sessionId: this.selected_session,
             status: status,
+            eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
             changeEditMode: true,
             editor: userEmail || '',
           })
