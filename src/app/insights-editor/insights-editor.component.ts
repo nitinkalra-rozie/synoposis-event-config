@@ -37,6 +37,7 @@ import {
 } from 'rxjs/operators';
 import { LargeModalDialogComponent } from 'src/app/content-editor/components/dialog/original-debrief-modal-dialog.component';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import {
   ChangeEventStatusRequest,
   EventStatus,
@@ -46,7 +47,6 @@ import {
 import { InsightsEditorDataService } from 'src/app/insights-editor/data-services/insights-editor.data-service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
-import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 
 @Component({
   selector: 'app-insights-editor',
@@ -170,6 +170,7 @@ export class InsightsEditorComponent implements OnInit {
   private _topicUpdate$ = new Subject<{ text: string; index: number }>();
   private _topicsData: Array<string> = [];
   private _destroyRef = inject(DestroyRef);
+  private _eventConfigStore = inject(EventConfigStore);
 
   ngOnInit(): void {
     // BreadCrumb Set
@@ -199,7 +200,7 @@ export class InsightsEditorComponent implements OnInit {
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
-      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      eventName: this._eventConfigStore.$eventIdentifier(),
     };
     this._editorialDataService.getEventReport(data).subscribe({
       next: (response) => {
@@ -220,7 +221,7 @@ export class InsightsEditorComponent implements OnInit {
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
-      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      eventName: this._eventConfigStore.$eventIdentifier(),
     };
 
     this._editorialDataService.getEventReport(data).subscribe({
@@ -315,6 +316,7 @@ export class InsightsEditorComponent implements OnInit {
           (userEmail: string): ChangeEventStatusRequest => ({
             action: 'changeEventStatus',
             sessionId: this.selected_session,
+            eventName: this._eventConfigStore.$eventIdentifier(),
             status: status,
             changeEditMode: true,
             editor: userEmail || '',
@@ -369,8 +371,8 @@ export class InsightsEditorComponent implements OnInit {
         postInsightTimestamp: this.postInsightTimestamp,
         trendsTimestamp: this.trendsTimestamp,
       },
-      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
-      domain: getLocalStorageItem<string>('EVENT_LLM_DOMAIN'),
+      eventName: this._eventConfigStore.$eventIdentifier(),
+      domain: this._eventConfigStore.$eventInfo().EventDomain,
     };
 
     this._editorialDataService.updatePostInsights(data).subscribe({
