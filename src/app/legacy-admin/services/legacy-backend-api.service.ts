@@ -35,6 +35,7 @@ export class LegacyBackendApiService {
         );
         setLocalStorageItem('SELECTED_EVENT_NAME', eventIdentifier);
         this._globalStateService.setSelectedDomain(this._currentEventDomain);
+        this._globalStateService.setSelectedEventName(eventIdentifier);
         return this.http.post(environment.getEventDetails, {
           event: eventIdentifier,
         });
@@ -43,8 +44,8 @@ export class LegacyBackendApiService {
   }
 
   // TODO:@later move these to a config state service
-  getCurrentEventName(): string | null {
-    return getLocalStorageItem<string>('SELECTED_EVENT_NAME');
+  getCurrentEventName(): string {
+    return this._globalStateService.getSelectedEventName();
   }
 
   getCurrentEventDomain(): string | null {

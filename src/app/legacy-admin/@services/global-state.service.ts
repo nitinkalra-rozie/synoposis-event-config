@@ -17,6 +17,7 @@ export class GlobalStateService {
     this.selectedDashboardTab = this._selectedDashboardTabSignal.asReadonly();
     this.selectedDashboardTab = this._selectedDashboardTabSignal.asReadonly();
     this.controlPanelState = this._controlPanelStateSignal.asReadonly();
+    this.selectedEventName = this._selectedEventNameSignal.asReadonly();
 
     effect(() => {
       if (
@@ -32,6 +33,7 @@ export class GlobalStateService {
   public readonly selectedRightSidebarAction: Signal<RightSidebarSelectedAction>;
   public readonly selectedDashboardTab: Signal<DashboardTabs>;
   public readonly controlPanelState: Signal<ControlPanelState>;
+  public readonly selectedEventName: Signal<string>;
 
   private _rightSidebarStateSignal = signal<RightSidebarState>(
     RightSidebarState.Hidden
@@ -46,6 +48,7 @@ export class GlobalStateService {
   );
 
   private _selectedDomainSignal = signal<string>('');
+  private _selectedEventNameSignal = signal<string>('');
 
   setRightSidebarState(state: RightSidebarState): void {
     this._rightSidebarStateSignal.set(state);
@@ -74,5 +77,13 @@ export class GlobalStateService {
 
   getSelectedDomain(): string {
     return this._selectedDomainSignal();
+  }
+
+  setSelectedEventName(eventName: string): void {
+    this._selectedEventNameSignal.set(eventName);
+  }
+
+  getSelectedEventName(): string {
+    return this._selectedEventNameSignal();
   }
 }

@@ -44,6 +44,7 @@ import {
   Session,
 } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { InsightsEditorDataService } from 'src/app/insights-editor/data-services/insights-editor.data-service';
+import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 import { getAbsoluteDate } from 'src/app/shared/utils/date-util';
 import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
@@ -80,7 +81,8 @@ export class InsightsEditorComponent implements OnInit {
     private dialog: MatDialog,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private globalStateService: GlobalStateService
   ) {
     // Register Material icons
     this.matIconRegistry.addSvgIconSet(
@@ -199,7 +201,7 @@ export class InsightsEditorComponent implements OnInit {
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
-      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      eventName: this.globalStateService.getSelectedEventName(),
     };
     this._editorialDataService.getEventReport(data).subscribe({
       next: (response) => {
@@ -220,7 +222,7 @@ export class InsightsEditorComponent implements OnInit {
     const data = {
       action: 'getDebriefData',
       sessionIds: [this.selected_session],
-      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      eventName: this.globalStateService.getSelectedEventName(),
     };
 
     this._editorialDataService.getEventReport(data).subscribe({
@@ -316,7 +318,7 @@ export class InsightsEditorComponent implements OnInit {
             action: 'changeEventStatus',
             sessionId: this.selected_session,
             status: status,
-            eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+            eventName: this.globalStateService.getSelectedEventName(),
             changeEditMode: true,
             editor: userEmail || '',
           })
@@ -370,7 +372,7 @@ export class InsightsEditorComponent implements OnInit {
         postInsightTimestamp: this.postInsightTimestamp,
         trendsTimestamp: this.trendsTimestamp,
       },
-      eventName: getLocalStorageItem<string>('SELECTED_EVENT_NAME'),
+      eventName: this.globalStateService.getSelectedEventName(),
       domain: getLocalStorageItem<string>('EVENT_LLM_DOMAIN'),
     };
 
