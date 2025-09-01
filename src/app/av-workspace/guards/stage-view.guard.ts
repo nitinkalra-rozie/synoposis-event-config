@@ -11,7 +11,7 @@ import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactiva
 import { AVWorkspaceDeactivationService } from 'src/app/av-workspace/services/av-workspace-deactivation.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 
-export const canDeactivateGuard: CanDeactivateFn<CanDeactivateComponent> = (
+export const stageViewGuard: CanDeactivateFn<CanDeactivateComponent> = (
   component: CanDeactivateComponent,
   currentRoute: ActivatedRouteSnapshot,
   _currentState: RouterStateSnapshot,
