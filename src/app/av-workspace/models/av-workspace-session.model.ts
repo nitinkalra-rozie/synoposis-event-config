@@ -7,7 +7,6 @@ export enum AVWorkspaceSessionState {
 export interface AVWorkspaceDeactivationRequest {
   isLeavingStageView: boolean;
   isSessionActive: boolean;
-  destinationName: string;
   isSwitchingToCentralized: boolean;
 }
 

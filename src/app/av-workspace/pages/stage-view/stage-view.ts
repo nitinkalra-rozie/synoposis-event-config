@@ -4,8 +4,9 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { CanDeactivateComponent } from 'src/app/av-workspace/guards/can-deactivate-component.interface';
-import { AvWorkspaceLegacyOperationsService } from 'src/app/legacy-admin/@services/av-workspace-legacy-operations.service';
+import { CanStageViewComponentDeactivate } from 'src/app/av-workspace/models/can-stage-view-component-deactivate.model';
+import { StageViewLegacyOperationsFacade } from 'src/app/legacy-admin/@facade/stage-view-legacy-operation-facade';
+
 import { ElsaEventAdminV2Component } from 'src/app/legacy-admin/components/elsa-event-admin-v2/elsa-event-admin-v2.component';
 import { SessionContentComponent } from 'src/app/legacy-admin/components/session-content/session-content.component';
 
@@ -16,9 +17,9 @@ import { SessionContentComponent } from 'src/app/legacy-admin/components/session
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ElsaEventAdminV2Component],
 })
-export class StageView implements CanDeactivateComponent {
-  private readonly _legacyOperations = inject(
-    AvWorkspaceLegacyOperationsService
+export class StageView implements CanStageViewComponentDeactivate {
+  private readonly _stageViewLegacyOperationsFacade = inject(
+    StageViewLegacyOperationsFacade
   );
 
   private readonly _elsaComponent = viewChild(ElsaEventAdminV2Component);
@@ -29,7 +30,7 @@ export class StageView implements CanDeactivateComponent {
       sessionContent?.closeSocket();
     }
 
-    this._legacyOperations.pauseSessionState();
+    this._stageViewLegacyOperationsFacade.pauseSessionState();
   }
 
   private getSessionContentComponent(): SessionContentComponent | null {

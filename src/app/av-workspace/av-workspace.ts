@@ -22,7 +22,7 @@ import {
   AvWorkspaceAccess,
   AvWorkspaceView,
 } from 'src/app/av-workspace/models/av-workspace-view.model';
-import { AVWorkspaceDeactivationService } from 'src/app/av-workspace/services/av-workspace-deactivation.service';
+import { StageViewDeactivationService } from 'src/app/av-workspace/services/stage-view-deactivation.service';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { LayoutMainComponent } from 'src/app/shared/layouts/layout-main/layout-main.component';
 
@@ -38,9 +38,7 @@ export class AvWorkspace implements OnInit {
   private readonly _route = inject(ActivatedRoute);
   private readonly _router = inject(Router);
   private readonly _authFacade = inject(AuthFacade);
-  private readonly _deactivationService = inject(
-    AVWorkspaceDeactivationService
-  );
+  private readonly _deactivationService = inject(StageViewDeactivationService);
 
   private readonly _tabConfig: Record<
     AvWorkspaceView,
