@@ -3,4 +3,6 @@ import { CentralizedViewStage } from 'src/app/av-workspace/data-services/central
 export const getSelectableEntities = (
   entities: readonly CentralizedViewStage[]
 ): CentralizedViewStage[] =>
-  entities.filter((entity) => entity.isOnline && entity.currentSessionId);
+  entities.filter(
+    (entity) => entity.isOnline && entity.currentSessionId && !entity.autoAv
+  );

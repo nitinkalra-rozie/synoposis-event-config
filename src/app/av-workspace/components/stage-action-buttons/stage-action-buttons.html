@@ -4,6 +4,7 @@
     class="action-btn start-pause-resume-btn"
     [class.loading]="buttonStates().startPauseResumeButton.isLoading"
     [disabled]="
+      isAutoAvEnabled() ||
       !buttonStates().startPauseResumeButton.isEnabled ||
       isMultipleSelectionActive()
     "
@@ -18,6 +19,7 @@
     mat-raised-button
     class="action-btn stop-btn"
     [disabled]="
+      isAutoAvEnabled() ||
       !buttonStates().canStop ||
       isMultipleSelectionActive()
     "
