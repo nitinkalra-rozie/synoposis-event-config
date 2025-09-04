@@ -11,6 +11,7 @@ import {
 import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { StageViewLegacyOperationsFacade } from 'src/app/legacy-admin/@facade/stage-view-legacy-operation-facade';
 
+// TODO: @later remove this once the stage view is no more from legacy. The point is - the new stage view should be architected in a manner to handle these operations from the stage view controller layer (conceptually)
 @Injectable({ providedIn: 'root' })
 export class StageViewDeactivationService {
   private readonly _stageViewLegacyOperationsFacade = inject(
