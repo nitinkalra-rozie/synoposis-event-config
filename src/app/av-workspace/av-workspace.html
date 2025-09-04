@@ -10,8 +10,7 @@
       <a
         mat-tab-link
         [active]="activeTabLink() === tabLink.value"
-        [routerLink]="[tabLink.value]"
-        (click)="activeTabLink.set(tabLink.value)">
+        [routerLink]="[tabLink.value]">
         {{tabLink.label}}
       </a>
       }

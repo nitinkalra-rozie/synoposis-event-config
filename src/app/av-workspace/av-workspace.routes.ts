@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { avWorkspaceGuard } from 'src/app/av-workspace/guards/av-workspace-guard';
+import { canDeactivateStageViewGuard } from 'src/app/av-workspace/guards/can-deactivate-stage-view-guard';
 
 export const avWorkspaceRoutes: Route[] = [
   {
@@ -23,6 +24,7 @@ export const avWorkspaceRoutes: Route[] = [
             (c) => c.StageView
           ),
         canActivate: [avWorkspaceGuard],
+        canDeactivate: [canDeactivateStageViewGuard],
       },
       {
         path: '',

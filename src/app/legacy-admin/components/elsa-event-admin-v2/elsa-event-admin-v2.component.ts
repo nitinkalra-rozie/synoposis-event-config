@@ -7,7 +7,7 @@ import {
   inject,
   OnInit,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { SidebarControlPanelComponent } from 'src/app/legacy-admin/@components/sidebar-control-panel/sidebar-control-panel.component';
 import { GetDropdownOptionFromObjectPipe } from 'src/app/legacy-admin/@pipes/get-dropdown-option-from-object.pipe';
@@ -46,8 +46,10 @@ import { EventDetail, PostData } from 'src/app/legacy-admin/shared/types';
   ],
 })
 export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
-  @ViewChild('contentContainer')
-  protected contentContainer: ElementRef<HTMLDivElement>;
+  protected contentContainer =
+    viewChild.required<ElementRef<HTMLDivElement>>('contentContainer');
+
+  protected _sessionContentComponent = viewChild(SessionContentComponent);
 
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];
@@ -115,7 +117,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     document.documentElement.style.setProperty(
       '--dashboard-content-container-width',
-      `${this.contentContainer.nativeElement.clientWidth}px`
+      `${this.contentContainer().nativeElement.clientWidth}px`
     );
   }
 
@@ -278,6 +280,11 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
         session.Event === event && session.SessionTitle === SessionTitle
     );
     return session ? session : null;
+  }
+
+  // TODO: @later remove this approach as this is written to cater the legacy code pattern
+  getSessionContentComponent(): SessionContentComponent | undefined {
+    return this._sessionContentComponent();
   }
 
   onDayChange = () => {
