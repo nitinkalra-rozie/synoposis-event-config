@@ -41,7 +41,7 @@ jobs:
             # 'fms2025',
             # 'slc2025',
             'bcs2025',
-            'ceir2025'
+            'ceir2025',
           ]
     steps:
       - name: Set event environment variable
