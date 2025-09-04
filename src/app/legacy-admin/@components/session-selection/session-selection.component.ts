@@ -173,6 +173,8 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['autoAvEnabled'].currentValue) {
       this.isProjectOnPhysicalScreen.set(false);
+      this._windowService.closeProjectionWindow();
+      this._windowService.clearWindowCloseCallback();
     }
   }
 
