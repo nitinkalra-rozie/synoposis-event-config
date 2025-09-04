@@ -18,6 +18,7 @@ import { SessionContentComponent } from 'src/app/legacy-admin/components/session
   imports: [ElsaEventAdminV2Component],
 })
 export class StageView implements CanStageViewComponentDeactivate {
+  //#region this is temporary. Until the stage view is out of legacy code this is needed
   protected readonly _elsaComponent = viewChild(ElsaEventAdminV2Component);
 
   private readonly _stageViewLegacyOperationsFacade = inject(
