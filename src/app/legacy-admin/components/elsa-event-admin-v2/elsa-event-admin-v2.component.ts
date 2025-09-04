@@ -282,6 +282,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
     return session ? session : null;
   }
 
+  // TODO: @later remove this approach as this is written to cater the legacy code pattern
   getSessionContentComponent(): SessionContentComponent | undefined {
     return this._sessionContentComponent();
   }
