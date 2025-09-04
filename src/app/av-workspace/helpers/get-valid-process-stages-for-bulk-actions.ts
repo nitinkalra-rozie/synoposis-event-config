@@ -9,7 +9,13 @@ export const getValidProcessStagesForBulkActions = (
   stages
     .filter((stage) => {
       const entity = entitySignals.get(stage)?.();
-      if (!entity || !entity.isOnline || !entity.currentSessionId) return false;
+      if (
+        !entity ||
+        !entity.isOnline ||
+        !entity.currentSessionId ||
+        entity.autoAv
+      )
+        return false;
       switch (action) {
         case 'start':
           return (
