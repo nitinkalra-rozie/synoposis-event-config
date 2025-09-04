@@ -38,3 +38,4 @@ export class StageView implements CanStageViewComponentDeactivate {
     return this._elsaComponent()?.getSessionContentComponent() ?? null;
   }
 }
+//#endregion this is temporary. Until the stage view is out of legacy code this is needed
