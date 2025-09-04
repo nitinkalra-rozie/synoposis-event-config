@@ -1,3 +1,5 @@
+//TODO: this has to be moved to a reusable service and used from both session content component and the stage view deactivation service or anywhere we deactivate the stage view
+
 export function cleanupWebSocketConnectionUtil(
   socket: WebSocket | null,
   eventStreamMarshaller: any,

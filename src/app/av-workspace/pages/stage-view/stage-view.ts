@@ -18,11 +18,11 @@ import { SessionContentComponent } from 'src/app/legacy-admin/components/session
   imports: [ElsaEventAdminV2Component],
 })
 export class StageView implements CanStageViewComponentDeactivate {
+  protected readonly _elsaComponent = viewChild(ElsaEventAdminV2Component);
+
   private readonly _stageViewLegacyOperationsFacade = inject(
     StageViewLegacyOperationsFacade
   );
-
-  private readonly _elsaComponent = viewChild(ElsaEventAdminV2Component);
 
   pauseCurrentSession(): void {
     if (this._elsaComponent) {

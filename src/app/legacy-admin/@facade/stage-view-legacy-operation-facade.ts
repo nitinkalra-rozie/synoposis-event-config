@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { catchError, Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import { PostData } from 'src/app/legacy-admin/shared/types';
 import { LiveSessionState } from '../@data-services/event-details/event-details.data-model';
@@ -89,8 +89,7 @@ export class StageViewLegacyOperationsFacade {
           return of(true);
         }
         return of(false);
-      }),
-      catchError(() => of(false))
+      })
     );
   }
 

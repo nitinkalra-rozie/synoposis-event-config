@@ -38,7 +38,9 @@ export class AvWorkspace implements OnInit {
   private readonly _route = inject(ActivatedRoute);
   private readonly _router = inject(Router);
   private readonly _authFacade = inject(AuthFacade);
-  private readonly _deactivationService = inject(StageViewDeactivationService);
+  private readonly _stageViewDeactivationService = inject(
+    StageViewDeactivationService
+  );
 
   private readonly _tabConfig: Record<
     AvWorkspaceView,
@@ -91,7 +93,7 @@ export class AvWorkspace implements OnInit {
           const currentTab = currentUrl.split('/').pop();
 
           if (currentTab === 'centralized' || currentTab === 'stage') {
-            this._deactivationService.cleanupNavigationState();
+            this._stageViewDeactivationService.cleanupNavigationState();
 
             this.activeTabLink.set(currentTab);
           }

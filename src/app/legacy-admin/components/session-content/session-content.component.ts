@@ -313,15 +313,15 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.cleanupWebSocketConnection();
-    this.cleanupMicrophoneStream();
-    this.clearAllIntervals();
-    this.cleanupAudioRecorder();
+    this._cleanupWebSocketConnection();
+    this._cleanupMicrophoneStream();
+    this._clearAllIntervals();
+    this._cleanupAudioRecorder();
     this.cleanupSessionState();
-    this.resetComponentState();
+    this._resetComponentState();
   }
 
-  private cleanupWebSocketConnection(): void {
+  private _cleanupWebSocketConnection(): void {
     this.socket = cleanupWebSocketConnectionUtil(
       this.socket,
       eventStreamMarshaller,
@@ -329,14 +329,14 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
-  private cleanupMicrophoneStream(): void {
+  private _cleanupMicrophoneStream(): void {
     if (this.micStream) {
       this.micStream.stop();
       this.micStream = null;
     }
   }
 
-  private clearAllIntervals(): void {
+  private _clearAllIntervals(): void {
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
       this.timeoutId = null;
@@ -348,11 +348,11 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private cleanupAudioRecorder(): void {
+  private _cleanupAudioRecorder(): void {
     this._audioRecorderService.flushAndClose();
   }
 
-  private resetComponentState(): void {
+  private _resetComponentState(): void {
     this.isStreaming = false;
     this.startListeningClicked = false;
     this.isSessionInProgress = false;

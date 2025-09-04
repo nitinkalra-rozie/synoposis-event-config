@@ -1,14 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { Router, RouterStateSnapshot } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { STAGE_VIEW_DIALOG_MESSAGES } from 'src/app/av-workspace/constants/stage-view-interaction-messages';
-import {
-  AVWorkspaceDeactivationRequest,
-  AVWorkspaceDeactivationResult,
-  AVWorkspaceSessionState,
-} from 'src/app/av-workspace/models/av-workspace-session.model';
 import { CanStageViewComponentDeactivate } from 'src/app/av-workspace/models/can-stage-view-component-deactivate.model';
+import {
+  StageViewSessionRequest,
+  StageViewSessionResult,
+  StageViewSessionState,
+} from 'src/app/av-workspace/models/stage-view-session.model';
 import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
 import { StageViewLegacyOperationsFacade } from 'src/app/legacy-admin/@facade/stage-view-legacy-operation-facade';
 
@@ -18,10 +17,10 @@ export class StageViewDeactivationService {
     StageViewLegacyOperationsFacade
   );
 
-  getSessionState(): AVWorkspaceSessionState {
+  getSessionState(): StageViewSessionState {
     const sessionInfo =
       this._stageViewLegacyOperationsFacade.getSessionStateInfo();
-    return this._mapLegacyStateToAVWorkspaceState(sessionInfo.sessionState);
+    return this._mapLegacyStateToStageViewState(sessionInfo.sessionState);
   }
 
   cleanupNavigationState(): void {
@@ -29,21 +28,17 @@ export class StageViewDeactivationService {
   }
 
   buildDeactivationRequest(
-    isLeavingStageView: boolean,
-    nextState?: RouterStateSnapshot
-  ): AVWorkspaceDeactivationRequest {
+    isLeavingStageView: boolean
+  ): StageViewSessionRequest {
     return {
       isLeavingStageView,
-      isSessionActive:
-        this.getSessionState() === AVWorkspaceSessionState.Playing,
-      isSwitchingToCentralized:
-        nextState?.url?.includes('/centralized') ?? false,
+      isSessionActive: this.getSessionState() === StageViewSessionState.Playing,
     };
   }
 
   getDeactivationDialogConfig(
-    request: AVWorkspaceDeactivationRequest
-  ): AVWorkspaceDeactivationResult {
+    request: StageViewSessionRequest
+  ): StageViewSessionResult {
     if (!request.isLeavingStageView || !request.isSessionActive) {
       return { canDeactivate: true, requiresConfirmation: false };
     }
@@ -63,7 +58,7 @@ export class StageViewDeactivationService {
 
   executeDeactivation(
     isConfirmed: boolean,
-    request: AVWorkspaceDeactivationRequest,
+    request: StageViewSessionRequest,
     component: CanStageViewComponentDeactivate,
     router: Router
   ): Observable<boolean> {
@@ -71,13 +66,11 @@ export class StageViewDeactivationService {
       return of(false);
     }
 
-    return this._performDeactivationOperations(request, component).pipe(
-      catchError(() => of(false))
-    );
+    return this._performDeactivationOperations(request, component);
   }
 
   private _performDeactivationOperations(
-    request: AVWorkspaceDeactivationRequest,
+    request: StageViewSessionRequest,
     component: CanStageViewComponentDeactivate
   ): Observable<boolean> {
     this._stageViewLegacyOperationsFacade.disconnectStageWebSockets();
@@ -85,9 +78,7 @@ export class StageViewDeactivationService {
     if (!request.isSessionActive) return of(true);
 
     this._pauseCurrentSession(component);
-    return this._stageViewLegacyOperationsFacade
-      .pauseSessionViaAPI()
-      .pipe(catchError(() => of(false)));
+    return this._stageViewLegacyOperationsFacade.pauseSessionViaAPI();
   }
 
   private _pauseCurrentSession(
@@ -97,16 +88,16 @@ export class StageViewDeactivationService {
     component.pauseCurrentSession?.();
   }
 
-  private _mapLegacyStateToAVWorkspaceState(
+  private _mapLegacyStateToStageViewState(
     legacyState: LiveSessionState
-  ): AVWorkspaceSessionState {
+  ): StageViewSessionState {
     switch (legacyState) {
       case LiveSessionState.Playing:
-        return AVWorkspaceSessionState.Playing;
+        return StageViewSessionState.Playing;
       case LiveSessionState.Paused:
-        return AVWorkspaceSessionState.Paused;
+        return StageViewSessionState.Paused;
       default:
-        return AVWorkspaceSessionState.Stopped;
+        return StageViewSessionState.Stopped;
     }
   }
 }

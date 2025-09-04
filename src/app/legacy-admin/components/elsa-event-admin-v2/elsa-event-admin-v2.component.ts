@@ -49,7 +49,7 @@ export class ElsaEventAdminV2Component implements OnInit, AfterViewInit {
   protected contentContainer =
     viewChild.required<ElementRef<HTMLDivElement>>('contentContainer');
 
-  private _sessionContentComponent = viewChild(SessionContentComponent);
+  protected _sessionContentComponent = viewChild(SessionContentComponent);
 
   eventNames: string[] = [];
   eventDetails: EventDetail[] = [];

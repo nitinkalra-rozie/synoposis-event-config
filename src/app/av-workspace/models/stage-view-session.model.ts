@@ -1,16 +1,15 @@
-export enum AVWorkspaceSessionState {
+export enum StageViewSessionState {
   Playing = 'PLAYING',
   Paused = 'PAUSED',
   Stopped = 'STOPPED',
 }
 
-export interface AVWorkspaceDeactivationRequest {
+export interface StageViewSessionRequest {
   isLeavingStageView: boolean;
   isSessionActive: boolean;
-  isSwitchingToCentralized: boolean;
 }
 
-export interface AVWorkspaceDeactivationResult {
+export interface StageViewSessionResult {
   canDeactivate: boolean;
   requiresConfirmation: boolean;
   dialogMessage?: string;

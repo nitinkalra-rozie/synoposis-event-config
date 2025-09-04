@@ -8,7 +8,6 @@ import {
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { CanStageViewComponentDeactivate } from 'src/app/av-workspace/models/can-stage-view-component-deactivate.model';
-
 import { StageViewDeactivationService } from 'src/app/av-workspace/services/stage-view-deactivation.service';
 import { SynConfirmDialogFacade } from 'src/app/shared/components/syn-confirm-dialog/syn-confirm-dialog-facade';
 
@@ -22,17 +21,11 @@ export const canDeactivateStageViewGuard: CanDeactivateFn<
 ): Observable<boolean> | boolean => {
   const router = inject(Router);
   const confirmDialog = inject(SynConfirmDialogFacade);
-  const deactivationService = inject(StageViewDeactivationService);
+  const stageViewDeactivationService = inject(StageViewDeactivationService);
 
-  const isStageRoute = currentRoute.routeConfig?.path === 'stage';
+  stageViewDeactivationService.cleanupNavigationState();
 
-  if (!isStageRoute) {
-    return component.canDeactivate?.() ?? true;
-  }
-
-  deactivationService.cleanupNavigationState();
-
-  const request = deactivationService.buildDeactivationRequest(true, nextState);
+  const request = stageViewDeactivationService.buildDeactivationRequest(true);
   const {
     canDeactivate,
     requiresConfirmation,
@@ -40,20 +33,20 @@ export const canDeactivateStageViewGuard: CanDeactivateFn<
     dialogMessage,
     confirmButtonText,
     cancelButtonText,
-  } = deactivationService.getDeactivationDialogConfig(request);
+  } = stageViewDeactivationService.getDeactivationDialogConfig(request);
 
   if (!requiresConfirmation) return canDeactivate;
 
   return confirmDialog
     .openConfirmDialog({
-      title: dialogTitle!,
-      message: dialogMessage!,
-      confirmButtonText: confirmButtonText!,
-      cancelButtonText: cancelButtonText!,
+      title: dialogTitle,
+      message: dialogMessage,
+      confirmButtonText: confirmButtonText,
+      cancelButtonText: cancelButtonText,
     })
     .pipe(
       switchMap((isConfirmed: boolean | undefined) =>
-        deactivationService.executeDeactivation(
+        stageViewDeactivationService.executeDeactivation(
           isConfirmed === true,
           request,
           component,
