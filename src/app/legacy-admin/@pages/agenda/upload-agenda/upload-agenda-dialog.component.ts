@@ -134,12 +134,6 @@ export class UploadAgendaDialogComponent {
     const date = new Date(dateStr); // Creates a Date object from the date string
 
     const timeParts = timeStr.match(/(\d+):(\d+) (AM|PM)/i); // Extract hours, minutes, and period
-    console.log('timeParts match result:', timeParts);
-    console.log('timeStr length:', timeStr.length);
-    console.log(
-      'timeStr charCodes:',
-      Array.from(timeStr).map((c) => c.charCodeAt(0))
-    );
     if (!timeParts) {
       throw new Error('Invalid time format. Expected format: "HH:MM AM/PM"');
     }
@@ -313,20 +307,11 @@ export class UploadAgendaDialogComponent {
   }
 
   convertExcelTimeToReadable(timeValue: any): string {
-    console.log('convertExcelTimeToReadable called with:', {
-      timeValue,
-      type: typeof timeValue,
-    });
-
     // If it's already a string in the correct format, return it as-is
     if (typeof timeValue === 'string') {
       const trimmedTime = timeValue.trim().toUpperCase();
 
       if (/^\d{1,2}:\d{2}\s*(AM|PM)$/.test(trimmedTime)) {
-        console.log(
-          'convertExcelTimeToReadable: string already in correct format, returning as-is:',
-          trimmedTime
-        );
         return trimmedTime;
       }
 
@@ -350,7 +335,6 @@ export class UploadAgendaDialogComponent {
     const displayHours = hours % 12 || 12;
 
     const result = `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
-    console.log('convertExcelTimeToReadable returning:', result);
     return result;
   }
 
