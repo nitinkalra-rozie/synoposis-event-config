@@ -173,7 +173,7 @@ export class UploadAgendaDialogComponent {
       return new Date().toISOString().split('T')[0];
     }
 
-    let jsDate: Date;
+    let jsDate: Date = new Date();
 
     if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
       jsDate = new Date(date);
@@ -188,8 +188,9 @@ export class UploadAgendaDialogComponent {
     }
 
     if (isNaN(jsDate.getTime())) {
-      console.warn(`Invalid date format: ${date}, using today's date`);
-      jsDate = new Date();
+      throw new Error(
+        `Invalid date format: "${date}". Expected formats: "MM/DD/YYYY", "YYYY-MM-DD", or Excel numeric date`
+      );
     }
 
     const year = jsDate.getFullYear();
@@ -198,7 +199,7 @@ export class UploadAgendaDialogComponent {
     return `${year}-${month}-${day}`; // Format as "YYYY-MM-DD"
   }
 
-  getDurationInMinutes(startTime, endTime): string {
+  getDurationInMinutes(startTime: any, endTime: any): string {
     // Helper function to convert a 12-hour time string to minutes since midnight.
     const parseTime = (timeStr): number => {
       const [time, period] = timeStr.trim().split(' ');
