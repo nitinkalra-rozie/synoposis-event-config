@@ -126,11 +126,6 @@ export class UploadAgendaDialogComponent {
 
   createDateTimeString(dateStr: string, timeStr: string): string {
     // Parse the date and time
-    console.log('createDateTimeString called with:', {
-      dateStr,
-      timeStr,
-      timeStrType: typeof timeStr,
-    });
     const date = new Date(dateStr); // Creates a Date object from the date string
 
     const timeParts = timeStr.match(/(\d+):(\d+) (AM|PM)/i); // Extract hours, minutes, and period
@@ -174,11 +169,29 @@ export class UploadAgendaDialogComponent {
   }
 
   convertExcelDateToReadable(date: string): string {
-    let jsDate = new Date();
-    if (date) {
-      const excelDate = 45746;
-      jsDate = new Date((excelDate - 25569) * 86400 * 1000);
+    if (!date) {
+      return new Date().toISOString().split('T')[0];
     }
+
+    let jsDate: Date;
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      jsDate = new Date(date);
+    } else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(date)) {
+      const [month, day, year] = date.split('/');
+      jsDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else if (/^\d+$/.test(date)) {
+      const excelDate = parseInt(date);
+      jsDate = new Date((excelDate - 25569) * 86400 * 1000);
+    } else {
+      jsDate = new Date(date);
+    }
+
+    if (isNaN(jsDate.getTime())) {
+      console.warn(`Invalid date format: ${date}, using today's date`);
+      jsDate = new Date();
+    }
+
     const year = jsDate.getFullYear();
     const month = String(jsDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const day = String(jsDate.getDate()).padStart(2, '0');
