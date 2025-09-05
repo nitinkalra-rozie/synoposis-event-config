@@ -26,7 +26,7 @@ export class StageView implements CanStageViewComponentDeactivate {
   );
 
   pauseCurrentSession(): void {
-    if (this._elsaComponent) {
+    if (this._elsaComponent()) {
       const sessionContent = this.getSessionContentComponent();
       sessionContent?.closeSocket();
     }
