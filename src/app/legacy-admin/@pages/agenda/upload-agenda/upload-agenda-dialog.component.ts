@@ -126,6 +126,11 @@ export class UploadAgendaDialogComponent {
 
   createDateTimeString(dateStr: string, timeStr: string): string {
     // Parse the date and time
+    console.log('createDateTimeString called with:', {
+      dateStr,
+      timeStr,
+      timeStrType: typeof timeStr,
+    });
     const date = new Date(dateStr); // Creates a Date object from the date string
 
     const timeParts = timeStr.match(/(\d+):(\d+) (AM|PM)/i); // Extract hours, minutes, and period
@@ -301,15 +306,36 @@ export class UploadAgendaDialogComponent {
     }
   }
 
-  convertExcelTimeToReadable(timeValue: number): string {
-    const totalHours = timeValue * 24;
-    const hours = Math.floor(totalHours);
-    const minutes = Math.round((totalHours - hours) * 60);
+  convertExcelTimeToReadable(timeValue: any): string {
+    // If it's already a string in the correct format, return it as-is
+    if (typeof timeValue === 'string') {
+      const trimmedTime = timeValue.trim().toUpperCase();
+
+      if (/^\d{1,2}:\d{2}\s*(AM|PM)$/.test(trimmedTime)) {
+        return trimmedTime;
+      }
+
+      throw new Error(
+        `Invalid time string format: "${timeValue}". Expected format: "HH:MM AM/PM"`
+      );
+    }
+
+    if (typeof timeValue !== 'number' || isNaN(timeValue)) {
+      throw new Error(`Invalid time value type: ${timeValue}`);
+    }
+
+    // Convert Excel time number (fraction of day) into hours/minutes
+    let totalMinutes = Math.round(timeValue * 24 * 60);
+    totalMinutes = totalMinutes % (24 * 60);
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
     const period = hours >= 12 ? 'PM' : 'AM';
     const displayHours = hours % 12 || 12;
 
-    // Format as "HH:MM AM/PM"
-    return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+    const result = `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+    return result;
   }
 
   private validateSessions(): boolean {

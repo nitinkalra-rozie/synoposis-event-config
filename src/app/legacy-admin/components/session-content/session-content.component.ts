@@ -5,6 +5,7 @@ import {
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
 } from '@angular/core';
@@ -49,6 +50,7 @@ import { ProjectionStateService } from 'src/app/legacy-admin/@services/projectio
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { generateSHA256HashHex } from 'src/app/legacy-admin/@utils/generate-hash';
 import { generateUniqueId } from 'src/app/legacy-admin/@utils/generate-uuid';
+import { cleanupWebSocketConnectionUtil } from 'src/app/legacy-admin/@utils/websocket-utils';
 import { MicrophoneService } from 'src/app/legacy-admin/services/microphone.service';
 import { ModalService } from 'src/app/legacy-admin/services/modal.service';
 import {
@@ -79,7 +81,7 @@ const eventStreamMarshaller = new marshaller.EventStreamMarshaller(
   ],
 })
 // TODO:@later refactor this fully
-export class SessionContentComponent implements OnInit, OnChanges {
+export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   ScreenDisplayType = ScreenDisplayType;
   @Input() eventControls: PostData;
   @Input() selectedThemeProp: string;
@@ -114,7 +116,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
   sessionIds = [];
   successMessage = '';
   failureMessage = '';
-  transctiptToInsides = '';
+  transcriptToInsides = '';
   timeoutId: any = '';
   currentSessionId = '';
   currentStage = '';
@@ -216,8 +218,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
       ) {
         if (this.selectedDay !== '' && this.selectedSessionTitle !== '') {
           this.startRecording();
-          this.transctiptToInsides = localStorage.getItem(
-            'transctiptToInsides'
+          this.transcriptToInsides = localStorage.getItem(
+            'transcriptToInsides'
           );
           this.rotateSessionTitles(this.selectedSessionTitle);
         }
@@ -308,6 +310,61 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.transcriptTimeOut = changes['transcriptTimeOutProp'].currentValue;
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this._cleanupWebSocketConnection();
+    this._cleanupMicrophoneStream();
+    this._clearAllIntervals();
+    this._cleanupAudioRecorder();
+    this.cleanupSessionState();
+    this._resetComponentState();
+  }
+
+  private _cleanupWebSocketConnection(): void {
+    this.socket = cleanupWebSocketConnectionUtil(
+      this.socket,
+      eventStreamMarshaller,
+      (buffer: Buffer) => this.getAudioEventMessage(buffer)
+    );
+  }
+
+  private _cleanupMicrophoneStream(): void {
+    if (this.micStream) {
+      this.micStream.stop();
+      this.micStream = null;
+    }
+  }
+
+  private _clearAllIntervals(): void {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+
+    if (this.silenceIntervalId) {
+      clearInterval(this.silenceIntervalId);
+      this.silenceIntervalId = null;
+    }
+  }
+
+  private _cleanupAudioRecorder(): void {
+    this._audioRecorderService.flushAndClose();
+  }
+
+  private _resetComponentState(): void {
+    this.isStreaming = false;
+    this.startListeningClicked = false;
+    this.isSessionInProgress = false;
+
+    this.socketError = false;
+    this.transcribeException = false;
+
+    this.transcription = '';
+    this.transcriptToInsides = '';
+    this.lastFiveWords = '';
+
+    this.lastTranscriptTimestamp = Date.now();
   }
 
   onThemeChange() {
@@ -956,14 +1013,14 @@ export class SessionContentComponent implements OnInit, OnChanges {
   }
 
   realtimeInsides(transcript: string) {
-    if (this.transctiptToInsides === '') {
+    if (this.transcriptToInsides === '') {
       this.setTimerToPushTranscript();
     }
 
-    this.transctiptToInsides += transcript;
-    localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    this.transcriptToInsides += transcript;
+    localStorage.setItem('transcriptToInsides', this.transcriptToInsides);
 
-    const words = this.transctiptToInsides.split(/\s+/);
+    const words = this.transcriptToInsides.split(/\s+/);
     const wordCount = words.length;
 
     if (wordCount > 100) {
@@ -987,13 +1044,13 @@ export class SessionContentComponent implements OnInit, OnChanges {
 
   hitBackendApiAndReset() {
     this.sendTranscriptToBackend(
-      this.lastFiveWords + ' ' + this.transctiptToInsides
+      this.lastFiveWords + ' ' + this.transcriptToInsides
     );
-    const words = this.transctiptToInsides.split(/\s+/);
+    const words = this.transcriptToInsides.split(/\s+/);
     this.lastFiveWords = this.getLastFiveWords(words);
-    this.transctiptToInsides = '';
+    this.transcriptToInsides = '';
     localStorage.setItem('lastFiveWords', this.lastFiveWords);
-    localStorage.setItem('transctiptToInsides', this.transctiptToInsides);
+    localStorage.setItem('transcriptToInsides', this.transcriptToInsides);
     clearInterval(this.timeoutId);
   }
 
@@ -1167,8 +1224,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     );
 
     //convert the JSON object + headers into a binary event stream message
-    // @ts-ignore
-    const binary = eventStreamMarshaller.marshall(audioEventMessage);
+    const binary = eventStreamMarshaller.marshall(audioEventMessage as any);
 
     return binary;
   };
@@ -1182,11 +1238,8 @@ export class SessionContentComponent implements OnInit, OnChanges {
       this.micStream.stop();
 
       // Send an empty frame so that Transcribe initiates a closure of the WebSocket after submitting all transcripts
-      const emptyMessage = this.getAudioEventMessage(
-        Buffer.from(new Buffer([]))
-      );
-      // @ts-ignore
-      const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage);
+      const emptyMessage = this.getAudioEventMessage(Buffer.from([]));
+      const emptyBuffer = eventStreamMarshaller.marshall(emptyMessage as any);
       this.socket.send(emptyBuffer);
     }
     clearInterval(this.timeoutId);
@@ -1218,7 +1271,7 @@ export class SessionContentComponent implements OnInit, OnChanges {
     localStorage.removeItem('currentPrimarySessionId');
     localStorage.removeItem('selectedEvent');
     localStorage.removeItem('lastFiveWords');
-    this.transctiptToInsides = '';
+    this.transcriptToInsides = '';
     this.isStreaming = false;
   };
 
@@ -1461,8 +1514,9 @@ export class SessionContentComponent implements OnInit, OnChanges {
         this.socket?.OPEN
       ) {
         const silentMessage = this.getAudioEventMessage(this.silentAudioChunk);
-        // @ts-ignore
-        const silentBinary = eventStreamMarshaller.marshall(silentMessage);
+        const silentBinary = eventStreamMarshaller.marshall(
+          silentMessage as any
+        );
         this.socket.send(silentBinary);
         console.log('Sending silent audio to keep connection alive');
       }

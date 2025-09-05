@@ -108,6 +108,14 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
         this._handleStageChange(newStage);
       }
     });
+
+    effect(() => {
+      if (!this.isAutoAvChecked()) {
+        this.isProjectOnPhysicalScreen.set(false);
+        this._windowService.closeProjectionWindow();
+        this._windowService.clearWindowCloseCallback();
+      }
+    });
   }
 
   public readonly autoAvEnabled = input(false);
@@ -167,12 +175,15 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
 
   protected isProjectOnPhysicalScreen = signal(false);
   protected isToggleProcessing = signal(false);
+  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
 
   private _previousStage = signal<string | null>(null);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['autoAvEnabled'].currentValue) {
       this.isProjectOnPhysicalScreen.set(false);
+      this._windowService.closeProjectionWindow();
+      this._windowService.clearWindowCloseCallback();
     }
   }
 
