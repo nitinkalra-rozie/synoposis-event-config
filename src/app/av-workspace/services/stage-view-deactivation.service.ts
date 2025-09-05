@@ -26,7 +26,8 @@ export class StageViewDeactivationService {
   }
 
   cleanupNavigationState(): void {
-    this.getSessionState();
+    this._stageViewLegacyOperationsFacade.disconnectStageWebSockets();
+    this._stageViewLegacyOperationsFacade.pauseSessionState();
   }
 
   buildDeactivationRequest(
