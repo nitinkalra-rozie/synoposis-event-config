@@ -70,10 +70,24 @@ export class CentralizedView implements OnDestroy {
 
       if (!sort) {
         this.dataSource.sort = null;
+        this.dataSource.sortingDataAccessor = undefined;
       }
 
       if (entities.length > 0 && sort && !this.dataSource.sort) {
         this.dataSource.sort = this._sort();
+        this.dataSource.sortingDataAccessor = (data, sortHeaderId) => {
+          if (sortHeaderId === 'status') {
+            const order = [
+              'OFFLINE',
+              'AUDIO_NOT_RECEIVING',
+              'TRANSCRIPT_NOT_RECEIVING',
+              'ONLINE_AND_PROJECTING',
+              'ONLINE',
+            ];
+            return order.indexOf(data.status);
+          }
+          return data[sortHeaderId];
+        };
       }
     });
   }

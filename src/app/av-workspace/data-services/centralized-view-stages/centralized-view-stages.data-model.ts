@@ -9,8 +9,8 @@ export type StageStatusType =
   | 'OFFLINE'
   | 'AUDIO_NOT_RECEIVING'
   | 'TRANSCRIPT_NOT_RECEIVING'
-  | 'ONLINE'
-  | 'ONLINE_AND_PROJECTING';
+  | 'ONLINE_AND_PROJECTING'
+  | 'ONLINE';
 
 export type StageActionType =
   | 'SESSION_LIVE_LISTENING'
