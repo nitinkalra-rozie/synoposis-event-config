@@ -22,6 +22,7 @@ import { StageInfoHeader } from 'src/app/av-workspace/components/stage-info-head
 import { StageInfoPlaceholder } from 'src/app/av-workspace/components/stage-info-table-placeholder/stage-info-table-placeholder';
 import { StageStatus } from 'src/app/av-workspace/components/stage-status/stage-status';
 import { StagesActions } from 'src/app/av-workspace/components/stages-actions/stages-actions';
+import { STAGE_STATUS_ORDER } from 'src/app/av-workspace/constants/stage-status-order';
 import { CentralizedViewStage } from 'src/app/av-workspace/data-services/centralized-view-stages/centralized-view-stages.data-model';
 import { StageAutoAvToggleState } from 'src/app/av-workspace/models/stage-action-button-state.model';
 import { CentralizedViewStore } from 'src/app/av-workspace/stores/centralized-view-store';
@@ -70,10 +71,18 @@ export class CentralizedView implements OnDestroy {
 
       if (!sort) {
         this.dataSource.sort = null;
+        this.dataSource.sortingDataAccessor = undefined;
       }
 
       if (entities.length > 0 && sort && !this.dataSource.sort) {
         this.dataSource.sort = this._sort();
+        this.dataSource.sortingDataAccessor = (data, sortHeaderId) => {
+          if (sortHeaderId === 'status') {
+            const index = STAGE_STATUS_ORDER.indexOf(data.status);
+            return index === -1 ? STAGE_STATUS_ORDER.length : index;
+          }
+          return data[sortHeaderId];
+        };
       }
     });
   }
