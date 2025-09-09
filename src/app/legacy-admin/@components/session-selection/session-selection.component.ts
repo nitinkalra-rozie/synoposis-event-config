@@ -126,7 +126,7 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   public readonly isProjectionToggleDisabled = computed(
     () =>
       this.isToggleProcessing() ||
-      (!this.autoAvEnabled() && this.activeSession() === null)
+      (!this.isAutoAvChecked() && this.activeSession() === null)
   );
 
   protected readonly availableSessions = computed(() =>
