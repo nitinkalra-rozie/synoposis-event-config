@@ -130,6 +130,16 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   selectedLocation = computed(() =>
     this._filtersStateService.selectedLocation()
   );
+  isAutoAvEnabledForEvent = computed(
+    () =>
+      this.selectedEvent()?.label === 'BHR2025' ||
+      this.selectedEvent()?.label === 'AFA2025' ||
+      this.selectedEvent()?.label === 'ITW2025' ||
+      this.selectedEvent()?.label === 'FMS2025' ||
+      this.selectedEvent()?.label === 'BCS2025' ||
+      this.selectedEvent()?.label === 'CEIR2025' ||
+      this.selectedEvent()?.label === 'Rozie_TH'
+  );
 
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
