@@ -137,6 +137,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
       this.selectedEvent()?.label === 'ITW2025' ||
       this.selectedEvent()?.label === 'FMS2025' ||
       this.selectedEvent()?.label === 'BCS2025' ||
+      this.selectedEvent()?.label === 'CEIR2025' ||
       this.selectedEvent()?.label === 'Rozie_TH'
   );
 
