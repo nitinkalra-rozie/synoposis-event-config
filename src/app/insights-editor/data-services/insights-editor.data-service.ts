@@ -33,7 +33,7 @@ export class InsightsEditorDataService {
     requestData: ChangeEventStatusRequest
   ): Observable<ChangeEventStatusResponse> {
     return this._http.post<ChangeEventStatusResponse>(
-      environment.postData,
+      `${environment.apiBaseUrl}/r4/config`,
       requestData
     );
   }
