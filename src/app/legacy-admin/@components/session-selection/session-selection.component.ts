@@ -152,22 +152,6 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
   protected readonly selectedStage = computed(() =>
     this._dashboardFiltersStateService.selectedLocation()
   );
-  protected readonly isSessionDropdownDisabled = computed(() => {
-    if (this.isAutoAvChecked()) {
-      return true;
-    }
-
-    if (this.autoAvEnabled() && !this.isAutoAvChecked()) {
-      return !this.selectedStage();
-    }
-    return !this.selectedStage();
-  });
-  protected readonly isStartListeningDisabled = computed(() => {
-    if (this.isAutoAvChecked()) {
-      return true;
-    }
-    return !this.selectedStage() || this.activeSession() === null;
-  });
 
   private readonly _liveEvent = computed(() =>
     this._dashboardFiltersStateService.liveEvent()
