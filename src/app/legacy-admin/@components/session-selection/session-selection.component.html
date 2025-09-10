@@ -13,9 +13,15 @@
 
     <app-syn-single-select
       [class.disabled]="
-        isAutoAvChecked() || autoAvEnabled() || !selectedStage()
+        isAutoAvChecked() ||
+        (autoAvEnabled() && !isAutoAvChecked() && !selectedStage()) ||
+        !selectedStage()
       "
-      [disabled]="isAutoAvChecked() || autoAvEnabled() || !selectedStage()"
+      [disabled]="
+        isAutoAvChecked() ||
+        (autoAvEnabled() && !isAutoAvChecked() && !selectedStage()) ||
+        !selectedStage()
+      "
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
       [uiConfig]="{
@@ -78,7 +84,7 @@
           <button
             class="btn-primary-default btn-start-listening"
             [disabled]="
-              isAutoAvChecked() || autoAvEnabled() || activeSession() === null
+              isAutoAvChecked() || !selectedStage() || activeSession() === null
             "
             (click)="onStartListening()">
             <mat-icon>settings_voice</mat-icon>
