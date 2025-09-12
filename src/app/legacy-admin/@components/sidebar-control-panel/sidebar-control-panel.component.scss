@@ -123,8 +123,9 @@ p {
 
 .session-details-container {
   @include m.d-flex-column-align-center;
+  box-sizing: border-box;
+  width: 100%;
   height: calc(100% - 36px);
-  width: calc(100% - 40px);
   align-items: flex-start;
   padding: 18px 20px;
   overflow-y: scroll;
