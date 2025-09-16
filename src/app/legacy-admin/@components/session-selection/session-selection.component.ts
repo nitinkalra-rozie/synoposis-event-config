@@ -5,6 +5,7 @@ import {
   DestroyRef,
   effect,
   inject,
+  input,
   OnDestroy,
   output,
   signal,
@@ -118,6 +119,7 @@ export class SessionSelectionComponent implements OnDestroy {
       }
     });
   }
+  public readonly autoAvEnabled = input(false);
 
   public readonly streamStarted = output();
   public readonly streamStopped = output();
