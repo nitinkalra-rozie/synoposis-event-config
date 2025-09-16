@@ -498,6 +498,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         this.stageChanged.emit(
           isOffline ? 'PREVIOUS_STAGE_OFFLINE' : 'PREVIOUS_STAGE_NOT_PROJECTING'
         );
+        const statusMessage = isOffline ? 'was offline' : 'was not projecting';
       }
     }
   }
