@@ -76,7 +76,10 @@ export class CentralizedView implements OnDestroy {
 
       if (entities.length > 0 && sort && !this.dataSource.sort) {
         this.dataSource.sort = this._sort();
-        this.dataSource.sortingDataAccessor = (data, sortHeaderId) => {
+        this.dataSource.sortingDataAccessor = (
+          data: CentralizedViewStage,
+          sortHeaderId: string
+        ) => {
           if (sortHeaderId === 'status') {
             const index = STAGE_STATUS_ORDER.indexOf(data.status);
             return index === -1 ? STAGE_STATUS_ORDER.length : index;

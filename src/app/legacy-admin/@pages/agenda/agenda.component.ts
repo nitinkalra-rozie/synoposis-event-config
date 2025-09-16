@@ -29,7 +29,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { isUndefined } from 'lodash-es';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime, map, switchMap, take, tap } from 'rxjs/operators';
+import { debounceTime, map, take } from 'rxjs/operators';
 import { AuthFacade } from 'src/app/core/auth/facades/auth-facade';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
@@ -369,51 +369,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     } else {
       this.filtered_sessions = [];
     }
-  }
-
-  enableEditMode(): void {
-    this.changeEventStatus(this.selected_session_details.Status);
-  }
-
-  changeEventStatus(status): void {
-    this.isLoading = true;
-
-    this._authFacade
-      .getUserEmail$()
-      .pipe(
-        take(1),
-        map((email) => ({
-          action: 'changeEventStatus',
-          sessionId: this.selected_session,
-          status: status,
-          changeEditMode: true,
-          editor: email,
-        })),
-        switchMap((debrief) =>
-          this._backendApiService.changeEventStatus(debrief)
-        ),
-        tap({
-          next: (response) => {
-            console.log(response['data']);
-            if (response['data'].status == 'SUCCESS') {
-              this.isEditorMode = true;
-            } else {
-              this.snackBar.open(
-                'Another editor already editing this session!',
-                'Close',
-                { duration: 5000, panelClass: ['error-snackbar'] }
-              );
-            }
-            this.getEventDetails();
-            this.isLoading = false;
-          },
-          error: (error) => {
-            console.error('Error fetching data:', error);
-            this.isLoading = false;
-          },
-        })
-      )
-      .subscribe();
   }
 
   public checkSessionLocked = (
