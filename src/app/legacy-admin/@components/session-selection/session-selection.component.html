@@ -76,7 +76,7 @@
           <button
             class="btn-primary-default btn-start-listening"
             [disabled]="
-              isAutoAvChecked() || !selectedStage() || activeSession() === null
+              isAutoAvChecked() || autoAvEnabled() || activeSession() === null
             "
             (click)="onStartListening()">
             <mat-icon>settings_voice</mat-icon>
