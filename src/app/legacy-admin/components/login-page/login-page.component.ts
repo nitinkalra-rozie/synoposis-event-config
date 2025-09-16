@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -31,6 +31,7 @@ export class LoginPageComponent {
   private readonly _router = inject(Router);
   private readonly _authApiService = inject(AuthDataService);
   private readonly _authFacade = inject(AuthFacade);
+  private readonly _ngZone = inject(NgZone);
 
   emailForm: UntypedFormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -56,15 +57,16 @@ export class LoginPageComponent {
     if (this.emailForm.valid && this.isEmailValid) {
       this.processedClicked = true;
       this.errorMessage = '';
-
       this._authFacade
         .signUp$(email)
         .pipe(
-          tap((response) => {
-            if (response?.success) {
-              this._router.navigate(['/otp'], { queryParams: { email } });
-            } else if (response) {
-              this.errorMessage = response.message;
+          tap(({ success, message }) => {
+            if (success) {
+              this._ngZone.run(() => {
+                this._router.navigate(['/otp'], { queryParams: { email } });
+              });
+            } else {
+              this.errorMessage = message ?? 'Signup failed';
             }
           }),
           catchError((error) => {
