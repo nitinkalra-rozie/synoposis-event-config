@@ -12,16 +12,8 @@
     </div>
 
     <app-syn-single-select
-      [class.disabled]="
-        isAutoAvChecked() ||
-        (autoAvEnabled() && !isAutoAvChecked() && !selectedStage()) ||
-        !selectedStage()
-      "
-      [disabled]="
-        isAutoAvChecked() ||
-        (autoAvEnabled() && !isAutoAvChecked() && !selectedStage()) ||
-        !selectedStage()
-      "
+      [class.disabled]="isAutoAvChecked() || !selectedStage()"
+      [disabled]="isAutoAvChecked() || !selectedStage()"
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
       [uiConfig]="{
