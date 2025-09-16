@@ -60,12 +60,13 @@ export class LoginPageComponent {
       this._authFacade
         .signUp$(email)
         .pipe(
-          tap(({ success, message }) => {
+          tap((response) => {
+            const { success, message } = response ?? {};
             if (success) {
               this._ngZone.run(() => {
                 this._router.navigate(['/otp'], { queryParams: { email } });
               });
-            } else {
+            } else if (response) {
               this.errorMessage = message ?? 'Signup failed';
             }
           }),
