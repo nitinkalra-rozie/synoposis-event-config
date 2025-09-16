@@ -5,6 +5,7 @@
     dynamicHeight>
     <mat-tab label="Start Listening to a Session">
       <app-session-selection
+        [autoAvEnabled]="autoAvEnabled"
         (screenProjected)="onProjectToScreenClick($event)"
         (streamStarted)="onSteamStart()"></app-session-selection>
     </mat-tab>
