@@ -228,14 +228,21 @@ export class SessionSelectionComponent implements OnDestroy {
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
 
-    if (this.isProjectOnPhysicalScreen()) {
+    if (
+      this.isProjectOnPhysicalScreen() &&
+      this._windowService.isWindowOpen()
+    ) {
       this._updateProjectionForCurrentSession();
     }
   }
 
   protected openSessionInNewWindow(): boolean {
+    const wasWindowOpen = this._windowService.isWindowOpen();
     this._windowService.openInsightsSessionWindow(this.getSessionUrl);
-    this._setupWindowCloseMonitoring();
+
+    if (!wasWindowOpen) {
+      this._setupWindowCloseMonitoring();
+    }
     return false;
   }
 
