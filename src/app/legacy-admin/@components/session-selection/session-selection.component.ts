@@ -53,7 +53,7 @@ export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
-    this._previousAutoAvState.set(this.isAutoAvChecked()); // Initialize Auto AV state tracking
+    this._previousAutoAvState.set(this.isAutoAvChecked());
 
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
