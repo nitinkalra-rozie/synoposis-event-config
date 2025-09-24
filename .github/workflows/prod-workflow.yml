@@ -42,7 +42,8 @@ jobs:
             # 'slc2025',
             # 'bcs2025',
             # 'ceir2025',
-            'g2e2025'
+            'g2e2025',
+            'waf2025'
           ]
     steps:
       - name: Set event environment variable
