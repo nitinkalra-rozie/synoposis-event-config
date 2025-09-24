@@ -63,6 +63,7 @@ export class LoginPageComponent {
           tap((response) => {
             const { success, message } = response ?? {};
             if (success) {
+              // TODO : Using NgZone to re-enter Angular's zone and trigger change detection when code runs outside it.
               this._ngZone.run(() => {
                 this._router.navigate(['/otp'], { queryParams: { email } });
               });
