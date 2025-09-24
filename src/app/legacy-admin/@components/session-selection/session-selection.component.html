@@ -7,13 +7,13 @@
       'right-sidebar-collapsed':
         rightSidebarState() === RightSidebarState.Collapsed,
     }">
-    <div class="step-number-wrapper" [class.disabled]="isAutoAvChecked()">
+    <div class="step-number-wrapper" [class.disabled]="autoAvEnabled()">
       <div class="step-number">1</div>
     </div>
 
     <app-syn-single-select
-      [class.disabled]="isAutoAvChecked() || !selectedStage()"
-      [disabled]="isAutoAvChecked() || !selectedStage()"
+      [class.disabled]="autoAvEnabled() || !selectedStage()"
+      [disabled]="autoAvEnabled() || !selectedStage()"
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
       [uiConfig]="{
@@ -68,16 +68,14 @@
         </div>
       </div>
 
-      <div class="content-step" [class.disabled]="isAutoAvChecked()">
+      <div class="content-step" [class.disabled]="autoAvEnabled()">
         <div class="step-number-wrapper">
           <div class="step-number">3</div>
         </div>
         <div class="step-details">
           <button
             class="btn-primary-default btn-start-listening"
-            [disabled]="
-              isAutoAvChecked() || !selectedStage() || activeSession() === null
-            "
+            [disabled]="autoAvEnabled() || activeSession() === null"
             (click)="onStartListening()">
             <mat-icon>settings_voice</mat-icon>
             <p>Start Listening</p>

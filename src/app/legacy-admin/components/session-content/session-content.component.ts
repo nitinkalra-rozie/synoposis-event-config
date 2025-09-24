@@ -87,7 +87,6 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   @Input() selectedThemeProp: string;
   @Input() selectedEventProp: string;
   @Input() transcriptTimeOutProp: number;
-  @Input() autoAvEnabled: boolean = false;
 
   private readonly _backendApiService = inject(LegacyBackendApiService);
   private readonly _eventStageWebsocketState = inject(
@@ -146,7 +145,9 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
     [EventCardType.ThankYou]: '',
     [EventCardType.Info]: '',
   };
-  isAutoAvEnabled: boolean = false;
+  protected autoAvEnabled = computed(() =>
+    this._eventStageWebsocketState.$autoAvEnabled()
+  );
   protected selectedDashboardTab = computed(() =>
     this._globalStateService.selectedDashboardTab()
   );
@@ -1490,8 +1491,7 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onAutoAvChanged(state: boolean): void {
-    this.isAutoAvEnabled = state; // Update the state
-    console.log('AutoAV Enabled State in Parent:', this.isAutoAvEnabled); // Debugging
+    console.log('AutoAV Enabled State in Parent:', this.autoAvEnabled()); // Debugging
     if (!state) {
       console.log('Auto AV disabled. Stopping transcription.');
       this.stopTranscriptionForAutoAv();

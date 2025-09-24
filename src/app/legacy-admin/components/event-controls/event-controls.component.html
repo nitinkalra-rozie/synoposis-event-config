@@ -82,7 +82,7 @@
   <!-- TODO: @later move these to event based configurations -->
   @if (isAutoAvEnabledForEvent()) {
     <div class="auto-av-status-wrapper">
-      @if (isAutoAvChecked()) {
+      @if (autoAvEnabled()) {
         <div class="auto-av-status">
           {{ 'autoav is running' | uppercase }}
         </div>
@@ -91,7 +91,7 @@
     <div class="toggle-wrapper">
       <label class="toggle-label">AutoAV</label>
       <mat-slide-toggle
-        [checked]="isAutoAvChecked()"
+        [checked]="autoAvEnabled()"
         [disabled]="!selectedEvent() || !selectedLocation()"
         [matTooltip]="
           !selectedLocation() ? 'Please select a stage to enable AutoAV' : ''

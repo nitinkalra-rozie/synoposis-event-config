@@ -110,7 +110,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   // #endregion
 
   protected selectedFilter = signal<'track' | 'location'>('track');
-  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
+  protected autoAvEnabled = computed(() =>
+    this._eventStageWebSocketState.$autoAvEnabled()
+  );
 
   @Output() autoAvChanged = new EventEmitter<boolean>();
   @Output() stageChanged = new EventEmitter<string>();
@@ -288,7 +290,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
 
     this._handlePreviousStageStatus();
 
-    if (this.isAutoAvChecked()) {
+    if (this.autoAvEnabled()) {
       this._modalService.open(
         'Warning',
         'Auto AV is enabled right now. Changing the stage may interrupt ongoing Auto AV operations. Do you want to continue?',
@@ -318,9 +320,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
-    event.source.checked = this.isAutoAvChecked();
+    event.source.checked = this.autoAvEnabled();
 
-    const desiredState = !this.isAutoAvChecked();
+    const desiredState = !this.autoAvEnabled();
     const selectedEvent = this.selectedEvent();
     const selectedLocation = this.selectedLocation();
 
