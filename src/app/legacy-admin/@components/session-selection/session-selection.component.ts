@@ -2,6 +2,7 @@ import { NgClass } from '@angular/common';
 import {
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnDestroy,
@@ -163,6 +164,7 @@ export class SessionSelectionComponent implements OnDestroy {
   private readonly _primaryScreenProjectingService = inject(
     PrimaryScreenProjectingDataService
   );
+  private readonly _destroyRef = inject(DestroyRef);
 
   private static readonly _stopProjecting = false;
 
@@ -292,7 +294,7 @@ export class SessionSelectionComponent implements OnDestroy {
           this.isToggleProcessing.set(false);
           return EMPTY;
         }),
-        takeUntilDestroyed()
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -323,7 +325,7 @@ export class SessionSelectionComponent implements OnDestroy {
           this._windowService.clearWindowCloseCallback();
         }),
         catchError(() => EMPTY),
-        takeUntilDestroyed()
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
@@ -381,7 +383,7 @@ export class SessionSelectionComponent implements OnDestroy {
             this._handleNewStageProjection(newStageKey, eventName);
           }),
           catchError(() => EMPTY),
-          takeUntilDestroyed()
+          takeUntilDestroyed(this._destroyRef)
         )
         .subscribe();
     } else {
@@ -424,7 +426,7 @@ export class SessionSelectionComponent implements OnDestroy {
         finalize(() => {
           this.isToggleProcessing.set(false);
         }),
-        takeUntilDestroyed()
+        takeUntilDestroyed(this._destroyRef)
       )
       .subscribe();
   }
