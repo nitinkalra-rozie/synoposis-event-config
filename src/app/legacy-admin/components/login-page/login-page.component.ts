@@ -63,7 +63,10 @@ export class LoginPageComponent {
           tap((response) => {
             const { success, message } = response ?? {};
             if (success) {
-              // TODO: When angular is switched to zoneless, re-think this approach. Currently, using NgZone to re-enter Angular's zone and trigger change detection when code runs outside it.
+              // TODO(SYN-1643): When Angular is switched to zoneless, re-think this approach.
+              // Currently, using NgZone to re-enter Angular's zone and trigger change detection
+              // when code runs outside it. This is required here to fix a navigation update bug
+              // where UI was not reflecting after signup without manually triggering change detection.
               this._ngZone.run(() => {
                 this._router.navigate(['/otp'], { queryParams: { email } });
               });
