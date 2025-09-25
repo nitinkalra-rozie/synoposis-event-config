@@ -1491,7 +1491,6 @@ export class SessionContentComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onAutoAvChanged(state: boolean): void {
-    console.log('AutoAV Enabled State in Parent:', this.autoAvEnabled()); // Debugging
     if (!state) {
       console.log('Auto AV disabled. Stopping transcription.');
       this.stopTranscriptionForAutoAv();
