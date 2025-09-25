@@ -235,10 +235,10 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     }
   }
   protected openSessionInNewWindow(): boolean {
-    const wasWindowOpen = this._windowService.isWindowOpen();
+    const isWindowOpen = this._windowService.isWindowOpen();
     this._windowService.openInsightsSessionWindow(this.getSessionUrl);
 
-    if (!wasWindowOpen) {
+    if (!isWindowOpen) {
       this._setupWindowCloseMonitoring();
     }
     return false;
