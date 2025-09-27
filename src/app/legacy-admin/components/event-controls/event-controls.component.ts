@@ -130,15 +130,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   selectedLocation = computed(() =>
     this._filtersStateService.selectedLocation()
   );
-  isAutoAvEnabledForEvent = computed(
-    () =>
-      this.selectedEvent()?.label === 'BHR2025' ||
-      this.selectedEvent()?.label === 'AFA2025' ||
-      this.selectedEvent()?.label === 'ITW2025' ||
-      this.selectedEvent()?.label === 'FMS2025' ||
-      this.selectedEvent()?.label === 'BCS2025' ||
-      this.selectedEvent()?.label === 'CEIR2025' ||
-      this.selectedEvent()?.label === 'Rozie_TH'
+  isAutoAvDisabledForEvent = computed(
+    () => false
+    // TODO: @later add the check for eventIdentifiers to disable Auto AV if required
   );
 
   protected rightSidebarState = computed(() =>
@@ -497,13 +491,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         const isOffline = this._previousStageStatus === 'OFFLINE';
         this.stageChanged.emit(
           isOffline ? 'PREVIOUS_STAGE_OFFLINE' : 'PREVIOUS_STAGE_NOT_PROJECTING'
-        );
-
-        const statusMessage = isOffline ? 'was offline' : 'was not projecting';
-
-        this._toastFacade.showInfo(
-          `Previous stage (${this._previousStage}) ${statusMessage}. Projection tabs have been closed.`,
-          5000
         );
       }
     }
