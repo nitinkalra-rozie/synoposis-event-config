@@ -52,7 +52,6 @@ export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
-
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
 
