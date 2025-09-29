@@ -5,7 +5,6 @@
     dynamicHeight>
     <mat-tab label="Start Listening to a Session">
       <app-session-selection
-        [autoAvEnabled]="autoAvEnabled"
         (screenProjected)="onProjectToScreenClick($event)"
         (streamStarted)="onSteamStart()"></app-session-selection>
     </mat-tab>
@@ -29,7 +28,6 @@
       rightSidebarState() === RightSidebarState.Expanded,
   }">
   <app-control-panel
-    [isAutoAvEnabled]="autoAvEnabled"
     (streamPaused)="onStreamPause()"
     (streamStarted)="onSteamStart()"
     (streamStopped)="onStreamStop()"></app-control-panel>

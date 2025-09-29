@@ -80,7 +80,7 @@
               : 'Pause Listening',
           type:
             liveEventState() === LiveSessionState.Paused ? 'resume' : 'pause',
-          disabled: isAutoAvEnabled,
+          disabled: isAutoAvEnabled(),
         }"></ng-container>
       <ng-container
         [ngTemplateOutlet]="actionButtons"
@@ -88,7 +88,7 @@
           icon: 'close',
           label: 'End Session',
           type: 'stop',
-          disabled: isAutoAvEnabled,
+          disabled: isAutoAvEnabled(),
         }"></ng-container>
       <div class="voice-animation-container">
         <app-sound-animation></app-sound-animation>
@@ -116,7 +116,7 @@
     ) {
       <button
         class="widget-collapse-button"
-        [disabled]="isAutoAvEnabled"
+        [disabled]="isAutoAvEnabled()"
         (click)="onCollapseButtonClick($event)">
         <mat-icon>close</mat-icon>
       </button>
