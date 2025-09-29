@@ -5,12 +5,9 @@ import {
   DestroyRef,
   effect,
   inject,
-  input,
-  OnChanges,
   OnDestroy,
   output,
   signal,
-  SimpleChanges,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -51,7 +48,7 @@ import { ModalService } from 'src/app/legacy-admin/services/modal.service';
   templateUrl: './session-selection.component.html',
   styleUrl: './session-selection.component.scss',
 })
-export class SessionSelectionComponent implements OnChanges, OnDestroy {
+export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
 
@@ -110,15 +107,13 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
     });
 
     effect(() => {
-      if (!this.isAutoAvChecked()) {
+      if (!this.autoAvEnabled()) {
         this.isProjectOnPhysicalScreen.set(false);
         this._windowService.closeProjectionWindow();
         this._windowService.clearWindowCloseCallback();
       }
     });
   }
-
-  public readonly autoAvEnabled = input(false);
 
   public readonly streamStarted = output();
   public readonly streamStopped = output();
@@ -175,17 +170,11 @@ export class SessionSelectionComponent implements OnChanges, OnDestroy {
 
   protected isProjectOnPhysicalScreen = signal(false);
   protected isToggleProcessing = signal(false);
-  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
+  protected autoAvEnabled = computed(() =>
+    this._eventStageWebSocketState.$autoAvEnabled()
+  );
 
   private _previousStage = signal<string | null>(null);
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!changes['autoAvEnabled'].currentValue) {
-      this.isProjectOnPhysicalScreen.set(false);
-      this._windowService.closeProjectionWindow();
-      this._windowService.clearWindowCloseCallback();
-    }
-  }
 
   ngOnDestroy(): void {
     this._windowService.clearWindowCloseCallback();

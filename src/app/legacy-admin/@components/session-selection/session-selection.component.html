@@ -12,10 +12,8 @@
     </div>
 
     <app-syn-single-select
-      [class.disabled]="
-        isAutoAvChecked() || autoAvEnabled() || !selectedStage()
-      "
-      [disabled]="isAutoAvChecked() || autoAvEnabled() || !selectedStage()"
+      [class.disabled]="autoAvEnabled() || !selectedStage()"
+      [disabled]="autoAvEnabled() || !selectedStage()"
       [options]="availableSessions()"
       [selectedOption]="activeSession()"
       [uiConfig]="{
@@ -77,9 +75,7 @@
         <div class="step-details">
           <button
             class="btn-primary-default btn-start-listening"
-            [disabled]="
-              isAutoAvChecked() || autoAvEnabled() || activeSession() === null
-            "
+            [disabled]="autoAvEnabled() || activeSession() === null"
             (click)="onStartListening()">
             <mat-icon>settings_voice</mat-icon>
             <p>Start Listening</p>
