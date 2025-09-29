@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, NgZone } from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -31,6 +31,7 @@ export class LoginPageComponent {
   private readonly _router = inject(Router);
   private readonly _authApiService = inject(AuthDataService);
   private readonly _authFacade = inject(AuthFacade);
+  private readonly _ngZone = inject(NgZone);
 
   emailForm: UntypedFormGroup = this._fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -56,15 +57,21 @@ export class LoginPageComponent {
     if (this.emailForm.valid && this.isEmailValid) {
       this.processedClicked = true;
       this.errorMessage = '';
-
       this._authFacade
         .signUp$(email)
         .pipe(
           tap((response) => {
-            if (response?.success) {
-              this._router.navigate(['/otp'], { queryParams: { email } });
+            const { success, message } = response ?? {};
+            if (success) {
+              // TODO(SYN-1643): When Angular is switched to zoneless, re-think this approach.
+              // Currently, using NgZone to re-enter Angular's zone and trigger change detection
+              // when code runs outside it. This is required here to fix a navigation update bug
+              // where UI was not reflecting after signup without manually triggering change detection.
+              this._ngZone.run(() => {
+                this._router.navigate(['/otp'], { queryParams: { email } });
+              });
             } else if (response) {
-              this.errorMessage = response.message;
+              this.errorMessage = message ?? 'Signup failed';
             }
           }),
           catchError((error) => {
