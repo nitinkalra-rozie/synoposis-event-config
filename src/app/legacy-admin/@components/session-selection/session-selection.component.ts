@@ -5,7 +5,6 @@ import {
   DestroyRef,
   effect,
   inject,
-  input,
   OnDestroy,
   output,
   signal,
@@ -125,15 +124,13 @@ export class SessionSelectionComponent implements OnDestroy {
     });
   }
 
-  public readonly autoAvEnabled = input(false);
-
   public readonly streamStarted = output();
   public readonly streamStopped = output();
   public readonly screenProjected = output<ProjectionData>();
   public readonly isProjectionToggleDisabled = computed(
     () =>
       this.isToggleProcessing() ||
-      (!this.isAutoAvChecked() && this.activeSession() === null)
+      (!this.autoAvEnabled() && this.activeSession() === null)
   );
 
   protected readonly availableSessions = computed(() =>
@@ -159,7 +156,6 @@ export class SessionSelectionComponent implements OnDestroy {
   protected readonly selectedStage = computed(() =>
     this._dashboardFiltersStateService.selectedLocation()
   );
-
   private readonly _liveEvent = computed(() =>
     this._dashboardFiltersStateService.liveEvent()
   );
@@ -183,7 +179,9 @@ export class SessionSelectionComponent implements OnDestroy {
 
   protected isProjectOnPhysicalScreen = signal(false);
   protected isToggleProcessing = signal(false);
-  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
+  protected autoAvEnabled = computed(() =>
+    this._eventStageWebSocketState.$autoAvEnabled()
+  );
 
   private _previousStage = signal<string | null>(null);
   private _previousAutoAvState = signal<boolean>(false);

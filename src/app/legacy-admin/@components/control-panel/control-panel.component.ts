@@ -1,5 +1,5 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, Input, output } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LiveSessionState } from 'src/app/legacy-admin/@data-services/event-details/event-details.data-model';
@@ -12,6 +12,7 @@ import {
 } from 'src/app/legacy-admin/@models/global-state';
 import { DashboardFiltersStateService } from 'src/app/legacy-admin/@services/dashboard-filters-state.service';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
+import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
 import { SoundAnimationComponent } from '../sound-animation/sound-animation.component';
 
 @Component({
@@ -28,7 +29,6 @@ import { SoundAnimationComponent } from '../sound-animation/sound-animation.comp
   styleUrl: './control-panel.component.scss',
 })
 export class ControlPanelComponent {
-  @Input() public isAutoAvEnabled: boolean = false;
   public streamStarted = output();
   public streamPaused = output();
   public streamStopped = output();
@@ -54,10 +54,14 @@ export class ControlPanelComponent {
   protected LiveSessionState = LiveSessionState;
 
   protected isTitleOverflowing: boolean = false;
+  protected isAutoAvEnabled = computed(() =>
+    this._eventStageWebSocketState.$autoAvEnabled()
+  );
 
   //#region DI
   private _dashboardFiltersStateService = inject(DashboardFiltersStateService);
   private _globalState = inject(GlobalStateService);
+  private _eventStageWebSocketState = inject(EventStageWebSocketStateService);
   //#endregion
 
   protected onActionButtionClick(type: string): void {

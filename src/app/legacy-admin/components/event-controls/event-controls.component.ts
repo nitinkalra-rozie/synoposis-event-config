@@ -110,7 +110,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   // #endregion
 
   protected selectedFilter = signal<'track' | 'location'>('track');
-  protected isAutoAvChecked = this._eventStageWebSocketState.$autoAvEnabled;
+  protected autoAvEnabled = computed(() =>
+    this._eventStageWebSocketState.$autoAvEnabled()
+  );
 
   @Output() autoAvChanged = new EventEmitter<boolean>();
   @Output() stageChanged = new EventEmitter<string>();
@@ -130,15 +132,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   selectedLocation = computed(() =>
     this._filtersStateService.selectedLocation()
   );
-  isAutoAvEnabledForEvent = computed(
-    () =>
-      this.selectedEvent()?.label === 'BHR2025' ||
-      this.selectedEvent()?.label === 'AFA2025' ||
-      this.selectedEvent()?.label === 'ITW2025' ||
-      this.selectedEvent()?.label === 'FMS2025' ||
-      this.selectedEvent()?.label === 'BCS2025' ||
-      this.selectedEvent()?.label === 'CEIR2025' ||
-      this.selectedEvent()?.label === 'Rozie_TH'
+  isAutoAvDisabledForEvent = computed(
+    () => false
+    // TODO: @later add the check for eventIdentifiers to disable Auto AV if required
   );
 
   protected rightSidebarState = computed(() =>
@@ -288,7 +284,7 @@ export class EventControlsComponent implements OnInit, OnDestroy {
 
     this._handlePreviousStageStatus();
 
-    if (this.isAutoAvChecked()) {
+    if (this.autoAvEnabled()) {
       this._modalService.open(
         'Warning',
         'Auto AV is enabled right now. Changing the stage may interrupt ongoing Auto AV operations. Do you want to continue?',
@@ -318,9 +314,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   }
 
   onAutoAVToggleChange(event: MatSlideToggleChange): void {
-    event.source.checked = this.isAutoAvChecked();
+    event.source.checked = this.autoAvEnabled();
 
-    const desiredState = !this.isAutoAvChecked();
+    const desiredState = !this.autoAvEnabled();
     const selectedEvent = this.selectedEvent();
     const selectedLocation = this.selectedLocation();
 
@@ -498,7 +494,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
         this.stageChanged.emit(
           isOffline ? 'PREVIOUS_STAGE_OFFLINE' : 'PREVIOUS_STAGE_NOT_PROJECTING'
         );
-        const statusMessage = isOffline ? 'was offline' : 'was not projecting';
       }
     }
   }
