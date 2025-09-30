@@ -108,7 +108,6 @@ export class SessionSelectionComponent implements OnDestroy {
       const currentAutoAvState = this.autoAvEnabled();
       const previousAutoAvState = this._previousAutoAvState();
 
-      // Detect transition from enabled to disabled
       if (previousAutoAvState === true && currentAutoAvState === false) {
         const wasProjecting = this.isProjectOnPhysicalScreen();
 
