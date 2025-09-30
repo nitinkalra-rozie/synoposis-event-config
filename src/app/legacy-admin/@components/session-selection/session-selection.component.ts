@@ -52,6 +52,7 @@ export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
+    this._previousAutoAvState.set(this.autoAvEnabled());
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
 
@@ -104,9 +105,11 @@ export class SessionSelectionComponent implements OnDestroy {
     });
 
     effect(() => {
+      const currentAutoAvState = this.autoAvEnabled();
       const previousAutoAvState = this._previousAutoAvState();
 
-      if (previousAutoAvState === true) {
+      // Detect transition from enabled to disabled
+      if (previousAutoAvState === true && currentAutoAvState === false) {
         const wasProjecting = this.isProjectOnPhysicalScreen();
 
         if (wasProjecting && !this.isToggleProcessing()) {
@@ -117,6 +120,9 @@ export class SessionSelectionComponent implements OnDestroy {
           this._handleAutoAvProjectionDisable();
         }
       }
+
+      // Update the previous state for the next effect execution
+      this._previousAutoAvState.set(currentAutoAvState);
     });
   }
 
@@ -222,14 +228,20 @@ export class SessionSelectionComponent implements OnDestroy {
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
 
-    if (this.isProjectOnPhysicalScreen()) {
+    if (
+      this.isProjectOnPhysicalScreen() &&
+      this._windowService.isWindowOpen()
+    ) {
       this._updateProjectionForCurrentSession();
     }
   }
 
   protected openSessionInNewWindow(): boolean {
+    const isWindowOpen = this._windowService.isWindowOpen();
     this._windowService.openInsightsSessionWindow(this.getSessionUrl);
-    this._setupWindowCloseMonitoring();
+    if (!isWindowOpen) {
+      this._setupWindowCloseMonitoring();
+    }
     return false;
   }
 
