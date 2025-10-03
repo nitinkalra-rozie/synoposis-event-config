@@ -52,7 +52,7 @@ export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
-    this._previousAutoAvState.set(this.isAutoAvChecked());
+    this._previousAutoAvState.set(this.autoAvEnabled());
 
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
@@ -106,7 +106,7 @@ export class SessionSelectionComponent implements OnDestroy {
     });
 
     effect(() => {
-      const currentAutoAvState = this.isAutoAvChecked();
+      const currentAutoAvState = this.autoAvEnabled();
       const previousAutoAvState = this._previousAutoAvState();
 
       if (previousAutoAvState === true && currentAutoAvState === false) {
