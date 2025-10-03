@@ -119,8 +119,6 @@ export class SessionSelectionComponent implements OnDestroy {
           this._handleAutoAvProjectionDisable();
         }
       }
-
-      // Update the previous state for the next effect execution
       this._previousAutoAvState.set(currentAutoAvState);
     });
   }
