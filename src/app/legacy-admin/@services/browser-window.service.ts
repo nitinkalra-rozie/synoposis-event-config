@@ -64,6 +64,10 @@ export class BrowserWindowService {
     }
   }
 
+  isWindowOpen(): boolean {
+    return this._isWindowValid();
+  }
+
   private _startWindowCloseMonitoring(): void {
     if (this._windowCloseSubscription) {
       return;

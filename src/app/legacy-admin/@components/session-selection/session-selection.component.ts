@@ -53,7 +53,6 @@ export class SessionSelectionComponent implements OnDestroy {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
     this._previousAutoAvState.set(this.autoAvEnabled());
-
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
 
@@ -226,7 +225,10 @@ export class SessionSelectionComponent implements OnDestroy {
   protected onOptionSelect(selectedOption: DropdownOption): void {
     this._dashboardFiltersStateService.setActiveSession(selectedOption);
 
-    if (this.isProjectOnPhysicalScreen()) {
+    if (
+      this.isProjectOnPhysicalScreen() &&
+      this._windowService.isWindowOpen()
+    ) {
       this._updateProjectionForCurrentSession();
     }
   }
@@ -384,6 +386,7 @@ export class SessionSelectionComponent implements OnDestroy {
         activeSession.metadata['originalContent'].PrimarySessionId;
       const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
       this._windowService.openInsightsSessionWindow(newUrl);
+      this._setupWindowCloseMonitoring();
     }
   }
 
