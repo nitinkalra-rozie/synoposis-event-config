@@ -113,8 +113,6 @@ export class SessionSelectionComponent implements OnDestroy {
 
         if (wasProjecting && !this.isToggleProcessing()) {
           this.isProjectOnPhysicalScreen.set(false);
-          this._windowService.closeProjectionWindow();
-          this._windowService.clearWindowCloseCallback();
 
           this._handleAutoAvProjectionDisable();
         }
@@ -312,8 +310,6 @@ export class SessionSelectionComponent implements OnDestroy {
         .pipe(
           tap(() => {
             this.isProjectOnPhysicalScreen.set(false);
-            this._windowService.closeProjectionWindow();
-            this._windowService.clearWindowCloseCallback();
           }),
           catchError(() => {
             this.isProjectOnPhysicalScreen.set(true);
