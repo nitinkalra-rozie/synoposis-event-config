@@ -234,11 +234,8 @@ export class SessionSelectionComponent implements OnDestroy {
   }
 
   protected openSessionInNewWindow(): boolean {
-    const isWindowOpen = this._windowService.isWindowOpen();
     this._windowService.openInsightsSessionWindow(this.getSessionUrl);
-    if (!isWindowOpen) {
-      this._setupWindowCloseMonitoring();
-    }
+    this._setupWindowCloseMonitoring();
     return false;
   }
 
@@ -389,6 +386,7 @@ export class SessionSelectionComponent implements OnDestroy {
         activeSession.metadata['originalContent'].PrimarySessionId;
       const newUrl = `${getInsightsDomainUrl()}/session/${sessionId}?isPrimaryScreen=true`;
       this._windowService.openInsightsSessionWindow(newUrl);
+      this._setupWindowCloseMonitoring();
     }
   }
 
