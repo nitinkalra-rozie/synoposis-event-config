@@ -52,7 +52,6 @@ export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
-    this._previousAutoAvState.set(this.autoAvEnabled());
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
 
@@ -102,12 +101,6 @@ export class SessionSelectionComponent implements OnDestroy {
       if (newStage) {
         this._handleStageChange(newStage);
       }
-    });
-
-    effect(() => {
-      const currentAutoAvState = this.autoAvEnabled();
-      const previousAutoAvState = this._previousAutoAvState();
-      this._previousAutoAvState.set(currentAutoAvState);
     });
   }
 
@@ -171,7 +164,6 @@ export class SessionSelectionComponent implements OnDestroy {
   );
 
   private _previousStage = signal<string | null>(null);
-  private _previousAutoAvState = signal<boolean>(false);
 
   ngOnDestroy(): void {
     this._windowService.clearWindowCloseCallback();
