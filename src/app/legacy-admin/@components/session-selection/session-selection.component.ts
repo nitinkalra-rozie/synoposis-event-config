@@ -52,7 +52,6 @@ export class SessionSelectionComponent implements OnDestroy {
   constructor() {
     this.isProjectOnPhysicalScreen.set(false);
     this._previousStage.set(this.selectedStage()?.key || null);
-    this._previousAutoAvState.set(this.autoAvEnabled());
     this._windowService.closeProjectionWindow();
     this._windowService.clearWindowCloseCallback();
 
@@ -102,22 +101,6 @@ export class SessionSelectionComponent implements OnDestroy {
       if (newStage) {
         this._handleStageChange(newStage);
       }
-    });
-
-    effect(() => {
-      const currentAutoAvState = this.autoAvEnabled();
-      const previousAutoAvState = this._previousAutoAvState();
-
-      if (previousAutoAvState === true && currentAutoAvState === false) {
-        const wasProjecting = this.isProjectOnPhysicalScreen();
-
-        if (wasProjecting && !this.isToggleProcessing()) {
-          this.isProjectOnPhysicalScreen.set(false);
-
-          this._handleAutoAvProjectionDisable();
-        }
-      }
-      this._previousAutoAvState.set(currentAutoAvState);
     });
   }
 
@@ -181,7 +164,6 @@ export class SessionSelectionComponent implements OnDestroy {
   );
 
   private _previousStage = signal<string | null>(null);
-  private _previousAutoAvState = signal<boolean>(false);
 
   ngOnDestroy(): void {
     this._windowService.clearWindowCloseCallback();
@@ -460,27 +442,6 @@ export class SessionSelectionComponent implements OnDestroy {
         tap(() => {
           this._previousStage.set(newStageKey);
         }),
-        catchError(() => EMPTY),
-        finalize(() => {
-          this.isToggleProcessing.set(false);
-        }),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
-  }
-
-  private _handleAutoAvProjectionDisable(): void {
-    const eventName = this._backendApiService.getCurrentEventName();
-    const stage = this.selectedStage()?.key;
-
-    if (!eventName || !stage) {
-      return;
-    }
-
-    this.isToggleProcessing.set(true);
-
-    this._setPrimaryScreenProjection(eventName, false, stage)
-      .pipe(
         catchError(() => EMPTY),
         finalize(() => {
           this.isToggleProcessing.set(false);
