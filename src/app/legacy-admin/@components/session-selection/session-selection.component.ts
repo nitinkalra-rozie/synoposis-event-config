@@ -107,18 +107,6 @@ export class SessionSelectionComponent implements OnDestroy {
     effect(() => {
       const currentAutoAvState = this.autoAvEnabled();
       const previousAutoAvState = this._previousAutoAvState();
-
-      if (previousAutoAvState === true && currentAutoAvState === false) {
-        const wasProjecting = this.isProjectOnPhysicalScreen();
-
-        if (wasProjecting && !this.isToggleProcessing()) {
-          this.isProjectOnPhysicalScreen.set(false);
-          this._windowService.closeProjectionWindow();
-          this._windowService.clearWindowCloseCallback();
-
-          this._handleAutoAvProjectionDisable();
-        }
-      }
       this._previousAutoAvState.set(currentAutoAvState);
     });
   }
@@ -464,27 +452,6 @@ export class SessionSelectionComponent implements OnDestroy {
         tap(() => {
           this._previousStage.set(newStageKey);
         }),
-        catchError(() => EMPTY),
-        finalize(() => {
-          this.isToggleProcessing.set(false);
-        }),
-        takeUntilDestroyed(this._destroyRef)
-      )
-      .subscribe();
-  }
-
-  private _handleAutoAvProjectionDisable(): void {
-    const eventName = this._backendApiService.getCurrentEventName();
-    const stage = this.selectedStage()?.key;
-
-    if (!eventName || !stage) {
-      return;
-    }
-
-    this.isToggleProcessing.set(true);
-
-    this._setPrimaryScreenProjection(eventName, false, stage)
-      .pipe(
         catchError(() => EMPTY),
         finalize(() => {
           this.isToggleProcessing.set(false);
