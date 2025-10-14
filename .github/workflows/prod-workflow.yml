@@ -45,6 +45,7 @@ jobs:
             'g2e2025',
             'waf2025',
             'intc2025',
+            'vatl2025',
           ]
     steps:
       - name: Set event environment variable
