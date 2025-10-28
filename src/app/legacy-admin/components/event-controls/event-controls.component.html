@@ -80,7 +80,7 @@
   <!-- TODO:@later show Auto AV only for the events that we enable Auto AV for -->
   <!-- Why this is done now? Other functions related to Auto AV is not implemented keeping this in mind hence things could break. - saiyaff -->
   <!-- TODO: @later move these to event based configurations -->
-  @if (!isAutoAvDisabledForEvent()) {
+  @if (isAutoAvEnabledForEvent()) {
     <div class="auto-av-status-wrapper">
       @if (autoAvEnabled()) {
         <div class="auto-av-status">

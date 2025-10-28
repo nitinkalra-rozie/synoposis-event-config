@@ -6,7 +6,6 @@ import {
   effect,
   EventEmitter,
   inject,
-  Injector,
   Input,
   OnDestroy,
   OnInit,
@@ -52,6 +51,7 @@ import {
   MatSlideToggleModule,
 } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EventConfigStore } from 'src/app/core/stores/event-config-store';
 import {
   AutoAvSetupData,
   AutoAvSetupRequest,
@@ -60,7 +60,6 @@ import {
 import { AutoAvSetupDataService } from 'src/app/legacy-admin/@data-services/auto-av-setup/auto-av-setup.data-service';
 import { EventStageWebsocketDataService } from 'src/app/legacy-admin/@data-services/web-socket/event-stage-websocket.data-service';
 import { EventStageWebSocketStateService } from 'src/app/legacy-admin/@store/event-stage-web-socket-state.service';
-import { SynToastFacade } from 'src/app/shared/components/syn-toast/syn-toast-facade';
 import {
   getLocalStorageItem,
   setLocalStorageItem,
@@ -84,8 +83,8 @@ import {
 export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _route = inject(ActivatedRoute);
   private readonly _destroyRef = inject(DestroyRef);
-  private readonly _injector = inject(Injector);
   private readonly _modalService = inject(ModalService);
+  private readonly _eventConfigStore = inject(EventConfigStore);
   private readonly _filtersStateService = inject(DashboardFiltersStateService);
   private readonly _globalStateService = inject(GlobalStateService);
   private readonly _autoAvSetupService = inject(AutoAvSetupDataService);
@@ -95,7 +94,6 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   private readonly _eventStageWebSocketState = inject(
     EventStageWebSocketStateService
   );
-  private readonly _toastFacade = inject(SynToastFacade);
   private readonly _browserWindowService = inject(BrowserWindowService);
 
   private _previousStage: string | null = null;
@@ -132,11 +130,11 @@ export class EventControlsComponent implements OnInit, OnDestroy {
   selectedLocation = computed(() =>
     this._filtersStateService.selectedLocation()
   );
-  isAutoAvDisabledForEvent = computed(
-    () =>
-      this.selectedEvent()?.label === 'AVAI2025' ||
-      this.selectedEvent()?.label === 'PFD2025'
-  );
+  isAutoAvEnabledForEvent = computed(() => {
+    const autoAvDisabledEventIdentifiers = ['AVAI2025', 'PFD2025'];
+    const eventIdentifier = this._eventConfigStore.$eventIdentifier();
+    return !autoAvDisabledEventIdentifiers.includes(eventIdentifier);
+  });
 
   protected rightSidebarState = computed(() =>
     this._globalStateService.rightSidebarState()
