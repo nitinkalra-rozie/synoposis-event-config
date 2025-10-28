@@ -133,7 +133,9 @@ export class EventControlsComponent implements OnInit, OnDestroy {
     this._filtersStateService.selectedLocation()
   );
   isAutoAvDisabledForEvent = computed(
-    () => this.selectedEvent()?.label === 'AVAI2025'
+    () =>
+      this.selectedEvent()?.label === 'AVAI2025' ||
+      this.selectedEvent()?.label === 'PFD2025'
   );
 
   protected rightSidebarState = computed(() =>
