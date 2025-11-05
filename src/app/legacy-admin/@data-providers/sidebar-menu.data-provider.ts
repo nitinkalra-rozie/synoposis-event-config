@@ -6,23 +6,11 @@ export const NAVIGATION_MENU = new InjectionToken<MenuItem[]>(
   {
     factory: () => [
       {
-        id: 'av-workspace',
-        label: 'AV Workspace',
-        icon: 'syn:space_dashboard_outlined',
-        isSvg: true,
-        routerLink: '/av-workspace',
-        roles: [
-          UserRole.SuperAdmin,
-          UserRole.Admin,
-          UserRole.CentralizedManager,
-        ],
-      },
-      {
-        id: 'insights-editor',
-        label: 'Insights Editor',
-        icon: 'dashboard',
-        routerLink: '/insights-editor',
-        roles: [UserRole.SuperAdmin, UserRole.Editor],
+        id: 'event-configuration',
+        label: 'Event Configuration',
+        icon: 'display_settings',
+        routerLink: '/event-configuration',
+        roles: [UserRole.SuperAdmin, UserRole.EventOrganizer],
       },
       {
         id: 'content-editor',
@@ -30,20 +18,6 @@ export const NAVIGATION_MENU = new InjectionToken<MenuItem[]>(
         icon: 'description',
         routerLink: '/content-editor',
         roles: [UserRole.SuperAdmin, UserRole.Editor],
-      },
-      {
-        id: 'agenda',
-        label: 'Agenda Tool',
-        icon: 'event',
-        routerLink: '/agenda',
-        roles: [UserRole.SuperAdmin, UserRole.EventOrganizer],
-      },
-      {
-        id: 'analytics',
-        label: 'Analytics Dashboard',
-        icon: 'analytics',
-        routerLink: '/analytics',
-        roles: [UserRole.SuperAdmin, UserRole.EventOrganizer],
       },
     ],
   }

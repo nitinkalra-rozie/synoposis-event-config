@@ -9,6 +9,20 @@
   padding: 1rem;
   background-image: v.$soft-sky-gradient;
 
+  /* Editor container and content */
+  .main-editor-container {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+}
+
+.session-db-container {
+  height: 100%;
+  @include m.d-flex;
+  gap: 1rem;
+  box-sizing: border-box;
+  padding: 1rem;
+
   /* Side panel styles */
   .side-panel {
     width: 420px;
@@ -458,7 +472,7 @@ button {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .content-editor-container {
+  .session-db-container {
     .side-panel {
       width: 100%;
       margin-right: 0;

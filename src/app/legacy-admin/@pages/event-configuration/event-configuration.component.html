@@ -1,0 +1,98 @@
+<app-top-bar></app-top-bar>
+<div class="main-content">
+  <div class="content-container">
+    <!-- Side Panel -->
+    <div class="side-panel">
+      <mat-card>
+        <mat-card-content>
+          <!-- Filters -->
+          <div class="toolbar-container">
+            <div class="timezone-section">
+              <div>
+                <span class="timezone-label">Event Configuration</span>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button
+                class="refresh-button"
+                (click)="refreshEventConfigurations()">
+                <mat-icon>refresh</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div class="filter-field">
+              <input
+                id="searchInput"
+                (keyup)="applyFilter($event)"
+                placeholder=" "
+                type="text" />
+              <label for="searchInput">Search Event</label>
+            </div>
+            @if (isLoading) {
+              <div class="loading-container">
+                <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              </div>
+            } @else {
+              <table
+                mat-table
+                matSort
+                class="versions-table"
+                [dataSource]="dataSource">
+                <!-- Version Column -->
+
+                <ng-container matColumnDef="EventIdentifier">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    Event Identifier
+                  </th>
+                  <td *matCellDef="let row; let i = index" mat-cell>
+                    {{ row.EventIdentifier }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="Domain">
+                  <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                    Event Domain
+                  </th>
+                  <td *matCellDef="let row; let i = index" mat-cell>
+                    {{ row.Domain }}
+                  </td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th *matHeaderCellDef mat-header-cell>Actions</th>
+                  <td *matCellDef="let row; let i = index" mat-cell>
+                    <button
+                      mat-icon-button
+                      (click)="openSessionDetailsModal(row, 'Edit')">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="openTemplateEditor(row)">
+                      <mat-icon>picture_as_pdf</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <!-- Table Header and Row Declarations -->
+                <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+                <tr
+                  *matRowDef="let row; columns: displayedColumns"
+                  mat-row
+                  [class.selected]="selectedRowIndex === row"></tr>
+              </table>
+              <mat-paginator
+                [length]="totalRecords"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="[5, 10, 20]"
+                showFirstLastButtons></mat-paginator>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  <div></div>
+</div>

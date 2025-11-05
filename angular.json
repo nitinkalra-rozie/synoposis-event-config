@@ -120,6 +120,47 @@
               "namedChunks": true,
               "aot": true,
               "extractLicenses": true
+            },
+            "local": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "4mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "100kb",
+                  "maximumError": "200kb"
+                },
+                {
+                  "type": "allScript",
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "all",
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyScript",
+                  "maximumWarning": "1mb",
+                  "maximumError": "2mb"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
+                }
+              ],
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "namedChunks": true,
+              "aot": true,
+              "extractLicenses": true
             }
           },
           "defaultConfiguration": "prod"
@@ -133,6 +174,9 @@
             },
             "prod": {
               "buildTarget": "synopsis-admin-dashboard:build:prod"
+            },
+            "local": {
+              "buildTarget": "synopsis-admin-dashboard:build:local"
             }
           },
           "defaultConfiguration": "prod"

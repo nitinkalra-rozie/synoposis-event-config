@@ -12,13 +12,6 @@ export const routes: Routes = [
     canActivate: [loginRedirectGuard],
   },
   {
-    path: 'stream',
-    loadComponent: () =>
-      import(
-        'src/app/legacy-admin/components/audio-streamer/audio-streamer.component'
-      ).then((c) => c.AudioStreamerComponent),
-  },
-  {
     path: 'otp',
     loadComponent: () =>
       import('src/app/legacy-admin/components/otp/otp.component').then(
@@ -34,20 +27,13 @@ export const routes: Routes = [
       ).then((c) => c.LoginPageComponent),
     canActivate: [loginRedirectGuard],
   },
+
   {
-    path: 'av-workspace',
-    loadChildren: () =>
-      import('src/app/av-workspace/av-workspace.routes').then(
-        (r) => r.avWorkspaceRoutes
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'insights-editor',
-    loadChildren: () =>
-      import('./insights-editor/insights-editor.routes').then(
-        (r) => r.insightsEditorRoutes
-      ),
+    path: 'event-configuration',
+    loadComponent: () =>
+      import(
+        'src/app/legacy-admin/@pages/event-configuration/event-configuration.component'
+      ).then((c) => c.EventConfigurationComponent),
     canActivate: [authGuard],
   },
   {
@@ -56,22 +42,6 @@ export const routes: Routes = [
       import('src/app/content-editor/content-editor.routes').then(
         (r) => r.contentEditorRoutes
       ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'agenda',
-    loadComponent: () =>
-      import('src/app/legacy-admin/@pages/agenda/agenda.component').then(
-        (c) => c.AgendaComponent
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'analytics',
-    loadComponent: () =>
-      import(
-        'src/app/legacy-admin/@pages/analytics-dashboard/analytics-dashboard.component'
-      ).then((c) => c.AnalyticsDashboardComponent),
     canActivate: [authGuard],
   },
   {

@@ -30,7 +30,7 @@
       "@syn/utils": ["src/app/legacy-admin/@utils/index.ts"],
       "@syn/components": ["src/app/legacy-admin/@components/index.ts"],
       "@syn/models": ["src/app/legacy-admin/@models/index.ts"],
-      "@syn/services": ["src/app/legacy-admin/@services/index.ts"],
+      "@syn/services": ["src/app/legacy-admin/@services1/index.ts"],
       "@syn/directives": ["src/app/legacy-admin/@directives/index.ts"],
       "@syn/data-services": ["src/app/legacy-admin/@data-services/index.ts"]
     }

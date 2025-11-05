@@ -1,13 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import { GlobalStateService } from 'src/app/legacy-admin/@services/global-state.service';
-import { getEventDomain } from 'src/app/shared/utils/get-event-domain-util';
-import {
-  getLocalStorageItem,
-  setLocalStorageItem,
-} from 'src/app/shared/utils/local-storage-util';
+import { getLocalStorageItem } from 'src/app/shared/utils/local-storage-util';
 import { environment } from 'src/environments/environment';
 import { PostData } from '../shared/types';
 
@@ -24,22 +19,7 @@ export class LegacyBackendApiService {
   private _currentTimezone: string = '';
 
   getEventDetails(): Observable<Object> {
-    return this._getEventConfig().pipe(
-      switchMap((configResponse: any) => {
-        const eventIdentifier = configResponse?.data?.EventIdentifier;
-        this._currentEventDomain =
-          configResponse?.data?.Information?.EventDomain || '';
-        setLocalStorageItem('EVENT_LLM_DOMAIN', this._currentEventDomain);
-        this.setCurrentTimezone(
-          configResponse?.data?.Information?.Timezone || '+0:00'
-        );
-        setLocalStorageItem('SELECTED_EVENT_NAME', eventIdentifier);
-        this._globalStateService.setSelectedDomain(this._currentEventDomain);
-        return this.http.post(environment.getEventDetails, {
-          event: eventIdentifier,
-        });
-      })
-    );
+    return this._getEventConfigs();
   }
 
   // TODO:@later move these to a config state service
@@ -117,10 +97,76 @@ export class LegacyBackendApiService {
   }
 
   // TODO:@later move this to a config data service
-  private _getEventConfig(): Observable<any> {
-    const domain = getEventDomain();
-    return this.http.post(environment.apiBaseUrl + '/r1/getEventConfig', {
-      domain,
+  _getEventConfigs(): Observable<any> {
+    return this.http.post(environment.apiBaseUrl + '/r3/getEventConfigAll', {});
+  }
+
+  updateEventConfigs(payload: {
+    domain: string;
+    eventNameIdentifier: string;
+    enableTranslation?: boolean;
+    eventStatus?: string;
+    supportedLanguages?: Array<{ value: string; code: string; label: string }>;
+    Sponsors?: Array<{ Logo: string; Name: string }>;
+    originalLanguageCode?: string;
+    enableDiarization?: boolean;
+    modelProvider?: 'openai' | 'gemini';
+    Themes?: any;
+    AudioConfig?: {
+      Stability: number;
+      UseSpeakerBoost: boolean;
+      Service: string;
+      SimilarityBoost: number;
+      Style: number;
+      VoiceId: string;
+      AudioAutoGeneration: boolean;
+      ModelId: string;
+    };
+    Features?: {
+      ShowAgendaDateFilter: boolean;
+      ShowPromotionalMessage: boolean;
+      ShowHashtags: boolean;
+      ShowAgendaTrackFilter: boolean;
+      ShowTrackTrendsButton: boolean;
+      ShowSponsorsInfoWhileLoadingDebrief: boolean;
+      ShowDailyDebriefButton: boolean;
+      ShowCollectEmailsDialog: boolean;
+      ShowModeratorsOnTop: boolean;
+      ShowSessionCardTrack: boolean;
+      ShowFooterSponsorLogo: boolean;
+      ShowAccessSessionReportsButton: boolean;
+      ShowSessionCardTime: boolean;
+      ShowSpeakersFilter: boolean;
+    };
+    Information?: {
+      Timezone: string;
+      EventDomain: string;
+      BoothNumber: string;
+      EventNameDisplay: string;
+      FooterUrl: string;
+      Images: { EventQR: string };
+      SelectedLanguage: string;
+      Hashtags: string;
+      Texts: {
+        WelcomeMessage: string;
+        ThankYouMessage: string;
+      };
+      Logos: {
+        Dark: string;
+        Light: string;
+      };
+    };
+  }): Observable<any> {
+    return this.http.post(
+      environment.apiBaseUrl + '/r3/updateEventConfig',
+      payload
+    );
+  }
+
+  updateEventTemplate(eventIdentifier: string, template: any): Observable<any> {
+    return this.http.post(environment.apiBaseUrl + '/r3/updateEventTemplate', {
+      eventNameIdentifier: eventIdentifier,
+      template: template,
     });
   }
 }

@@ -108,15 +108,7 @@ export class OtpComponent implements OnInit {
         tap((success) => {
           if (success) {
             this._authFacade.getUserRole$().subscribe((role) => {
-              if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-                this._router.navigate(['/av-workspace']);
-              } else if (role === 'EDITOR') {
-                this._router.navigate(['/insights-editor']);
-              } else if (role === 'EVENT_ORGANIZER') {
-                this._router.navigate(['/agenda']);
-              } else {
-                this._router.navigate(['/av-workspace']);
-              }
+              this._router.navigate(['/event-configuration']);
             });
           } else {
             this.errorMessage = 'Wrong OTP!';

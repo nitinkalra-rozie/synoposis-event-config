@@ -12,7 +12,6 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { routes } from 'src/app/app.routes';
 import { authInterceptor } from 'src/app/core/auth/interceptors/auth-interceptor';
 import { amplifyInitializer } from 'src/app/core/config/amplify-init';
-import { appEventConfigInitializer } from 'src/app/core/config/app-event-config-init';
 import { appIconsInitializer } from 'src/app/core/config/app-icons.init';
 
 export const appConfig: ApplicationConfig = {
@@ -25,10 +24,7 @@ export const appConfig: ApplicationConfig = {
       const initializerFn = appIconsInitializer();
       return initializerFn();
     }),
-    provideAppInitializer(() => {
-      const initializerFn = appEventConfigInitializer();
-      return initializerFn();
-    }),
+
     provideAppInitializer(() => {
       const initializerFn = amplifyInitializer();
       return initializerFn();

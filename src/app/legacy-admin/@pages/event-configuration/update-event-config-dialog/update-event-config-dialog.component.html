@@ -1,0 +1,144 @@
+<h2 mat-dialog-title>Update Configuration</h2>
+
+<mat-dialog-content>
+  <form class="dialog-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-progress-bar
+      *ngIf="isLoading"
+      class="loading-bar"
+      mode="indeterminate"></mat-progress-bar>
+    <ng-container
+      [ngTemplateOutlet]="renderGroup"
+      [ngTemplateOutletContext]="{ group: form }"></ng-container>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="isLoading" (click)="onCancel()">Cancel</button>
+  <button
+    mat-flat-button
+    [disabled]="isLoading || form.invalid"
+    (click)="onSubmit()"
+    color="primary"
+    type="submit">
+    {{ isLoading ? 'Saving...' : 'Save' }}
+  </button>
+</mat-dialog-actions>
+
+<!-- Recursive Template -->
+<ng-template #renderGroup let-group="group">
+  <div class="group-container" [formGroup]="group">
+    <ng-container *ngFor="let key of getControls(group) | keyvalue">
+      <!-- Nested FormGroup -->
+      <ng-container *ngIf="isFormGroup(key.value)">
+        <mat-card class="nested-card">
+          <mat-card-title>{{ key.key }}</mat-card-title>
+          <ng-container
+            [ngTemplateOutlet]="renderGroup"
+            [ngTemplateOutletContext]="{ group: key.value }"></ng-container>
+        </mat-card>
+      </ng-container>
+
+      <!-- FormArray -->
+      <ng-container *ngIf="isFormArray(key.value)">
+        <mat-card class="nested-card">
+          <mat-card-title>{{ key.key }} </mat-card-title>
+
+          <div class="languages-container" [formArrayName]="key.key">
+            <div
+              *ngFor="let ctrl of getArrayControls(key.value); let i = index"
+              class="language-item">
+              <div class="language-row" [formGroupName]="i">
+                <!-- SupportedLanguages rendering -->
+                <ng-container *ngIf="key.key === 'SupportedLanguages'">
+                  <mat-form-field class="language-input" appearance="fill">
+                    <mat-label>Value</mat-label>
+                    <input matInput formControlName="value" />
+                  </mat-form-field>
+
+                  <mat-form-field class="language-input" appearance="fill">
+                    <mat-label>Code</mat-label>
+                    <input matInput formControlName="code" />
+                  </mat-form-field>
+
+                  <mat-form-field class="language-input" appearance="fill">
+                    <mat-label>Label</mat-label>
+                    <input matInput formControlName="label" />
+                  </mat-form-field>
+
+                  <button
+                    class="remove-language-button"
+                    (click)="removeLanguage(i)"
+                    type="button">
+                    Remove
+                  </button>
+                </ng-container>
+
+                <!-- Sponsors rendering -->
+                <ng-container *ngIf="key.key === 'Sponsors'">
+                  <mat-form-field class="language-input" appearance="fill">
+                    <mat-label>Logo</mat-label>
+                    <input matInput formControlName="Logo" />
+                  </mat-form-field>
+
+                  <mat-form-field class="language-input" appearance="fill">
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="Name" />
+                  </mat-form-field>
+
+                  <button
+                    class="remove-language-button"
+                    (click)="removeSponsor(i)"
+                    type="button">
+                    Remove
+                  </button>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add buttons -->
+          <button
+            *ngIf="key.key === 'SupportedLanguages'"
+            class="add-language-button"
+            (click)="addLanguage()"
+            type="button">
+            Add Language
+          </button>
+
+          <button
+            *ngIf="key.key === 'Sponsors'"
+            class="add-language-button"
+            (click)="addSponsor()"
+            type="button">
+            Add Sponsor
+          </button>
+        </mat-card>
+      </ng-container>
+
+      <!-- Primitive Field -->
+      <ng-container *ngIf="!isFormGroup(key.value) && !isFormArray(key.value)">
+        <div class="primitive-fields-container">
+          <ng-container
+            *ngIf="
+              getFieldType(key.key, group) === 'boolean';
+              else textInputField
+            ">
+            <div class="primitive-field boolean-radio-group">
+              <label class="mat-label">{{ key.key }}</label>
+              <mat-radio-group [formControlName]="key.key">
+                <mat-radio-button [value]="true">Yes</mat-radio-button>
+                <mat-radio-button [value]="false">No</mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </ng-container>
+          <ng-template #textInputField>
+            <mat-form-field class="primitive-field" appearance="fill">
+              <mat-label>{{ key.key }}</mat-label>
+              <input matInput [formControlName]="key.key" />
+            </mat-form-field>
+          </ng-template>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-template>

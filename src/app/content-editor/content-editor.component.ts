@@ -21,6 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
@@ -129,6 +130,7 @@ export class LoadingDialogComponent {}
     MatSortModule,
     MatDialogModule,
     MatCardModule,
+    MatTabsModule,
     MatIconModule,
     MatFormFieldModule,
     MatSelectModule,
@@ -212,6 +214,7 @@ export class ContentEditorComponent {
   public realtimeinsights: Array<RealtimeInsight> = [];
   public selected_track: string = '';
   public selected_day: string = '';
+  public selected_debrief_day: string = '';
   public isLoading: boolean = false;
   public isContentLoading: boolean = false;
   public dataLoaded: boolean = false;
@@ -266,6 +269,8 @@ export class ContentEditorComponent {
     'pdfPath',
     'actions',
   ];
+
+  public dailyDebriefsDays: any[] = ['Days 1', 'Day 2'];
 
   public dataSource = new MatTableDataSource<VersionData>([]);
   public selectedRowIndex: number | null = null;
@@ -436,12 +441,10 @@ export class ContentEditorComponent {
     };
     this._backendApiService.getEventReport(data).subscribe({
       next: (response) => {
-        console.log(response);
         if (response?.data?.[0]?.snapshotData) {
           const responseData = response?.data?.[0];
           this.original_debrief = JSON.parse(JSON.stringify(responseData));
           const data = JSON.parse(responseData?.snapshotData);
-          console.log(data);
           this.manualTranscript = '';
           this.summary = data['data']['summary'];
           this.insights = data['data']['insights'];
@@ -648,6 +651,8 @@ export class ContentEditorComponent {
     }
   }
 
+  filterDebriefsDays(): void {}
+
   // Filter sessions based on the selected day and track
   filterSessionsByTrack(): void {
     if (this.selected_day && this.selected_track) {
@@ -801,7 +806,6 @@ export class ContentEditorComponent {
     this._backendApiService.getEventDetails().subscribe((response: any) => {
       this.session_details = response.data;
       if (response.data.length > 0) {
-        console.log('get events response', response.data);
         if (this.selected_day == '') {
           this.getUniqueDays();
           if (

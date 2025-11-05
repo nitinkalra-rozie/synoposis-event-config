@@ -39,6 +39,8 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     '/publish-pdf-content',
     '/get-content-pdf',
     '/manual-edit-generated-content',
+    'r3/updateEventConfig',
+    'r3/getEventConfigAll',
   ];
 
   const publicAPIEndpoints = [

@@ -1,0 +1,119 @@
+// Dialog Container
+.custom-dialog-container .mat-dialog-container {
+  max-width: 1200px !important;
+  width: 1200px !important;
+}
+
+// Form Layout
+.dialog-form {
+  display: grid;
+  gap: 16px;
+  padding-top: 10px;
+}
+
+// Nested Groups & Cards
+.group-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nested-card {
+  grid-column: span 2;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+// Card header
+mat-card-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+// Form Field Sizing
+mat-form-field.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+// Array Elements
+.languages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.language-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.language-input {
+  min-width: 120px !important;
+}
+
+// Action Buttons
+.remove-language-button,
+.add-language-button {
+  height: 40px;
+  margin-top: 10px;
+}
+.remove-language-button {
+  align-self: flex-start;
+}
+.add-language-button {
+  align-self: flex-end;
+  width: 120px;
+}
+
+// Primitive (Leaf) Fields
+.primitive-fields-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.primitive-field {
+  flex: 1 1 calc(50% - 16px);
+  min-width: 150px;
+}
+
+// Mat Dialog Actions (Btn Row at bottom)
+.mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 0 0 0;
+}
+
+// Save/Cancel Buttons
+.save-button {
+  padding: 10px 15px;
+  border-radius: 4px;
+  background: #534ad8;
+  cursor: pointer;
+  color: #fff !important;
+  border: none;
+  font-family: Lexend;
+  font-size: 16px;
+}
+.save-button:disabled {
+  background: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+.cancel-button {
+  padding: 10px 15px;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  color: #534ad8 !important;
+  border: 1px solid #8d87de;
+  font-family: Lexend;
+  font-size: 16px;
+}

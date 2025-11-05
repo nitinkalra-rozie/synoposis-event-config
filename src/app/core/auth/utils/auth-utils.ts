@@ -24,11 +24,7 @@ export function getDefaultRedirectUrl(userRole: UserRole): string {
     case UserRole.SuperAdmin:
     case UserRole.CentralizedManager:
     case UserRole.Admin:
-      return '/av-workspace';
-    case UserRole.Editor:
-      return '/insights-editor';
-    case UserRole.EventOrganizer:
-      return '/agenda';
+      return '/event-configuration';
     case UserRole.Unauthenticated:
       return '/login';
     default:

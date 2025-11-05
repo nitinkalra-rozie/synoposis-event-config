@@ -1,0 +1,786 @@
+<h2 mat-dialog-title>Update Pdf Configuration</h2>
+
+<mat-dialog-content>
+  <!-- Container -->
+  <div class="template-editor-container">
+    <!-- Header -->
+
+    <div class="main-content">
+      <!-- Controls Panel -->
+      <div class="controls-panel">
+        <!-- Preset Selector -->
+        <div class="preset-selector">
+          <label>Load Preset Configuration</label>
+          <select (change)="onPresetSelect($event)">
+            <option value="">-- Select Preset --</option>
+            <option value="SLC2025">SLC2025 (Orange)</option>
+            <option value="SISO20251">SISO20251 (Blue)</option>
+            <option value="HLTH">HLTH (Red/Pink)</option>
+            <option value="ITC">ITC (Purple)</option>
+          </select>
+        </div>
+
+        <hr class="section-divider" />
+
+        @if (config(); as currentConfig) {
+          <!-- Color Controls -->
+          <!-- Primary Color -->
+          <div class="control-group">
+            <label>Primary Color</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.primaryColor"
+                (input)="onColorChange($event, 'primaryColor')"
+                type="color" />
+              <input
+                [value]="currentConfig.primaryColor"
+                (input)="onColorChange($event, 'primaryColor')"
+                type="text" />
+            </div>
+          </div>
+
+          <!-- Secondary Color -->
+          <div class="control-group">
+            <label>Secondary Color</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.secondaryColor"
+                (input)="onColorChange($event, 'secondaryColor')"
+                type="color" />
+              <input
+                [value]="currentConfig.secondaryColor"
+                (input)="onColorChange($event, 'secondaryColor')"
+                type="text" />
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Header Gradient Colors -->
+          <div class="control-group">
+            <label>Header Gradient Color 1</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.headerBackgroundGradientColor1"
+                (input)="
+                  onColorChange($event, 'headerBackgroundGradientColor1')
+                "
+                type="color" />
+              <input
+                [value]="currentConfig.headerBackgroundGradientColor1"
+                (input)="
+                  onColorChange($event, 'headerBackgroundGradientColor1')
+                "
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Header Gradient Color 2</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.headerBackgroundGradientColor2"
+                (input)="
+                  onColorChange($event, 'headerBackgroundGradientColor2')
+                "
+                type="color" />
+              <input
+                [value]="currentConfig.headerBackgroundGradientColor2"
+                (input)="
+                  onColorChange($event, 'headerBackgroundGradientColor2')
+                "
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Header Gradient Color 3</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.headerBackgroundGradientColor3"
+                (input)="
+                  onColorChange($event, 'headerBackgroundGradientColor3')
+                "
+                type="color" />
+              <input
+                [value]="currentConfig.headerBackgroundGradientColor3"
+                (input)="
+                  onColorChange($event, 'headerBackgroundGradientColor3')
+                "
+                type="text" />
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Rozie Logo Background Colors -->
+          <div class="control-group">
+            <label>Rozie Logo Background 1</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.rozieLogoBackgroundColor1"
+                (input)="onColorChange($event, 'rozieLogoBackgroundColor1')"
+                type="color" />
+              <input
+                [value]="currentConfig.rozieLogoBackgroundColor1"
+                (input)="onColorChange($event, 'rozieLogoBackgroundColor1')"
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Rozie Logo Background 2</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.rozieLogoBackgroundColor2"
+                (input)="onColorChange($event, 'rozieLogoBackgroundColor2')"
+                type="color" />
+              <input
+                [value]="currentConfig.rozieLogoBackgroundColor2"
+                (input)="onColorChange($event, 'rozieLogoBackgroundColor2')"
+                type="text" />
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Topics Gradient Colors -->
+          <div class="control-group">
+            <label>Topics Gradient Color 1</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.topicsGradientColor1"
+                (input)="onColorChange($event, 'topicsGradientColor1')"
+                type="color" />
+              <input
+                [value]="currentConfig.topicsGradientColor1"
+                (input)="onColorChange($event, 'topicsGradientColor1')"
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Topics Gradient Color 2</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.topicsGradientColor2"
+                (input)="onColorChange($event, 'topicsGradientColor2')"
+                type="color" />
+              <input
+                [value]="currentConfig.topicsGradientColor2"
+                (input)="onColorChange($event, 'topicsGradientColor2')"
+                type="text" />
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Background Gradient Colors -->
+          <div class="control-group">
+            <label>Background Gradient 1</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.backgroundGradientColor1"
+                (input)="onColorChange($event, 'backgroundGradientColor1')"
+                type="color" />
+              <input
+                [value]="currentConfig.backgroundGradientColor1"
+                (input)="onColorChange($event, 'backgroundGradientColor1')"
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Background Gradient 2</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.backgroundGradientColor2"
+                (input)="onColorChange($event, 'backgroundGradientColor2')"
+                type="color" />
+              <input
+                [value]="currentConfig.backgroundGradientColor2"
+                (input)="onColorChange($event, 'backgroundGradientColor2')"
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Background Gradient 3</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.backgroundGradientColor3"
+                (input)="onColorChange($event, 'backgroundGradientColor3')"
+                type="color" />
+              <input
+                [value]="currentConfig.backgroundGradientColor3"
+                (input)="onColorChange($event, 'backgroundGradientColor3')"
+                type="text" />
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Content Background Colors -->
+          <div class="control-group">
+            <label>Content Background 1 (with alpha)</label>
+            <input
+              class="text-input"
+              [value]="currentConfig.contentBackgroundColor1"
+              (input)="onColorChange($event, 'contentBackgroundColor1')"
+              type="text" />
+          </div>
+
+          <div class="control-group">
+            <label>Content Background 2 (with alpha)</label>
+            <input
+              class="text-input"
+              [value]="currentConfig.contentBackgroundColor2"
+              (input)="onColorChange($event, 'contentBackgroundColor2')"
+              type="text" />
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Speaker Bio Gradient Colors -->
+          <div class="control-group">
+            <label>Header Speaker Bio Gradient 1</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.headerSpeakerBioGradient1"
+                (input)="onColorChange($event, 'headerSpeakerBioGradient1')"
+                type="color" />
+              <input
+                [value]="currentConfig.headerSpeakerBioGradient1"
+                (input)="onColorChange($event, 'headerSpeakerBioGradient1')"
+                type="text" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Header Speaker Bio Gradient 2</label>
+            <div class="color-input-wrapper">
+              <input
+                [value]="currentConfig.headerSpeakerBioGradient2"
+                (input)="onColorChange($event, 'headerSpeakerBioGradient2')"
+                type="color" />
+              <input
+                [value]="currentConfig.headerSpeakerBioGradient2"
+                (input)="onColorChange($event, 'headerSpeakerBioGradient2')"
+                type="text" />
+            </div>
+          </div>
+
+          <hr class="section-divider" />
+
+          <!-- Other Settings -->
+          <div class="control-group">
+            <label>Checkbox Icon</label>
+            <input
+              class="text-input"
+              [value]="currentConfig.checkboxIcon"
+              (input)="onColorChange($event, 'checkboxIcon')"
+              type="text" />
+          </div>
+
+          <div class="control-group">
+            <label>Background Mask URL</label>
+            <input
+              class="text-input"
+              [value]="currentConfig.backgroundMask"
+              (input)="onColorChange($event, 'backgroundMask')"
+              type="text" />
+          </div>
+
+          <div class="control-group">
+            <label>Event Logo Dark</label>
+            <input
+              class="text-input"
+              [value]="currentConfig.eventLogoDark"
+              (input)="onColorChange($event, 'eventLogoDark')"
+              type="text" />
+            <div class="logo-preview">
+              <div class="logo-preview-label">Preview:</div>
+              <img
+                [src]="currentConfig.eventLogoDark"
+                alt="Event Logo Dark"
+                onerror="this.style.display='none'" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Event Logo Light</label>
+            <input
+              class="text-input"
+              [value]="currentConfig.eventLogoLight"
+              (input)="onColorChange($event, 'eventLogoLight')"
+              type="text" />
+            <div class="logo-preview" style="background: #333">
+              <div class="logo-preview-label" style="color: #aaa">Preview:</div>
+              <img
+                [src]="currentConfig.eventLogoLight"
+                alt="Event Logo Light"
+                onerror="this.style.display='none'" />
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Speaker Bio Section</label>
+            <div class="checkbox-wrapper">
+              <input
+                [checked]="currentConfig.speaker_bio"
+                (change)="onColorChange($event, 'speaker_bio')"
+                type="checkbox" />
+              <span>Enable speaker bio section</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Preview Panel -->
+      <div class="preview-panel">
+        @if (config(); as currentConfig) {
+          <div class="preview-container">
+            <!-- Header Section -->
+            <div
+              class="pdf-header"
+              [style]="{
+                background:
+                  'linear-gradient(40deg,' +
+                  currentConfig.headerBackgroundGradientColor1 +
+                  ',' +
+                  currentConfig.headerBackgroundGradientColor2 +
+                  ')',
+              }">
+              <div id="headerGradient" class="pdf-header-gradient"></div>
+              <div class="pdf-header-content">
+                <div class="header-branding">
+                  <div class="event-logo">
+                    @if (config().eventLogoLight) {
+                      <img
+                        class="event-logo-preview"
+                        [src]="config().eventLogoLight"
+                        (error)="onLogoError($event)"
+                        alt="Event Logo" />
+                    } @else {
+                      <div class="no-logo">No logo selected</div>
+                    }
+                  </div>
+                  <div
+                    id="rozieLogo"
+                    class="rozie-logo-badge"
+                    [style]="{
+                      background:
+                        'linear-gradient(44.84deg,' +
+                        currentConfig.rozieLogoBackgroundColor1 +
+                        ',' +
+                        currentConfig.rozieLogoBackgroundColor2 +
+                        ')',
+                    }">
+                    <img
+                      alt="Rozie Logo"
+                      src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/Rozie-Synopsis-Logo-RGB-White.png"
+                      style="width: 97px; height: 27px; margin-bottom: 3px" />
+                    <div class="synopsis-text">Synopsis for Events</div>
+                  </div>
+                </div>
+                <div class="pdf-title">
+                  Session Debrief: AI & Cloud Security
+                </div>
+              </div>
+            </div>
+
+            <!-- Body Section -->
+            <div
+              class="pdf-body"
+              [style]="{
+                background:
+                  'linear-gradient(44.87deg,' +
+                  currentConfig.backgroundGradientColor1 +
+                  ',' +
+                  currentConfig.backgroundGradientColor2 +
+                  ',' +
+                  currentConfig.backgroundGradientColor3 +
+                  ')',
+              }">
+              <div id="bodyBackground" class="body-background"></div>
+
+              <!-- Speaker Bio Section (Optional) -->
+              @if (currentConfig.speaker_bio) {
+                <div id="speakerSection" class="content-section">
+                  <div
+                    id="speakerBadge"
+                    class="section-title-badge"
+                    [style]="{
+                      background:
+                        'linear-gradient(44.84deg,' +
+                        config().primaryColor +
+                        ',' +
+                        config().secondaryColor +
+                        ')',
+                    }">
+                    Speaker Bio
+                  </div>
+                  <div
+                    id="speakerBox"
+                    class="content-box"
+                    [style]="{
+                      background:
+                        'linear-gradient(42.84deg,' +
+                        config().contentBackgroundColor1 +
+                        ',' +
+                        config().contentBackgroundColor2 +
+                        ')',
+                      'border-bottom': '1px solid ' + config().primaryColor,
+                    }">
+                    <div class="content-text">
+                      <div
+                        style="
+                          display: flex;
+                          align-items: center;
+                          gap: 10px;
+                          margin-bottom: 8px;
+                        ">
+                        <div
+                          style="
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            background: #e9ecef;
+                            border: 2px solid white;
+                          "></div>
+                        <div>
+                          <div style="font-size: 10px; font-weight: 500">
+                            John Doe
+                          </div>
+                          <div style="font-size: 8px; color: #666">
+                            CEO, Tech Corp
+                          </div>
+                        </div>
+                      </div>
+                      <div style="font-size: 8px; line-height: 1.4">
+                        Bio text here...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Executive Summary Section -->
+              <div class="content-section">
+                <div
+                  id="sectionBadge1"
+                  class="section-title-badge"
+                  [style]="{
+                    background:
+                      'linear-gradient(44.84deg,' +
+                      config().primaryColor +
+                      ',' +
+                      config().secondaryColor +
+                      ')',
+                  }">
+                  Summary
+                </div>
+                <div id="contentBox1" class="content-box">
+                  <div style="display: flex; gap: 8px; align-items: start">
+                    <img
+                      alt="icon"
+                      src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/summary@2x.png"
+                      style="width: 14px; height: 14px; margin-top: 2px" />
+                    <div class="content-text">
+                      This preview demonstrates how your customized colors will
+                      appear in the final PDF report. The gradient backgrounds,
+                      section badges, and topic circles all reflect your
+                      selected color scheme.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Key Takeaways Section with bullets -->
+              <div class="content-section">
+                <div
+                  style="
+                    border-radius: 8px 8px 8px 0;
+                    padding: 6px 14px;
+                    display: inline-block;
+                    filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.1));
+                    font-size: 12px;
+                    font-weight: bold;
+                    background: white;
+                    color: #333;
+                    margin-bottom: -11px;
+                    position: relative;
+                    z-index: 3;
+                  ">
+                  <span
+                    id="gradientText"
+                    [style]="{
+                      background:
+                        'linear-gradient(44.84deg,' +
+                        config().primaryColor +
+                        ',' +
+                        config().secondaryColor +
+                        ') text',
+                      '-webkit-text-fill-color': 'transparent',
+                    }"
+                    >Key Takeaways</span
+                  >
+                </div>
+                <div id="contentBox2" class="content-box">
+                  <div style="display: flex; flex-direction: column; gap: 8px">
+                    <div style="display: flex; gap: 4px; align-items: start">
+                      <img
+                        id="checkIcon1"
+                        alt="icon"
+                        src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/emoji@2x.png"
+                        style="width: 14px; height: 14px; margin-top: 2px" />
+                      <div class="content-text">
+                        Enhanced security protocols for cloud infrastructure
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 4px; align-items: start">
+                      <img
+                        id="checkIcon2"
+                        alt="icon"
+                        src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/emoji@2x.png"
+                        style="width: 14px; height: 14px; margin-top: 2px" />
+                      <div class="content-text">
+                        AI-driven threat detection mechanisms
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 4px; align-items: start">
+                      <img
+                        id="checkIcon3"
+                        alt="icon"
+                        src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/emoji@2x.png"
+                        style="width: 14px; height: 14px; margin-top: 2px" />
+                      <div class="content-text">
+                        Multi-cloud integration strategies
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommendations Section -->
+              <div class="content-section">
+                <div
+                  style="
+                    border-radius: 8px 8px 8px 0;
+                    padding: 6px 14px;
+                    display: inline-block;
+                    filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.1));
+                    font-size: 12px;
+                    font-weight: bold;
+                    background: white;
+                    color: #333;
+                    margin-bottom: -11px;
+                    position: relative;
+                    z-index: 3;
+                  ">
+                  <span
+                    id="gradientText2"
+                    [style]="{
+                      background:
+                        'linear-gradient(44.84deg,' +
+                        config().primaryColor +
+                        ',' +
+                        config().secondaryColor +
+                        ') text',
+                      '-webkit-text-fill-color': 'transparent',
+                    }"
+                    >Recommendations</span
+                  >
+                </div>
+                <div id="contentBox3" class="content-box">
+                  <div style="display: flex; gap: 4px; align-items: start">
+                    <img
+                      id="checkIcon4"
+                      alt="icon"
+                      src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/emoji@2x.png"
+                      style="width: 14px; height: 14px; margin-top: 2px" />
+                    <div class="content-text">
+                      <strong style="font-size: 10px"
+                        >Implement Zero Trust Architecture</strong
+                      ><br />
+                      Organizations should adopt a zero-trust security model...
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quotes Section -->
+              <div class="content-section">
+                <div
+                  style="
+                    border-radius: 8px 8px 8px 0;
+                    padding: 6px 14px;
+                    display: inline-block;
+                    filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.1));
+                    font-size: 12px;
+                    font-weight: bold;
+                    background: white;
+                    color: #333;
+                    margin-bottom: -11px;
+                    position: relative;
+                    z-index: 3;
+                  ">
+                  <span
+                    id="gradientText3"
+                    [style]="{
+                      background:
+                        'linear-gradient(44.84deg,' +
+                        config().primaryColor +
+                        ',' +
+                        config().secondaryColor +
+                        ') text',
+                      '-webkit-text-fill-color': 'transparent',
+                    }"
+                    >Quotes</span
+                  >
+                </div>
+                <div id="contentBox4" class="content-box">
+                  <div style="display: flex; gap: 4px; align-items: start">
+                    <img
+                      id="checkIcon5"
+                      alt="icon"
+                      src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/emoji@2x.png"
+                      style="width: 14px; height: 14px; margin-top: 2px" />
+                    <div class="content-text">
+                      <div
+                        style="
+                          font-size: 8px;
+                          font-weight: 500;
+                          margin-bottom: 2px;
+                        ">
+                        John Doe
+                      </div>
+                      "AI and cloud security are the future of enterprise
+                      protection."
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Topics Section -->
+              <div class="topics-container">
+                <div
+                  id="topicTitle"
+                  class="topic-circle-title"
+                  [style]="{
+                    background:
+                      'linear-gradient(45.31deg,' +
+                      config().topicsGradientColor1 +
+                      ',' +
+                      config().topicsGradientColor2 +
+                      ',' +
+                      config().topicsGradientColor2 +
+                      ')',
+                  }">
+                  <div>Top<br />Topics</div>
+                </div>
+                <div
+                  id="topic1"
+                  class="topic-circle"
+                  [style]="{
+                    background:
+                      'linear-gradient(white, white) padding-box, ' +
+                      'linear-gradient(to right,' +
+                      config().topicsGradientColor1 +
+                      ',' +
+                      config().topicsGradientColor2 +
+                      ') border-box',
+                    border: '3px solid transparent',
+                  }">
+                  Cloud<br />Security
+                </div>
+                <div
+                  id="topic2"
+                  class="topic-circle"
+                  [style]="{
+                    background:
+                      'linear-gradient(white, white) padding-box, ' +
+                      'linear-gradient(to right,' +
+                      config().topicsGradientColor1 +
+                      ',' +
+                      config().topicsGradientColor2 +
+                      ') border-box',
+                    border: '3px solid transparent',
+                  }">
+                  AI & ML
+                </div>
+                <div
+                  id="topic3"
+                  class="topic-circle"
+                  [style]="{
+                    background:
+                      'linear-gradient(white, white) padding-box, ' +
+                      'linear-gradient(to right,' +
+                      config().topicsGradientColor1 +
+                      ',' +
+                      config().topicsGradientColor2 +
+                      ') border-box',
+                    border: '3px solid transparent',
+                  }">
+                  Cyber<br />Defense
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Section -->
+            <div
+              id="footerGradient"
+              class="pdf-footer"
+              [style]="{
+                background:
+                  'linear-gradient(44.84deg,' +
+                  config().headerBackgroundGradientColor1 +
+                  ',' +
+                  config().headerBackgroundGradientColor3 +
+                  ',' +
+                  config().headerBackgroundGradientColor2 +
+                  ')',
+              }">
+              <div style="font-size: 6px; margin-bottom: 4px; padding: 0 20px">
+                Disclaimer: These summaries are generated using AI and should
+                complement, not replace, professional expertise.
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  font-size: 8px;
+                ">
+                <span>ROZIE Synopsis © 2025</span>
+                <span style="opacity: 0.5">|</span>
+                <span>www.roziesynopsis.com</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [disabled]="isLoading" (click)="cancel()">Cancel</button>
+  <button mat-button (click)="resetToDefault()">
+    <span>🔄</span>
+    <span>Reset</span>
+  </button>
+  <button mat-button (click)="copyToClipboard()">
+    <span>📋</span>
+    <span>Copy Config</span>
+  </button>
+  <button
+    mat-flat-button
+    [disabled]="isLoading"
+    (click)="saveAndClose()"
+    color="primary"
+    type="submit">
+    {{ isLoading ? 'Saving...' : 'Save' }}
+  </button>
+</mat-dialog-actions>
