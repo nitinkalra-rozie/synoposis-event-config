@@ -1,5 +1,5 @@
 {
-  "name": "synopsis-admin-dashboard",
+  "name": "synopsis-management-dashboard",
   "version": "1.0.14",
   "scripts": {
     "ng": "ng",

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "synopsis-admin-dashboard": {
+    "synopsis-management-dashboard": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
           "builder": "@angular/build:application",
           "options": {
             "outputPath": {
-              "base": "dist/synopsis-admin-dashboard"
+              "base": "dist/synopsis-management-dashboard"
             },
             "index": "src/index.html",
             "polyfills": ["src/polyfills.ts"],
@@ -170,13 +170,13 @@
           "options": {},
           "configurations": {
             "dev": {
-              "buildTarget": "synopsis-admin-dashboard:build:dev"
+              "buildTarget": "synopsis-management-dashboard:build:dev"
             },
             "prod": {
-              "buildTarget": "synopsis-admin-dashboard:build:prod"
+              "buildTarget": "synopsis-management-dashboard:build:prod"
             },
             "local": {
-              "buildTarget": "synopsis-admin-dashboard:build:local"
+              "buildTarget": "synopsis-management-dashboard:build:local"
             }
           },
           "defaultConfiguration": "prod"
@@ -184,7 +184,7 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "synopsis-admin-dashboard:build"
+            "buildTarget": "synopsis-management-dashboard:build"
           }
         },
         "test": {

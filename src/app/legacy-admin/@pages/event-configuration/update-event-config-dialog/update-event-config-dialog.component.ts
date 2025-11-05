@@ -67,12 +67,15 @@ import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-ba
   ],
 })
 export class UpdateEventConfigDialogComponent implements OnInit {
-  dialogData = inject(MAT_DIALOG_DATA);
-  dialogRef = inject(MatDialogRef<UpdateEventConfigDialogComponent>);
-  private _legacyBackendApiService = inject(LegacyBackendApiService);
-  private _snackBar = inject(MatSnackBar);
+
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
+  ) {}
+  
+  public dialogData = inject(MAT_DIALOG_DATA);
   /** Dynamic default schema with type/value wrappers for intelligent form rendering */
-  DEFAULT_JSON = {
+  public DEFAULT_JSON = {
     EnableTranslation: { type: 'boolean', value: false },
     EnableDiarization: { type: 'boolean', value: false },
     EventStatus: { type: 'string', value: '' },
@@ -196,23 +199,19 @@ export class UpdateEventConfigDialogComponent implements OnInit {
       ],
     },
   };
-
   /** Holds the merged data used to build the form */
-  jsonData = this.mergeWithDefault(this.dialogData.data, this.DEFAULT_JSON);
-
+  public jsonData = this.mergeWithDefault(this.dialogData.data, this.DEFAULT_JSON);
   /** Built FormGroup backing the editor UI */
-  form!: FormGroup;
+  public form!: FormGroup;
   /** Loading state shown as Material progress bar */
-  isLoading = false;
+  public isLoading = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
-  ) {}
+  
 
-  /**
-   * Lifecycle hook builds the dynamic form structure on init.
-   */
+  public dialogRef = inject(MatDialogRef<UpdateEventConfigDialogComponent>);
+  private _legacyBackendApiService = inject(LegacyBackendApiService);
+  private _snackBar = inject(MatSnackBar);
+
   ngOnInit(): void {
     this.form = this.buildFormFromJson(this.jsonData);
     setTimeout(() => this.cdr.detectChanges());
@@ -226,7 +225,7 @@ export class UpdateEventConfigDialogComponent implements OnInit {
    * @param defaultJson - The DEFAULT_JSON schema
    * @returns Fully merged plain object for binding to forms
    */
-  mergeWithDefault(input: any, defaultJson: any) {
+  mergeWithDefault(input: any, defaultJson: any): any {
     // If this is a type/value wrapper, recurse on its value
     if (
       defaultJson &&
@@ -342,7 +341,7 @@ export class UpdateEventConfigDialogComponent implements OnInit {
   /**
    * Get controls object for current FormGroup (for structural template rendering)
    */
-  getControls(group: FormGroup): { [key: string]: AbstractControl } {
+  getControls(group: FormGroup): Record<string, AbstractControl> {
     return group.controls;
   }
 
@@ -375,7 +374,7 @@ export class UpdateEventConfigDialogComponent implements OnInit {
   }
 
   /** Add a new language entry to the SupportedLanguages array */
-  addLanguage() {
+  addLanguage(): void {
     const langArray = this.form.get('SupportedLanguages') as FormArray;
     if (!langArray) return;
 
@@ -389,7 +388,7 @@ export class UpdateEventConfigDialogComponent implements OnInit {
   }
 
   /** Remove a language entry by array index */
-  removeLanguage(index: number) {
+  removeLanguage(index: number): void {
     const langArray = this.form.get('SupportedLanguages') as FormArray;
     if (!langArray) return;
 
@@ -397,7 +396,7 @@ export class UpdateEventConfigDialogComponent implements OnInit {
   }
 
   /** Add a new sponsor to the Sponsors array */
-  addSponsor() {
+  addSponsor(): void {
     const sponsorsArray = this.form.get('Sponsors') as FormArray;
     if (!sponsorsArray) return;
 
@@ -410,7 +409,7 @@ export class UpdateEventConfigDialogComponent implements OnInit {
   }
 
   /** Remove a sponsor entry by array index */
-  removeSponsor(index: number) {
+  removeSponsor(index: number): void {
     const sponsorsArray = this.form.get('Sponsors') as FormArray;
     if (!sponsorsArray) return;
 
@@ -478,18 +477,6 @@ export class UpdateEventConfigDialogComponent implements OnInit {
     }
   }
 
-  private async _updateEventConfigs(payload: any): Promise<any> {
-    try {
-      return await firstValueFrom(
-        this._legacyBackendApiService.updateEventConfigs(payload)
-      );
-    } catch (error: any) {
-      throw new Error(
-        error.error?.message || 'Failed to update event configuration'
-      );
-    }
-  }
-
   onCancel(): void {
     this.dialogRef.close();
   }
@@ -501,10 +488,10 @@ export class UpdateEventConfigDialogComponent implements OnInit {
    * @param group - Parent FormGroup instance (for tree pathing)
    * @returns Type string ('boolean', 'string', 'array', etc.) or undefined
    */
-  getFieldType(key: string, group: FormGroup): string {
+  getFieldType(key: string, group: FormGroup): string | undefined {
     // Traverse the structure to resolve type by key path
     // This relies on naming in DEFAULT_JSON and form structure matching
-    let fullPath: string[] = [];
+    const fullPath: string[] = [];
     let parent = group;
     while (parent && parent.parent) {
       const parentKey = Object.entries(
@@ -534,5 +521,17 @@ export class UpdateEventConfigDialogComponent implements OnInit {
     return typeNode && typeof typeNode === 'object' && 'type' in typeNode
       ? typeNode.type
       : undefined;
+  }
+
+  private async _updateEventConfigs(payload: any): Promise<any> {
+    try {
+      return await firstValueFrom(
+        this._legacyBackendApiService.updateEventConfigs(payload)
+      );
+    } catch (error: any) {
+      throw new Error(
+        error.error?.message || 'Failed to update event configuration'
+      );
+    }
   }
 }

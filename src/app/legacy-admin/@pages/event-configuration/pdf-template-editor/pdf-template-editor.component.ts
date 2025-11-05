@@ -66,17 +66,13 @@ interface TemplateConfig {
   imports: [CommonModule, MatDialogModule, MatSnackBarModule, MatButtonModule],
 })
 export class TemplateEditorComponent {
-  // Injected dialog and backend dependencies
-  private dialogRef = inject(MatDialogRef<TemplateEditorComponent>);
-  private dialogData = inject(MAT_DIALOG_DATA);
-  private snackBar = inject(MatSnackBar);
-  private _legacyBackendApiService = inject(LegacyBackendApiService);
-
-  /**
-   * Preset templates for quick configuration.
-   * Each key is a preset name, value is a TemplateConfig object.
-   */
-  readonly presets: Record<string, TemplateConfig> = {
+  constructor(private cdr: ChangeDetectorRef) {
+    this._dialogData = inject(MAT_DIALOG_DATA);
+    this.config = signal<TemplateConfig>(
+      this._dialogData?.data?.Themes?.PDFReport || this.presets['SLC2025']
+    );
+  }
+  public readonly presets: Record<string, TemplateConfig> = {
     SLC2025: {
       primaryColor: '#EC7C2A',
       secondaryColor: '#C8641F',
@@ -176,42 +172,27 @@ export class TemplateEditorComponent {
       eventLogoLight: '',
     },
   } as const;
+  public isLoading = false;
+  public config!: ReturnType<typeof signal<TemplateConfig>>;
+  
 
-  /** UI loading state for save operation */
-  isLoading = false;
+  private _dialogData: any;
+  private _dialogRef = inject(MatDialogRef<TemplateEditorComponent>);
+  private _snackBar = inject(MatSnackBar);
+  private _legacyBackendApiService = inject(LegacyBackendApiService);
 
-  /**
-   * Holds the current UI configuration state for the editor, defaulting to dialog input or SLC2025 preset
-   */
-  config = signal<TemplateConfig>(
-    this.dialogData?.data?.Themes?.PDFReport || this.presets['SLC2025']
-  );
-
-  constructor(private cdr: ChangeDetectorRef) {}
-
-  /**
-   * Handles updating a field in config on user input (supports string and boolean fields).
-   * @param event - DOM input event
-   * @param key - The config field key to update
-   */
   onColorChange(event: Event, key: keyof TemplateConfig): void {
     const input = event.target as HTMLInputElement;
     let newValue: string | boolean = input.value;
-    // Detect if it's a checkbox
     if (input.type === 'checkbox') {
       newValue = input.checked;
     }
-    // Update your reactive signal or state
     this.config.set({
       ...this.config(),
       [key]: newValue,
     });
   }
 
-  /**
-   * Handles updates to config when a preset selection changes.
-   * @param event - DOM select change event
-   */
   onPresetSelect(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const presetName = select.value as keyof typeof this.presets;
@@ -220,55 +201,40 @@ export class TemplateEditorComponent {
     }
   }
 
-  /**
-   * Hides logo image on load error to avoid broken images in UI.
-   * @param event - img error event
-   */
   onLogoError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
-    // Optionally log error or show a fallback
   }
 
-  /**
-   * Copies the current config as pretty-printed JSON to the clipboard with feedback.
-   */
   async copyToClipboard(): Promise<void> {
     try {
       const json = JSON.stringify(this.config(), null, 2);
       await navigator.clipboard.writeText(json);
-      this.showToast('✓ Configuration copied to clipboard!');
+      this._showToast('✓ Configuration copied to clipboard!');
     } catch (err) {
-      this.showToast('Failed to copy to clipboard. Please try again.');
+      this._showToast('Failed to copy to clipboard. Please try again.');
     }
   }
 
-  /**
-   * Resets current config state to the SLC2025 preset.
-   */
   resetToDefault(): void {
     this.config.set(this.presets['SLC2025']);
   }
 
-  /**
-   * Submits updated configuration to the backend and closes the dialog on success.
-   */
   async saveAndClose(): Promise<void> {
     try {
       this.isLoading = true;
       const { Domain: domain, EventIdentifier: eventNameIdentifier } =
-        this.dialogData.data;
+        this._dialogData.data;
       const payload = {
         domain,
         eventNameIdentifier,
         PDFReport: this.config(),
       };
-      // Update event configuration
       const response = await this._updateEventConfigs(payload);
-      this.showToast('Event configuration updated successfully');
-      this.dialogRef.close('SUCCESS');
+      this._showToast('Event configuration updated successfully');
+      this._dialogRef.close('SUCCESS');
     } catch (error: any) {
-      this.showToast(
+      this._showToast(
         error.message || 'Failed to update event configuration',
         true
       );
@@ -278,18 +244,13 @@ export class TemplateEditorComponent {
     }
   }
 
-  /**
-   * Cancel and close dialog without saving.
-   */
   cancel(): void {
-    this.dialogRef.close();
+    this._dialogRef.close();
   }
 
-  /**
-   * Helper to show success/error toast notifications.
-   */
-  private showToast(message: string, isError: boolean = false): void {
-    this.snackBar.open(message, 'Close', {
+  // Helper to show success/error toast notifications.
+  private _showToast(message: string, isError: boolean = false): void {
+    this._snackBar.open(message, 'Close', {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'bottom',
@@ -297,11 +258,7 @@ export class TemplateEditorComponent {
     });
   }
 
-  /**
-   * Calls the backend API to save the event configuration.
-   * @param payload - Data to send
-   * @returns Response from API
-   */
+  // Calls the backend API to save the event configuration.
   private async _updateEventConfigs(payload: any): Promise<any> {
     try {
       return await firstValueFrom(

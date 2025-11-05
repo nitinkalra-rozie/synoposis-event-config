@@ -134,10 +134,7 @@ interface RealtimeInsight {
   providers: [],
 })
 export class EventConfigurationComponent implements OnInit, AfterViewInit {
-  public pageSize = 10;
-  @ViewChild(MatPaginator) public paginator!: MatPaginator;
-  @ViewChild(MatSort) public sort!: MatSort;
-  public constructor(
+  constructor(
     private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
@@ -151,6 +148,10 @@ export class EventConfigurationComponent implements OnInit, AfterViewInit {
     );
   }
 
+  @ViewChild(MatPaginator) public paginator!: MatPaginator;
+  @ViewChild(MatSort) public sort!: MatSort;
+
+  public pageSize = 10;
   public breadCrumbItems!: Array<{}>;
   public yourHtmlContent!: SafeHtml;
   public isLoading: boolean = true;
@@ -163,7 +164,6 @@ export class EventConfigurationComponent implements OnInit, AfterViewInit {
 
   public dataSource = new MatTableDataSource<Session>([]);
   public selectedRowIndex: number | null = null;
-
   public totalRecords = 10;
 
   private _backendApiService = inject(BackendApiService);
