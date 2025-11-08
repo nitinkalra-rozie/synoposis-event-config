@@ -67,12 +67,11 @@ import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-ba
   ],
 })
 export class UpdateEventConfigDialogComponent implements OnInit {
-
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef
   ) {}
-  
+
   public dialogData = inject(MAT_DIALOG_DATA);
   /** Dynamic default schema with type/value wrappers for intelligent form rendering */
   public DEFAULT_JSON = {
@@ -200,13 +199,14 @@ export class UpdateEventConfigDialogComponent implements OnInit {
     },
   };
   /** Holds the merged data used to build the form */
-  public jsonData = this.mergeWithDefault(this.dialogData.data, this.DEFAULT_JSON);
+  public jsonData = this.mergeWithDefault(
+    this.dialogData.data,
+    this.DEFAULT_JSON
+  );
   /** Built FormGroup backing the editor UI */
   public form!: FormGroup;
   /** Loading state shown as Material progress bar */
   public isLoading = false;
-
-  
 
   public dialogRef = inject(MatDialogRef<UpdateEventConfigDialogComponent>);
   private _legacyBackendApiService = inject(LegacyBackendApiService);

@@ -174,7 +174,6 @@ export class TemplateEditorComponent {
   } as const;
   public isLoading = false;
   public config!: ReturnType<typeof signal<TemplateConfig>>;
-  
 
   private _dialogData: any;
   private _dialogRef = inject(MatDialogRef<TemplateEditorComponent>);
