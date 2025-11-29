@@ -26,248 +26,404 @@
           <!-- Color Controls -->
           <!-- Primary Color -->
           <div class="control-group">
-            <label>Primary Color</label>
+            <label
+              >Primary Color <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.primaryColor"
                 (input)="onColorChange($event, 'primaryColor')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.primaryColor"
                 (input)="onColorChange($event, 'primaryColor')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('primaryColor')) {
+              <span class="error-message">{{
+                getFieldError('primaryColor')
+              }}</span>
+            }
           </div>
 
           <!-- Secondary Color -->
           <div class="control-group">
-            <label>Secondary Color</label>
+            <label
+              >Secondary Color <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.secondaryColor"
                 (input)="onColorChange($event, 'secondaryColor')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.secondaryColor"
                 (input)="onColorChange($event, 'secondaryColor')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('secondaryColor')) {
+              <span class="error-message">{{
+                getFieldError('secondaryColor')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
 
           <!-- Header Gradient Colors -->
           <div class="control-group">
-            <label>Header Gradient Color 1</label>
+            <label
+              >Header Gradient Color 1
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.headerBackgroundGradientColor1"
                 (input)="
                   onColorChange($event, 'headerBackgroundGradientColor1')
                 "
+                required
                 type="color" />
               <input
                 [value]="currentConfig.headerBackgroundGradientColor1"
                 (input)="
                   onColorChange($event, 'headerBackgroundGradientColor1')
                 "
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('headerBackgroundGradientColor1')) {
+              <span class="error-message">{{
+                getFieldError('headerBackgroundGradientColor1')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Header Gradient Color 2</label>
+            <label
+              >Header Gradient Color 2
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.headerBackgroundGradientColor2"
                 (input)="
                   onColorChange($event, 'headerBackgroundGradientColor2')
                 "
+                required
                 type="color" />
               <input
                 [value]="currentConfig.headerBackgroundGradientColor2"
                 (input)="
                   onColorChange($event, 'headerBackgroundGradientColor2')
                 "
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('headerBackgroundGradientColor2')) {
+              <span class="error-message">{{
+                getFieldError('headerBackgroundGradientColor2')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Header Gradient Color 3</label>
+            <label
+              >Header Gradient Color 3
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.headerBackgroundGradientColor3"
                 (input)="
                   onColorChange($event, 'headerBackgroundGradientColor3')
                 "
+                required
                 type="color" />
               <input
                 [value]="currentConfig.headerBackgroundGradientColor3"
                 (input)="
                   onColorChange($event, 'headerBackgroundGradientColor3')
                 "
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('headerBackgroundGradientColor3')) {
+              <span class="error-message">{{
+                getFieldError('headerBackgroundGradientColor3')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
 
           <!-- Rozie Logo Background Colors -->
           <div class="control-group">
-            <label>Rozie Logo Background 1</label>
+            <label
+              >Rozie Logo Background 1
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.rozieLogoBackgroundColor1"
                 (input)="onColorChange($event, 'rozieLogoBackgroundColor1')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.rozieLogoBackgroundColor1"
                 (input)="onColorChange($event, 'rozieLogoBackgroundColor1')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('rozieLogoBackgroundColor1')) {
+              <span class="error-message">{{
+                getFieldError('rozieLogoBackgroundColor1')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Rozie Logo Background 2</label>
+            <label
+              >Rozie Logo Background 2
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.rozieLogoBackgroundColor2"
                 (input)="onColorChange($event, 'rozieLogoBackgroundColor2')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.rozieLogoBackgroundColor2"
                 (input)="onColorChange($event, 'rozieLogoBackgroundColor2')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('rozieLogoBackgroundColor2')) {
+              <span class="error-message">{{
+                getFieldError('rozieLogoBackgroundColor2')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
 
           <!-- Topics Gradient Colors -->
           <div class="control-group">
-            <label>Topics Gradient Color 1</label>
+            <label
+              >Topics Gradient Color 1
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.topicsGradientColor1"
                 (input)="onColorChange($event, 'topicsGradientColor1')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.topicsGradientColor1"
                 (input)="onColorChange($event, 'topicsGradientColor1')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('topicsGradientColor1')) {
+              <span class="error-message">{{
+                getFieldError('topicsGradientColor1')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Topics Gradient Color 2</label>
+            <label
+              >Topics Gradient Color 2
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.topicsGradientColor2"
                 (input)="onColorChange($event, 'topicsGradientColor2')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.topicsGradientColor2"
                 (input)="onColorChange($event, 'topicsGradientColor2')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('topicsGradientColor2')) {
+              <span class="error-message">{{
+                getFieldError('topicsGradientColor2')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
 
           <!-- Background Gradient Colors -->
           <div class="control-group">
-            <label>Background Gradient 1</label>
+            <label
+              >Background Gradient 1
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.backgroundGradientColor1"
                 (input)="onColorChange($event, 'backgroundGradientColor1')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.backgroundGradientColor1"
                 (input)="onColorChange($event, 'backgroundGradientColor1')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('backgroundGradientColor1')) {
+              <span class="error-message">{{
+                getFieldError('backgroundGradientColor1')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Background Gradient 2</label>
+            <label
+              >Background Gradient 2
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.backgroundGradientColor2"
                 (input)="onColorChange($event, 'backgroundGradientColor2')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.backgroundGradientColor2"
                 (input)="onColorChange($event, 'backgroundGradientColor2')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('backgroundGradientColor2')) {
+              <span class="error-message">{{
+                getFieldError('backgroundGradientColor2')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Background Gradient 3</label>
+            <label
+              >Background Gradient 3
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.backgroundGradientColor3"
                 (input)="onColorChange($event, 'backgroundGradientColor3')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.backgroundGradientColor3"
                 (input)="onColorChange($event, 'backgroundGradientColor3')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('backgroundGradientColor3')) {
+              <span class="error-message">{{
+                getFieldError('backgroundGradientColor3')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
 
           <!-- Content Background Colors -->
           <div class="control-group">
-            <label>Content Background 1 (with alpha)</label>
+            <label
+              >Content Background 1 (with alpha)
+              <span class="required-indicator">*</span></label
+            >
             <input
               class="text-input"
               [value]="currentConfig.contentBackgroundColor1"
               (input)="onColorChange($event, 'contentBackgroundColor1')"
+              required
               type="text" />
+            @if (!isFieldValid('contentBackgroundColor1')) {
+              <span class="error-message">{{
+                getFieldError('contentBackgroundColor1')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Content Background 2 (with alpha)</label>
+            <label
+              >Content Background 2 (with alpha)
+              <span class="required-indicator">*</span></label
+            >
             <input
               class="text-input"
               [value]="currentConfig.contentBackgroundColor2"
               (input)="onColorChange($event, 'contentBackgroundColor2')"
+              required
               type="text" />
+            @if (!isFieldValid('contentBackgroundColor2')) {
+              <span class="error-message">{{
+                getFieldError('contentBackgroundColor2')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
 
           <!-- Speaker Bio Gradient Colors -->
           <div class="control-group">
-            <label>Header Speaker Bio Gradient 1</label>
+            <label
+              >Header Speaker Bio Gradient 1
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.headerSpeakerBioGradient1"
                 (input)="onColorChange($event, 'headerSpeakerBioGradient1')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.headerSpeakerBioGradient1"
                 (input)="onColorChange($event, 'headerSpeakerBioGradient1')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('headerSpeakerBioGradient1')) {
+              <span class="error-message">{{
+                getFieldError('headerSpeakerBioGradient1')
+              }}</span>
+            }
           </div>
 
           <div class="control-group">
-            <label>Header Speaker Bio Gradient 2</label>
+            <label
+              >Header Speaker Bio Gradient 2
+              <span class="required-indicator">*</span></label
+            >
             <div class="color-input-wrapper">
               <input
                 [value]="currentConfig.headerSpeakerBioGradient2"
                 (input)="onColorChange($event, 'headerSpeakerBioGradient2')"
+                required
                 type="color" />
               <input
                 [value]="currentConfig.headerSpeakerBioGradient2"
                 (input)="onColorChange($event, 'headerSpeakerBioGradient2')"
+                required
                 type="text" />
             </div>
+            @if (!isFieldValid('headerSpeakerBioGradient2')) {
+              <span class="error-message">{{
+                getFieldError('headerSpeakerBioGradient2')
+              }}</span>
+            }
           </div>
 
           <hr class="section-divider" />
@@ -777,7 +933,7 @@
   </button>
   <button
     mat-flat-button
-    [disabled]="isLoading"
+    [disabled]="isLoading || !isValid()"
     (click)="saveAndClose()"
     color="primary"
     type="submit">

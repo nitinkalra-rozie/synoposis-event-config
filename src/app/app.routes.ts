@@ -37,6 +37,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'report',
+    loadComponent: () =>
+      import('src/app/legacy-admin/@pages/report/report.component').then(
+        (c) => c.ReportComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'content-editor',
     loadChildren: () =>
       import('src/app/content-editor/content-editor.routes').then(

@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Session } from 'src/app/legacy-admin/@pages/event-configuration/event-configuration.component';
@@ -88,6 +88,23 @@ export class BackendApiService {
     return this.http.get(environment.getContentVersionsUrl, { params });
   }
 
+  getContentVersionsByEventId(
+    eventId: string,
+    reportType?: string
+  ): Observable<Object> {
+    let params = new HttpParams()
+      .set('eventId', eventId)
+      .set('isOnlyEventId', 'true');
+
+    if (reportType) {
+      params = params.set('reportType', reportType);
+    }
+
+    const refreshToken = localStorage.getItem('accessToken');
+
+    return this.http.get(environment.getContentVersionsUrl, { params });
+  }
+
   generateContentPDFUrl(data: any): Observable<Object> {
     const body = {
       eventId: this._backendApiService.getCurrentEventName(),
@@ -101,7 +118,10 @@ export class BackendApiService {
 
   getSignedPdfUrl(data: any): Observable<Object> {
     const params = new HttpParams()
-      .set('eventId', this._backendApiService.getCurrentEventName())
+      .set(
+        'eventId',
+        data.eventId || this._backendApiService.getCurrentEventName()
+      )
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
@@ -112,7 +132,7 @@ export class BackendApiService {
 
   publishPdfReport(data: any): Observable<Object> {
     const body = {
-      eventId: this._backendApiService.getCurrentEventName(),
+      eventId: data.eventId || this._backendApiService.getCurrentEventName(),
       sessionId: data.sessionId,
       sessionType: data.sessionType,
       reportType: data.reportType,
@@ -189,5 +209,37 @@ export class BackendApiService {
     return this.http.post(environment.getEventDetails, {
       event: this._backendApiService.getCurrentEventName(),
     });
+  }
+
+  getSessionsForEvent(eventIdentifier: string): Observable<Object> {
+    // TODO: Replace with actual API endpoint when available
+    // This is a placeholder method that should be updated with the correct endpoint
+    const body = {
+      event: eventIdentifier,
+    };
+    // For now, using getEventDetails as a placeholder
+    // Replace this with the actual sessions endpoint when available
+    return this.http.post(
+      environment.getEventDetails || environment.updateAgendaUrl,
+      body
+    );
+  }
+
+  getEventReportDetails(
+    eventName: string,
+    registrationId: string = ''
+  ): Observable<Object> {
+    const headers = new HttpHeaders({
+      'x-api-key': environment.X_API_KEY || '',
+      'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+      'Content-Type': 'application/json',
+    });
+
+    const body = {
+      eventName: eventName,
+      registrationId: registrationId,
+    };
+
+    return this.http.post(environment.getEventReportDetails, body, { headers });
   }
 }

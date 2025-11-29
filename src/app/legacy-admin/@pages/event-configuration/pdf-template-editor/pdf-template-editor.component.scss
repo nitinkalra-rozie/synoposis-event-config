@@ -391,6 +391,31 @@
   margin-bottom: 0.3125rem;
 }
 
+// Validation Styles
+.required-indicator {
+  color: #f44336; // Material red
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+.error-message {
+  display: block;
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.control-group {
+  input:invalid:not(:placeholder-shown) {
+    border-color: #f44336;
+  }
+
+  .color-input-wrapper:has(input:invalid:not(:placeholder-shown)) {
+    border-color: #f44336;
+  }
+}
+
 // Scrollbar Styling
 ::-webkit-scrollbar {
   width: 0.5rem;

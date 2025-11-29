@@ -10,4 +10,8 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: '/content-editor',
     roles: [UserRole.SuperAdmin],
   },
+  {
+    path: '/report',
+    roles: [UserRole.SuperAdmin],
+  },
 ];

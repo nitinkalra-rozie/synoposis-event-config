@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -74,16 +75,16 @@ export class TemplateEditorComponent {
   }
   public readonly presets: Record<string, TemplateConfig> = {
     SLC2025: {
-      primaryColor: '#EC7C2A',
-      secondaryColor: '#C8641F',
-      headerBackgroundGradientColor1: '#EC7C2A',
-      headerBackgroundGradientColor2: '#C8641F',
-      headerBackgroundGradientColor3: '#EC7C2A',
-      rozieLogoBackgroundColor1: '#EC7C2A',
-      rozieLogoBackgroundColor2: '#C8641F',
-      topicsGradientColor1: '#EC7C2A',
-      topicsGradientColor2: '#C8641F',
-      backgroundGradientColor1: '#FCF8F5',
+      primaryColor: '#0A1A3B',
+      secondaryColor: '#378FAF',
+      headerBackgroundGradientColor1: '#0A1A3B',
+      headerBackgroundGradientColor2: '#378FAF',
+      headerBackgroundGradientColor3: '#0A1A3B',
+      rozieLogoBackgroundColor1: '#0A1A3B',
+      rozieLogoBackgroundColor2: '#378FAF',
+      topicsGradientColor1: '#0A1A3B',
+      topicsGradientColor2: '#378FAF',
+      backgroundGradientColor1: '#0A1A3B0D', // subtle very light navy overlay
       backgroundGradientColor2: '#FFFFFF',
       backgroundGradientColor3: '#FFFFFF',
       contentBackgroundColor1: 'rgba(255, 255, 255, 0.94)',
@@ -92,8 +93,8 @@ export class TemplateEditorComponent {
       backgroundMask:
         'https://rozie-logos.s3.ca-central-1.amazonaws.com/SISO/slc2025-bg.svg',
       speaker_bio: true,
-      headerSpeakerBioGradient1: '#EC7C2A',
-      headerSpeakerBioGradient2: '#C8641F',
+      headerSpeakerBioGradient1: '#0A1A3B',
+      headerSpeakerBioGradient2: '#378FAF',
       eventLogoDark:
         'https://rozie-logos.s3.ca-central-1.amazonaws.com/SISO/slc2025-dark.svg',
       eventLogoLight:
@@ -175,6 +176,148 @@ export class TemplateEditorComponent {
   public isLoading = false;
   public config!: ReturnType<typeof signal<TemplateConfig>>;
 
+  // Fields that accept hex color codes
+  private readonly hexColorFields: (keyof TemplateConfig)[] = [
+    'primaryColor',
+    'secondaryColor',
+    'headerBackgroundGradientColor1',
+    'headerBackgroundGradientColor2',
+    'headerBackgroundGradientColor3',
+    'rozieLogoBackgroundColor1',
+    'rozieLogoBackgroundColor2',
+    'topicsGradientColor1',
+    'topicsGradientColor2',
+    'backgroundGradientColor1',
+    'backgroundGradientColor2',
+    'backgroundGradientColor3',
+    'headerSpeakerBioGradient1',
+    'headerSpeakerBioGradient2',
+  ];
+
+  // Fields that accept rgba() format
+  private readonly rgbaColorFields: (keyof TemplateConfig)[] = [
+    'contentBackgroundColor1',
+    'contentBackgroundColor2',
+  ];
+
+  // Validate hex color code (#RGB, #RRGGBB, #RGBA, or #RRGGBBAA)
+  private isValidHexColor(value: string): boolean {
+    if (!value || typeof value !== 'string') {
+      return false;
+    }
+    const trimmed = value.trim();
+    // Match #RGB, #RRGGBB, #RGBA, or #RRGGBBAA format (case insensitive)
+    // Supports: #fff, #ffffff, #fff8, #ffffff80
+    const hexPattern =
+      /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/;
+    return hexPattern.test(trimmed);
+  }
+
+  // Validate rgba() color format
+  private isValidRgbaColor(value: string): boolean {
+    if (!value || typeof value !== 'string') {
+      return false;
+    }
+    const trimmed = value.trim();
+    // Match rgba(r, g, b, a) or rgb(r, g, b) format
+    const rgbaPattern =
+      /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(,\s*([\d.]+))?\s*\)$/i;
+    const match = trimmed.match(rgbaPattern);
+
+    if (!match) {
+      return false;
+    }
+
+    // Validate RGB values (0-255)
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+      return false;
+    }
+
+    // If alpha is provided, validate it (0-1)
+    if (match[5]) {
+      const alpha = parseFloat(match[5]);
+      if (alpha < 0 || alpha > 1) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Check if a field value is a valid color format
+  private isValidColorFormat(
+    field: keyof TemplateConfig,
+    value: string
+  ): boolean {
+    if (this.hexColorFields.includes(field)) {
+      return this.isValidHexColor(value);
+    }
+    if (this.rgbaColorFields.includes(field)) {
+      // Allow both hex and rgba for content background colors
+      return this.isValidHexColor(value) || this.isValidRgbaColor(value);
+    }
+    return true; // For non-color fields
+  }
+
+  // Computed signal for validation
+  public isValid = computed(() => {
+    const cfg = this.config();
+    const requiredFields: (keyof TemplateConfig)[] = [
+      ...this.hexColorFields,
+      ...this.rgbaColorFields,
+    ];
+
+    return requiredFields.every((field) => {
+      const value = cfg[field];
+      if (typeof value !== 'string' || value.trim() === '') {
+        return false;
+      }
+      return this.isValidColorFormat(field, value);
+    });
+  });
+
+  // Check if a specific field is valid
+  isFieldValid(field: keyof TemplateConfig): boolean {
+    const value = this.config()[field];
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed === '') {
+        return false;
+      }
+      return this.isValidColorFormat(field, trimmed);
+    }
+    return true; // For boolean fields
+  }
+
+  // Get validation error message
+  getFieldError(field: keyof TemplateConfig): string {
+    const value = this.config()[field];
+    if (typeof value !== 'string') {
+      return '';
+    }
+
+    const trimmed = value.trim();
+    if (trimmed === '') {
+      return 'This field is required';
+    }
+
+    if (this.hexColorFields.includes(field)) {
+      if (!this.isValidHexColor(trimmed)) {
+        return 'Please enter a valid hex color code (e.g., #FFFFFF or #FFFFFF80)';
+      }
+    } else if (this.rgbaColorFields.includes(field)) {
+      if (!this.isValidHexColor(trimmed) && !this.isValidRgbaColor(trimmed)) {
+        return 'Please enter a valid color code (hex: #FFFFFF or rgba: rgba(255, 255, 255, 0.5))';
+      }
+    }
+
+    return '';
+  }
+
   private _dialogData: any;
   private _dialogRef = inject(MatDialogRef<TemplateEditorComponent>);
   private _snackBar = inject(MatSnackBar);
@@ -220,6 +363,12 @@ export class TemplateEditorComponent {
   }
 
   async saveAndClose(): Promise<void> {
+    // Validate required fields before saving
+    if (!this.isValid()) {
+      this._showToast('Please fill in all required fields', true);
+      return;
+    }
+
     try {
       this.isLoading = true;
       const { Domain: domain, EventIdentifier: eventNameIdentifier } =

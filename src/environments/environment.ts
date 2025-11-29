@@ -14,6 +14,7 @@ export const environment = {
   putTranscript: '',
   postData: '',
   getEventDetails: '',
+  getEventReportDetails: '',
   postCurrentSessionId: '',
   USER_POOL_WEB_CLIENT_ID: '',
   AUTH_API_END_POINT: '',
