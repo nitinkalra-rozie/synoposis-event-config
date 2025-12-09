@@ -15,6 +15,7 @@ export const environment = {
   postData: '',
   getEventDetails: '',
   getEventReportDetails: '',
+  truncateSpeakerBioUrl: '',
   postCurrentSessionId: '',
   USER_POOL_WEB_CLIENT_ID: '',
   AUTH_API_END_POINT: '',

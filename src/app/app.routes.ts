@@ -45,6 +45,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'agenda',
+    loadComponent: () =>
+      import('src/app/legacy-admin/@pages/agenda/agenda.component').then(
+        (c) => c.AgendaComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'content-editor',
     loadChildren: () =>
       import('src/app/content-editor/content-editor.routes').then(

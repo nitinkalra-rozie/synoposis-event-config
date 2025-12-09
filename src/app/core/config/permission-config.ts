@@ -14,4 +14,8 @@ export const ROUTE_PERMISSIONS: RoutePermission[] = [
     path: '/report',
     roles: [UserRole.SuperAdmin],
   },
+  {
+    path: '/agenda',
+    roles: [UserRole.SuperAdmin],
+  },
 ];

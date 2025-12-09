@@ -41,6 +41,7 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     '/manual-edit-generated-content',
     'r3/updateEventConfig',
     'r3/getEventConfigAll',
+    'r3/truncateSpeakerBio',
   ];
 
   const publicAPIEndpoints = [

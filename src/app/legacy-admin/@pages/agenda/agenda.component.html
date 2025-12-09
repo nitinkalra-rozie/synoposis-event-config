@@ -1,0 +1,512 @@
+<app-top-bar></app-top-bar>
+<div class="main-content">
+  <div class="content-container">
+    <!-- Side Panel -->
+    <div class="side-panel">
+      <mat-card>
+        <mat-card-content>
+          <!-- Header Section -->
+          <div class="toolbar-container">
+            <div class="timezone-section">
+              <div>
+                <span class="timezone-label">Agenda</span>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button
+                class="refresh-button"
+                [disabled]="isLoading"
+                (click)="refreshEvents()">
+                <mat-icon>refresh</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Event Dropdown -->
+          <div class="event-selector-section">
+            <mat-form-field class="full-width" appearance="outline">
+              <mat-label>Select Event</mat-label>
+              <input
+                matInput
+                [disabled]="isLoading"
+                [matAutocomplete]="eventAuto"
+                [(ngModel)]="eventSearchInput"
+                (input)="onEventInputChange($event)"
+                placeholder="Search or select an event"
+                type="text" />
+              <mat-autocomplete
+                #eventAuto="matAutocomplete"
+                [displayWith]="getEventDisplayValue"
+                (optionSelected)="onEventSelected($event)">
+                @for (event of filteredEvents; track event.EventIdentifier) {
+                  <mat-option [value]="event">
+                    {{ event.EventIdentifier }} ({{ event.Domain }})
+                  </mat-option>
+                }
+                @if (filteredEvents.length === 0 && eventSearchInput) {
+                  <mat-option disabled> No events found </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <!-- Sessions Table -->
+          @if (selectedEvent) {
+            <div class="sessions-section">
+              <div class="sessions-header">
+                <h3>Sessions</h3>
+                <div class="header-actions">
+                  @if (getSelectedFilteredCount() > 0) {
+                    <span class="selected-count">
+                      {{ getSelectedFilteredCount() }} session(s) selected
+                    </span>
+                  }
+                  <button
+                    mat-raised-button
+                    class="limit-bio-button"
+                    [disabled]="
+                      getSelectedFilteredCount() === 0 || isLoadingSessions || isLimitingBio
+                    "
+                    (click)="limitBio()"
+                    color="primary">
+                    @if (isLimitingBio) {
+                      <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+                    } @else {
+                      <mat-icon>text_fields</mat-icon>
+                    }
+                    {{ isLimitingBio ? 'Limiting Bio...' : 'Limit Bio' }}
+                  </button>
+                </div>
+              </div>
+
+              @if (isLoadingSessions) {
+                <div class="loading-container">
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+              } @else if (sessions.length === 0) {
+                <div class="no-sessions-message">
+                  <p>No sessions available for this event.</p>
+                </div>
+              } @else {
+                <div>
+                  <div class="filter-container">
+                    <div class="filter-label">
+                      <span>Filter</span>
+                    </div>
+                    <div class="filter-field">
+                      <input
+                        id="searchInput"
+                        (keyup)="applyFilter($event)"
+                        placeholder=" "
+                        type="text" />
+                      <label for="searchInput">Search Session</label>
+                    </div>
+                    @if (uniqueDays.length > 0) {
+                      <div class="filter-select">
+                        <mat-form-field
+                          class="file-filter-select"
+                          appearance="outline">
+                          <mat-label>Event Day</mat-label>
+                          <mat-select
+                            [value]="selectedEventDay"
+                            (selectionChange)="
+                              onEventDayFilterChange($event.value)
+                            ">
+                            <mat-option value="">All Days</mat-option>
+                            @for (day of uniqueDays; track day) {
+                              <mat-option [value]="day">{{ day }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    }
+                  </div>
+                  <table
+                    mat-table
+                    matSort
+                    class="versions-table"
+                    [dataSource]="dataSource"
+                    multiTemplateDataRows>
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="select">
+                      <th *matHeaderCellDef mat-header-cell>
+                        <mat-checkbox
+                          [checked]="isAllSelected()"
+                          [indeterminate]="isIndeterminate()"
+                          (change)="toggleAllSessions($event.checked)">
+                        </mat-checkbox>
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        @if (hasSpeakers(row)) {
+                          <mat-checkbox
+                            [checked]="isSessionSelected(row.SessionId)"
+                            (change)="
+                              onSessionToggle(row.SessionId, $event.checked)
+                            "
+                            (click)="$event.stopPropagation()">
+                          </mat-checkbox>
+                        }
+                      </td>
+                    </ng-container>
+
+                    <!-- Start Date Column -->
+                    <ng-container matColumnDef="startDate">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        Start Date
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)"
+                        style="min-width: 110px">
+                        {{ row.StartsAt | date: 'yyyy-MM-dd' }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Start Time Column -->
+                    <ng-container matColumnDef="startTime">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        Start Time
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.StartsAt | date: 'HH:mm' }}
+                      </td>
+                    </ng-container>
+
+                    <!-- End Time Column -->
+                    <ng-container matColumnDef="endTime">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        End Time
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.EndsAt | date: 'HH:mm' }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Event Day Column -->
+                    <ng-container matColumnDef="eventDay">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        Event Day
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.EventDay }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Session Title Column -->
+                    <ng-container matColumnDef="title">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        Session Title
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.SessionTitle }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Session ID Column -->
+                    <ng-container matColumnDef="sessionid">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header class="session-id-header">
+                        Session ID
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        class="session-id-cell"
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.SessionId }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Status Column -->
+                    <ng-container matColumnDef="status">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header class="status-header">
+                        Status
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        class="status-cell"
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        <div
+                          style="
+                            display: flex;
+                            align-items: center;
+                            text-align: center;
+                          ">
+                          @if (row.Status === EventStatus.NotStarted) {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)">
+                              Not Started
+                            </span>
+                          } @else if (row.Status === EventStatus.InProgress) {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)"
+                              style="background-color: rgb(0, 161, 94)">
+                              Live
+                            </span>
+                          } @else if (row.Status === 'NOT_AVAILABLE') {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)">
+                              Hidden
+                            </span>
+                          } @else if (
+                            row.Status === EventStatus.UnderReview &&
+                            !row.Editor
+                          ) {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)">
+                              To Review
+                            </span>
+                          } @else if (
+                            row.Status === EventStatus.UnderReview && row.Editor
+                          ) {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)"
+                              style="background-color: rgb(156 106 255)">
+                              In Review
+                            </span>
+                          } @else if (
+                            row.Status === EventStatus.ReviewComplete
+                          ) {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)"
+                              style="background-color: rgb(0, 161, 94)">
+                              Completed
+                            </span>
+                          } @else if (
+                            row.Status === EventStatus.ProcessingInsights
+                          ) {
+                            <span
+                              class="session-status-badge"
+                              [ngClass]="getStatusClass(row.Status)">
+                              Processing Insights
+                            </span>
+                          }
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Track Column -->
+                    <ng-container matColumnDef="track">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        Track
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.Track }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Type Column -->
+                    <ng-container matColumnDef="Type">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                        Type
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ row.Type }}
+                      </td>
+                    </ng-container>
+
+                    <!-- Total Speakers Column -->
+                    <ng-container matColumnDef="totalSpeakers">
+                      <th *matHeaderCellDef mat-header-cell mat-sort-header class="total-speakers-header">
+                        Total Speakers
+                      </th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        class="total-speakers-cell"
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        {{ getSpeakerCount(row) }}
+                      </td>
+                    </ng-container>
+
+                    <!-- 0 Column -->
+                    <ng-container matColumnDef="expand">
+                      <th *matHeaderCellDef mat-header-cell class="expand-header"></th>
+                      <td
+                        *matCellDef="let row; let i = index"
+                        mat-cell
+                        class="expand-cell"
+                        [class.selected]="selectedRowIndex === i"
+                        (click)="highlightRow(row, i)">
+                        @if (hasSpeakers(row)) {
+                          <button
+                            mat-icon-button
+                            type="button"
+                            (click)="toggleSessionExpansion(row.SessionId); $event.stopPropagation()">
+                            <mat-icon>
+                              {{
+                                isSessionExpanded(row.SessionId)
+                                  ? 'expand_less'
+                                  : 'expand_more'
+                              }}
+                            </mat-icon>
+                          </button>
+                        }
+                      </td>
+                    </ng-container>
+
+                    
+
+                    <!-- Expanded Content Column -->
+                    <ng-container matColumnDef="expandedDetail" >
+                      <td
+                      mat-cell
+                        *matCellDef="let row"
+                        colspan="12"
+                        class="expanded-row">
+                        @if (
+                          isSessionExpanded(row.SessionId) &&
+                          hasSpeakers(row)
+                        ) {
+                          <div class="speakers-container">
+                            <div class="speakers-header-section">
+                              <h4>Speakers</h4>
+                            </div>
+                            <div class="speakers-list">
+                              @for (
+                                speaker of getSpeakersForSession(row);
+                                track speaker.speakerId
+                              ) {
+                                <div class="speaker-item">
+                                  <div class="speaker-content">
+                                    <div class="speaker-header">
+                                      @if (getSpeakerImageUrl(speaker)) {
+                                        <img
+                                          [src]="getSpeakerImageUrl(speaker)"
+                                          [alt]="speaker.Name"
+                                          class="speaker-image"
+                                          (error)="
+                                            $event.target.style.display =
+                                              'none'
+                                          " />
+                                      } @else {
+                                        <div class="speaker-image-placeholder">
+                                          <mat-icon>person</mat-icon>
+                                        </div>
+                                      }
+                                      <div class="speaker-name-container">
+                                        <span class="speaker-name">{{
+                                          speaker.Name
+                                        }}</span>
+                                        @if (speaker.isModerator) {
+                                          <span class="moderator-badge"
+                                            >Moderator</span
+                                          >
+                                        }
+                                      </div>
+                                    </div>
+                                    <div class="speaker-details">
+                                      @if (speaker.Title) {
+                                        <div class="speaker-detail-row">
+                                          <strong>Title:</strong>
+                                          <span>{{ speaker.Title }}</span>
+                                        </div>
+                                      }
+                                      @if (speaker.Organization) {
+                                        <div class="speaker-detail-row">
+                                          <strong>Organization:</strong>
+                                          <span>{{
+                                            speaker.Organization
+                                          }}</span>
+                                        </div>
+                                      }
+                                      @if (speaker.SpeakerBio) {
+                                        <div class="speaker-bio-section">
+                                          <strong>Bio: ({{ getWordCount(speaker.SpeakerBio) }} words)</strong>
+                                          <p class="speaker-bio">{{
+                                            speaker.SpeakerBio
+                                          }}</p>
+                                        </div>
+                                      } @else {
+                                        <div class="speaker-bio-section">
+                                          <p class="no-bio">No bio available</p>
+                                        </div>
+                                      }
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </td>
+                    </ng-container>
+
+                    <!-- Table Header and Row Declarations -->
+                    <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+                    <tr
+                      *matRowDef="let row; columns: displayedColumns"
+                      mat-row
+                      [class.selected]="selectedRowIndex === row"
+                      class="element-row">
+                    </tr>
+                    <tr
+                      *matRowDef="let row; columns: ['expandedDetail']"
+                      mat-row
+                      class="detail-row"
+                      [class.expanded-detail-row]="isSessionExpanded(row.SessionId) && hasSpeakers(row)"></tr>
+                  </table>
+                  <mat-paginator
+                    [length]="totalRecords"
+                    [pageSize]="pageSize"
+                    [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
+                    showFirstLastButtons></mat-paginator>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-event-selected">
+              <p>Please select an event to view sessions.</p>
+            </div>
+          }
+
+          @if (isLoading) {
+            <div class="loading-container">
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

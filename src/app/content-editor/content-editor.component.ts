@@ -610,7 +610,9 @@ export class ContentEditorComponent {
     });
   }
 
-  openMarkdownDialog(content: any, version: string): void {
+  openMarkdownDialog(content: any, version: string | number): void {
+    // Convert version to number if it's a string
+    const versionNumber = typeof version === 'string' ? parseInt(version, 10) : version;
     const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
       data: {
         initialText: JSON.stringify(content, null, 2),
@@ -618,7 +620,7 @@ export class ContentEditorComponent {
         selected_session: this.selected_session,
         selectedSessionType: this.selectedSessionType,
         selectedReportType: this.selectedReportType,
-        version: version,
+        version: versionNumber,
       } as MarkdownEditorData,
       width: '1000px', // Adjust dialog width (optional)
       maxWidth: '100vw', // prevents exceeding viewport width

@@ -26,6 +26,13 @@ export const NAVIGATION_MENU = new InjectionToken<MenuItem[]>(
         routerLink: '/report',
         roles: [UserRole.SuperAdmin, UserRole.EventOrganizer],
       },
+      {
+        id: 'agenda',
+        label: 'Agenda',
+        icon: 'event_note',
+        routerLink: '/agenda',
+        roles: [UserRole.SuperAdmin, UserRole.EventOrganizer],
+      },
     ],
   }
 );

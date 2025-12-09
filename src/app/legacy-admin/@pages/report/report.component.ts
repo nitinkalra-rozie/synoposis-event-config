@@ -17,6 +17,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Inject,
@@ -41,14 +42,20 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, Observable, of } from 'rxjs';
+import {
+  MarkdownEditorData,
+  MarkdownEditorDialogComponent,
+} from 'src/app/content-editor/components/edit-content-dialog/markdown-editor-dialog.component';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
@@ -190,6 +197,7 @@ export class AudioPlayerDialogComponent {
   templateUrl: './report.component.html',
   styleUrls: ['./report.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -199,6 +207,7 @@ export class AudioPlayerDialogComponent {
     MatIconModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatRadioModule,
     MatInputModule,
     MatAutocompleteModule,
     MatButtonModule,
@@ -209,6 +218,7 @@ export class AudioPlayerDialogComponent {
     MatSortModule,
     MatPaginatorModule,
     MatTooltipModule,
+    MatTabsModule,
     MatDialogModule,
     TopBarComponent,
     DatePipe,
@@ -241,6 +251,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
   /** Material paginator for the sessions table */
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
+  /** Material paginator for the track debrief table */
+  @ViewChild('trackDebriefPaginator') public trackDebriefPaginator!: MatPaginator;
   /** Material sort for the sessions table */
   @ViewChild(MatSort) public sort!: MatSort;
 
@@ -262,12 +274,15 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public sessions: Session[] = [];
   /** Set of selected session IDs */
   public selectedSessions: Set<string> = new Set();
+  
+  /** Default session IDs to be selected by default */
+  private readonly defaultSessionIds: string[] = [];
   /** Array of content versions for the selected event */
   public contentVersions: any[] = [];
   /** Event report details containing published report URLs */
   public eventReportDetails: any = null;
   /** Number of items per page in the paginator */
-  public pageSize = 10;
+  public pageSize = 10
   /** Total number of records in the table */
   public totalRecords = 0;
   /** Index of the currently selected/highlighted row */
@@ -282,6 +297,26 @@ export class ReportComponent implements OnInit, AfterViewInit {
     | 'both'
     | 'either'
     | 'neither' = 'all';
+  /** Array of unique event days extracted from sessions */
+  public uniqueDays: string[] = [];
+  /** Selected event day filter value */
+  public selectedEventDay: string = '';
+  /** Array of unique tracks extracted from sessions */
+  public uniqueTracks: string[] = [];
+  /** Selected track filter value */
+  public selectedTrack: string = '';
+  /** Track search filter value */
+  public trackSearchFilter: string = '';
+  /** Brief filter mode: 'daily_debrief' | 'track_debrief' */
+  public briefFilterMode: 'daily_debrief' | 'track_debrief' = 'daily_debrief';
+  /** Filter mode for PDF V1 and V2: 'all' | 'pdfV1Only' | 'pdfV2Only' | 'both' | 'either' | 'neither' */
+  public pdfFilterMode:
+    | 'all'
+    | 'pdfV1Only'
+    | 'pdfV2Only'
+    | 'both'
+    | 'either'
+    | 'neither' = 'all';
 
   /** Column definitions for the Material table */
   public displayedColumns: string[] = [
@@ -289,6 +324,27 @@ export class ReportComponent implements OnInit, AfterViewInit {
     'startDate',
     'startTime',
     'endTime',
+    'eventDay',
+    'title',
+    'sessionid',
+    'status',
+    'track',
+    'Type',
+    'edit',
+    'pdfPathV1',
+    'pdfPathV2',
+    'version',
+    'publishPdf',
+    'audioFile',
+  ];
+
+  /** Column definitions for the Other Brief table (excludes publishPdf, audioFile, and edit) */
+  public displayedColumnsOtherBrief: string[] = [
+    'select',
+    'startDate',
+    'startTime',
+    'endTime',
+    'eventDay',
     'title',
     'sessionid',
     'status',
@@ -297,12 +353,30 @@ export class ReportComponent implements OnInit, AfterViewInit {
     'pdfPathV1',
     'pdfPathV2',
     'version',
-    'publishPdf',
-    'audioFile',
+  ];
+
+  /** Column definitions for the Daily Debrief table (only eventDay, pdfPathV1, pdfPathV2, version) */
+  public displayedColumnsDailyDebrief: string[] = [
+    'eventDay',
+    'pdfPathV1',
+    'pdfPathV2',
+    'version',
+  ];
+
+  /** Column definitions for the Track Debrief table (only track, pdfPathV1, pdfPathV2, version) */
+  public displayedColumnsTrackDebrief: string[] = [
+    'track',
+    'pdfPathV1',
+    'pdfPathV2',
+    'version',
   ];
 
   /** Material table data source for sessions */
   public dataSource = new MatTableDataSource<Session>([]);
+  /** Material table data source for daily debrief */
+  public dailyDebriefDataSource = new MatTableDataSource<any>([]);
+  /** Material table data source for unique tracks (Track Debrief) */
+  public trackDebriefDataSource = new MatTableDataSource<any>([]);
 
   /** EventStatus enum reference for template usage */
   protected readonly EventStatus = EventStatus;
@@ -323,6 +397,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
       { label: 'Elsa Events' },
       { label: 'Report', active: true },
     ];
+    this.cdr.markForCheck();
     this.isLoading = true;
     this.getEvents();
   }
@@ -335,8 +410,48 @@ export class ReportComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
+    // Set up custom sorting data accessor
+    this.setSortingDataAccessor();
     // Set up custom filter predicate
     this.setFilterPredicate();
+  }
+
+  /**
+   * Sets up the custom sorting data accessor for the data source.
+   * This accessor handles date/time sorting and other custom column sorting.
+   * @private
+   * @returns {void}
+   */
+  private setSortingDataAccessor(): void {
+    this.dataSource.sortingDataAccessor = (item: Session & { pdfVersion?: number }, property: string) => {
+      switch (property) {
+        case 'startDate':
+          // Sort by date part of StartsAt
+          return item.StartsAt ? new Date(item.StartsAt).getTime() : 0;
+        case 'startTime':
+          // Sort by time part of StartsAt
+          return item.StartsAt ? new Date(item.StartsAt).getTime() : 0;
+        case 'endTime':
+          // Sort by time part of EndsAt
+          return item.EndsAt ? new Date(item.EndsAt).getTime() : 0;
+        case 'eventDay':
+          return item.EventDay || '';
+        case 'title':
+          return item.SessionTitle || '';
+        case 'sessionid':
+          return item.SessionId || '';
+        case 'status':
+          return item.Status || '';
+        case 'track':
+          return item.Track || '';
+        case 'Type':
+          return item.Type || '';
+        case 'version':
+          return item.pdfVersion || 0;
+        default:
+          return (item as any)[property];
+      }
+    };
   }
 
   /**
@@ -401,7 +516,70 @@ export class ReportComponent implements OnInit, AfterViewInit {
           break;
       }
 
-      return textMatch && fileFilterMatch;
+      // Event Day filter
+      const eventDayMatch =
+        !this.selectedEventDay || data.EventDay === this.selectedEventDay;
+
+      // Track filter (for Track Debrief)
+      const trackMatch =
+        this.briefFilterMode !== 'track_debrief' ||
+        (!this.selectedTrack || data.Track === this.selectedTrack);
+
+      // Track search filter (for Track Debrief)
+      const trackSearchMatch =
+        this.briefFilterMode !== 'track_debrief' ||
+        !this.trackSearchFilter ||
+        (data.Track &&
+          data.Track.toLowerCase().includes(this.trackSearchFilter.toLowerCase()));
+
+      // Brief filter (Daily Brief or Track Brief)
+      let briefFilterMatch = true;
+      if (this.briefFilterMode === 'daily_debrief') {
+        // Daily Brief: filter by Event Day (group by day)
+        briefFilterMatch = true; // This will be handled by grouping logic if needed
+      } else if (this.briefFilterMode === 'track_debrief') {
+        // Track Brief: filter by Track (group by track)
+        briefFilterMatch = true; // This will be handled by grouping logic if needed
+      }
+
+      // PDF filter mode (V1 and V2)
+      let pdfFilterMatch = true;
+      const hasPdfV1 = !!(
+        (data as any).pdfPathV1 &&
+        (typeof (data as any).pdfPathV1 === 'string'
+          ? (data as any).pdfPathV1.trim().length > 0
+          : (data as any).pdfPathV1)
+      );
+      const hasPdfV2 = !!(
+        (data as any).pdfPathV2 &&
+        (typeof (data as any).pdfPathV2 === 'string'
+          ? (data as any).pdfPathV2.trim().length > 0
+          : (data as any).pdfPathV2)
+      );
+
+      switch (this.pdfFilterMode) {
+        case 'pdfV1Only':
+          pdfFilterMatch = hasPdfV1 && !hasPdfV2;
+          break;
+        case 'pdfV2Only':
+          pdfFilterMatch = hasPdfV2 && !hasPdfV1;
+          break;
+        case 'both':
+          pdfFilterMatch = hasPdfV1 && hasPdfV2;
+          break;
+        case 'either':
+          pdfFilterMatch = hasPdfV1 || hasPdfV2;
+          break;
+        case 'neither':
+          pdfFilterMatch = !hasPdfV1 && !hasPdfV2;
+          break;
+        case 'all':
+        default:
+          pdfFilterMatch = true;
+          break;
+      }
+
+      return textMatch && fileFilterMatch && eventDayMatch && trackMatch && trackSearchMatch && pdfFilterMatch && briefFilterMatch;
     };
   }
 
@@ -467,11 +645,19 @@ export class ReportComponent implements OnInit, AfterViewInit {
     if (!eventIdentifier) {
       this.sessions = [];
       this.dataSource = new MatTableDataSource([]);
+      this.setSortingDataAccessor();
       this.setFilterPredicate();
       this.selectedSessions.clear();
       // Reset filters
       this.textFilterValue = '';
       this.fileFilterMode = 'all';
+      this.pdfFilterMode = 'all';
+      this.selectedEventDay = '';
+      this.uniqueDays = [];
+      this.selectedTrack = '';
+      this.uniqueTracks = [];
+      this.trackSearchFilter = '';
+      this.briefFilterMode = 'daily_debrief';
       // Reset event search input
       this.eventSearchInput = '';
       this.filteredEvents = this.events;
@@ -484,6 +670,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Reset filters
     this.textFilterValue = '';
     this.fileFilterMode = 'all';
+    this.pdfFilterMode = 'all';
+    this.selectedEventDay = '';
+    this.uniqueDays = [];
+    this.briefFilterMode = 'daily_debrief';
 
     this.getSessionsForEvent(eventIdentifier);
   }
@@ -537,6 +727,381 @@ export class ReportComponent implements OnInit, AfterViewInit {
       | 'neither';
     this.applyAllFilters();
   }
+
+  /**
+   * Extracts unique event days from the sessions array.
+   * @private
+   * @returns {void}
+   */
+  private extractUniqueDays(): void {
+    if (!this.sessions || this.sessions.length === 0) {
+      this.uniqueDays = [];
+      return;
+    }
+
+    const days = this.sessions
+      .map((session) => session.EventDay)
+      .filter((day) => day && day.trim().length > 0);
+
+    this.uniqueDays = Array.from(new Set(days)).sort();
+  }
+
+  /**
+   * Extracts unique tracks from the sessions array.
+   * @private
+   * @returns {void}
+   */
+  private extractUniqueTracks(): void {
+    if (!this.sessions || this.sessions.length === 0) {
+      this.uniqueTracks = [];
+      return;
+    }
+
+    const tracks = this.sessions
+      .map((session) => session.Track)
+      .filter((track) => track && track.trim().length > 0);
+
+    this.uniqueTracks = Array.from(new Set(tracks)).sort();
+  }
+
+
+  /**
+   * Gets the latest PDF paths (V1 and V2) for a track using contentIdentifier.
+   * Filters content versions by contentIdentifier format: "Event Name | Track Name"
+   * @param {string} trackName - The name of the track
+   * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, and version, or null if not found
+   */
+  private getLatestPdfPathsForTrack(trackName: string): { pdfPathV1: string; pdfPathV2: string; version: number } | null {
+    if (!this.contentVersions || this.contentVersions.length === 0 || !this.selectedEvent || !trackName) {
+      return null;
+    }
+
+    // Separate trackName by underscore and join with space
+    const separatedTrackName = trackName.split(' ').join('_');
+
+    // Create contentIdentifier in format: "Event Name | Track Name" (with separated track name)
+    const contentIdentifier = `${this.selectedEvent}|${separatedTrackName}`;
+
+    console.log('contentIdentifier', contentIdentifier);
+
+    // Filter versions by contentIdentifier and reportType (track_debrief)
+    // Use lowercase comparison on both sides for case-insensitive matching
+    const matchingVersions = this.contentVersions.filter(
+      (version: any) =>
+        version.contentIdentifier?.toLowerCase() === contentIdentifier.toLowerCase() &&
+        version.reportType === 'track_debrief'
+    );
+
+    if (matchingVersions.length === 0) {
+      return null;
+    }
+
+    // Sort by version number (descending) to get the latest version
+    const sortedVersions = matchingVersions.sort((a: any, b: any) => {
+      const versionA = a.version || 0;
+      const versionB = b.version || 0;
+      return versionB - versionA;
+    });
+
+    const latestVersion = sortedVersions[0];
+    return {
+      pdfPathV1: latestVersion.pdfPathV1 || '',
+      pdfPathV2: latestVersion.pdfPathV2 || '',
+      version: latestVersion.version || 0,
+    };
+  }
+
+  /**
+   * Generates unique tracks data for Track Debrief table.
+   * Groups sessions by track and gets PDF information from content-versions API
+   * filtered by contentIdentifier: "Event Name | Track Name"
+   * @private
+   * @returns {void}
+   */
+  private generateUniqueTracksData(): void {
+    if (!this.sessions || this.sessions.length === 0) {
+      this.trackDebriefDataSource = new MatTableDataSource([]);
+      return;
+    }
+
+    // Group sessions by track
+    const trackMap = new Map<string, Session[]>();
+    this.sessions.forEach((session) => {
+      const track = session.Track || '';
+      if (track && track.trim().length > 0) {
+        if (!trackMap.has(track)) {
+          trackMap.set(track, []);
+        }
+        trackMap.get(track)!.push(session);
+      }
+    });
+
+    // Create unique track entries with PDF information from content-versions API
+    const uniqueTracksData: any[] = [];
+    trackMap.forEach((sessions, track) => {
+      // Get PDF information from content-versions API filtered by contentIdentifier
+      const pdfPaths = this.getLatestPdfPathsForTrack(track);
+
+      uniqueTracksData.push({
+        Track: track,
+        pdfPathV1: pdfPaths?.pdfPathV1 || '',
+        pdfPathV2: pdfPaths?.pdfPathV2 || '',
+        version: pdfPaths?.version || 0,
+        // Store track name for PDF viewing
+        _trackName: track,
+      });
+    });
+
+    // Sort by track name
+    uniqueTracksData.sort((a, b) => a.Track.localeCompare(b.Track));
+
+    // Update the track debrief data source
+    this.trackDebriefDataSource = new MatTableDataSource(uniqueTracksData);
+    // Set up filter predicate for track search
+    this.trackDebriefDataSource.filterPredicate = (data: any, filter: string) => {
+      if (!filter) return true;
+      const searchTerm = filter.toLowerCase();
+      return data.Track?.toLowerCase().includes(searchTerm) || false;
+    };
+    setTimeout(() => {
+      this.trackDebriefDataSource.sort = this.sort;
+      if (this.trackDebriefPaginator) {
+        this.trackDebriefDataSource.paginator = this.trackDebriefPaginator;
+      }
+    }, 100);
+  }
+
+  /**
+   * Generates unique event days data for Daily Debrief table.
+   * Groups sessions by event day and gets PDF information from content-versions API
+   * filtered by contentIdentifier: "Event Name | Daily Debrief ID"
+   * @private
+   * @returns {void}
+   */
+  private generateUniqueEventDaysData(): void {
+    if (!this.sessions || this.sessions.length === 0) {
+      this.dailyDebriefDataSource = new MatTableDataSource([]);
+      return;
+    }
+
+    // Group sessions by event day
+    const eventDayMap = new Map<string, Session[]>();
+    this.sessions.forEach((session) => {
+      const eventDay = session.EventDay || '';
+      if (eventDay && eventDay.trim().length > 0) {
+        if (!eventDayMap.has(eventDay)) {
+          eventDayMap.set(eventDay, []);
+        }
+        eventDayMap.get(eventDay)!.push(session);
+      }
+    });
+
+    // Create unique event day entries with PDF information from content-versions API
+    const uniqueEventDaysData: any[] = [];
+    eventDayMap.forEach((sessions, eventDay) => {
+      // Get PDF information from content-versions API filtered by contentIdentifier
+      // Format: "EventName|DailyDebriefId" where DailyDebriefId is the event day
+      const dailyDebriefId = eventDay.replace(/\s+/g, '_');
+      const pdfPaths = this.getLatestPdfPathsForDailyDebrief(dailyDebriefId);
+
+      uniqueEventDaysData.push({
+        EventDay: eventDay,
+        pdfPathV1: pdfPaths?.pdfPathV1 || '',
+        pdfPathV2: pdfPaths?.pdfPathV2 || '',
+        version: pdfPaths?.version || 0,
+        // Store event day for PDF viewing
+        _eventDay: eventDay,
+        _dailyDebriefId: dailyDebriefId,
+      });
+    });
+
+    // Sort by event day
+    uniqueEventDaysData.sort((a, b) => a.EventDay.localeCompare(b.EventDay));
+
+    // Update the daily debrief data source
+    this.dailyDebriefDataSource = new MatTableDataSource(uniqueEventDaysData);
+    // Set up filter predicate for event day filter
+    this.dailyDebriefDataSource.filterPredicate = (data: any, filter: string) => {
+      if (!filter) return true;
+      return data.EventDay === filter;
+    };
+    setTimeout(() => {
+      this.dailyDebriefDataSource.sort = this.sort;
+      if (this.paginator) {
+        this.dailyDebriefDataSource.paginator = this.paginator;
+      }
+    }, 100);
+  }
+
+  /**
+   * Gets the latest PDF paths for a daily debrief by daily debrief ID.
+   * @param {string} dailyDebriefId - The daily debrief ID (e.g., "Day_1")
+   * @returns {any} Object with pdfPathV1, pdfPathV2, and version
+   * @private
+   */
+  private getLatestPdfPathsForDailyDebrief(dailyDebriefId: string): any {
+    if (!this.selectedEvent || !this.contentVersions || !dailyDebriefId) {
+      return null;
+    }
+
+    // Create contentIdentifier in format: "Event Name | Daily Debrief ID"
+    const contentIdentifier = `${this.selectedEvent}|${dailyDebriefId}`;
+
+    // Filter versions by contentIdentifier and reportType (daily_debrief)
+    // Use lowercase comparison on both sides for case-insensitive matching
+    const matchingVersions = this.contentVersions.filter(
+      (version: any) =>
+        version.contentIdentifier?.toLowerCase() === contentIdentifier.toLowerCase() &&
+        version.reportType === 'daily_debrief'
+    );
+
+    if (matchingVersions.length === 0) {
+      return null;
+    }
+
+    // Sort by version number (descending) to get the latest version
+    const sortedVersions = matchingVersions.sort((a: any, b: any) => {
+      const versionA = a.version || 0;
+      const versionB = b.version || 0;
+      return versionB - versionA;
+    });
+
+    const latestVersion = sortedVersions[0];
+    return {
+      pdfPathV1: latestVersion.pdfPathV1 || '',
+      pdfPathV2: latestVersion.pdfPathV2 || '',
+      version: latestVersion.version || 0,
+    };
+  }
+
+  /**
+   * Applies the track search filter for Track Debrief table.
+   * @param {Event} event - The keyboard event from the search input
+   * @returns {void}
+   */
+  public applyTrackDebriefSearchFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value.trim();
+    this.trackSearchFilter = filterValue;
+    // Apply filter to track debrief data source
+    this.trackDebriefDataSource.filter = filterValue;
+    if (this.trackDebriefPaginator) {
+      this.trackDebriefDataSource.paginator = this.trackDebriefPaginator;
+      this.trackDebriefPaginator.firstPage();
+      this.cdr.detectChanges();
+    }
+  }
+
+  /**
+   * Handles the event day filter change.
+   * @param {string} eventDay - The selected event day filter value
+   * @returns {void}
+   */
+  public onEventDayFilterChange(eventDay: string): void {
+    this.selectedEventDay = eventDay;
+    this.applyAllFilters();
+  }
+
+  /**
+   * Handles the event day filter change for Daily Debrief table.
+   * @param {string} eventDay - The selected event day filter value
+   * @returns {void}
+   */
+  public onDailyDebriefEventDayFilterChange(eventDay: string): void {
+    if (this.dailyDebriefDataSource) {
+      this.dailyDebriefDataSource.filter = eventDay || '';
+      if (this.paginator) {
+        this.dailyDebriefDataSource.paginator = this.paginator;
+        this.paginator.firstPage();
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  /**
+   * Handles the Brief filter mode change.
+   * @param {string} mode - The filter mode: 'daily_debrief' | 'track_debrief'
+   * @returns {void}
+   */
+  public onBriefFilterModeChange(mode: string): void {
+    this.briefFilterMode = mode as 'daily_debrief' | 'track_debrief';
+    // Reset track filter when switching modes
+    if (mode === 'daily_debrief') {
+      this.selectedTrack = '';
+      this.trackSearchFilter = '';
+    }
+    this.applyAllFilters();
+  }
+
+  /**
+   * Handles the Other Brief tab change (nested tabs).
+   * @param {any} event - The tab change event containing the index
+   * @returns {void}
+   */
+  /**
+   * Handles the main tab change (Session Debrief vs Other Debrief).
+   * @param {any} event - The tab change event containing the index
+   * @returns {void}
+   */
+  public onMainTabChange(event: any): void {
+    const tabIndex = event.index !== undefined ? event.index : 0;
+    // If Other Debrief tab is selected (index 1), generate data for the default sub-tab (Daily Debrief)
+    if (tabIndex === 1) {
+      // Generate data for Daily Debrief (default sub-tab)
+      this.generateUniqueEventDaysData();
+    }
+  }
+
+  public onOtherBriefTabChange(event: any): void {
+    const tabIndex = event.index !== undefined ? event.index : 0;
+    const mode = tabIndex === 0 ? 'daily_debrief' : 'track_debrief';
+    this.onBriefFilterModeChange(mode);
+    
+    // Generate data for the selected tab
+    if (tabIndex === 0) {
+      // Daily Debrief tab
+      this.generateUniqueEventDaysData();
+    } else {
+      // Track Debrief tab
+      this.generateUniqueTracksData();
+    }
+  }
+
+  /**
+   * Handles the track filter change.
+   * @param {string} track - The selected track filter value
+   * @returns {void}
+   */
+  public onTrackFilterChange(track: string): void {
+    this.selectedTrack = track;
+    this.applyAllFilters();
+  }
+
+  /**
+   * Applies the track search filter.
+   * @param {Event} event - The keyboard event from the search input
+   * @returns {void}
+   */
+  public applyTrackSearchFilter(event: Event): void {
+    this.trackSearchFilter = (event.target as HTMLInputElement).value.trim();
+    this.applyAllFilters();
+  }
+
+  /**
+   * Handles the PDF filter mode change.
+   * @param {string} mode - The filter mode: 'all' | 'pdfV1Only' | 'pdfV2Only' | 'both' | 'either' | 'neither'
+   * @returns {void}
+   */
+  public onPdfFilterModeChange(mode: string): void {
+    this.pdfFilterMode = mode as
+      | 'all'
+      | 'pdfV1Only'
+      | 'pdfV2Only'
+      | 'both'
+      | 'either'
+      | 'neither';
+    this.applyAllFilters();
+  }
+
 
   /**
    * Gets the currently filtered/visible sessions from the data source.
@@ -690,6 +1255,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
             session.Status === EventStatus.ReviewComplete
         );
 
+        // Auto-select default session IDs if they exist in the filtered sessions
+        this.selectDefaultSessions();
+
         // Process content versions response
         const contentVersionsResponse = responses.contentVersions as any;
         this.contentVersions = contentVersionsResponse?.versions || [];
@@ -706,6 +1274,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
         // Only display listing if we have sessions
         if (this.sessions && this.sessions.length > 0) {
+          // Extract unique event days
+          this.extractUniqueDays();
+          // Extract unique tracks
+          this.extractUniqueTracks();
+          // Trigger change detection to update UI
+          this.cdr.markForCheck();
+
           // Map report URLs to sessions (without updating data source yet)
           this.mapReportUrlsToSessions(false);
 
@@ -714,6 +1289,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
         } else {
           // No sessions found, initialize empty data source
           this.dataSource = new MatTableDataSource([]);
+          this.setSortingDataAccessor();
           this.setFilterPredicate();
           this.totalRecords = 0;
         }
@@ -726,6 +1302,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
         this.displayErrorMessage('Failed to load data. Please try again.');
         this.sessions = [];
         this.dataSource = new MatTableDataSource([]);
+        this.setSortingDataAccessor();
         this.setFilterPredicate();
         this.isLoadingSessions = false;
         this.cdr.detectChanges();
@@ -794,6 +1371,27 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Gets the latest PDF paths (V1 and V2) for a specific session based on brief filter mode.
+   * For Other Brief tab: returns daily_brief or track_debrief PDFs based on briefFilterMode.
+   * Ignores sessionType filter for daily_debrief and track_debrief.
+   * @param {Session} session - The session object
+   * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, and version, or null if not found
+   */
+  public getLatestPdfPathsForOtherBrief(
+    session: Session
+  ): { pdfPathV1: string; pdfPathV2: string; version: number } | null {
+    if (!session || !this.briefFilterMode) {
+      return null;
+    }
+
+    // Ignore sessionType filter for daily_debrief and track_debrief
+    return this.getLatestPdfPathsForSessionIgnoringSessionType(
+      session.SessionId,
+      this.briefFilterMode
+    );
+  }
+
+  /**
    * Gets the latest PDF paths (V1 and V2) for a specific session.
    * @param {string} sessionId - The identifier of the session
    * @param {string} sessionType - The type of the session
@@ -820,6 +1418,49 @@ export class ReportComponent implements OnInit, AfterViewInit {
       (version: any) =>
         version.sessionId === sessionId &&
         version.sessionType === normalizedSessionType &&
+        version.reportType === reportType
+    );
+
+  
+    if (matchingVersions.length === 0) {
+      return null;
+    }
+
+    // Sort by version number (descending) to get the latest version
+    const sortedVersions = matchingVersions.sort((a: any, b: any) => {
+      const versionA = a.version || 0;
+      const versionB = b.version || 0;
+      return versionB - versionA;
+    });
+
+    const latestVersion = sortedVersions[0];
+    return {
+      pdfPathV1: latestVersion.pdfPathV1 || '',
+      pdfPathV2: latestVersion.pdfPathV2 || '',
+      version: latestVersion.version || 0,
+    };
+  }
+
+  /**
+   * Gets the latest PDF paths (V1 and V2) for a specific session ignoring sessionType filter.
+   * Used for daily_debrief and track_debrief report types.
+   * @param {string} sessionId - The identifier of the session
+   * @param {string} reportType - The type of report
+   * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, and version, or null if not found
+   */
+  public getLatestPdfPathsForSessionIgnoringSessionType(
+    sessionId: string,
+    reportType: string
+  ): { pdfPathV1: string; pdfPathV2: string; version: number } | null {
+    if (!this.contentVersions || this.contentVersions.length === 0) {
+      return null;
+    }
+
+    
+    // Filter versions by sessionId and reportType only (ignore sessionType)
+    const matchingVersions = this.contentVersions.filter(
+      (version: any) =>
+        version.sessionId === sessionId &&
         version.reportType === reportType
     );
 
@@ -900,7 +1541,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Update the data source only if requested
     if (updateDataSource) {
       this.dataSource = new MatTableDataSource(this.sessions);
-      // Set filter predicate again (lost when creating new data source)
+      // Set sorting data accessor and filter predicate again (lost when creating new data source)
+      this.setSortingDataAccessor();
       this.setFilterPredicate();
       this.totalRecords = this.sessions.length;
       setTimeout(() => {
@@ -972,9 +1614,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Update the data source
     this.dataSource = new MatTableDataSource(this.sessions);
-    // Set filter predicate again (lost when creating new data source)
+    // Set sorting data accessor and filter predicate again (lost when creating new data source)
+    this.setSortingDataAccessor();
     this.setFilterPredicate();
     this.totalRecords = this.sessions.length;
+    
+    // Generate unique tracks data for Track Debrief
+    this.generateUniqueTracksData();
+    
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -1054,6 +1701,267 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.getSignedPdfUrl(session, 'v2');
   }
 
+  
+
+  /**
+   * Views PDF V1 for Track Debrief (unique track row).
+   * Uses contentIdentifier to get the PDF URL.
+   * @param {any} trackRow - The track row object with Track and version properties
+   * @returns {void}
+   */
+  public viewPdfV1ForTrackDebrief(trackRow: any): void {
+    if (!trackRow.Track || !trackRow.pdfPathV1) {
+      this.displayErrorMessage('PDF V1 not available for this track.');
+      return;
+    }
+
+    const pdfPaths = this.getLatestPdfPathsForTrack(trackRow.Track);
+    if (!pdfPaths || !pdfPaths.pdfPathV1) {
+      this.displayErrorMessage('PDF V1 not available for this track.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Opening PDF...' },
+      }
+    );
+
+    // Separate trackName by underscore and join with space
+    const separatedTrackName = trackRow.Track.split('_').join(' ');
+    // Create contentIdentifier in format: "Event Name | Track Name" (with separated track name)
+    const contentIdentifier = `${this.selectedEvent}|${separatedTrackName}`;
+    const reportType = 'track_debrief';
+    const data = {
+      eventId: this.selectedEvent,
+      briefId: contentIdentifier,
+      reportType: reportType,
+      version: pdfPaths.version || 0,
+      promptVersion: 'v1',
+    };
+
+    this._backendApiService.getSignedPdfUrl(data).subscribe({
+      next: (response: any) => {
+        console.log(response['presignedUrl']);
+        dialogRef.close();
+        window.open(response['presignedUrl'], '_blank');
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching PDF URL:', error);
+        this.displayErrorMessage('Failed to open PDF. Please try again.');
+      },
+    });
+  }
+
+  /**
+   * Views PDF V2 for Track Debrief (unique track row).
+   * Uses contentIdentifier to get the PDF URL.
+   * @param {any} trackRow - The track row object with Track and version properties
+   * @returns {void}
+   */
+  public viewPdfV2ForTrackDebrief(trackRow: any): void {
+    if (!trackRow.Track || !trackRow.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this track.');
+      return;
+    }
+
+    const pdfPaths = this.getLatestPdfPathsForTrack(trackRow.Track);
+    if (!pdfPaths || !pdfPaths.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this track.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Opening PDF...' },
+      }
+    );
+
+    // Separate trackName by underscore and join with space
+    const separatedTrackName = trackRow.Track.split('_').join(' ');
+    // Create contentIdentifier in format: "Event Name | Track Name" (with separated track name)
+    const contentIdentifier = `${this.selectedEvent}|${separatedTrackName}`;
+    const reportType = 'track_debrief';
+    const data = {
+      eventId: this.selectedEvent,
+      briefId: contentIdentifier,
+      reportType: reportType,
+      version: pdfPaths.version || 0,
+      promptVersion: 'v2',
+    };
+
+    this._backendApiService.getSignedPdfUrl(data).subscribe({
+      next: (response: any) => {
+        console.log(response['presignedUrl']);
+        dialogRef.close();
+        window.open(response['presignedUrl'], '_blank');
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching PDF URL:', error);
+        this.displayErrorMessage('Failed to open PDF. Please try again.');
+      },
+    });
+  }
+
+  /**
+   * Views PDF V2 for Other Brief (daily_brief or track_debrief based on briefFilterMode).
+   * @param {Session} session - The session object
+   * @returns {void}
+   */
+  /**
+   * Views PDF V1 for Daily Debrief (unique event day row).
+   * Uses contentIdentifier to get the PDF URL.
+   * @param {any} dailyDebriefRow - The daily debrief row object with EventDay and version properties
+   * @returns {void}
+   */
+  public viewPdfV1ForDailyDebrief(dailyDebriefRow: any): void {
+    if (!dailyDebriefRow.EventDay || !dailyDebriefRow.pdfPathV1) {
+      this.displayErrorMessage('PDF V1 not available for this event day.');
+      return;
+    }
+
+    const dailyDebriefId = dailyDebriefRow._dailyDebriefId || dailyDebriefRow.EventDay.replace(/\s+/g, '_');
+    const pdfPaths = this.getLatestPdfPathsForDailyDebrief(dailyDebriefId);
+    if (!pdfPaths || !pdfPaths.pdfPathV1) {
+      this.displayErrorMessage('PDF V1 not available for this event day.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Opening PDF...' },
+      }
+    );
+
+    // Create contentIdentifier in format: "Event Name | Daily Debrief ID"
+    const contentIdentifier = `${this.selectedEvent}|${dailyDebriefId}`;
+    const reportType = 'daily_debrief';
+    const data = {
+      eventId: this.selectedEvent,
+      briefId: contentIdentifier,
+      reportType: reportType,
+      version: pdfPaths.version || 0,
+      promptVersion: 'v1',
+    };
+
+    this._backendApiService.getSignedPdfUrl(data).subscribe({
+      next: (response: any) => {
+        console.log(response['presignedUrl']);
+        dialogRef.close();
+        window.open(response['presignedUrl'], '_blank');
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching PDF URL:', error);
+        this.displayErrorMessage('Failed to open PDF. Please try again.');
+      },
+    });
+  }
+
+  /**
+   * Views PDF V2 for Daily Debrief (unique event day row).
+   * Uses contentIdentifier to get the PDF URL.
+   * @param {any} dailyDebriefRow - The daily debrief row object with EventDay and version properties
+   * @returns {void}
+   */
+  public viewPdfV2ForDailyDebrief(dailyDebriefRow: any): void {
+    if (!dailyDebriefRow.EventDay || !dailyDebriefRow.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this event day.');
+      return;
+    }
+
+    const dailyDebriefId = dailyDebriefRow._dailyDebriefId || dailyDebriefRow.EventDay.replace(/\s+/g, '_');
+    const pdfPaths = this.getLatestPdfPathsForDailyDebrief(dailyDebriefId);
+    if (!pdfPaths || !pdfPaths.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this event day.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Opening PDF...' },
+      }
+    );
+
+    // Create contentIdentifier in format: "Event Name | Daily Debrief ID"
+    const contentIdentifier = `${this.selectedEvent}|${dailyDebriefId}`;
+    const reportType = 'daily_debrief';
+    const data = {
+      eventId: this.selectedEvent,
+      briefId: contentIdentifier,
+      reportType: reportType,
+      version: pdfPaths.version || 0,
+      promptVersion: 'v2',
+    };
+
+    this._backendApiService.getSignedPdfUrl(data).subscribe({
+      next: (response: any) => {
+        console.log(response['presignedUrl']);
+        dialogRef.close();
+        window.open(response['presignedUrl'], '_blank');
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching PDF URL:', error);
+        this.displayErrorMessage('Failed to open PDF. Please try again.');
+      },
+    });
+  }
+
+  public viewPdfV2ForOtherBrief(session: Session): void {
+    const pdfPaths = this.getLatestPdfPathsForOtherBrief(session);
+    if (!pdfPaths || !pdfPaths.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this brief type.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Opening PDF...' },
+      }
+    );
+
+    const reportType = this.briefFilterMode === 'daily_debrief' ? 'daily_brief' : 'track_debrief';
+    // For track_debrief, do not pass sessionId and sessionType
+    const data: any = {
+      eventId: this.selectedEvent,
+      reportType: reportType,
+      version: pdfPaths.version || 0,
+      promptVersion: 'v2',
+    };
+    
+    // Only include sessionId and sessionType for daily_brief
+    if (this.briefFilterMode === 'daily_debrief') {
+      data.sessionId = session.SessionId;
+      data.sessionType = ''; // Empty string to ignore sessionType filter
+    }
+
+    this._backendApiService.getSignedPdfUrl(data).subscribe({
+      next: (response: any) => {
+        console.log(response['presignedUrl']);
+        dialogRef.close();
+        window.open(response['presignedUrl'], '_blank');
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching PDF URL:', error);
+        this.displayErrorMessage('Failed to open PDF. Please try again.');
+      },
+    });
+  }
+
   /**
    * Handles the toggle of a session checkbox.
    * Adds or removes the session from the selectedSessions set.
@@ -1090,6 +1998,134 @@ export class ReportComponent implements OnInit, AfterViewInit {
     if (this.selectedEvent) {
       this.getSessionsForEvent(this.selectedEvent);
     }
+  }
+
+  /**
+   * Automatically selects default session IDs if they exist in the sessions array.
+   * This method is called after sessions are loaded to pre-select specific sessions.
+   * @private
+   * @returns {void}
+   */
+  private selectDefaultSessions(): void {
+    if (!this.sessions || this.sessions.length === 0) {
+      return;
+    }
+
+    // Get all session IDs from the loaded sessions
+    const availableSessionIds = new Set(
+      this.sessions.map((session) => session.SessionId)
+    );
+
+    // Add default session IDs to selectedSessions if they exist in the loaded sessions
+    this.defaultSessionIds.forEach((sessionId) => {
+      if (availableSessionIds.has(sessionId)) {
+        this.selectedSessions.add(sessionId);
+      }
+    });
+
+    if (this.selectedSessions.size > 0) {
+      console.log(
+        `Auto-selected ${this.selectedSessions.size} default session(s)`
+      );
+    }
+  }
+
+  /**
+   * Generates PDF for all selected sessions.
+   * Generates PDF version 2 (latest) for each selected session in parallel.
+   * Shows success/error messages and refreshes the sessions list after completion.
+   * @returns {void}
+   */
+  public generatePDF(): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to generate PDF.'
+      );
+      return;
+    }
+
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const selectedSessionsData = this.sessions.filter((session) =>
+      selectedSessionIds.includes(session.SessionId)
+    );
+
+    if (selectedSessionsData.length === 0) {
+      this.displayErrorMessage('No sessions selected.');
+      return;
+    }
+
+    // Open loading dialog
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Generating PDFs for ${selectedSessionsData.length} session(s)...`,
+        },
+      }
+    );
+
+    // Create array of generate PDF observables with error handling
+    const generateObservables = selectedSessionsData.map(
+      (session: Session) => {
+        const normalizedSessionType = this.normalizeSessionType(
+          session.Type || 'primary'
+        );
+        // Generate PDF v2 (latest version) with error handling
+        const data = {
+          eventId: this.selectedEvent,
+          sessionId: session.SessionId,
+          sessionType: normalizedSessionType,
+          reportType: 'session_debrief',
+          version: session.pdfVersion || 0, 
+          isSinglePrompt: false,
+          dailyDebriefId: ""
+        };
+        return this._backendApiService.generateContentPDFUrl(data);
+      }
+    );
+
+    // Use forkJoin to generate PDFs for all sessions in parallel
+    forkJoin(generateObservables).subscribe({
+      next: (responses) => {
+        console.log('All PDFs generated:', responses);
+        dialogRef.close();
+
+        // Count successful and failed generations
+        const successful = responses.filter((r: any) => !r.error).length;
+        const failed = responses.filter((r: any) => r.error).length;
+
+        if (failed === 0) {
+          this.snackBar.open(
+            `Successfully generated PDFs for ${successful} session(s)!`,
+            'Close',
+            {
+              duration: 5000,
+              panelClass: ['snackbar-success'],
+            }
+          );
+        } else {
+          this.snackBar.open(
+            `Generated PDFs for ${successful} session(s) successfully. ${failed} session(s) failed.`,
+            'Close',
+            {
+              duration: 7000,
+              panelClass: ['snackbar-error'],
+            }
+          );
+        }
+
+        // Refresh the sessions list
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error generating PDFs:', error);
+        this.displayErrorMessage(
+          'Failed to generate some PDFs. Please try again.'
+        );
+      },
+    });
   }
 
   /**
@@ -1263,6 +2299,91 @@ export class ReportComponent implements OnInit, AfterViewInit {
       maxWidth: '90vw',
       data: { audioUrl: audioUrl },
       disableClose: false,
+    });
+  }
+
+  /**
+   * Edits content for a session version.
+   * Fetches the version content and opens the markdown editor dialog.
+   * @param {Session & { pdfVersion?: number }} session - The session object with optional pdfVersion
+   * @returns {void}
+   */
+  public editContent(
+    session: Session & { pdfVersion?: number }
+  ): void {
+    if (!session.pdfVersion) {
+      this.displayErrorMessage('No PDF version available for this session.');
+      return;
+    }
+
+    // Open loading dialog
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Loading content for editing...' },
+      }
+    );
+
+    const normalizedSessionType = this.normalizeSessionType(
+      session.Type || 'primary'
+    );
+    const data = {
+      eventId: this.selectedEvent,
+      sessionId: session.SessionId,
+      sessionType: normalizedSessionType,
+      reportType: 'session_debrief',
+      version: session.pdfVersion,
+    };
+
+    this._backendApiService.getVersionContent(data).subscribe({
+      next: (response) => {
+        dialogRef.close();
+        this.openMarkdownDialog(response, session.pdfVersion!, session);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching version content:', error);
+        this.displayErrorMessage(
+          'Failed to load content for editing. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Opens the markdown editor dialog for editing content.
+   * @param {any} content - The content to edit
+   * @param {number} version - The version number
+   * @param {Session & { pdfVersion?: number }} session - The session object
+   * @returns {void}
+   */
+  public openMarkdownDialog(
+    content: any,
+    version: number,
+    session: Session & { pdfVersion?: number }
+  ): void {
+    const normalizedSessionType = this.normalizeSessionType(
+      session.Type || 'primary'
+    );
+    const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
+      data: {
+        initialText: JSON.stringify(content, null, 2),
+        eventName: this.selectedEvent,
+        selected_session: session.SessionId,
+        selectedSessionType: normalizedSessionType,
+        selectedReportType: 'session_debrief',
+        version: version,
+      } as MarkdownEditorData,
+      width: '1000px',
+      maxWidth: '100vw',
+    });
+
+    dialogRef.afterClosed().subscribe((result: any | undefined) => {
+      if (result && result.edited) {
+        // Refresh the sessions list to reflect any changes
+        this.getSessionsForEvent(this.selectedEvent);
+      }
     });
   }
 

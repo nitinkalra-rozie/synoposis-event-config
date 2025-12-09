@@ -20,6 +20,12 @@
   color: white;
 }
 
+.snackbar-warning {
+  background-color: #ff9800 !important;
+  color: white;
+  font-weight: bold;
+}
+
 .toolbar-container {
   display: flex;
   flex-direction: row;
@@ -124,6 +130,25 @@
     font-weight: 500;
   }
 
+  .generate-pdf-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    margin-right: 8px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
   .publish-report-button {
     display: flex;
     align-items: center;
@@ -160,6 +185,36 @@
 
   tr.selected {
     background-color: #e3ffdf !important;
+  }
+}
+
+.daily-debrief-tab {
+  width: 100%;
+}
+
+.daily-debrief-table-wrapper {
+  width: calc(100vw - 200px); // Full viewport width minus padding (80px left + 20px right)
+  overflow-x: auto;
+  
+  @media (max-width: 768px) {
+    width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
+  }
+  
+  @media (min-width: 1200px) {
+    width: calc(100vw - 200px); // Adjusted for larger screens
+  }
+}
+
+.track-debrief-table-wrapper {
+  width: calc(100vw - 200px); // Full viewport width minus padding (80px left + 20px right)
+  overflow-x: auto;
+  
+  @media (max-width: 768px) {
+    width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
+  }
+  
+  @media (min-width: 1200px) {
+    width: calc(100vw - 200px); // Adjusted for larger screens
   }
 }
 
@@ -340,6 +395,12 @@ mat-form-field {
       gap: 12px;
     }
 
+    .generate-pdf-button {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 8px;
+    }
+
     .publish-report-button {
       width: 100%;
     }
@@ -363,4 +424,156 @@ mat-form-field {
   .filter-field {
     min-width: 100%;
   }
+}
+
+/* Tab Content Styles */
+.tab-content {
+  padding: 16px 0;
+}
+
+.session-brief-header {
+  margin-bottom: 16px;
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: flex-end;
+  }
+
+  .selected-count {
+    font-size: 14px;
+    color: #534ad8;
+    font-weight: 500;
+  }
+
+  .generate-pdf-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    margin-right: 8px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .publish-report-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.nested-tab-content {
+  padding: 16px 0;
+}
+
+.other-brief-content {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+  
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+/* Brief Filter Radio Buttons */
+.brief-filter-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  
+  .brief-filter-label {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  
+  .brief-filter-radios {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    
+    ::ng-deep .mat-mdc-radio-button {
+      margin-right: 0;
+    }
+  }
+}
+
+/* Nested tabs styling - Make them look like subsections */
+::ng-deep {
+  .mat-mdc-tab-group .mat-mdc-tab-body-wrapper .mat-mdc-tab-body-content {
+    padding: 0;
+  }
+
+  /* Nested tabs inside Other Brief - Make it look like a distinct subsection */
+  .tab-content .mat-mdc-tab-group {
+    width: fit-content;
+    max-width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 16px 0;
+    
+    .mat-mdc-tab-header {
+      width: auto;
+      min-width: 300px;
+      background-color: transparent;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 8px;
+    }
+
+    .mat-mdc-tab {
+      min-width: 100px;
+      max-width: 200px;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: transparent;
+      
+      .mdc-tab__text-label {
+        font-size: 14px;
+        font-weight: 500;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+      }
+    }
+
+    .mat-mdc-tab-body-wrapper {
+      width: 100%;
+     
+      border-radius: 4px;
+    
+    }
+  }
+}
+
+::ng-deep .mat-mdc-tab-body-wrapper {
+  padding: 0;
 }

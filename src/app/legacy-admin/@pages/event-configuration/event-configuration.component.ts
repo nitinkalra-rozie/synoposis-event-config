@@ -94,6 +94,7 @@ export interface Session {
   Event: string;
   SpeakersInfo: Array<SpeakerDetails>;
   ShouldHideOnSecondScreen?: boolean;
+  pdfVersion?: number;
 }
 
 interface RealtimeInsight {

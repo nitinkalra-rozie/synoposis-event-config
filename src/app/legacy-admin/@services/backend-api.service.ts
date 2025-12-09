@@ -58,7 +58,7 @@ export class BackendApiService {
 
   getVersionContent(data: any): Observable<Object> {
     const params = new HttpParams()
-      .set('eventId', this._backendApiService.getCurrentEventName())
+      .set('eventId', data.eventId || this._backendApiService.getCurrentEventName())
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
@@ -68,7 +68,7 @@ export class BackendApiService {
 
   saveEditedVersionContent(data: any): Observable<Object> {
     const body = {
-      eventId: this._backendApiService.getCurrentEventName(),
+      eventId: data.eventId || this._backendApiService.getCurrentEventName(),
       sessionId: data.sessionId,
       sessionType: data.sessionType,
       reportType: data.reportType,
@@ -107,26 +107,42 @@ export class BackendApiService {
 
   generateContentPDFUrl(data: any): Observable<Object> {
     const body = {
-      eventId: this._backendApiService.getCurrentEventName(),
+      eventId: data.eventId || this._backendApiService.getCurrentEventName(),
       sessionId: data.sessionId,
       sessionType: data.sessionType,
       reportType: data.reportType,
       version: data.version,
+      isSinglePrompt: data.isSinglePrompt,
+      dailyDebriefId: data.dailyDebriefId,
     };
     return this.http.post(environment.generateContentPDFUrl, body);
   }
 
   getSignedPdfUrl(data: any): Observable<Object> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set(
         'eventId',
         data.eventId || this._backendApiService.getCurrentEventName()
       )
-      .set('sessionId', data.sessionId)
-      .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
       .set('version', data.version)
       .set('promptVersion', data.promptVersion);
+
+    // Only add sessionId if it exists in data
+    if (data.sessionId) {
+      params = params.set('sessionId', data.sessionId);
+    }
+
+    // Only add sessionType if it exists in data
+    if (data.sessionType) {
+      params = params.set('sessionType', data.sessionType);
+    }
+
+    // Only add contentIdentifier if it exists in data
+    if (data.briefId) {
+      params = params.set('briefId', data.briefId);
+    }
+
     return this.http.get(environment.getPreSignedPDFUrl, { params });
   }
 
@@ -241,5 +257,19 @@ export class BackendApiService {
     };
 
     return this.http.post(environment.getEventReportDetails, body, { headers });
+  }
+
+  truncateSpeakerBio(
+    eventName: string,
+    sessionIds: string[]
+  ): Observable<Object> {
+  
+
+    const body = {
+      eventName: eventName,
+      sessionIds: sessionIds,
+    };
+
+    return this.http.post(environment.truncateSpeakerBioUrl, body);
   }
 }
