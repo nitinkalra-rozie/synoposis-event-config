@@ -64,16 +64,17 @@
                   <div class="tab-content">
                     <div class="session-brief-header">
                       <div class="header-actions">
-                        @if (getSelectedFilteredCount() > 0) {
+                        @if (selectedSessions.size > 0) {
                           <span class="selected-count">
-                            {{ getSelectedFilteredCount() }} session(s) selected
+                            {{ selectedSessions.size }} session(s) selected
                           </span>
                         }
                         <button
                           mat-raised-button
                           class="generate-pdf-button"
                           [disabled]="
-                            getSelectedFilteredCount() === 0 || isLoadingSessions
+                            selectedSessions.size === 0 ||
+                            isLoadingSessions
                           "
                           (click)="generatePDF()"
                           color="accent">
@@ -84,7 +85,8 @@
                           mat-raised-button
                           class="publish-report-button"
                           [disabled]="
-                            getSelectedFilteredCount() === 0 || isLoadingSessions
+                            selectedSessions.size === 0 ||
+                            isLoadingSessions
                           "
                           (click)="publishReport()"
                           color="primary">
@@ -95,7 +97,8 @@
                     </div>
                     @if (isLoadingSessions) {
                       <div class="loading-container">
-                        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                        <mat-progress-bar
+                          mode="indeterminate"></mat-progress-bar>
                       </div>
                     } @else if (sessions.length === 0) {
                       <div class="no-sessions-message">
@@ -103,524 +106,591 @@
                       </div>
                     } @else {
                       <div>
-                  <div class="filter-container">
-                    <div class="filter-label">
-                      <span>Filter</span>
-                    </div>
-                    <div class="filter-field">
-                      <input
-                        id="searchInput"
-                        (keyup)="applyFilter($event)"
-                        placeholder=" "
-                        type="text" />
-                      <label for="searchInput">Search Session</label>
-                    </div>
-                    <div class="filter-select">
-                      <mat-form-field
-                        class="file-filter-select"
-                        appearance="outline">
-                        <mat-label>File Filter</mat-label>
-                        <mat-select
-                          [value]="fileFilterMode"
-                          (selectionChange)="
-                            onFileFilterModeChange($event.value)
-                          ">
-                          <mat-option value="all">
-                            <div>
-                              <div><strong>All</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Show all sessions regardless of file status
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="publishPdfOnly">
-                            <div>
-                              <div><strong>Publish PDF Only</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with published PDF but no audio file
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="audioFileOnly">
-                            <div>
-                              <div><strong>Audio File Only</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with audio file but no published PDF
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="both">
-                            <div>
-                              <div><strong>Both (Publish PDF & Audio File)</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with both published PDF and audio file
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="either">
-                            <div>
-                              <div><strong>Either (Publish PDF or Audio File)</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with either published PDF or audio file
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="neither">
-                            <div>
-                              <div><strong>Neither (No Publish PDF & No Audio File)</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions without published PDF or audio file
-                              </div>
-                            </div>
-                          </mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                    </div>
-                    <div class="filter-select">
-                      <mat-form-field
-                        class="file-filter-select"
-                        appearance="outline">
-                        <mat-label>Event Day</mat-label>
-                        <mat-select
-                          [value]="selectedEventDay"
-                          (selectionChange)="
-                            onEventDayFilterChange($event.value)
-                          ">
-                          <mat-option value="">All Days</mat-option>
-                          @for (day of uniqueDays; track day) {
-                            <mat-option [value]="day">{{ day }}</mat-option>
-                          }
-                        </mat-select>
-                      </mat-form-field>
-                    </div>
-                    <div class="filter-select">
-                      <mat-form-field
-                        class="file-filter-select"
-                        appearance="outline">
-                        <mat-label>PDF Filter</mat-label>
-                        <mat-select
-                          [value]="pdfFilterMode"
-                          (selectionChange)="
-                            onPdfFilterModeChange($event.value)
-                          ">
-                          <mat-option value="all">
-                            <div>
-                              <div><strong>All</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Show all sessions regardless of PDF V1/V2 status
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="pdfV1Only">
-                            <div>
-                              <div><strong>PDF V1 Only</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with PDF V1 but no PDF V2
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="pdfV2Only">
-                            <div>
-                              <div><strong>PDF V2 Only</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with PDF V2 but no PDF V1
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="both">
-                            <div>
-                              <div><strong>Both (PDF V1 & V2)</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with both PDF V1 and PDF V2
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="either">
-                            <div>
-                              <div><strong>Either (PDF V1 or V2)</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions with either PDF V1 or PDF V2
-                              </div>
-                            </div>
-                          </mat-option>
-                          <mat-option value="neither">
-                            <div>
-                              <div><strong>Neither (No PDF V1 & No V2)</strong></div>
-                              <div style="font-size: 12px; color: #666">
-                                Sessions without PDF V1 or PDF V2
-                              </div>
-                            </div>
-                          </mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                    </div>
-                  </div>
-                  <table
-                    mat-table
-                    matSort
-                    class="versions-table"
-                    [dataSource]="dataSource">
-                    <!-- Checkbox Column -->
-                    <ng-container matColumnDef="select">
-                      <th *matHeaderCellDef mat-header-cell>
-                        <mat-checkbox
-                          [checked]="isAllSelected()"
-                          [indeterminate]="isIndeterminate()"
-                          (change)="toggleAllSessions($event.checked)">
-                        </mat-checkbox>
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        <mat-checkbox
-                          [checked]="isSessionSelected(row.SessionId)"
-                          (change)="
-                            onSessionToggle(row.SessionId, $event.checked)
-                          "
-                          (click)="$event.stopPropagation()">
-                        </mat-checkbox>
-                      </td>
-                    </ng-container>
-
-                    <!-- Start Date Column -->
-                    <ng-container matColumnDef="startDate">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Start Date
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)"
-                        style="min-width: 110px">
-                        {{ row.StartsAt | date: 'yyyy-MM-dd' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Start Time Column -->
-                    <ng-container matColumnDef="startTime">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Start Time
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        matTooltipPosition="above"
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.StartsAt | date: 'HH:mm' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- End Time Column -->
-                    <ng-container matColumnDef="endTime">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        End Time
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        matTooltipPosition="above"
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.EndsAt | date: 'HH:mm' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Event Day Column -->
-                    <ng-container matColumnDef="eventDay">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Event Day
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.EventDay }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Session Title Column -->
-                    <ng-container matColumnDef="title">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Session Title
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.SessionTitle }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Session ID Column -->
-                    <ng-container matColumnDef="sessionid">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Session ID
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.SessionId }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Status Column -->
-                    <ng-container matColumnDef="status">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Status
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        <div
-                          style="
-                            display: flex;
-                            align-items: center;
-                            text-align: center;
-                          ">
-                          @if (row.Status === EventStatus.NotStarted) {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)">
-                              Not Started
-                            </span>
-                          } @else if (row.Status === EventStatus.InProgress) {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)"
-                              style="background-color: rgb(0, 161, 94)">
-                              Live
-                            </span>
-                          } @else if (row.Status === 'NOT_AVAILABLE') {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)">
-                              Hidden
-                            </span>
-                          } @else if (
-                            row.Status === EventStatus.UnderReview &&
-                            !row.Editor
-                          ) {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)">
-                              To Review
-                            </span>
-                          } @else if (
-                            row.Status === EventStatus.UnderReview && row.Editor
-                          ) {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)"
-                              style="background-color: rgb(156 106 255)">
-                              In Review
-                            </span>
-                          } @else if (
-                            row.Status === EventStatus.ReviewComplete
-                          ) {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)"
-                              style="background-color: rgb(0, 161, 94)">
-                              Completed
-                            </span>
-                          } @else if (
-                            row.Status === EventStatus.ProcessingInsights
-                          ) {
-                            <span
-                              class="session-status-badge"
-                              [ngClass]="getStatusClass(row.Status)">
-                              Processing Insights
-                            </span>
-                          }
+                        <div class="filter-container">
+                          <div class="filter-label">
+                            <span>Filter</span>
+                          </div>
+                          <div class="filter-field">
+                            <input
+                              id="searchInput"
+                              (keyup)="applyFilter($event)"
+                              placeholder=" "
+                              type="text" />
+                            <label for="searchInput">Search Session</label>
+                          </div>
+                          <div class="filter-select">
+                            <mat-form-field
+                              class="file-filter-select"
+                              appearance="outline">
+                              <mat-label>File Filter</mat-label>
+                              <mat-select
+                                [value]="fileFilterMode"
+                                (selectionChange)="
+                                  onFileFilterModeChange($event.value)
+                                ">
+                                <mat-option value="all">
+                                  <div>
+                                    <div><strong>All</strong></div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Show all sessions regardless of file
+                                      status
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="publishPdfOnly">
+                                  <div>
+                                    <div><strong>Publish PDF Only</strong></div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with published PDF but no audio
+                                      file
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="audioFileOnly">
+                                  <div>
+                                    <div><strong>Audio File Only</strong></div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with audio file but no published
+                                      PDF
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="both">
+                                  <div>
+                                    <div>
+                                      <strong
+                                        >Both (Publish PDF & Audio File)</strong
+                                      >
+                                    </div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with both published PDF and audio
+                                      file
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="either">
+                                  <div>
+                                    <div>
+                                      <strong
+                                        >Either (Publish PDF or Audio
+                                        File)</strong
+                                      >
+                                    </div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with either published PDF or
+                                      audio file
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="neither">
+                                  <div>
+                                    <div>
+                                      <strong
+                                        >Neither (No Publish PDF & No Audio
+                                        File)</strong
+                                      >
+                                    </div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions without published PDF or audio
+                                      file
+                                    </div>
+                                  </div>
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                          <div class="filter-select">
+                            <mat-form-field
+                              class="file-filter-select"
+                              appearance="outline">
+                              <mat-label>Event Day</mat-label>
+                              <mat-select
+                                [value]="selectedEventDay"
+                                (selectionChange)="
+                                  onEventDayFilterChange($event.value)
+                                ">
+                                <mat-option value="">All Days</mat-option>
+                                @for (day of uniqueDays; track day) {
+                                  <mat-option [value]="day">{{
+                                    day
+                                  }}</mat-option>
+                                }
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                          <div class="filter-select">
+                            <mat-form-field
+                              class="file-filter-select"
+                              appearance="outline">
+                              <mat-label>PDF Filter</mat-label>
+                              <mat-select
+                                [value]="pdfFilterMode"
+                                (selectionChange)="
+                                  onPdfFilterModeChange($event.value)
+                                ">
+                                <mat-option value="all">
+                                  <div>
+                                    <div><strong>All</strong></div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Show all sessions regardless of PDF V1/V2
+                                      status
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="pdfV1Only">
+                                  <div>
+                                    <div><strong>PDF V1 Only</strong></div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with PDF V1 but no PDF V2
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="pdfV2Only">
+                                  <div>
+                                    <div><strong>PDF V2 Only</strong></div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with PDF V2 but no PDF V1
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="both">
+                                  <div>
+                                    <div>
+                                      <strong>Both (PDF V1 & V2)</strong>
+                                    </div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with both PDF V1 and PDF V2
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="either">
+                                  <div>
+                                    <div>
+                                      <strong>Either (PDF V1 or V2)</strong>
+                                    </div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions with either PDF V1 or PDF V2
+                                    </div>
+                                  </div>
+                                </mat-option>
+                                <mat-option value="neither">
+                                  <div>
+                                    <div>
+                                      <strong
+                                        >Neither (No PDF V1 & No V2)</strong
+                                      >
+                                    </div>
+                                    <div style="font-size: 12px; color: #666">
+                                      Sessions without PDF V1 or PDF V2
+                                    </div>
+                                  </div>
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
                         </div>
-                      </td>
-                    </ng-container>
+                        <table
+                          mat-table
+                          matSort
+                          class="versions-table"
+                          [dataSource]="dataSource">
+                          <!-- Checkbox Column -->
+                          <ng-container matColumnDef="select">
+                            <th *matHeaderCellDef mat-header-cell>
+                              <mat-checkbox
+                                [checked]="isAllSelected()"
+                                [indeterminate]="isIndeterminate()"
+                                (change)="toggleAllSessions($event.checked)">
+                              </mat-checkbox>
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              <mat-checkbox
+                                [checked]="isSessionSelected(row.SessionId)"
+                                (change)="
+                                  onSessionToggle(row.SessionId, $event.checked)
+                                "
+                                (click)="$event.stopPropagation()">
+                              </mat-checkbox>
+                            </td>
+                          </ng-container>
 
-                    <!-- Track Column -->
-                    <ng-container matColumnDef="track">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Track
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.Track }}
-                      </td>
-                    </ng-container>
+                          <!-- Start Date Column -->
+                          <ng-container matColumnDef="startDate">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Start Date
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)"
+                              style="min-width: 110px">
+                              {{ row.StartsAt | date: 'yyyy-MM-dd' }}
+                            </td>
+                          </ng-container>
 
-                    <!-- Type Column -->
-                    <ng-container matColumnDef="Type">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Type
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.Type }}
-                      </td>
-                    </ng-container>
+                          <!-- Start Time Column -->
+                          <ng-container matColumnDef="startTime">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Start Time
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              matTooltipPosition="above"
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.StartsAt | date: 'HH:mm' }}
+                            </td>
+                          </ng-container>
 
-                    <!-- Edit Column -->
-                    <ng-container matColumnDef="edit">
-                      <th *matHeaderCellDef mat-header-cell>
-                        Edit
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        @if (row.pdfVersion) {
-                          <button
-                            mat-icon-button
-                            matTooltip="Edit Content"
-                            (click)="editContent(row); $event.stopPropagation()">
-                            <mat-icon>edit</mat-icon>
-                          </button>
-                        } @else {
-                          <span style="color: #999">N/A</span>
-                        }
-                      </td>
-                    </ng-container>
+                          <!-- End Time Column -->
+                          <ng-container matColumnDef="endTime">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              End Time
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              matTooltipPosition="above"
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.EndsAt | date: 'HH:mm' }}
+                            </td>
+                          </ng-container>
 
-                    <!-- PDF Path V1 Column -->
-                    <ng-container matColumnDef="pdfPathV1">
-                      <th *matHeaderCellDef mat-header-cell>
-                        PDF V1
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        @if (row.pdfPathV1 && row.pdfVersion) {
-                          <button
-                            mat-icon-button
-                            matTooltip="Open PDF V1"
-                            (click)="viewPdfV1(row); $event.stopPropagation()">
-                            <mat-icon>picture_as_pdf</mat-icon>
-                          </button>
-                        } @else {
-                          <span style="color: #999">N/A</span>
-                        }
-                      </td>
-                    </ng-container>
+                          <!-- Event Day Column -->
+                          <ng-container matColumnDef="eventDay">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Event Day
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.EventDay }}
+                            </td>
+                          </ng-container>
 
-                    <!-- PDF Path V2 Column -->
-                    <ng-container matColumnDef="pdfPathV2">
-                      <th *matHeaderCellDef mat-header-cell>
-                        PDF V2
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        @if (row.pdfPathV2 && row.pdfVersion) {
-                          <button
-                            mat-icon-button
-                            matTooltip="Open PDF V2"
-                            (click)="viewPdfV2(row); $event.stopPropagation()">
-                            <mat-icon>picture_as_pdf</mat-icon>
-                          </button>
-                        } @else {
-                          <span style="color: #999">N/A</span>
-                        }
-                      </td>
-                    </ng-container>
+                          <!-- Session Title Column -->
+                          <ng-container matColumnDef="title">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Session Title
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.SessionTitle }}
+                            </td>
+                          </ng-container>
 
-                    <!-- Version Column -->
-                    <ng-container matColumnDef="version">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Version
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.pdfVersion || 'N/A' }}
-                      </td>
-                    </ng-container>
+                          <!-- Session ID Column -->
+                          <ng-container matColumnDef="sessionid">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Session ID
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.SessionId }}
+                            </td>
+                          </ng-container>
 
-                    <!-- Publish PDF Column -->
-                    <ng-container matColumnDef="publishPdf">
-                      <th *matHeaderCellDef mat-header-cell>
-                        Publish PDF
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        @if (row.reportUrl) {
-                          <button
-                            mat-icon-button
-                            matTooltip="Open Published PDF"
-                            (click)="
-                              openPublishPdf(row.reportUrl);
-                              $event.stopPropagation()
-                            ">
-                            <mat-icon>picture_as_pdf</mat-icon>
-                          </button>
-                        } @else {
-                          <span style="color: #999">N/A</span>
-                        }
-                      </td>
-                    </ng-container>
+                          <!-- Status Column -->
+                          <ng-container matColumnDef="status">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Status
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              <div
+                                style="
+                                  display: flex;
+                                  align-items: center;
+                                  text-align: center;
+                                ">
+                                @if (row.Status === EventStatus.NotStarted) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)">
+                                    Not Started
+                                  </span>
+                                } @else if (
+                                  row.Status === EventStatus.InProgress
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)"
+                                    style="background-color: rgb(0, 161, 94)">
+                                    Live
+                                  </span>
+                                } @else if (row.Status === 'NOT_AVAILABLE') {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)">
+                                    Hidden
+                                  </span>
+                                } @else if (
+                                  row.Status === EventStatus.UnderReview &&
+                                  !row.Editor
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)">
+                                    To Review
+                                  </span>
+                                } @else if (
+                                  row.Status === EventStatus.UnderReview &&
+                                  row.Editor
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)"
+                                    style="background-color: rgb(156 106 255)">
+                                    In Review
+                                  </span>
+                                } @else if (
+                                  row.Status === EventStatus.ReviewComplete
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)"
+                                    style="background-color: rgb(0, 161, 94)">
+                                    Completed
+                                  </span>
+                                } @else if (
+                                  row.Status === EventStatus.ProcessingInsights
+                                ) {
+                                  <span
+                                    class="session-status-badge"
+                                    [ngClass]="getStatusClass(row.Status)">
+                                    Processing Insights
+                                  </span>
+                                }
+                              </div>
+                            </td>
+                          </ng-container>
 
-                    <!-- Audio File Column -->
-                    <ng-container matColumnDef="audioFile">
-                      <th *matHeaderCellDef mat-header-cell>
-                        Audio File
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        @if (row.audioSegmentUrl) {
-                          <button
-                            mat-icon-button
-                            matTooltip="Play Audio File"
-                            (click)="
-                              openAudioPlayer(row.audioSegmentUrl);
-                              $event.stopPropagation()
-                            ">
-                            <mat-icon>audiotrack</mat-icon>
-                          </button>
-                        } @else {
-                          <span style="color: #999">N/A</span>
-                        }
-                      </td>
-                    </ng-container>
+                          <!-- Track Column -->
+                          <ng-container matColumnDef="track">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Track
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.Track }}
+                            </td>
+                          </ng-container>
 
-                    <!-- Table Header and Row Declarations -->
-                    <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
-                    <tr
-                      *matRowDef="let row; columns: displayedColumns"
-                      mat-row
-                      [class.selected]="selectedRowIndex === row"></tr>
-                  </table>
-                  <mat-paginator
-                    [length]="totalRecords"
-                    [pageSize]="pageSize"
-                    [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
-                    showFirstLastButtons>                  </mat-paginator>
+                          <!-- Type Column -->
+                          <ng-container matColumnDef="Type">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Type
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.Type }}
+                            </td>
+                          </ng-container>
+
+                          <!-- Edit Column -->
+                          <ng-container matColumnDef="edit">
+                            <th *matHeaderCellDef mat-header-cell>Edit</th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              @if (row.pdfVersion) {
+                                <button
+                                  mat-icon-button
+                                  matTooltip="Edit Content"
+                                  (click)="
+                                    editContent(row); $event.stopPropagation()
+                                  ">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                              } @else {
+                                <span style="color: #999">N/A</span>
+                              }
+                            </td>
+                          </ng-container>
+
+                          <!-- PDF Path V1 Column -->
+                          <ng-container matColumnDef="pdfPathV1">
+                            <th *matHeaderCellDef mat-header-cell>PDF V1</th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              @if (row.pdfPathV1 && row.pdfVersion) {
+                                <button
+                                  mat-icon-button
+                                  matTooltip="Open PDF V1"
+                                  (click)="
+                                    viewPdfV1(row); $event.stopPropagation()
+                                  ">
+                                  <mat-icon>picture_as_pdf</mat-icon>
+                                </button>
+                              } @else {
+                                <span style="color: #999">N/A</span>
+                              }
+                            </td>
+                          </ng-container>
+
+                          <!-- PDF Path V2 Column -->
+                          <ng-container matColumnDef="pdfPathV2">
+                            <th *matHeaderCellDef mat-header-cell>PDF V2</th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              @if (row.pdfPathV2 && row.pdfVersion) {
+                                <button
+                                  mat-icon-button
+                                  matTooltip="Open PDF V2"
+                                  (click)="
+                                    viewPdfV2(row); $event.stopPropagation()
+                                  ">
+                                  <mat-icon>picture_as_pdf</mat-icon>
+                                </button>
+                              } @else {
+                                <span style="color: #999">N/A</span>
+                              }
+                            </td>
+                          </ng-container>
+
+                          <!-- Version Column -->
+                          <ng-container matColumnDef="version">
+                            <th
+                              *matHeaderCellDef
+                              mat-header-cell
+                              mat-sort-header>
+                              Version
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              {{ row.pdfVersion || 'N/A' }}
+                            </td>
+                          </ng-container>
+
+                          <!-- Publish PDF Column -->
+                          <ng-container matColumnDef="publishPdf">
+                            <th *matHeaderCellDef mat-header-cell>
+                              Publish PDF
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              @if (row.reportUrl) {
+                                <button
+                                  mat-icon-button
+                                  matTooltip="Open Published PDF"
+                                  (click)="
+                                    openPublishPdf(row.reportUrl);
+                                    $event.stopPropagation()
+                                  ">
+                                  <mat-icon>picture_as_pdf</mat-icon>
+                                </button>
+                              } @else {
+                                <span style="color: #999">N/A</span>
+                              }
+                            </td>
+                          </ng-container>
+
+                          <!-- Audio File Column -->
+                          <ng-container matColumnDef="audioFile">
+                            <th *matHeaderCellDef mat-header-cell>
+                              Audio File
+                            </th>
+                            <td
+                              *matCellDef="let row; let i = index"
+                              mat-cell
+                              [class.selected]="selectedRowIndex === i"
+                              (click)="highlightRow(row, i)">
+                              @if (row.audioSegmentUrl) {
+                                <button
+                                  mat-icon-button
+                                  matTooltip="Play Audio File"
+                                  (click)="
+                                    openAudioPlayer(row.audioSegmentUrl);
+                                    $event.stopPropagation()
+                                  ">
+                                  <mat-icon>audiotrack</mat-icon>
+                                </button>
+                              } @else {
+                                <span style="color: #999">N/A</span>
+                              }
+                            </td>
+                          </ng-container>
+
+                          <!-- Table Header and Row Declarations -->
+                          <tr
+                            *matHeaderRowDef="displayedColumns"
+                            mat-header-row></tr>
+                          <tr
+                            *matRowDef="let row; columns: displayedColumns"
+                            mat-row
+                            [class.selected]="selectedRowIndex === row"></tr>
+                        </table>
+                        <mat-paginator
+                          [length]="totalRecords"
+                          [pageSize]="pageSize"
+                          [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
+                          showFirstLastButtons>
+                        </mat-paginator>
                       </div>
                     }
                   </div>
@@ -631,14 +701,16 @@
                   <div class="tab-content">
                     @if (isLoadingSessions) {
                       <div class="loading-container">
-                        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                        <mat-progress-bar
+                          mode="indeterminate"></mat-progress-bar>
                       </div>
                     } @else if (sessions.length === 0) {
                       <div class="no-sessions-message">
                         <p>No sessions available for this event.</p>
                       </div>
                     } @else {
-                      <mat-tab-group (selectedTabChange)="onOtherBriefTabChange($event)">
+                      <mat-tab-group
+                        (selectedTabChange)="onOtherBriefTabChange($event)">
                         <!-- Daily Debrief Sub-tab -->
                         <mat-tab label="Daily Debrief">
                           <div class="nested-tab-content">
@@ -654,109 +726,134 @@
                                   <mat-select
                                     [value]="selectedEventDay"
                                     (selectionChange)="
-                                      onDailyDebriefEventDayFilterChange($event.value)
+                                      onDailyDebriefEventDayFilterChange(
+                                        $event.value
+                                      )
                                     ">
                                     <mat-option value="">All Days</mat-option>
                                     @for (day of uniqueDays; track day) {
-                                      <mat-option [value]="day">{{ day }}</mat-option>
+                                      <mat-option [value]="day">{{
+                                        day
+                                      }}</mat-option>
                                     }
                                   </mat-select>
                                 </mat-form-field>
                               </div>
                             </div>
-                        <div class="daily-debrief-table-wrapper">
-                        <table
-                          mat-table
-                          matSort
-                          class="versions-table"
-                          [dataSource]="dailyDebriefDataSource">
-                          <!-- Event Day Column -->
-                          <ng-container matColumnDef="eventDay">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                              Event Day
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              {{ row.EventDay }}
-                            </td>
-                          </ng-container>
+                            <div class="daily-debrief-table-wrapper">
+                              <table
+                                mat-table
+                                matSort
+                                class="versions-table"
+                                [dataSource]="dailyDebriefDataSource">
+                                <!-- Event Day Column -->
+                                <ng-container matColumnDef="eventDay">
+                                  <th
+                                    *matHeaderCellDef
+                                    mat-header-cell
+                                    mat-sort-header>
+                                    Event Day
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    {{ row.EventDay }}
+                                  </td>
+                                </ng-container>
 
-                          <!-- PDF Path V1 Column -->
-                          <ng-container matColumnDef="pdfPathV1">
-                            <th *matHeaderCellDef mat-header-cell>
-                              PDF V1
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              @if (row.pdfPathV1) {
-                                <button
-                                  mat-icon-button
-                                  matTooltip="Open PDF V1"
-                                  (click)="viewPdfV1ForDailyDebrief(row); $event.stopPropagation()">
-                                  <mat-icon>picture_as_pdf</mat-icon>
-                                </button>
-                              } @else {
-                                <span style="color: #999">N/A</span>
-                              }
-                            </td>
-                          </ng-container>
+                                <!-- PDF Path V1 Column -->
+                                <ng-container matColumnDef="pdfPathV1">
+                                  <th *matHeaderCellDef mat-header-cell>
+                                    PDF V1
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    @if (row.pdfPathV1) {
+                                      <button
+                                        mat-icon-button
+                                        matTooltip="Open PDF V1"
+                                        (click)="
+                                          viewPdfV1ForDailyDebrief(row);
+                                          $event.stopPropagation()
+                                        ">
+                                        <mat-icon>picture_as_pdf</mat-icon>
+                                      </button>
+                                    } @else {
+                                      <span style="color: #999">N/A</span>
+                                    }
+                                  </td>
+                                </ng-container>
 
-                          <!-- PDF Path V2 Column -->
-                          <ng-container matColumnDef="pdfPathV2">
-                            <th *matHeaderCellDef mat-header-cell>
-                              PDF V2
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              @if (row.pdfPathV2) {
-                                <button
-                                  mat-icon-button
-                                  matTooltip="Open PDF V2"
-                                  (click)="viewPdfV2ForDailyDebrief(row); $event.stopPropagation()">
-                                  <mat-icon>picture_as_pdf</mat-icon>
-                                </button>
-                              } @else {
-                                <span style="color: #999">N/A</span>
-                              }
-                            </td>
-                          </ng-container>
+                                <!-- PDF Path V2 Column -->
+                                <ng-container matColumnDef="pdfPathV2">
+                                  <th *matHeaderCellDef mat-header-cell>
+                                    PDF V2
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    @if (row.pdfPathV2) {
+                                      <button
+                                        mat-icon-button
+                                        matTooltip="Open PDF V2"
+                                        (click)="
+                                          viewPdfV2ForDailyDebrief(row);
+                                          $event.stopPropagation()
+                                        ">
+                                        <mat-icon>picture_as_pdf</mat-icon>
+                                      </button>
+                                    } @else {
+                                      <span style="color: #999">N/A</span>
+                                    }
+                                  </td>
+                                </ng-container>
 
-                          <!-- Version Column -->
-                          <ng-container matColumnDef="version">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                              Version
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              {{ row.version || 'N/A' }}
-                            </td>
-                          </ng-container>
+                                <!-- Version Column -->
+                                <ng-container matColumnDef="version">
+                                  <th
+                                    *matHeaderCellDef
+                                    mat-header-cell
+                                    mat-sort-header>
+                                    Version
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    {{ row.version || 'N/A' }}
+                                  </td>
+                                </ng-container>
 
-                          <!-- Table Header and Row Declarations -->
-                          <tr *matHeaderRowDef="displayedColumnsDailyDebrief" mat-header-row></tr>
-                          <tr
-                            *matRowDef="let row; columns: displayedColumnsDailyDebrief"
-                            mat-row
-                            [class.selected]="selectedRowIndex === row"></tr>
-                        </table>
-                        <mat-paginator
-                          [length]="dailyDebriefDataSource.data.length"
-                          [pageSize]="pageSize"
-                          [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
-                          showFirstLastButtons></mat-paginator>
-                        </div>
+                                <!-- Table Header and Row Declarations -->
+                                <tr
+                                  *matHeaderRowDef="
+                                    displayedColumnsDailyDebrief
+                                  "
+                                  mat-header-row></tr>
+                                <tr
+                                  *matRowDef="
+                                    let row;
+                                    columns: displayedColumnsDailyDebrief
+                                  "
+                                  mat-row
+                                  [class.selected]="
+                                    selectedRowIndex === row
+                                  "></tr>
+                              </table>
+                              <mat-paginator
+                                [length]="dailyDebriefDataSource.data.length"
+                                [pageSize]="pageSize"
+                                [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
+                                showFirstLastButtons></mat-paginator>
+                            </div>
                           </div>
                         </mat-tab>
                         <!-- Track Debrief Sub-tab -->
@@ -769,106 +866,131 @@
                               <div class="filter-field">
                                 <input
                                   id="searchTrackDebriefInput"
-                                  (keyup)="applyTrackDebriefSearchFilter($event)"
+                                  (keyup)="
+                                    applyTrackDebriefSearchFilter($event)
+                                  "
                                   placeholder=" "
                                   type="text" />
-                                <label for="searchTrackDebriefInput">Search Track</label>
+                                <label for="searchTrackDebriefInput"
+                                  >Search Track</label
+                                >
                               </div>
                             </div>
-                        <div class="track-debrief-table-wrapper">
-                        <table
-                          mat-table
-                          matSort
-                          class="versions-table"
-                          [dataSource]="trackDebriefDataSource">
-                          <!-- Track Column -->
-                          <ng-container matColumnDef="track">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                              Track
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              {{ row.Track }}
-                            </td>
-                          </ng-container>
+                            <div class="track-debrief-table-wrapper">
+                              <table
+                                mat-table
+                                matSort
+                                class="versions-table"
+                                [dataSource]="trackDebriefDataSource">
+                                <!-- Track Column -->
+                                <ng-container matColumnDef="track">
+                                  <th
+                                    *matHeaderCellDef
+                                    mat-header-cell
+                                    mat-sort-header>
+                                    Track
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    {{ row.Track }}
+                                  </td>
+                                </ng-container>
 
-                          <!-- PDF Path V1 Column -->
-                          <ng-container matColumnDef="pdfPathV1">
-                            <th *matHeaderCellDef mat-header-cell>
-                              PDF V1
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              @if (row.pdfPathV1) {
-                                <button
-                                  mat-icon-button
-                                  matTooltip="Open PDF V1"
-                                  (click)="viewPdfV1ForTrackDebrief(row); $event.stopPropagation()">
-                                  <mat-icon>picture_as_pdf</mat-icon>
-                                </button>
-                              } @else {
-                                <span style="color: #999">N/A</span>
-                              }
-                            </td>
-                          </ng-container>
+                                <!-- PDF Path V1 Column -->
+                                <ng-container matColumnDef="pdfPathV1">
+                                  <th *matHeaderCellDef mat-header-cell>
+                                    PDF V1
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    @if (row.pdfPathV1) {
+                                      <button
+                                        mat-icon-button
+                                        matTooltip="Open PDF V1"
+                                        (click)="
+                                          viewPdfV1ForTrackDebrief(row);
+                                          $event.stopPropagation()
+                                        ">
+                                        <mat-icon>picture_as_pdf</mat-icon>
+                                      </button>
+                                    } @else {
+                                      <span style="color: #999">N/A</span>
+                                    }
+                                  </td>
+                                </ng-container>
 
-                          <!-- PDF Path V2 Column -->
-                          <ng-container matColumnDef="pdfPathV2">
-                            <th *matHeaderCellDef mat-header-cell>
-                              PDF V2
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              @if (row.pdfPathV2) {
-                                <button
-                                  mat-icon-button
-                                  matTooltip="Open PDF V2"
-                                  (click)="viewPdfV2ForTrackDebrief(row); $event.stopPropagation()">
-                                  <mat-icon>picture_as_pdf</mat-icon>
-                                </button>
-                              } @else {
-                                <span style="color: #999">N/A</span>
-                              }
-                            </td>
-                          </ng-container>
+                                <!-- PDF Path V2 Column -->
+                                <ng-container matColumnDef="pdfPathV2">
+                                  <th *matHeaderCellDef mat-header-cell>
+                                    PDF V2
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    @if (row.pdfPathV2) {
+                                      <button
+                                        mat-icon-button
+                                        matTooltip="Open PDF V2"
+                                        (click)="
+                                          viewPdfV2ForTrackDebrief(row);
+                                          $event.stopPropagation()
+                                        ">
+                                        <mat-icon>picture_as_pdf</mat-icon>
+                                      </button>
+                                    } @else {
+                                      <span style="color: #999">N/A</span>
+                                    }
+                                  </td>
+                                </ng-container>
 
-                          <!-- Version Column -->
-                          <ng-container matColumnDef="version">
-                            <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                              Version
-                            </th>
-                            <td
-                              *matCellDef="let row; let i = index"
-                              mat-cell
-                              [class.selected]="selectedRowIndex === i"
-                              (click)="highlightRow(row, i)">
-                              {{ row.version || 'N/A' }}
-                            </td>
-                          </ng-container>
+                                <!-- Version Column -->
+                                <ng-container matColumnDef="version">
+                                  <th
+                                    *matHeaderCellDef
+                                    mat-header-cell
+                                    mat-sort-header>
+                                    Version
+                                  </th>
+                                  <td
+                                    *matCellDef="let row; let i = index"
+                                    mat-cell
+                                    [class.selected]="selectedRowIndex === i"
+                                    (click)="highlightRow(row, i)">
+                                    {{ row.version || 'N/A' }}
+                                  </td>
+                                </ng-container>
 
-                          <!-- Table Header and Row Declarations -->
-                          <tr *matHeaderRowDef="displayedColumnsTrackDebrief" mat-header-row></tr>
-                          <tr
-                            *matRowDef="let row; columns: displayedColumnsTrackDebrief"
-                            mat-row
-                            [class.selected]="selectedRowIndex === row"></tr>
-                        </table>
-                        <mat-paginator
-                          #trackDebriefPaginator
-                          [length]="trackDebriefDataSource.data.length"
-                          [pageSize]="pageSize"
-                          [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
-                          showFirstLastButtons></mat-paginator>
-                        </div>
+                                <!-- Table Header and Row Declarations -->
+                                <tr
+                                  *matHeaderRowDef="
+                                    displayedColumnsTrackDebrief
+                                  "
+                                  mat-header-row></tr>
+                                <tr
+                                  *matRowDef="
+                                    let row;
+                                    columns: displayedColumnsTrackDebrief
+                                  "
+                                  mat-row
+                                  [class.selected]="
+                                    selectedRowIndex === row
+                                  "></tr>
+                              </table>
+                              <mat-paginator
+                                #trackDebriefPaginator
+                                [length]="trackDebriefDataSource.data.length"
+                                [pageSize]="pageSize"
+                                [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
+                                showFirstLastButtons></mat-paginator>
+                            </div>
                           </div>
                         </mat-tab>
                       </mat-tab-group>

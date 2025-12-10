@@ -280,7 +280,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-
   &.status-not-available {
     background-color: #ff6d6d;
   }
@@ -439,7 +438,9 @@
     flex-wrap: wrap;
     gap: 16px;
     align-items: stretch;
-    width: calc(100vw - 132px); // 100vw - left padding (80px) - right padding (20px) - container padding (32px)
+    width: calc(
+      100vw - 132px
+    ); // 100vw - left padding (80px) - right padding (20px) - container padding (32px)
     box-sizing: border-box;
 
     .speaker-item {
@@ -695,4 +696,3 @@ mat-form-field {
     align-items: flex-start;
   }
 }
-

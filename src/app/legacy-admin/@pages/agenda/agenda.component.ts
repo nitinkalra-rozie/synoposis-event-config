@@ -728,12 +728,13 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: (response: any) => {
           this.isLimitingBio = false;
-          
+
           if (response && response.success) {
             const summary = response.summary || {};
-            const message = `Successfully truncated bios for ${summary.successful || 0} session(s). ` +
-                          `Updated ${summary.totalUpdatedSpeakers || 0} speaker(s).`;
-            
+            const message =
+              `Successfully truncated bios for ${summary.successful || 0} session(s). ` +
+              `Updated ${summary.totalUpdatedSpeakers || 0} speaker(s).`;
+
             this.snackBar.open(message, 'Close', {
               duration: 5000,
               panelClass: ['snackbar-success'],
@@ -741,12 +742,13 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
             // Refresh sessions to show updated bios
             this.getSessionsForEvent(this.selectedEvent);
-            
+
             // Clear selection after successful operation
             this.selectedSessions.clear();
           } else {
             this.displayErrorMessage(
-              response?.error || 'Failed to truncate speaker bios. Please try again.'
+              response?.error ||
+                'Failed to truncate speaker bios. Please try again.'
             );
           }
         },
@@ -754,9 +756,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
           this.isLimitingBio = false;
           console.error('Error truncating speaker bios:', error);
           this.displayErrorMessage(
-            error?.error?.error || 
-            error?.message || 
-            'An error occurred while truncating speaker bios. Please try again.'
+            error?.error?.error ||
+              error?.message ||
+              'An error occurred while truncating speaker bios. Please try again.'
           );
         },
       });
@@ -904,7 +906,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       return 0;
     }
     // Split by whitespace and filter out empty strings
-    return trimmedText.split(/\s+/).filter(word => word.length > 0).length;
+    return trimmedText.split(/\s+/).filter((word) => word.length > 0).length;
   }
 
   /**
@@ -929,5 +931,3 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     }
   }
 }
-
-

@@ -252,7 +252,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
   /** Material paginator for the sessions table */
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
   /** Material paginator for the track debrief table */
-  @ViewChild('trackDebriefPaginator') public trackDebriefPaginator!: MatPaginator;
+  @ViewChild('trackDebriefPaginator')
+  public trackDebriefPaginator!: MatPaginator;
   /** Material sort for the sessions table */
   @ViewChild(MatSort) public sort!: MatSort;
 
@@ -274,15 +275,19 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public sessions: Session[] = [];
   /** Set of selected session IDs */
   public selectedSessions: Set<string> = new Set();
-  
+
   /** Default session IDs to be selected by default */
-  private readonly defaultSessionIds: string[] = [];
+  private readonly defaultSessionIds: string[] = [
+  "ENLEU_7791a727-da4c-4919-898e-d3d029f52c31"
+  
+  ]
+  
   /** Array of content versions for the selected event */
   public contentVersions: any[] = [];
   /** Event report details containing published report URLs */
   public eventReportDetails: any = null;
   /** Number of items per page in the paginator */
-  public pageSize = 10
+  public pageSize = 10;
   /** Total number of records in the table */
   public totalRecords = 0;
   /** Index of the currently selected/highlighted row */
@@ -423,7 +428,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   private setSortingDataAccessor(): void {
-    this.dataSource.sortingDataAccessor = (item: Session & { pdfVersion?: number }, property: string) => {
+    this.dataSource.sortingDataAccessor = (
+      item: Session & { pdfVersion?: number },
+      property: string
+    ) => {
       switch (property) {
         case 'startDate':
           // Sort by date part of StartsAt
@@ -523,14 +531,17 @@ export class ReportComponent implements OnInit, AfterViewInit {
       // Track filter (for Track Debrief)
       const trackMatch =
         this.briefFilterMode !== 'track_debrief' ||
-        (!this.selectedTrack || data.Track === this.selectedTrack);
+        !this.selectedTrack ||
+        data.Track === this.selectedTrack;
 
       // Track search filter (for Track Debrief)
       const trackSearchMatch =
         this.briefFilterMode !== 'track_debrief' ||
         !this.trackSearchFilter ||
         (data.Track &&
-          data.Track.toLowerCase().includes(this.trackSearchFilter.toLowerCase()));
+          data.Track.toLowerCase().includes(
+            this.trackSearchFilter.toLowerCase()
+          ));
 
       // Brief filter (Daily Brief or Track Brief)
       let briefFilterMatch = true;
@@ -579,7 +590,15 @@ export class ReportComponent implements OnInit, AfterViewInit {
           break;
       }
 
-      return textMatch && fileFilterMatch && eventDayMatch && trackMatch && trackSearchMatch && pdfFilterMatch && briefFilterMatch;
+      return (
+        textMatch &&
+        fileFilterMatch &&
+        eventDayMatch &&
+        trackMatch &&
+        trackSearchMatch &&
+        pdfFilterMatch &&
+        briefFilterMatch
+      );
     };
   }
 
@@ -764,15 +783,21 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.uniqueTracks = Array.from(new Set(tracks)).sort();
   }
 
-
   /**
    * Gets the latest PDF paths (V1 and V2) for a track using contentIdentifier.
    * Filters content versions by contentIdentifier format: "Event Name | Track Name"
    * @param {string} trackName - The name of the track
-   * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, and version, or null if not found
+   * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, version, and contentIdentifier, or null if not found
    */
-  private getLatestPdfPathsForTrack(trackName: string): { pdfPathV1: string; pdfPathV2: string; version: number } | null {
-    if (!this.contentVersions || this.contentVersions.length === 0 || !this.selectedEvent || !trackName) {
+  private getLatestPdfPathsForTrack(
+    trackName: string
+  ): { pdfPathV1: string; pdfPathV2: string; version: number; contentIdentifier: string } | null {
+    if (
+      !this.contentVersions ||
+      this.contentVersions.length === 0 ||
+      !this.selectedEvent ||
+      !trackName
+    ) {
       return null;
     }
 
@@ -788,7 +813,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Use lowercase comparison on both sides for case-insensitive matching
     const matchingVersions = this.contentVersions.filter(
       (version: any) =>
-        version.contentIdentifier?.toLowerCase() === contentIdentifier.toLowerCase() &&
+        version.contentIdentifier?.toLowerCase() ===
+          contentIdentifier.toLowerCase() &&
         version.reportType === 'track_debrief'
     );
 
@@ -808,6 +834,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
       pdfPathV1: latestVersion.pdfPathV1 || '',
       pdfPathV2: latestVersion.pdfPathV2 || '',
       version: latestVersion.version || 0,
+      contentIdentifier: latestVersion.contentIdentifier || contentIdentifier,
     };
   }
 
@@ -858,7 +885,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Update the track debrief data source
     this.trackDebriefDataSource = new MatTableDataSource(uniqueTracksData);
     // Set up filter predicate for track search
-    this.trackDebriefDataSource.filterPredicate = (data: any, filter: string) => {
+    this.trackDebriefDataSource.filterPredicate = (
+      data: any,
+      filter: string
+    ) => {
       if (!filter) return true;
       const searchTerm = filter.toLowerCase();
       return data.Track?.toLowerCase().includes(searchTerm) || false;
@@ -921,7 +951,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Update the daily debrief data source
     this.dailyDebriefDataSource = new MatTableDataSource(uniqueEventDaysData);
     // Set up filter predicate for event day filter
-    this.dailyDebriefDataSource.filterPredicate = (data: any, filter: string) => {
+    this.dailyDebriefDataSource.filterPredicate = (
+      data: any,
+      filter: string
+    ) => {
       if (!filter) return true;
       return data.EventDay === filter;
     };
@@ -951,7 +984,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Use lowercase comparison on both sides for case-insensitive matching
     const matchingVersions = this.contentVersions.filter(
       (version: any) =>
-        version.contentIdentifier?.toLowerCase() === contentIdentifier.toLowerCase() &&
+        version.contentIdentifier?.toLowerCase() ===
+          contentIdentifier.toLowerCase() &&
         version.reportType === 'daily_debrief'
     );
 
@@ -1055,7 +1089,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     const tabIndex = event.index !== undefined ? event.index : 0;
     const mode = tabIndex === 0 ? 'daily_debrief' : 'track_debrief';
     this.onBriefFilterModeChange(mode);
-    
+
     // Generate data for the selected tab
     if (tabIndex === 0) {
       // Daily Debrief tab
@@ -1101,7 +1135,6 @@ export class ReportComponent implements OnInit, AfterViewInit {
       | 'neither';
     this.applyAllFilters();
   }
-
 
   /**
    * Gets the currently filtered/visible sessions from the data source.
@@ -1421,7 +1454,6 @@ export class ReportComponent implements OnInit, AfterViewInit {
         version.reportType === reportType
     );
 
-  
     if (matchingVersions.length === 0) {
       return null;
     }
@@ -1456,12 +1488,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return null;
     }
 
-    
     // Filter versions by sessionId and reportType only (ignore sessionType)
     const matchingVersions = this.contentVersions.filter(
       (version: any) =>
-        version.sessionId === sessionId &&
-        version.reportType === reportType
+        version.sessionId === sessionId && version.reportType === reportType
     );
 
     if (matchingVersions.length === 0) {
@@ -1618,10 +1648,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.setSortingDataAccessor();
     this.setFilterPredicate();
     this.totalRecords = this.sessions.length;
-    
+
     // Generate unique tracks data for Track Debrief
     this.generateUniqueTracksData();
-    
+
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -1701,11 +1731,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.getSignedPdfUrl(session, 'v2');
   }
 
-  
-
   /**
    * Views PDF V1 for Track Debrief (unique track row).
-   * Uses contentIdentifier to get the PDF URL.
+   * Uses contentIdentifier from content-versions API to get the PDF URL.
    * @param {any} trackRow - The track row object with Track and version properties
    * @returns {void}
    */
@@ -1729,10 +1757,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
       }
     );
 
-    // Separate trackName by underscore and join with space
-    const separatedTrackName = trackRow.Track.split('_').join(' ');
-    // Create contentIdentifier in format: "Event Name | Track Name" (with separated track name)
-    const contentIdentifier = `${this.selectedEvent}|${separatedTrackName}`;
+    // Get contentIdentifier from the content-versions API response
+    const contentIdentifier = pdfPaths.contentIdentifier;
     const reportType = 'track_debrief';
     const data = {
       eventId: this.selectedEvent,
@@ -1758,7 +1784,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
   /**
    * Views PDF V2 for Track Debrief (unique track row).
-   * Uses contentIdentifier to get the PDF URL.
+   * Uses contentIdentifier from content-versions API to get the PDF URL.
    * @param {any} trackRow - The track row object with Track and version properties
    * @returns {void}
    */
@@ -1782,10 +1808,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
       }
     );
 
-    // Separate trackName by underscore and join with space
-    const separatedTrackName = trackRow.Track.split('_').join(' ');
-    // Create contentIdentifier in format: "Event Name | Track Name" (with separated track name)
-    const contentIdentifier = `${this.selectedEvent}|${separatedTrackName}`;
+    // Get contentIdentifier from the content-versions API response
+    const contentIdentifier = pdfPaths.contentIdentifier;
     const reportType = 'track_debrief';
     const data = {
       eventId: this.selectedEvent,
@@ -1826,7 +1850,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const dailyDebriefId = dailyDebriefRow._dailyDebriefId || dailyDebriefRow.EventDay.replace(/\s+/g, '_');
+    const dailyDebriefId =
+      dailyDebriefRow._dailyDebriefId ||
+      dailyDebriefRow.EventDay.replace(/\s+/g, '_');
     const pdfPaths = this.getLatestPdfPathsForDailyDebrief(dailyDebriefId);
     if (!pdfPaths || !pdfPaths.pdfPathV1) {
       this.displayErrorMessage('PDF V1 not available for this event day.');
@@ -1878,7 +1904,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const dailyDebriefId = dailyDebriefRow._dailyDebriefId || dailyDebriefRow.EventDay.replace(/\s+/g, '_');
+    const dailyDebriefId =
+      dailyDebriefRow._dailyDebriefId ||
+      dailyDebriefRow.EventDay.replace(/\s+/g, '_');
     const pdfPaths = this.getLatestPdfPathsForDailyDebrief(dailyDebriefId);
     if (!pdfPaths || !pdfPaths.pdfPathV2) {
       this.displayErrorMessage('PDF V2 not available for this event day.');
@@ -1933,7 +1961,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
       }
     );
 
-    const reportType = this.briefFilterMode === 'daily_debrief' ? 'daily_brief' : 'track_debrief';
+    const reportType =
+      this.briefFilterMode === 'daily_debrief'
+        ? 'daily_brief'
+        : 'track_debrief';
     // For track_debrief, do not pass sessionId and sessionType
     const data: any = {
       eventId: this.selectedEvent,
@@ -1941,7 +1972,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
       version: pdfPaths.version || 0,
       promptVersion: 'v2',
     };
-    
+
     // Only include sessionId and sessionType for daily_brief
     if (this.briefFilterMode === 'daily_debrief') {
       data.sessionId = session.SessionId;
@@ -2066,24 +2097,22 @@ export class ReportComponent implements OnInit, AfterViewInit {
     );
 
     // Create array of generate PDF observables with error handling
-    const generateObservables = selectedSessionsData.map(
-      (session: Session) => {
-        const normalizedSessionType = this.normalizeSessionType(
-          session.Type || 'primary'
-        );
-        // Generate PDF v2 (latest version) with error handling
-        const data = {
-          eventId: this.selectedEvent,
-          sessionId: session.SessionId,
-          sessionType: normalizedSessionType,
-          reportType: 'session_debrief',
-          version: session.pdfVersion || 0, 
-          isSinglePrompt: false,
-          dailyDebriefId: ""
-        };
-        return this._backendApiService.generateContentPDFUrl(data);
-      }
-    );
+    const generateObservables = selectedSessionsData.map((session: Session) => {
+      const normalizedSessionType = this.normalizeSessionType(
+        session.Type || 'primary'
+      );
+      // Generate PDF v2 (latest version) with error handling
+      const data = {
+        eventId: this.selectedEvent,
+        sessionId: session.SessionId,
+        sessionType: normalizedSessionType,
+        reportType: 'session_debrief',
+        version: session.pdfVersion || 0,
+        isSinglePrompt: false,
+        dailyDebriefId: '',
+      };
+      return this._backendApiService.generateContentPDFUrl(data);
+    });
 
     // Use forkJoin to generate PDFs for all sessions in parallel
     forkJoin(generateObservables).subscribe({
@@ -2308,9 +2337,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Session & { pdfVersion?: number }} session - The session object with optional pdfVersion
    * @returns {void}
    */
-  public editContent(
-    session: Session & { pdfVersion?: number }
-  ): void {
+  public editContent(session: Session & { pdfVersion?: number }): void {
     if (!session.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;

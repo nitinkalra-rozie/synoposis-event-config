@@ -193,26 +193,30 @@
 }
 
 .daily-debrief-table-wrapper {
-  width: calc(100vw - 200px); // Full viewport width minus padding (80px left + 20px right)
+  width: calc(
+    100vw - 200px
+  ); // Full viewport width minus padding (80px left + 20px right)
   overflow-x: auto;
-  
+
   @media (max-width: 768px) {
     width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
   }
-  
+
   @media (min-width: 1200px) {
     width: calc(100vw - 200px); // Adjusted for larger screens
   }
 }
 
 .track-debrief-table-wrapper {
-  width: calc(100vw - 200px); // Full viewport width minus padding (80px left + 20px right)
+  width: calc(
+    100vw - 200px
+  ); // Full viewport width minus padding (80px left + 20px right)
   overflow-x: auto;
-  
+
   @media (max-width: 768px) {
     width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
   }
-  
+
   @media (min-width: 1200px) {
     width: calc(100vw - 200px); // Adjusted for larger screens
   }
@@ -433,7 +437,7 @@ mat-form-field {
 
 .session-brief-header {
   margin-bottom: 16px;
-  
+
   .header-actions {
     display: flex;
     align-items: center;
@@ -493,7 +497,7 @@ mat-form-field {
   padding: 24px;
   text-align: center;
   color: #666;
-  
+
   p {
     margin: 0;
     font-size: 16px;
@@ -505,19 +509,19 @@ mat-form-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  
+
   .brief-filter-label {
     font-size: 12px;
     color: rgba(0, 0, 0, 0.6);
     font-weight: 500;
     margin-bottom: 4px;
   }
-  
+
   .brief-filter-radios {
     display: flex;
     flex-direction: row;
     gap: 16px;
-    
+
     ::ng-deep .mat-mdc-radio-button {
       margin-right: 0;
     }
@@ -538,7 +542,7 @@ mat-form-field {
     border-radius: 8px;
     padding: 8px;
     margin: 16px 0;
-    
+
     .mat-mdc-tab-header {
       width: auto;
       min-width: 300px;
@@ -553,7 +557,7 @@ mat-form-field {
       padding: 8px 16px;
       font-size: 14px;
       background-color: transparent;
-      
+
       .mdc-tab__text-label {
         font-size: 14px;
         font-weight: 500;
@@ -567,9 +571,8 @@ mat-form-field {
 
     .mat-mdc-tab-body-wrapper {
       width: 100%;
-     
+
       border-radius: 4px;
-    
     }
   }
 }

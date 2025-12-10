@@ -58,7 +58,10 @@ export class BackendApiService {
 
   getVersionContent(data: any): Observable<Object> {
     const params = new HttpParams()
-      .set('eventId', data.eventId || this._backendApiService.getCurrentEventName())
+      .set(
+        'eventId',
+        data.eventId || this._backendApiService.getCurrentEventName()
+      )
       .set('sessionId', data.sessionId)
       .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
@@ -263,8 +266,6 @@ export class BackendApiService {
     eventName: string,
     sessionIds: string[]
   ): Observable<Object> {
-  
-
     const body = {
       eventName: eventName,
       sessionIds: sessionIds,

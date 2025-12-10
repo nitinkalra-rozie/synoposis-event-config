@@ -53,10 +53,17 @@ export interface MarkdownEditorData {
       </mat-form-field>
     </div>
     <div mat-dialog-actions>
-      <button mat-button [disabled]="isLoading" mat-dialog-close>Cancel</button>
-      <button mat-raised-button (click)="save()" [disabled]="isLoading" color="primary">
+      <button mat-button mat-dialog-close [disabled]="isLoading">Cancel</button>
+      <button
+        mat-raised-button
+        [disabled]="isLoading"
+        (click)="save()"
+        color="primary">
         @if (isLoading) {
-          <mat-spinner [diameter]="20" [strokeWidth]="2" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+          <mat-spinner
+            [diameter]="20"
+            [strokeWidth]="2"
+            style="display: inline-block; margin-right: 8px;"></mat-spinner>
         }
         Save
       </button>
@@ -140,20 +147,21 @@ export class MarkdownEditorDialogComponent implements OnInit {
         console.log('Error status:', error?.status);
         console.log('Error name:', error?.name);
         console.log('Error message:', error?.message);
-        
+
         // Check if error status is 504 (Gateway Timeout)
         // Also check for timeout-related errors (status 0 with timeout indicators)
         const statusCode = error?.status;
-        const errorMessage = error?.error?.message || error?.message || error?.error || '';
+        const errorMessage =
+          error?.error?.message || error?.message || error?.error || '';
         const errorName = error?.name || '';
 
         console.log('StatusCode:', statusCode);
         console.log('ErrorMessage:', errorMessage);
         console.log('ErrorName:', errorName);
-        
+
         // Check if error status is 504 (Gateway Timeout) or 0 (network timeout)
         const isTimeoutError = statusCode === 504 || statusCode === 0;
-        
+
         // if (isTimeoutError) {
         //   // Show specific message for 504 timeout
         //   this.snackBar.open(
@@ -176,7 +184,7 @@ export class MarkdownEditorDialogComponent implements OnInit {
         //     }
         //   );
         // }
-        
+
         // Close the dialog with an error indicator
         this.dialogRef.close({
           edited: false,
@@ -193,6 +201,5 @@ export class MarkdownEditorDialogComponent implements OnInit {
       version: this.data.version,
       content: this.markdownContent,
     });
-    
   }
 }

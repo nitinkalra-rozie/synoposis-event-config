@@ -612,7 +612,8 @@ export class ContentEditorComponent {
 
   openMarkdownDialog(content: any, version: string | number): void {
     // Convert version to number if it's a string
-    const versionNumber = typeof version === 'string' ? parseInt(version, 10) : version;
+    const versionNumber =
+      typeof version === 'string' ? parseInt(version, 10) : version;
     const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
       data: {
         initialText: JSON.stringify(content, null, 2),
