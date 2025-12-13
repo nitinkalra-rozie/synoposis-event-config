@@ -73,8 +73,7 @@
                           mat-raised-button
                           class="generate-pdf-button"
                           [disabled]="
-                            selectedSessions.size === 0 ||
-                            isLoadingSessions
+                            selectedSessions.size === 0 || isLoadingSessions
                           "
                           (click)="generatePDF()"
                           color="accent">
@@ -85,8 +84,7 @@
                           mat-raised-button
                           class="publish-report-button"
                           [disabled]="
-                            selectedSessions.size === 0 ||
-                            isLoadingSessions
+                            selectedSessions.size === 0 || isLoadingSessions
                           "
                           (click)="publishReport()"
                           color="primary">
@@ -287,6 +285,37 @@
                                 </mat-option>
                               </mat-select>
                             </mat-form-field>
+                          </div>
+                          <div class="range-selection">
+                            <div class="range-inputs">
+                              <div class="filter-field range-input">
+                                <input
+                                  id="fromInput"
+                                  type="text"
+                                  [(ngModel)]="fromIndex"
+                                  (input)="onRangeInputChange('from', $event)"
+                                  placeholder=" " />
+                                <label for="fromInput">From</label>
+                              </div>
+                              <div class="filter-field range-input">
+                                <input
+                                  id="toInput"
+                                  type="text"
+                                  [(ngModel)]="toIndex"
+                                  (input)="onRangeInputChange('to', $event)"
+                                  placeholder=" " />
+                                <label for="toInput">To</label>
+                              </div>
+                              <button
+                                mat-raised-button
+                                color="primary"
+                                (click)="selectRange()"
+                                [disabled]="!fromIndex || !toIndex"
+                                class="select-range-button">
+                                <mat-icon>check_box</mat-icon>
+                                Select Range
+                              </button>
+                            </div>
                           </div>
                         </div>
                         <table
@@ -739,6 +768,17 @@
                                   </mat-select>
                                 </mat-form-field>
                               </div>
+                              <div class="generate-debrief-button">
+                                <button
+                                  mat-raised-button
+                                  color="primary"
+                                  [disabled]="!selectedEvent || uniqueDays.length === 0"
+                                  (click)="openGenerateDailyDebriefDialog()"
+                                  matTooltip="Generate a new daily debrief for the selected event day">
+                                  <mat-icon>add</mat-icon>
+                                  Generate Daily Debrief
+                                </button>
+                              </div>
                             </div>
                             <div class="daily-debrief-table-wrapper">
                               <table
@@ -760,32 +800,6 @@
                                     [class.selected]="selectedRowIndex === i"
                                     (click)="highlightRow(row, i)">
                                     {{ row.EventDay }}
-                                  </td>
-                                </ng-container>
-
-                                <!-- PDF Path V1 Column -->
-                                <ng-container matColumnDef="pdfPathV1">
-                                  <th *matHeaderCellDef mat-header-cell>
-                                    PDF V1
-                                  </th>
-                                  <td
-                                    *matCellDef="let row; let i = index"
-                                    mat-cell
-                                    [class.selected]="selectedRowIndex === i"
-                                    (click)="highlightRow(row, i)">
-                                    @if (row.pdfPathV1) {
-                                      <button
-                                        mat-icon-button
-                                        matTooltip="Open PDF V1"
-                                        (click)="
-                                          viewPdfV1ForDailyDebrief(row);
-                                          $event.stopPropagation()
-                                        ">
-                                        <mat-icon>picture_as_pdf</mat-icon>
-                                      </button>
-                                    } @else {
-                                      <span style="color: #999">N/A</span>
-                                    }
                                   </td>
                                 </ng-container>
 
@@ -875,6 +889,17 @@
                                   >Search Track</label
                                 >
                               </div>
+                              <div class="generate-debrief-button">
+                                <button
+                                  mat-raised-button
+                                  color="primary"
+                                  [disabled]="!selectedEvent || uniqueTracks.length === 0"
+                                  (click)="openGenerateTrackDebriefDialog()"
+                                  matTooltip="Generate a new track debrief for the selected track">
+                                  <mat-icon>add</mat-icon>
+                                  Generate Track Debrief
+                                </button>
+                              </div>
                             </div>
                             <div class="track-debrief-table-wrapper">
                               <table
@@ -896,32 +921,6 @@
                                     [class.selected]="selectedRowIndex === i"
                                     (click)="highlightRow(row, i)">
                                     {{ row.Track }}
-                                  </td>
-                                </ng-container>
-
-                                <!-- PDF Path V1 Column -->
-                                <ng-container matColumnDef="pdfPathV1">
-                                  <th *matHeaderCellDef mat-header-cell>
-                                    PDF V1
-                                  </th>
-                                  <td
-                                    *matCellDef="let row; let i = index"
-                                    mat-cell
-                                    [class.selected]="selectedRowIndex === i"
-                                    (click)="highlightRow(row, i)">
-                                    @if (row.pdfPathV1) {
-                                      <button
-                                        mat-icon-button
-                                        matTooltip="Open PDF V1"
-                                        (click)="
-                                          viewPdfV1ForTrackDebrief(row);
-                                          $event.stopPropagation()
-                                        ">
-                                        <mat-icon>picture_as_pdf</mat-icon>
-                                      </button>
-                                    } @else {
-                                      <span style="color: #999">N/A</span>
-                                    }
                                   </td>
                                 </ng-container>
 

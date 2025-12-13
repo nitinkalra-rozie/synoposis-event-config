@@ -273,4 +273,70 @@ export class BackendApiService {
 
     return this.http.post(environment.truncateSpeakerBioUrl, body);
   }
+
+  /**
+   * Generates a daily debrief by calling the config API endpoint.
+   * @param {Object} data - The request data for generating daily debrief
+   * @param {string} data.eventName - The event name/identifier
+   * @param {string} data.domain - The domain associated with the event
+   * @param {string} data.debriefFilter - The event day filter (e.g., "Day 1", "Day 2")
+   * @param {number} [data.screenTimeout=60] - Screen timeout in seconds (default: 60)
+   * @returns {Observable<Object>} Observable of the API response
+   */
+  generateDailyDebrief(data: {
+    eventName: string;
+    domain: string;
+    debriefFilter: string;
+    screenTimeout?: number;
+  }): Observable<Object> {
+   
+
+    const body = {
+      action: 'generateEventDebrief',
+      sessionId: '',
+      screenTimeout: data.screenTimeout || 60,
+      domain: data.domain,
+      debriefType: 'DAILY',
+      eventName: data.eventName,
+      debriefFilter: data.debriefFilter,
+    };
+
+    // Use environment variable if available, otherwise use the full URL
+    const apiUrl = (environment as any).postData;
+    
+    return this.http.post(apiUrl, body);
+  }
+
+  /**
+   * Generates a track debrief by calling the config API endpoint.
+   * @param {Object} data - The request data for generating track debrief
+   * @param {string} data.eventName - The event name/identifier
+   * @param {string} data.domain - The domain associated with the event
+   * @param {string} data.debriefFilter - The track name filter (e.g., "Opening Keynote")
+   * @param {number} [data.screenTimeout=60] - Screen timeout in seconds (default: 60)
+   * @returns {Observable<Object>} Observable of the API response
+   */
+  generateTrackDebrief(data: {
+    eventName: string;
+    domain: string;
+    debriefFilter: string;
+    screenTimeout?: number;
+  }): Observable<Object> {
+    
+
+    const body = {
+      action: 'generateEventDebrief',
+      sessionId: '',
+      screenTimeout: data.screenTimeout || 60,
+      domain: data.domain,
+      debriefType: 'TRACK',
+      eventName: data.eventName,
+      debriefFilter: data.debriefFilter,
+    };
+
+    // Use environment variable if available, otherwise use the full URL
+    const apiUrl = (environment as any).postData;
+    
+    return this.http.post(apiUrl, body);
+  }
 }

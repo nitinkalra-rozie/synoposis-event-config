@@ -19,11 +19,9 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Component,
-  Inject,
-  inject,
+  Component, inject,
   OnInit,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -31,17 +29,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MAT_DIALOG_DATA,
   MatDialog,
   MatDialogModule,
-  MatDialogRef,
+  MatDialogRef
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -61,6 +57,10 @@ import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-ba
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { Session } from '../event-configuration/event-configuration.component';
+import { AudioPlayerDialogComponent } from './audio-player-dialog/audio-player-dialog.component';
+import { GenerateDailyDebriefDialogComponent } from './generate-daily-debrief/generate-daily-debrief-dialog.component';
+import { GenerateTrackDebriefDialogComponent } from './generate-track-debrief/generate-track-debrief-dialog.component';
+import { LoadingDialogComponent } from './loading-dialog/loading-dialog.component';
 
 /**
  * Interface representing an event configuration.
@@ -76,120 +76,6 @@ interface EventConfig {
   Domain: string;
   /** Additional properties that may be present */
   [key: string]: any;
-}
-
-/**
- * Loading Dialog Component for displaying loading state during PDF operations.
- * @component LoadingDialogComponent
- */
-@Component({
-  selector: 'app-loading-dialog',
-  template: `
-    <div style="text-align: center; padding: 2rem;">
-      <h2>{{ data.message || 'Loading...' }}</h2>
-      <div style="display:flex;justify-content: center;">
-        <mat-spinner [diameter]="32" [strokeWidth]="3"></mat-spinner>
-        <div></div>
-      </div>
-    </div>
-  `,
-  imports: [MatDialogModule, MatProgressSpinnerModule, CommonModule],
-  standalone: true,
-})
-export class LoadingDialogComponent {
-  /**
-   * Creates an instance of LoadingDialogComponent.
-   * @param {Object} data - The dialog data containing an optional message
-   * @param {string} [data.message] - The message to display in the loading dialog
-   * @constructor
-   */
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { message?: string }) {}
-}
-
-/**
- * Audio Player Dialog Component for playing audio files in a modal.
- * @component AudioPlayerDialogComponent
- */
-@Component({
-  selector: 'app-audio-player-dialog',
-  template: `
-    <div class="audio-dialog-container">
-      <div class="audio-dialog-header">
-        <h2 mat-dialog-title>Audio Player</h2>
-        <button mat-dialog-close mat-icon-button class="close-button">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-      <mat-dialog-content class="audio-dialog-content">
-        <audio
-          [src]="data.audioUrl"
-          (error)="onError()"
-          controls
-          style="width: 100%;">
-          Your browser does not support the audio element.
-        </audio>
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Close</button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [
-    `
-      .audio-dialog-container {
-        min-width: 500px;
-        max-width: 800px;
-      }
-      .audio-dialog-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-      }
-      .audio-dialog-header h2 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 500;
-      }
-      .close-button {
-        margin-left: auto;
-      }
-      .audio-dialog-content {
-        padding: 24px;
-        min-height: 100px;
-      }
-      @media (max-width: 600px) {
-        .audio-dialog-container {
-          min-width: 90vw;
-        }
-      }
-    `,
-  ],
-  imports: [MatDialogModule, MatButtonModule, MatIconModule, CommonModule],
-  standalone: true,
-})
-export class AudioPlayerDialogComponent {
-  /**
-   * Creates an instance of AudioPlayerDialogComponent.
-   * @param {MatDialogRef<AudioPlayerDialogComponent>} dialogRef - Reference to the dialog
-   * @param {Object} data - The dialog data containing the audio URL
-   * @param {string} data.audioUrl - The URL of the audio file to play
-   * @constructor
-   */
-  constructor(
-    public dialogRef: MatDialogRef<AudioPlayerDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { audioUrl: string }
-  ) {}
-
-  /**
-   * Handles audio loading errors.
-   * Logs the error to the console.
-   * @returns {void}
-   */
-  onError(): void {
-    console.error('Error loading audio file:', this.data.audioUrl);
-  }
 }
 
 @Component({
@@ -212,7 +98,6 @@ export class AudioPlayerDialogComponent {
     MatAutocompleteModule,
     MatButtonModule,
     MatProgressBarModule,
-    MatProgressSpinnerModule,
     MatCheckboxModule,
     MatTableModule,
     MatSortModule,
@@ -278,10 +163,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
   /** Default session IDs to be selected by default */
   private readonly defaultSessionIds: string[] = [
-  "ENLEU_7791a727-da4c-4919-898e-d3d029f52c31"
-  
-  ]
-  
+   
+  ];
+
   /** Array of content versions for the selected event */
   public contentVersions: any[] = [];
   /** Event report details containing published report URLs */
@@ -308,6 +192,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public selectedEventDay: string = '';
   /** Array of unique tracks extracted from sessions */
   public uniqueTracks: string[] = [];
+  /** From index for range selection */
+  public fromIndex: string | null = null;
+  /** To index for range selection */
+  public toIndex: string | null = null;
   /** Selected track filter value */
   public selectedTrack: string = '';
   /** Track search filter value */
@@ -360,18 +248,16 @@ export class ReportComponent implements OnInit, AfterViewInit {
     'version',
   ];
 
-  /** Column definitions for the Daily Debrief table (only eventDay, pdfPathV1, pdfPathV2, version) */
+  /** Column definitions for the Daily Debrief table (only eventDay, pdfPathV2, version) */
   public displayedColumnsDailyDebrief: string[] = [
     'eventDay',
-    'pdfPathV1',
     'pdfPathV2',
     'version',
   ];
 
-  /** Column definitions for the Track Debrief table (only track, pdfPathV1, pdfPathV2, version) */
+  /** Column definitions for the Track Debrief table (only track, pdfPathV2, version) */
   public displayedColumnsTrackDebrief: string[] = [
     'track',
-    'pdfPathV1',
     'pdfPathV2',
     'version',
   ];
@@ -431,7 +317,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.dataSource.sortingDataAccessor = (
       item: Session & { pdfVersion?: number },
       property: string
-    ) => {
+    ) => {                                 
       switch (property) {
         case 'startDate':
           // Sort by date part of StartsAt
@@ -791,7 +677,12 @@ export class ReportComponent implements OnInit, AfterViewInit {
    */
   private getLatestPdfPathsForTrack(
     trackName: string
-  ): { pdfPathV1: string; pdfPathV2: string; version: number; contentIdentifier: string } | null {
+  ): {
+    pdfPathV1: string;
+    pdfPathV2: string;
+    version: number;
+    contentIdentifier: string;
+  } | null {
     if (
       !this.contentVersions ||
       this.contentVersions.length === 0 ||
@@ -1946,6 +1837,219 @@ export class ReportComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * Opens the Generate Daily Debrief dialog to select an Event Day.
+   * After selection, calls the API to generate the daily debrief.
+   * @returns {void}
+   */
+  public openGenerateDailyDebriefDialog(): void {
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    if (!this.uniqueDays || this.uniqueDays.length === 0) {
+      this.displayErrorMessage('No event days available. Please load sessions first.');
+      return;
+    }
+
+    // Find the event config to get the domain
+    const eventConfig = this.events.find(
+      (e: EventConfig) => e.EventIdentifier === this.selectedEvent
+    );
+
+   
+
+    // Get EventDomain from Information property, fallback to Domain if not available
+    const eventDomain = eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
+
+    if (!eventConfig || !eventDomain) {
+      this.displayErrorMessage('Event domain not found. Cannot generate daily debrief.');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(GenerateDailyDebriefDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { eventDays: this.uniqueDays },
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().subscribe((selectedEventDays: string[] | undefined) => {
+      if (selectedEventDays && selectedEventDays.length > 0) {
+        this.generateDailyDebriefs(selectedEventDays, eventDomain);
+      }
+    });
+  }
+
+  /**
+   * Generates multiple daily debriefs by calling the API endpoint via the backend service.
+   * @param {string[]} eventDays - Array of selected event days (e.g., ["Day 1", "Day 2"])
+   * @param {string} domain - The domain associated with the event
+   * @returns {void}
+   */
+  private generateDailyDebriefs(eventDays: string[], domain: string): void {
+    if (!eventDays || eventDays.length === 0) {
+      return;
+    }
+
+    // Show loading dialog
+    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: `Generating ${eventDays.length} daily debrief(s)...` },
+      }
+    );
+
+    // Generate debriefs for all selected event days
+    const debriefObservables = eventDays.map(eventDay =>
+      this._backendApiService.generateDailyDebrief({
+        eventName: this.selectedEvent,
+        domain: domain,
+        debriefFilter: eventDay,
+        screenTimeout: 60,
+      })
+    );
+
+    // Use forkJoin to execute all requests in parallel
+    forkJoin(debriefObservables).subscribe({
+      next: (responses: any[]) => {
+        loadingDialogRef.close();
+        console.log('Daily debrief generation responses:', responses);
+        const successCount = responses.length;
+        this.displaySuccessMessage(
+          `Daily debrief generation started for ${successCount} event day(s). Please check back later.`
+        );
+        // Optionally refresh the sessions list after a delay
+        setTimeout(() => {
+          this.getSessionsForEvent(this.selectedEvent);
+        }, 2000);
+      },
+      error: (error) => {
+        loadingDialogRef.close();
+        console.error('Error generating daily debriefs:', error);
+        const errorMessage =
+          error.error?.message ||
+          error.message ||
+          'Failed to generate some daily debriefs. Please try again.';
+        this.displayErrorMessage(errorMessage);
+      },
+    });
+  }
+
+  /**
+   * Opens the Generate Track Debrief dialog to select Tracks.
+   * After selection, calls the API to generate the track debriefs for all selected tracks.
+   * @returns {void}
+   */
+  public openGenerateTrackDebriefDialog(): void {
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    if (!this.uniqueTracks || this.uniqueTracks.length === 0) {
+      this.displayErrorMessage('No tracks available. Please load sessions first.');
+      return;
+    }
+
+    // Find the event config to get the domain
+    const eventConfig = this.events.find(
+      (e: EventConfig) => e.EventIdentifier === this.selectedEvent
+    );
+
+    // Get EventDomain from Information property, fallback to Domain if not available
+    const eventDomain = eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
+
+    if (!eventConfig || !eventDomain) {
+      this.displayErrorMessage('Event domain not found. Cannot generate track debrief.');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(GenerateTrackDebriefDialogComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { tracks: this.uniqueTracks },
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().subscribe((selectedTracks: string[] | undefined) => {
+      if (selectedTracks && selectedTracks.length > 0) {
+        this.generateTrackDebriefs(selectedTracks, eventDomain);
+      }
+    });
+  }
+
+  /**
+   * Generates multiple track debriefs by calling the API endpoint via the backend service.
+   * @param {string[]} tracks - Array of selected track names
+   * @param {string} domain - The domain associated with the event
+   * @returns {void}
+   */
+  private generateTrackDebriefs(tracks: string[], domain: string): void {
+    if (!tracks || tracks.length === 0) {
+      return;
+    }
+
+    // Show loading dialog
+    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: `Generating ${tracks.length} track debrief(s)...` },
+      }
+    );
+
+    // Generate debriefs for all selected tracks
+    const debriefObservables = tracks.map(track =>
+      this._backendApiService.generateTrackDebrief({
+        eventName: this.selectedEvent,
+        domain: domain,
+        debriefFilter: track,
+        screenTimeout: 60,
+      })
+    );
+
+    // Use forkJoin to execute all requests in parallel
+    forkJoin(debriefObservables).subscribe({
+      next: (responses: any[]) => {
+        loadingDialogRef.close();
+        console.log('Track debrief generation responses:', responses);
+        const successCount = responses.length;
+        this.displaySuccessMessage(
+          `Track debrief generation started for ${successCount} track(s). Please check back later.`
+        );
+        // Optionally refresh the sessions list after a delay
+        setTimeout(() => {
+          this.getSessionsForEvent(this.selectedEvent);
+        }, 2000);
+      },
+      error: (error) => {
+        loadingDialogRef.close();
+        console.error('Error generating track debriefs:', error);
+        const errorMessage =
+          error.error?.message ||
+          error.message ||
+          'Failed to generate some track debriefs. Please try again.';
+        this.displayErrorMessage(errorMessage);
+      },
+    });
+  }
+
+  /**
+   * Displays a success message using the snackbar.
+   * @param {string} message - The success message to display
+   * @returns {void}
+   */
+  private displaySuccessMessage(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+  }
+
   public viewPdfV2ForOtherBrief(session: Session): void {
     const pdfPaths = this.getLatestPdfPathsForOtherBrief(session);
     if (!pdfPaths || !pdfPaths.pdfPathV2) {
@@ -2006,6 +2110,102 @@ export class ReportComponent implements OnInit, AfterViewInit {
     } else {
       this.selectedSessions.delete(sessionId);
     }
+  }
+
+  /**
+   * Handles input changes for range selection inputs, removing non-numeric characters.
+   * Automatically calculates 'to' as 'from + 49' when 'from' changes.
+   * @param {string} field - The field being edited ('from' or 'to')
+   * @param {Event} event - The input event
+   * @returns {void}
+   */
+  public onRangeInputChange(field: 'from' | 'to', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    // Update the model with only numeric characters
+    if (field === 'from') {
+      this.fromIndex = numericValue || null;
+      
+      // Auto-calculate 'to' as 'from + 49' when 'from' changes
+      if (numericValue && numericValue.trim() !== '') {
+        const fromNum = parseInt(numericValue, 10);
+        if (!isNaN(fromNum)) {
+          const calculatedTo = (fromNum + 49).toString();
+          this.toIndex = calculatedTo;
+        }
+      } else {
+        // If 'from' is cleared, also clear 'to'
+        this.toIndex = null;
+      }
+    } else {
+      // User is manually editing 'to', so just update it
+      this.toIndex = numericValue || null;
+    }
+    
+    // Update the input value directly to reflect the change
+    input.value = numericValue;
+    
+    // Trigger change detection to update the view
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Selects checkboxes from "from" index to "to" index in the filtered sessions list.
+   * The indices are 1-based (first item is index 1).
+   * Clears all previous selections before selecting the new range.
+   * @returns {void}
+   */
+  public selectRange(): void {
+    if (this.fromIndex === null || this.toIndex === null || this.fromIndex.trim() === '' || this.toIndex.trim() === '') {
+      return;
+    }
+
+    // Convert string inputs to numbers
+    const fromNum = parseInt(this.fromIndex.trim(), 10);
+    const toNum = parseInt(this.toIndex.trim(), 10);
+
+    // Validate that inputs are valid numbers
+    if (isNaN(fromNum) || isNaN(toNum) || fromNum < 1 || toNum < 1) {
+      this.displayErrorMessage('Please enter valid numbers for From and To indices.');
+      return;
+    }
+
+    const filteredSessions = this.getFilteredSessions();
+    
+    if (filteredSessions.length === 0) {
+      this.displayErrorMessage('No sessions available to select.');
+      return;
+    }
+
+    // Clear all previous checkbox selections
+    this.selectedSessions.clear();
+
+    // Convert to 0-based indices and ensure they're within bounds
+    const from = Math.max(1, Math.min(fromNum, filteredSessions.length)) - 1;
+    const to = Math.max(1, Math.min(toNum, filteredSessions.length)) - 1;
+    
+    // Ensure from is less than or equal to to
+    const startIndex = Math.min(from, to);
+    const endIndex = Math.max(from, to);
+
+    // Select all sessions in the range
+    for (let i = startIndex; i <= endIndex; i++) {
+      const session = filteredSessions[i];
+      if (session && session.SessionId) {
+        this.selectedSessions.add(session.SessionId);
+      }
+    }
+
+    // Clear the input fields after selection
+    this.fromIndex = null;
+    this.toIndex = null;
+    
+    // Trigger change detection
+    this.cdr.detectChanges();
   }
 
   /**
