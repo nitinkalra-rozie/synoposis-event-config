@@ -291,27 +291,27 @@
                               <div class="filter-field range-input">
                                 <input
                                   id="fromInput"
-                                  type="text"
                                   [(ngModel)]="fromIndex"
                                   (input)="onRangeInputChange('from', $event)"
-                                  placeholder=" " />
+                                  placeholder=" "
+                                  type="text" />
                                 <label for="fromInput">From</label>
                               </div>
                               <div class="filter-field range-input">
                                 <input
                                   id="toInput"
-                                  type="text"
                                   [(ngModel)]="toIndex"
                                   (input)="onRangeInputChange('to', $event)"
-                                  placeholder=" " />
+                                  placeholder=" "
+                                  type="text" />
                                 <label for="toInput">To</label>
                               </div>
                               <button
                                 mat-raised-button
-                                color="primary"
-                                (click)="selectRange()"
+                                class="select-range-button"
                                 [disabled]="!fromIndex || !toIndex"
-                                class="select-range-button">
+                                (click)="selectRange()"
+                                color="primary">
                                 <mat-icon>check_box</mat-icon>
                                 Select Range
                               </button>
@@ -771,10 +771,12 @@
                               <div class="generate-debrief-button">
                                 <button
                                   mat-raised-button
-                                  color="primary"
-                                  [disabled]="!selectedEvent || uniqueDays.length === 0"
+                                  matTooltip="Generate a new daily debrief for the selected event day"
+                                  [disabled]="
+                                    !selectedEvent || uniqueDays.length === 0
+                                  "
                                   (click)="openGenerateDailyDebriefDialog()"
-                                  matTooltip="Generate a new daily debrief for the selected event day">
+                                  color="primary">
                                   <mat-icon>add</mat-icon>
                                   Generate Daily Debrief
                                 </button>
@@ -892,10 +894,12 @@
                               <div class="generate-debrief-button">
                                 <button
                                   mat-raised-button
-                                  color="primary"
-                                  [disabled]="!selectedEvent || uniqueTracks.length === 0"
+                                  matTooltip="Generate a new track debrief for the selected track"
+                                  [disabled]="
+                                    !selectedEvent || uniqueTracks.length === 0
+                                  "
                                   (click)="openGenerateTrackDebriefDialog()"
-                                  matTooltip="Generate a new track debrief for the selected track">
+                                  color="primary">
                                   <mat-icon>add</mat-icon>
                                   Generate Track Debrief
                                 </button>

@@ -1,0 +1,20 @@
+<div class="audio-dialog-container">
+  <div class="audio-dialog-header">
+    <h2 mat-dialog-title>Audio Player</h2>
+    <button mat-dialog-close mat-icon-button class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <mat-dialog-content class="audio-dialog-content">
+    <audio
+      [src]="data.audioUrl"
+      (error)="onError()"
+      controls
+      style="width: 100%">
+      Your browser does not support the audio element.
+    </audio>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Close</button>
+  </mat-dialog-actions>
+</div>

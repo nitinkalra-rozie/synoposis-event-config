@@ -1,0 +1,143 @@
+.generate-debrief-dialog-container {
+  min-width: 500px;
+  max-width: 600px;
+}
+
+.generate-debrief-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.generate-debrief-dialog-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.close-button {
+  margin-left: auto;
+}
+
+.generate-debrief-dialog-content {
+  padding: 24px;
+  min-height: 200px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.tracks-selection-container {
+  width: 100%;
+}
+
+.selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.selection-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.search-container {
+  margin-bottom: 16px;
+}
+
+.range-selection {
+  margin-bottom: 16px;
+}
+
+.range-inputs {
+  display: flex;
+  gap: 40px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-field.range-input {
+  flex: 1;
+  min-width: 100px;
+  position: relative;
+}
+
+.filter-field.range-input input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.filter-field.range-input input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.filter-field.range-input label {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  transition: all 0.2s;
+}
+
+.filter-field.range-input input:focus + label,
+.filter-field.range-input input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 12px;
+  font-size: 12px;
+  background: white;
+  padding: 0 4px;
+  color: #1976d2;
+}
+
+.select-range-button {
+  white-space: nowrap;
+}
+
+.tracks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tracks-list mat-checkbox {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tracks-list mat-checkbox:last-child {
+  border-bottom: none;
+}
+
+.no-results {
+  padding: 24px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.54);
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .generate-debrief-dialog-container {
+    min-width: 90vw;
+  }
+  .selection-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .selection-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

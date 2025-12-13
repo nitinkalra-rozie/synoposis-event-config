@@ -19,9 +19,10 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  Component, inject,
+  Component,
+  inject,
   OnInit,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -31,7 +32,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDialog,
   MatDialogModule,
-  MatDialogRef
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
@@ -162,9 +163,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public selectedSessions: Set<string> = new Set();
 
   /** Default session IDs to be selected by default */
-  private readonly defaultSessionIds: string[] = [
-   
-  ];
+  private readonly defaultSessionIds: string[] = [];
 
   /** Array of content versions for the selected event */
   public contentVersions: any[] = [];
@@ -317,7 +316,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.dataSource.sortingDataAccessor = (
       item: Session & { pdfVersion?: number },
       property: string
-    ) => {                                 
+    ) => {
       switch (property) {
         case 'startDate':
           // Sort by date part of StartsAt
@@ -675,9 +674,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} trackName - The name of the track
    * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, version, and contentIdentifier, or null if not found
    */
-  private getLatestPdfPathsForTrack(
-    trackName: string
-  ): {
+  private getLatestPdfPathsForTrack(trackName: string): {
     pdfPathV1: string;
     pdfPathV2: string;
     version: number;
@@ -1849,7 +1846,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.uniqueDays || this.uniqueDays.length === 0) {
-      this.displayErrorMessage('No event days available. Please load sessions first.');
+      this.displayErrorMessage(
+        'No event days available. Please load sessions first.'
+      );
       return;
     }
 
@@ -1858,13 +1857,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
       (e: EventConfig) => e.EventIdentifier === this.selectedEvent
     );
 
-   
-
     // Get EventDomain from Information property, fallback to Domain if not available
-    const eventDomain = eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
+    const eventDomain =
+      eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
 
     if (!eventConfig || !eventDomain) {
-      this.displayErrorMessage('Event domain not found. Cannot generate daily debrief.');
+      this.displayErrorMessage(
+        'Event domain not found. Cannot generate daily debrief.'
+      );
       return;
     }
 
@@ -1875,11 +1875,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
       disableClose: false,
     });
 
-    dialogRef.afterClosed().subscribe((selectedEventDays: string[] | undefined) => {
-      if (selectedEventDays && selectedEventDays.length > 0) {
-        this.generateDailyDebriefs(selectedEventDays, eventDomain);
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .subscribe((selectedEventDays: string[] | undefined) => {
+        if (selectedEventDays && selectedEventDays.length > 0) {
+          this.generateDailyDebriefs(selectedEventDays, eventDomain);
+        }
+      });
   }
 
   /**
@@ -1894,16 +1896,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     // Show loading dialog
-    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
-      LoadingDialogComponent,
-      {
+    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> =
+      this.dialog.open(LoadingDialogComponent, {
         disableClose: true,
         data: { message: `Generating ${eventDays.length} daily debrief(s)...` },
-      }
-    );
+      });
 
     // Generate debriefs for all selected event days
-    const debriefObservables = eventDays.map(eventDay =>
+    const debriefObservables = eventDays.map((eventDay) =>
       this._backendApiService.generateDailyDebrief({
         eventName: this.selectedEvent,
         domain: domain,
@@ -1950,7 +1950,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     if (!this.uniqueTracks || this.uniqueTracks.length === 0) {
-      this.displayErrorMessage('No tracks available. Please load sessions first.');
+      this.displayErrorMessage(
+        'No tracks available. Please load sessions first.'
+      );
       return;
     }
 
@@ -1960,10 +1962,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
     );
 
     // Get EventDomain from Information property, fallback to Domain if not available
-    const eventDomain = eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
+    const eventDomain =
+      eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
 
     if (!eventConfig || !eventDomain) {
-      this.displayErrorMessage('Event domain not found. Cannot generate track debrief.');
+      this.displayErrorMessage(
+        'Event domain not found. Cannot generate track debrief.'
+      );
       return;
     }
 
@@ -1974,11 +1979,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
       disableClose: false,
     });
 
-    dialogRef.afterClosed().subscribe((selectedTracks: string[] | undefined) => {
-      if (selectedTracks && selectedTracks.length > 0) {
-        this.generateTrackDebriefs(selectedTracks, eventDomain);
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .subscribe((selectedTracks: string[] | undefined) => {
+        if (selectedTracks && selectedTracks.length > 0) {
+          this.generateTrackDebriefs(selectedTracks, eventDomain);
+        }
+      });
   }
 
   /**
@@ -1993,16 +2000,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     // Show loading dialog
-    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
-      LoadingDialogComponent,
-      {
+    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> =
+      this.dialog.open(LoadingDialogComponent, {
         disableClose: true,
         data: { message: `Generating ${tracks.length} track debrief(s)...` },
-      }
-    );
+      });
 
     // Generate debriefs for all selected tracks
-    const debriefObservables = tracks.map(track =>
+    const debriefObservables = tracks.map((track) =>
       this._backendApiService.generateTrackDebrief({
         eventName: this.selectedEvent,
         domain: domain,
@@ -2122,14 +2127,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public onRangeInputChange(field: 'from' | 'to', event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input.value;
-    
+
     // Remove all non-numeric characters
     const numericValue = value.replace(/[^0-9]/g, '');
-    
+
     // Update the model with only numeric characters
     if (field === 'from') {
       this.fromIndex = numericValue || null;
-      
+
       // Auto-calculate 'to' as 'from + 49' when 'from' changes
       if (numericValue && numericValue.trim() !== '') {
         const fromNum = parseInt(numericValue, 10);
@@ -2145,10 +2150,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
       // User is manually editing 'to', so just update it
       this.toIndex = numericValue || null;
     }
-    
+
     // Update the input value directly to reflect the change
     input.value = numericValue;
-    
+
     // Trigger change detection to update the view
     this.cdr.detectChanges();
   }
@@ -2160,7 +2165,12 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   public selectRange(): void {
-    if (this.fromIndex === null || this.toIndex === null || this.fromIndex.trim() === '' || this.toIndex.trim() === '') {
+    if (
+      this.fromIndex === null ||
+      this.toIndex === null ||
+      this.fromIndex.trim() === '' ||
+      this.toIndex.trim() === ''
+    ) {
       return;
     }
 
@@ -2170,12 +2180,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Validate that inputs are valid numbers
     if (isNaN(fromNum) || isNaN(toNum) || fromNum < 1 || toNum < 1) {
-      this.displayErrorMessage('Please enter valid numbers for From and To indices.');
+      this.displayErrorMessage(
+        'Please enter valid numbers for From and To indices.'
+      );
       return;
     }
 
     const filteredSessions = this.getFilteredSessions();
-    
+
     if (filteredSessions.length === 0) {
       this.displayErrorMessage('No sessions available to select.');
       return;
@@ -2187,7 +2199,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Convert to 0-based indices and ensure they're within bounds
     const from = Math.max(1, Math.min(fromNum, filteredSessions.length)) - 1;
     const to = Math.max(1, Math.min(toNum, filteredSessions.length)) - 1;
-    
+
     // Ensure from is less than or equal to to
     const startIndex = Math.min(from, to);
     const endIndex = Math.max(from, to);
@@ -2203,7 +2215,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Clear the input fields after selection
     this.fromIndex = null;
     this.toIndex = null;
-    
+
     // Trigger change detection
     this.cdr.detectChanges();
   }

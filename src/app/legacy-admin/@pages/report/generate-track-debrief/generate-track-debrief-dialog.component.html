@@ -1,0 +1,99 @@
+<div class="generate-debrief-dialog-container">
+  <div class="generate-debrief-dialog-header">
+    <h2 mat-dialog-title>Generate Track Debrief</h2>
+    <button mat-dialog-close mat-icon-button class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <mat-dialog-content class="generate-debrief-dialog-content">
+    <div class="tracks-selection-container">
+      <div class="selection-header">
+        <span>Select Tracks ({{ selectedTracks.length }} selected)</span>
+        <div class="selection-actions">
+          <button mat-button (click)="selectAll()" type="button">
+            Select All
+          </button>
+          <button mat-button (click)="deselectAll()" type="button">
+            Deselect All
+          </button>
+        </div>
+      </div>
+      <div class="search-container">
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Search Tracks</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchFilter"
+            (ngModelChange)="filterTracks()"
+            placeholder="Type to search tracks..." />
+          <mat-icon matPrefix>search</mat-icon>
+          @if (searchFilter) {
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="clearSearch()"
+              type="button">
+              <mat-icon>clear</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+      <div class="range-selection">
+        <div class="range-inputs">
+          <div class="filter-field range-input">
+            <input
+              id="fromInput"
+              [(ngModel)]="fromIndex"
+              (input)="onRangeInputChange('from', $event)"
+              placeholder=" "
+              type="text" />
+            <label for="fromInput">From</label>
+          </div>
+          <div class="filter-field range-input">
+            <input
+              id="toInput"
+              [(ngModel)]="toIndex"
+              (input)="onRangeInputChange('to', $event)"
+              placeholder=" "
+              type="text" />
+            <label for="toInput">To</label>
+          </div>
+          <button
+            mat-raised-button
+            class="select-range-button"
+            [disabled]="!fromIndex || !toIndex"
+            (click)="selectRange()"
+            color="primary">
+            <mat-icon>check_box</mat-icon>
+            Select Range
+          </button>
+        </div>
+      </div>
+      <div class="tracks-list">
+        @if (filteredTracks.length === 0) {
+          <div class="no-results">
+            No tracks found matching "{{ searchFilter }}"
+          </div>
+        } @else {
+          @for (track of filteredTracks; track track) {
+            <mat-checkbox
+              [(ngModel)]="selectedTracksMap[track]"
+              (change)="updateSelectedTracks()">
+              {{ track }}
+            </mat-checkbox>
+          }
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      [disabled]="selectedTracks.length === 0"
+      (click)="onGenerate()"
+      color="primary">
+      Generate ({{ selectedTracks.length }})
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -289,8 +289,6 @@ export class BackendApiService {
     debriefFilter: string;
     screenTimeout?: number;
   }): Observable<Object> {
-   
-
     const body = {
       action: 'generateEventDebrief',
       sessionId: '',
@@ -303,7 +301,7 @@ export class BackendApiService {
 
     // Use environment variable if available, otherwise use the full URL
     const apiUrl = (environment as any).postData;
-    
+
     return this.http.post(apiUrl, body);
   }
 
@@ -322,8 +320,6 @@ export class BackendApiService {
     debriefFilter: string;
     screenTimeout?: number;
   }): Observable<Object> {
-    
-
     const body = {
       action: 'generateEventDebrief',
       sessionId: '',
@@ -336,7 +332,7 @@ export class BackendApiService {
 
     // Use environment variable if available, otherwise use the full URL
     const apiUrl = (environment as any).postData;
-    
+
     return this.http.post(apiUrl, body);
   }
 }
