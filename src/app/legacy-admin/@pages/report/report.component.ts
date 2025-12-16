@@ -247,10 +247,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
     'version',
   ];
 
-  /** Column definitions for the Daily Debrief table (only eventDay, pdfPathV2, version) */
+  /** Column definitions for the Daily Debrief table (eventDay, pdfPathV2, viewContent, version) */
   public displayedColumnsDailyDebrief: string[] = [
     'eventDay',
     'pdfPathV2',
+    'viewContent',
     'version',
   ];
 
@@ -258,6 +259,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public displayedColumnsTrackDebrief: string[] = [
     'track',
     'pdfPathV2',
+    'viewContent',
     'version',
   ];
 
@@ -1831,6 +1833,157 @@ export class ReportComponent implements OnInit, AfterViewInit {
         console.error('Error fetching PDF URL:', error);
         this.displayErrorMessage('Failed to open PDF. Please try again.');
       },
+    });
+  }
+
+  /**
+   * Views the content (JSON) for a daily debrief in read-only mode.
+   * Similar to editContent but for viewing daily debrief content.
+   * @param {any} dailyDebriefRow - The daily debrief row object with EventDay and version properties
+   * @returns {void}
+   */
+  public viewContentForDailyDebrief(dailyDebriefRow: any): void {
+    if (!dailyDebriefRow.EventDay || !dailyDebriefRow.version) {
+      this.displayErrorMessage(
+        'No version available for this daily debrief.'
+      );
+      return;
+    }
+
+    // Open loading dialog
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Loading content...' },
+      }
+    );
+
+    const eventDay = dailyDebriefRow.EventDay.replace(/\s+/g, '_');
+    const contentIdentifier = `${eventDay}`;
+    const data = {
+      eventId: this.selectedEvent,
+      eventDay: eventDay,
+      reportType: 'daily_debrief',
+      version: dailyDebriefRow.version,
+    };
+
+    this._backendApiService.getVersionContent(data).subscribe({
+      next: (response) => {
+        dialogRef.close();
+        this.openMarkdownDialogForView(response, dailyDebriefRow.version);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching version content:', error);
+        this.displayErrorMessage(
+          'Failed to load content. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Opens the markdown editor dialog in read-only/view mode.
+   * @param {any} content - The content to view
+   * @param {number} version - The version number
+   * @returns {void}
+   */
+  public openMarkdownDialogForView(content: any, version: number): void {
+    const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
+      data: {
+        initialText: JSON.stringify(content, null, 2),
+        eventName: this.selectedEvent,
+        selected_session: '',
+        selectedSessionType: '',
+        selectedReportType: 'daily_debrief',
+        version: version,
+        readOnly: true,
+      } as MarkdownEditorData,
+      width: '1000px',
+      maxWidth: '100vw',
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      // No action needed for view-only mode
+    });
+  }
+
+  /**
+   * Views the content (JSON) for a track debrief in read-only mode.
+   * Similar to viewContentForDailyDebrief but for track debrief content.
+   * @param {any} trackDebriefRow - The track debrief row object with Track and version properties
+   * @returns {void}
+   */
+  public viewContentForTrackDebrief(trackDebriefRow: any): void {
+    if (!trackDebriefRow.Track || !trackDebriefRow.version) {
+      this.displayErrorMessage(
+        'No version available for this track debrief.'
+      );
+      return;
+    }
+
+    // Open loading dialog
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Loading content...' },
+      }
+    );
+
+    const track = trackDebriefRow.Track.replace(/\s+/g, '_');
+    const data = {
+      eventId: this.selectedEvent,
+      track: track,
+      reportType: 'track_debrief',
+      version: trackDebriefRow.version,
+    };
+
+    this._backendApiService.getVersionContent(data).subscribe({
+      next: (response) => {
+        dialogRef.close();
+        this.openMarkdownDialogForViewTrackDebrief(
+          response,
+          trackDebriefRow.version
+        );
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching version content:', error);
+        this.displayErrorMessage(
+          'Failed to load content. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Opens the markdown editor dialog in read-only/view mode for track debrief.
+   * @param {any} content - The content to view
+   * @param {number} version - The version number
+   * @returns {void}
+   */
+  public openMarkdownDialogForViewTrackDebrief(
+    content: any,
+    version: number
+  ): void {
+    const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
+      data: {
+        initialText: JSON.stringify(content, null, 2),
+        eventName: this.selectedEvent,
+        selected_session: '',
+        selectedSessionType: '',
+        selectedReportType: 'track_debrief',
+        version: version,
+        readOnly: true,
+      } as MarkdownEditorData,
+      width: '1000px',
+      maxWidth: '100vw',
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      // No action needed for view-only mode
     });
   }
 

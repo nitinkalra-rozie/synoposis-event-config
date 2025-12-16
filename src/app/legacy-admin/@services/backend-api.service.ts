@@ -57,15 +57,31 @@ export class BackendApiService {
   }
 
   getVersionContent(data: any): Observable<Object> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set(
         'eventId',
         data.eventId || this._backendApiService.getCurrentEventName()
       )
-      .set('sessionId', data.sessionId)
-      .set('sessionType', data.sessionType)
       .set('reportType', data.reportType)
       .set('version', data.version);
+
+    // For session debrief, use sessionId and sessionType
+    if (data.sessionId) {
+      params = params.set('sessionId', data.sessionId);
+    }
+    if (data.sessionType) {
+      params = params.set('sessionType', data.sessionType);
+    }
+
+    // For daily/track debrief, use briefId
+    if (data.eventDay) {
+      params = params.set('eventDay', data.eventDay);
+    }
+
+    if (data.track) {
+      params = params.set('track', data.track);
+    }
+
     return this.http.get(environment.getVersionContentUrl, { params });
   }
 

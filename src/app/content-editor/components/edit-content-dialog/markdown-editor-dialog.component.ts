@@ -26,6 +26,7 @@ export interface MarkdownEditorData {
   selectedSessionType: string;
   selectedReportType: string;
   version: number;
+  readOnly?: boolean; // If true, the dialog will be in read-only/view mode
 }
 
 @Component({
@@ -41,32 +42,38 @@ export interface MarkdownEditorData {
   ],
   selector: 'app-markdown-editor-dialog',
   template: `
-    <h1 mat-dialog-title>Edit Content</h1>
+    <h1 mat-dialog-title>{{ isReadOnly ? 'View Content' : 'Edit Content' }}</h1>
     <div mat-dialog-content>
       <mat-form-field class="full-width" appearance="fill">
-        <mat-label>Edit Content</mat-label>
+        <mat-label>{{ isReadOnly ? 'Content' : 'Edit Content' }}</mat-label>
         <textarea
           matInput
           [(ngModel)]="markdownContent"
           (ngModelChange)="updatePreview()"
+          [readonly]="isReadOnly"
+          [disabled]="isReadOnly"
           rows="50"></textarea>
       </mat-form-field>
     </div>
     <div mat-dialog-actions>
-      <button mat-button mat-dialog-close [disabled]="isLoading">Cancel</button>
-      <button
-        mat-raised-button
-        [disabled]="isLoading"
-        (click)="save()"
-        color="primary">
-        @if (isLoading) {
-          <mat-spinner
-            [diameter]="20"
-            [strokeWidth]="2"
-            style="display: inline-block; margin-right: 8px;"></mat-spinner>
-        }
-        Save
+      <button mat-button mat-dialog-close [disabled]="isLoading">
+        {{ isReadOnly ? 'Close' : 'Cancel' }}
       </button>
+      @if (!isReadOnly) {
+        <button
+          mat-raised-button
+          [disabled]="isLoading"
+          (click)="save()"
+          color="primary">
+          @if (isLoading) {
+            <mat-spinner
+              [diameter]="20"
+              [strokeWidth]="2"
+              style="display: inline-block; margin-right: 8px;"></mat-spinner>
+          }
+          Save
+        </button>
+      }
     </div>
   `,
   styles: [
@@ -100,8 +107,11 @@ export class MarkdownEditorDialogComponent implements OnInit {
   public isLoading: Boolean = false;
   /** Parsed and sanitized HTML preview of the current markdown content. */
   public renderedHtml: SafeHtml = '';
+  /** Whether the dialog is in read-only/view mode */
+  public isReadOnly: boolean = false;
 
   ngOnInit(): void {
+    this.isReadOnly = this.data?.readOnly || false;
     if (this.data?.initialText) {
       this.markdownContent = this.data.initialText;
       this.updatePreview();
