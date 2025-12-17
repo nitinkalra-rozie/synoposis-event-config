@@ -177,7 +177,7 @@ export class TemplateEditorComponent {
   public config!: ReturnType<typeof signal<TemplateConfig>>;
 
   // Fields that accept hex color codes
-  private readonly hexColorFields: (keyof TemplateConfig)[] = [
+  private readonly _hexColorFields: (keyof TemplateConfig)[] = [
     'primaryColor',
     'secondaryColor',
     'headerBackgroundGradientColor1',
@@ -195,7 +195,7 @@ export class TemplateEditorComponent {
   ];
 
   // Fields that accept rgba() format
-  private readonly rgbaColorFields: (keyof TemplateConfig)[] = [
+  private readonly _rgbaColorFields: (keyof TemplateConfig)[] = [
     'contentBackgroundColor1',
     'contentBackgroundColor2',
   ];
@@ -253,10 +253,10 @@ export class TemplateEditorComponent {
     field: keyof TemplateConfig,
     value: string
   ): boolean {
-    if (this.hexColorFields.includes(field)) {
+    if (this._hexColorFields.includes(field)) {
       return this.isValidHexColor(value);
     }
-    if (this.rgbaColorFields.includes(field)) {
+    if (this._rgbaColorFields.includes(field)) {
       // Allow both hex and rgba for content background colors
       return this.isValidHexColor(value) || this.isValidRgbaColor(value);
     }
@@ -267,8 +267,8 @@ export class TemplateEditorComponent {
   public isValid = computed(() => {
     const cfg = this.config();
     const requiredFields: (keyof TemplateConfig)[] = [
-      ...this.hexColorFields,
-      ...this.rgbaColorFields,
+      ...this._hexColorFields,
+      ...this._rgbaColorFields,
     ];
 
     return requiredFields.every((field) => {
@@ -305,11 +305,11 @@ export class TemplateEditorComponent {
       return 'This field is required';
     }
 
-    if (this.hexColorFields.includes(field)) {
+    if (this._hexColorFields.includes(field)) {
       if (!this.isValidHexColor(trimmed)) {
         return 'Please enter a valid hex color code (e.g., #FFFFFF or #FFFFFF80)';
       }
-    } else if (this.rgbaColorFields.includes(field)) {
+    } else if (this._rgbaColorFields.includes(field)) {
       if (!this.isValidHexColor(trimmed) && !this.isValidRgbaColor(trimmed)) {
         return 'Please enter a valid color code (hex: #FFFFFF or rgba: rgba(255, 255, 255, 0.5))';
       }

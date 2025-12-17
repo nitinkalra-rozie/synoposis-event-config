@@ -86,14 +86,26 @@ export class BackendApiService {
   }
 
   saveEditedVersionContent(data: any): Observable<Object> {
-    const body = {
+    const body: any = {
       eventId: data.eventId || this._backendApiService.getCurrentEventName(),
-      sessionId: data.sessionId,
-      sessionType: data.sessionType,
       reportType: data.reportType,
       version: data.version,
       updatedContent: data.updatedContent,
     };
+
+    // For daily_debrief and track_debrief, use eventDay/track instead of sessionId/sessionType
+    if (data.reportType === 'daily_debrief' || data.reportType === 'track_debrief') {
+      if (data.reportType === 'daily_debrief' && data.eventDay) {
+        body.eventDay = data.eventDay;
+      } else if (data.reportType === 'track_debrief' && data.track) {
+        body.track = data.track;
+      }
+    } else {
+      // For other report types, sessionId and sessionType are required
+      body.sessionId = data.sessionId;
+      body.sessionType = data.sessionType;
+    }
+
     return this.http.post(environment.saveEditedVersionContentUrl, body);
   }
 

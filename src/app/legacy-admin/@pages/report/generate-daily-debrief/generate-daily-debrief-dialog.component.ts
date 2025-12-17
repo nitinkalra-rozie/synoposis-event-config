@@ -34,7 +34,7 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class GenerateDailyDebriefDialogComponent {
   public selectedEventDays: string[] = [];
-  public selectedDaysMap: { [key: string]: boolean } = {};
+  public selectedDaysMap: Record<string, boolean> = {};
   public searchFilter: string = '';
   public filteredDays: string[] = [];
   public eventDays: string[] = [];

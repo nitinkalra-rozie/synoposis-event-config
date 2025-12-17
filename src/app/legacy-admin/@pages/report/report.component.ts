@@ -163,7 +163,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public selectedSessions: Set<string> = new Set();
 
   /** Default session IDs to be selected by default */
-  private readonly defaultSessionIds: string[] = [];
+  private readonly _defaultSessionIds: string[] = [];
 
   /** Array of content versions for the selected event */
   public contentVersions: any[] = [];
@@ -521,7 +521,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} eventIdentifier - The identifier of the event
    * @returns {void}
    */
-  public getEventReportDetailsForEvent(eventIdentifier: string): void {
+  getEventReportDetailsForEvent(eventIdentifier: string): void {
     this._backendApiService
       .getEventReportDetails(eventIdentifier, '')
       .subscribe({
@@ -547,7 +547,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} eventIdentifier - The identifier of the selected event
    * @returns {void}
    */
-  public onEventChange(eventIdentifier: string): void {
+  onEventChange(eventIdentifier: string): void {
     if (!eventIdentifier) {
       this.sessions = [];
       this.dataSource = new MatTableDataSource([]);
@@ -590,7 +590,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {number} index - The index of the row in the table
    * @returns {void}
    */
-  public highlightRow(row: Session, index: number): void {
+  highlightRow(row: Session, index: number): void {
     this.selectedRowIndex = index;
   }
 
@@ -599,7 +599,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The keyboard event from the search input
    * @returns {void}
    */
-  public applyFilter(event: Event): void {
+  applyFilter(event: Event): void {
     this.textFilterValue = (event.target as HTMLInputElement).value.trim();
     this.applyAllFilters();
   }
@@ -608,7 +608,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Applies all active filters (text and file filter mode) to the table.
    * @returns {void}
    */
-  public applyAllFilters(): void {
+  applyAllFilters(): void {
     // Trigger filter by setting a non-empty string (the actual filtering is done in filterPredicate)
     this.dataSource.filter = 'active';
     if (this.paginator) {
@@ -623,7 +623,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} mode - The filter mode: 'all' | 'publishPdfOnly' | 'audioFileOnly' | 'both' | 'either' | 'neither'
    * @returns {void}
    */
-  public onFileFilterModeChange(mode: string): void {
+  onFileFilterModeChange(mode: string): void {
     this.fileFilterMode = mode as
       | 'all'
       | 'publishPdfOnly'
@@ -720,9 +720,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
     });
 
     const latestVersion = sortedVersions[0];
+    // Handle both camelCase and snake_case field names, and trim whitespace
+    const pdfPathV1 = (latestVersion.pdfPathV1 || latestVersion.pdf_path_v1 || '').trim();
+    const pdfPathV2 = (latestVersion.pdfPathV2 || latestVersion.pdf_path_v2 || '').trim();
+    
     return {
-      pdfPathV1: latestVersion.pdfPathV1 || '',
-      pdfPathV2: latestVersion.pdfPathV2 || '',
+      pdfPathV1: pdfPathV1 || '',
+      pdfPathV2: pdfPathV2 || '',
       version: latestVersion.version || 0,
       contentIdentifier: latestVersion.contentIdentifier || contentIdentifier,
     };
@@ -891,9 +895,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
     });
 
     const latestVersion = sortedVersions[0];
+    // Handle both camelCase and snake_case field names, and trim whitespace
+    const pdfPathV1 = (latestVersion.pdfPathV1 || latestVersion.pdf_path_v1 || '').trim();
+    const pdfPathV2 = (latestVersion.pdfPathV2 || latestVersion.pdf_path_v2 || '').trim();
+    
     return {
-      pdfPathV1: latestVersion.pdfPathV1 || '',
-      pdfPathV2: latestVersion.pdfPathV2 || '',
+      pdfPathV1: pdfPathV1 || '',
+      pdfPathV2: pdfPathV2 || '',
       version: latestVersion.version || 0,
     };
   }
@@ -903,7 +911,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The keyboard event from the search input
    * @returns {void}
    */
-  public applyTrackDebriefSearchFilter(event: Event): void {
+  applyTrackDebriefSearchFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.trim();
     this.trackSearchFilter = filterValue;
     // Apply filter to track debrief data source
@@ -920,7 +928,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} eventDay - The selected event day filter value
    * @returns {void}
    */
-  public onEventDayFilterChange(eventDay: string): void {
+  onEventDayFilterChange(eventDay: string): void {
     this.selectedEventDay = eventDay;
     this.applyAllFilters();
   }
@@ -930,7 +938,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} eventDay - The selected event day filter value
    * @returns {void}
    */
-  public onDailyDebriefEventDayFilterChange(eventDay: string): void {
+  onDailyDebriefEventDayFilterChange(eventDay: string): void {
     if (this.dailyDebriefDataSource) {
       this.dailyDebriefDataSource.filter = eventDay || '';
       if (this.paginator) {
@@ -946,7 +954,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} mode - The filter mode: 'daily_debrief' | 'track_debrief'
    * @returns {void}
    */
-  public onBriefFilterModeChange(mode: string): void {
+  onBriefFilterModeChange(mode: string): void {
     this.briefFilterMode = mode as 'daily_debrief' | 'track_debrief';
     // Reset track filter when switching modes
     if (mode === 'daily_debrief') {
@@ -966,7 +974,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {any} event - The tab change event containing the index
    * @returns {void}
    */
-  public onMainTabChange(event: any): void {
+  onMainTabChange(event: any): void {
     const tabIndex = event.index !== undefined ? event.index : 0;
     // If Other Debrief tab is selected (index 1), generate data for the default sub-tab (Daily Debrief)
     if (tabIndex === 1) {
@@ -975,7 +983,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public onOtherBriefTabChange(event: any): void {
+  onOtherBriefTabChange(event: any): void {
     const tabIndex = event.index !== undefined ? event.index : 0;
     const mode = tabIndex === 0 ? 'daily_debrief' : 'track_debrief';
     this.onBriefFilterModeChange(mode);
@@ -995,7 +1003,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} track - The selected track filter value
    * @returns {void}
    */
-  public onTrackFilterChange(track: string): void {
+  onTrackFilterChange(track: string): void {
     this.selectedTrack = track;
     this.applyAllFilters();
   }
@@ -1005,7 +1013,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The keyboard event from the search input
    * @returns {void}
    */
-  public applyTrackSearchFilter(event: Event): void {
+  applyTrackSearchFilter(event: Event): void {
     this.trackSearchFilter = (event.target as HTMLInputElement).value.trim();
     this.applyAllFilters();
   }
@@ -1015,7 +1023,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} mode - The filter mode: 'all' | 'pdfV1Only' | 'pdfV2Only' | 'both' | 'either' | 'neither'
    * @returns {void}
    */
-  public onPdfFilterModeChange(mode: string): void {
+  onPdfFilterModeChange(mode: string): void {
     this.pdfFilterMode = mode as
       | 'all'
       | 'pdfV1Only'
@@ -1030,7 +1038,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Gets the currently filtered/visible sessions from the data source.
    * @returns {Session[]} Array of filtered sessions
    */
-  public getFilteredSessions(): Session[] {
+  getFilteredSessions(): Session[] {
     return this.dataSource.filteredData || this.dataSource.data || [];
   }
 
@@ -1038,7 +1046,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Gets the count of selected sessions that are currently visible (filtered).
    * @returns {number} Count of selected visible sessions
    */
-  public getSelectedFilteredCount(): number {
+  getSelectedFilteredCount(): number {
     const filteredSessions = this.getFilteredSessions();
     return filteredSessions.filter((session) =>
       this.selectedSessions.has(session.SessionId)
@@ -1050,7 +1058,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {boolean} checked - Whether to select or deselect all filtered sessions
    * @returns {void}
    */
-  public toggleAllSessions(checked: boolean): void {
+  toggleAllSessions(checked: boolean): void {
     const filteredSessions = this.getFilteredSessions();
     if (checked) {
       filteredSessions.forEach((session) => {
@@ -1068,7 +1076,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Checks if all filtered/visible sessions are currently selected.
    * @returns {boolean} True if all filtered sessions are selected, false otherwise
    */
-  public isAllSelected(): boolean {
+  isAllSelected(): boolean {
     const filteredSessions = this.getFilteredSessions();
     return (
       filteredSessions.length > 0 &&
@@ -1083,7 +1091,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * This occurs when some but not all filtered sessions are selected.
    * @returns {boolean} True if some filtered sessions are selected, false otherwise
    */
-  public isIndeterminate(): boolean {
+  isIndeterminate(): boolean {
     const filteredSessions = this.getFilteredSessions();
     const selectedFilteredCount = this.getSelectedFilteredCount();
     return (
@@ -1097,7 +1105,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} status - The status of the session
    * @returns {string} The CSS class name for the status
    */
-  public getStatusClass(status: string): string {
+  getStatusClass(status: string): string {
     switch (status) {
       case EventStatus.NotStarted:
         return 'status-not-started';
@@ -1121,7 +1129,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Only displays the listing after all 3 APIs complete.
    * @param {string} eventIdentifier - The identifier of the event
    */
-  public getSessionsForEvent(eventIdentifier: string): void {
+  getSessionsForEvent(eventIdentifier: string): void {
     this.isLoadingSessions = true;
 
     // Call all 3 APIs in parallel using forkJoin
@@ -1215,6 +1223,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
           this.setSortingDataAccessor();
           this.setFilterPredicate();
           this.totalRecords = 0;
+          // Clear Daily Debrief and Track Debrief data sources
+          this.dailyDebriefDataSource = new MatTableDataSource([]);
+          this.trackDebriefDataSource = new MatTableDataSource([]);
         }
 
         this.isLoadingSessions = false;
@@ -1227,6 +1238,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
         this.dataSource = new MatTableDataSource([]);
         this.setSortingDataAccessor();
         this.setFilterPredicate();
+        // Clear Daily Debrief and Track Debrief data sources
+        this.dailyDebriefDataSource = new MatTableDataSource([]);
+        this.trackDebriefDataSource = new MatTableDataSource([]);
         this.isLoadingSessions = false;
         this.cdr.detectChanges();
       },
@@ -1240,7 +1254,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} [reportType] - Optional report type filter (defaults to 'session_debrief')
    * @returns {void}
    */
-  public getContentVersionsByEventId(
+  getContentVersionsByEventId(
     eventIdentifier: string,
     reportType?: string
   ): void {
@@ -1277,7 +1291,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    */
   private normalizeSessionType(sessionType: string): string {
     // Convert Session.Type values to lowercase format used in contentVersions
-    const typeMap: { [key: string]: string } = {
+    const typeMap: Record<string, string> = {
       PrimarySession: 'primary',
       BreakoutSession: 'breakout',
       primary: 'primary',
@@ -1300,7 +1314,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Session} session - The session object
    * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, and version, or null if not found
    */
-  public getLatestPdfPathsForOtherBrief(
+  getLatestPdfPathsForOtherBrief(
     session: Session
   ): { pdfPathV1: string; pdfPathV2: string; version: number } | null {
     if (!session || !this.briefFilterMode) {
@@ -1324,7 +1338,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {string} return.pdfPathV2 - The path to PDF version 2
    * @returns {number} return.version - The version number
    */
-  public getLatestPdfPathsForSession(
+  getLatestPdfPathsForSession(
     sessionId: string,
     sessionType: string,
     reportType: string = 'session_debrief'
@@ -1370,7 +1384,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} reportType - The type of report
    * @returns {Object|null} An object containing pdfPathV1, pdfPathV2, and version, or null if not found
    */
-  public getLatestPdfPathsForSessionIgnoringSessionType(
+  getLatestPdfPathsForSessionIgnoringSessionType(
     sessionId: string,
     reportType: string
   ): { pdfPathV1: string; pdfPathV2: string; version: number } | null {
@@ -1409,7 +1423,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {boolean} [updateDataSource=true] - Whether to update the data source immediately
    * @returns {void}
    */
-  public mapReportUrlsToSessions(updateDataSource: boolean = true): void {
+  mapReportUrlsToSessions(updateDataSource: boolean = true): void {
     if (!this.sessions || this.sessions.length === 0) {
       return;
     }
@@ -1479,7 +1493,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Preserves existing reportUrl properties while adding PDF path information.
    * @returns {void}
    */
-  public enrichSessionsWithPdfPaths(): void {
+  enrichSessionsWithPdfPaths(): void {
     if (!this.sessions || this.sessions.length === 0) {
       return;
     }
@@ -1541,6 +1555,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Generate unique tracks data for Track Debrief
     this.generateUniqueTracksData();
+    // Generate unique event days data for Daily Debrief
+    this.generateUniqueEventDaysData();
 
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
@@ -1557,7 +1573,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} promptVersion - The prompt version ('v1' or 'v2')
    * @returns {void}
    */
-  public getSignedPdfUrl(
+  getSignedPdfUrl(
     session: Session & { pdfVersion?: number },
     promptVersion: string
   ): void {
@@ -1600,7 +1616,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Session & { pdfVersion?: number }} session - The session object
    * @returns {void}
    */
-  public viewPdfV1(session: Session & { pdfVersion?: number }): void {
+  viewPdfV1(session: Session & { pdfVersion?: number }): void {
     if (!session.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;
@@ -1613,7 +1629,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Session & { pdfVersion?: number }} session - The session object
    * @returns {void}
    */
-  public viewPdfV2(session: Session & { pdfVersion?: number }): void {
+  viewPdfV2(session: Session & { pdfVersion?: number }): void {
     if (!session.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;
@@ -1627,7 +1643,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {any} trackRow - The track row object with Track and version properties
    * @returns {void}
    */
-  public viewPdfV1ForTrackDebrief(trackRow: any): void {
+  viewPdfV1ForTrackDebrief(trackRow: any): void {
     if (!trackRow.Track || !trackRow.pdfPathV1) {
       this.displayErrorMessage('PDF V1 not available for this track.');
       return;
@@ -1678,7 +1694,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {any} trackRow - The track row object with Track and version properties
    * @returns {void}
    */
-  public viewPdfV2ForTrackDebrief(trackRow: any): void {
+  viewPdfV2ForTrackDebrief(trackRow: any): void {
     if (!trackRow.Track || !trackRow.pdfPathV2) {
       this.displayErrorMessage('PDF V2 not available for this track.');
       return;
@@ -1734,7 +1750,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {any} dailyDebriefRow - The daily debrief row object with EventDay and version properties
    * @returns {void}
    */
-  public viewPdfV1ForDailyDebrief(dailyDebriefRow: any): void {
+  viewPdfV1ForDailyDebrief(dailyDebriefRow: any): void {
     if (!dailyDebriefRow.EventDay || !dailyDebriefRow.pdfPathV1) {
       this.displayErrorMessage('PDF V1 not available for this event day.');
       return;
@@ -1788,7 +1804,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {any} dailyDebriefRow - The daily debrief row object with EventDay and version properties
    * @returns {void}
    */
-  public viewPdfV2ForDailyDebrief(dailyDebriefRow: any): void {
+  viewPdfV2ForDailyDebrief(dailyDebriefRow: any): void {
     if (!dailyDebriefRow.EventDay || !dailyDebriefRow.pdfPathV2) {
       this.displayErrorMessage('PDF V2 not available for this event day.');
       return;
@@ -1837,16 +1853,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Views the content (JSON) for a daily debrief in read-only mode.
-   * Similar to editContent but for viewing daily debrief content.
+   * Edits the content (JSON) for a daily debrief.
+   * Similar to editContent but for daily debrief content.
    * @param {any} dailyDebriefRow - The daily debrief row object with EventDay and version properties
    * @returns {void}
    */
-  public viewContentForDailyDebrief(dailyDebriefRow: any): void {
+  editContentForDailyDebrief(dailyDebriefRow: any): void {
     if (!dailyDebriefRow.EventDay || !dailyDebriefRow.version) {
-      this.displayErrorMessage(
-        'No version available for this daily debrief.'
-      );
+      this.displayErrorMessage('No version available for this daily debrief.');
       return;
     }
 
@@ -1855,12 +1869,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
       LoadingDialogComponent,
       {
         disableClose: true,
-        data: { message: 'Loading content...' },
+        data: { message: 'Loading content for editing...' },
       }
     );
 
     const eventDay = dailyDebriefRow.EventDay.replace(/\s+/g, '_');
-    const contentIdentifier = `${eventDay}`;
     const data = {
       eventId: this.selectedEvent,
       eventDay: eventDay,
@@ -1871,55 +1884,66 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
         dialogRef.close();
-        this.openMarkdownDialogForView(response, dailyDebriefRow.version);
+        this.openMarkdownDialogForDailyDebrief(
+          response,
+          dailyDebriefRow.version,
+          dailyDebriefRow
+        );
       },
       error: (error) => {
         dialogRef.close();
         console.error('Error fetching version content:', error);
         this.displayErrorMessage(
-          'Failed to load content. Please try again.'
+          'Failed to load content for editing. Please try again.'
         );
       },
     });
   }
 
   /**
-   * Opens the markdown editor dialog in read-only/view mode.
-   * @param {any} content - The content to view
+   * Opens the markdown editor dialog for editing daily debrief content.
+   * @param {any} content - The content to edit
    * @param {number} version - The version number
+   * @param {any} dailyDebriefRow - The daily debrief row object
    * @returns {void}
    */
-  public openMarkdownDialogForView(content: any, version: number): void {
+  openMarkdownDialogForDailyDebrief(
+    content: any,
+    version: number,
+    dailyDebriefRow: any
+  ): void {
+    const eventDay = dailyDebriefRow.EventDay.replace(/\s+/g, '_');
     const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
       data: {
         initialText: JSON.stringify(content, null, 2),
         eventName: this.selectedEvent,
-        selected_session: '',
+        selected_session: eventDay,
         selectedSessionType: '',
         selectedReportType: 'daily_debrief',
         version: version,
-        readOnly: true,
+        readOnly: false,
       } as MarkdownEditorData,
       width: '1000px',
       maxWidth: '100vw',
     });
 
-    dialogRef.afterClosed().subscribe(() => {
-      // No action needed for view-only mode
+    dialogRef.afterClosed().subscribe((result: any | undefined) => {
+      if (result && result.edited) {
+        // Refresh the daily debrief list to reflect any changes
+        this.generateUniqueEventDaysData();
+      }
     });
   }
 
   /**
-   * Views the content (JSON) for a track debrief in read-only mode.
-   * Similar to viewContentForDailyDebrief but for track debrief content.
+   * Edits the content (JSON) for a track debrief.
+   * Similar to editContentForDailyDebrief but for track debrief content.
    * @param {any} trackDebriefRow - The track debrief row object with Track and version properties
    * @returns {void}
    */
-  public viewContentForTrackDebrief(trackDebriefRow: any): void {
+  editContentForTrackDebrief(trackDebriefRow: any): void {
     if (!trackDebriefRow.Track || !trackDebriefRow.version) {
-      this.displayErrorMessage(
-        'No version available for this track debrief.'
-      );
+      this.displayErrorMessage('No version available for this track debrief.');
       return;
     }
 
@@ -1928,7 +1952,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
       LoadingDialogComponent,
       {
         disableClose: true,
-        data: { message: 'Loading content...' },
+        data: { message: 'Loading content for editing...' },
       }
     );
 
@@ -1943,47 +1967,54 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
         dialogRef.close();
-        this.openMarkdownDialogForViewTrackDebrief(
+        this.openMarkdownDialogForTrackDebrief(
           response,
-          trackDebriefRow.version
+          trackDebriefRow.version,
+          trackDebriefRow
         );
       },
       error: (error) => {
         dialogRef.close();
         console.error('Error fetching version content:', error);
         this.displayErrorMessage(
-          'Failed to load content. Please try again.'
+          'Failed to load content for editing. Please try again.'
         );
       },
     });
   }
 
   /**
-   * Opens the markdown editor dialog in read-only/view mode for track debrief.
-   * @param {any} content - The content to view
+   * Opens the markdown editor dialog for editing track debrief content.
+   * @param {any} content - The content to edit
    * @param {number} version - The version number
+   * @param {any} trackDebriefRow - The track debrief row object
    * @returns {void}
    */
-  public openMarkdownDialogForViewTrackDebrief(
+  openMarkdownDialogForTrackDebrief(
     content: any,
-    version: number
+    version: number,
+    trackDebriefRow: any
   ): void {
+    const track = trackDebriefRow.Track.replace(/\s+/g, '_');
     const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
       data: {
         initialText: JSON.stringify(content, null, 2),
         eventName: this.selectedEvent,
-        selected_session: '',
+        selected_session: track,
         selectedSessionType: '',
         selectedReportType: 'track_debrief',
         version: version,
-        readOnly: true,
+        readOnly: false,
       } as MarkdownEditorData,
       width: '1000px',
       maxWidth: '100vw',
     });
 
-    dialogRef.afterClosed().subscribe(() => {
-      // No action needed for view-only mode
+    dialogRef.afterClosed().subscribe((result: any | undefined) => {
+      if (result && result.edited) {
+        // Refresh the track debrief list to reflect any changes
+        this.generateUniqueTracksData();
+      }
     });
   }
 
@@ -1992,7 +2023,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * After selection, calls the API to generate the daily debrief.
    * @returns {void}
    */
-  public openGenerateDailyDebriefDialog(): void {
+  openGenerateDailyDebriefDialog(): void {
     if (!this.selectedEvent) {
       this.displayErrorMessage('Please select an event first.');
       return;
@@ -2096,7 +2127,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * After selection, calls the API to generate the track debriefs for all selected tracks.
    * @returns {void}
    */
-  public openGenerateTrackDebriefDialog(): void {
+  openGenerateTrackDebriefDialog(): void {
     if (!this.selectedEvent) {
       this.displayErrorMessage('Please select an event first.');
       return;
@@ -2208,7 +2239,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     });
   }
 
-  public viewPdfV2ForOtherBrief(session: Session): void {
+  viewPdfV2ForOtherBrief(session: Session): void {
     const pdfPaths = this.getLatestPdfPathsForOtherBrief(session);
     if (!pdfPaths || !pdfPaths.pdfPathV2) {
       this.displayErrorMessage('PDF V2 not available for this brief type.');
@@ -2262,7 +2293,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {boolean} checked - Whether the checkbox is checked
    * @returns {void}
    */
-  public onSessionToggle(sessionId: string, checked: boolean): void {
+  onSessionToggle(sessionId: string, checked: boolean): void {
     if (checked) {
       this.selectedSessions.add(sessionId);
     } else {
@@ -2277,7 +2308,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The input event
    * @returns {void}
    */
-  public onRangeInputChange(field: 'from' | 'to', event: Event): void {
+  onRangeInputChange(field: 'from' | 'to', event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input.value;
 
@@ -2317,7 +2348,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Clears all previous selections before selecting the new range.
    * @returns {void}
    */
-  public selectRange(): void {
+  selectRange(): void {
     if (
       this.fromIndex === null ||
       this.toIndex === null ||
@@ -2378,7 +2409,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} sessionId - The identifier of the session
    * @returns {boolean} True if the session is selected, false otherwise
    */
-  public isSessionSelected(sessionId: string): boolean {
+  isSessionSelected(sessionId: string): boolean {
     return this.selectedSessions.has(sessionId);
   }
 
@@ -2387,7 +2418,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Clears all checkbox selections on refresh.
    * @returns {void}
    */
-  public refreshEvents(): void {
+  refreshEvents(): void {
     // Clear all checkbox selections
     this.selectedSessions.clear();
     this.getEvents();
@@ -2413,7 +2444,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     );
 
     // Add default session IDs to selectedSessions if they exist in the loaded sessions
-    this.defaultSessionIds.forEach((sessionId) => {
+    this._defaultSessionIds.forEach((sessionId) => {
       if (availableSessionIds.has(sessionId)) {
         this.selectedSessions.add(sessionId);
       }
@@ -2432,7 +2463,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Shows success/error messages and refreshes the sessions list after completion.
    * @returns {void}
    */
-  public generatePDF(): void {
+  generatePDF(): void {
     if (this.selectedSessions.size === 0) {
       this.displayErrorMessage(
         'Please select at least one session to generate PDF.'
@@ -2531,7 +2562,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} [reportType='session_debrief'] - The type of report to publish
    * @returns {Observable<any>} An observable that emits the publish response
    */
-  public publishPDF(
+  publishPDF(
     version: number,
     promptVersion: string,
     sessionId: string,
@@ -2555,7 +2586,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * Shows success/error messages and refreshes the sessions list after completion.
    * @returns {void}
    */
-  public publishReport(): void {
+  publishReport(): void {
     if (this.selectedSessions.size === 0) {
       this.displayErrorMessage(
         'Please select at least one session to publish.'
@@ -2669,7 +2700,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} reportUrl - The URL of the published PDF
    * @returns {void}
    */
-  public openPublishPdf(reportUrl: string): void {
+  openPublishPdf(reportUrl: string): void {
     if (reportUrl) {
       window.open(reportUrl, '_blank');
     } else {
@@ -2682,7 +2713,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} audioUrl - The URL of the audio file to play
    * @returns {void}
    */
-  public openAudioPlayer(audioUrl: string): void {
+  openAudioPlayer(audioUrl: string): void {
     if (!audioUrl) {
       this.displayErrorMessage('Audio URL is not available.');
       return;
@@ -2702,7 +2733,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Session & { pdfVersion?: number }} session - The session object with optional pdfVersion
    * @returns {void}
    */
-  public editContent(session: Session & { pdfVersion?: number }): void {
+  editContent(session: Session & { pdfVersion?: number }): void {
     if (!session.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;
@@ -2750,7 +2781,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Session & { pdfVersion?: number }} session - The session object
    * @returns {void}
    */
-  public openMarkdownDialog(
+  openMarkdownDialog(
     content: any,
     version: number,
     session: Session & { pdfVersion?: number }
@@ -2784,7 +2815,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} message - The error message to display
    * @returns {void}
    */
-  public displayErrorMessage(message: string): void {
+  displayErrorMessage(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 20000,
       panelClass: ['snackbar-error'],
@@ -2796,7 +2827,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} value - The search input value
    * @returns {void}
    */
-  public filterEvents(value: string): void {
+  filterEvents(value: string): void {
     this.eventSearchInput = value;
     if (!value) {
       this.filteredEvents = this.events;
@@ -2833,7 +2864,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {any} event - The autocomplete selection event
    * @returns {void}
    */
-  public onEventSelected(event: any): void {
+  onEventSelected(event: any): void {
     const selectedEvent: EventConfig = event.option?.value;
     if (selectedEvent && selectedEvent.EventIdentifier) {
       this.selectedEvent = selectedEvent.EventIdentifier;
@@ -2847,7 +2878,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The input event
    * @returns {void}
    */
-  public onEventInputChange(event: Event): void {
+  onEventInputChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.filterEvents(value);
 

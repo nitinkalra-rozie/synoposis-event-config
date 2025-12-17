@@ -805,10 +805,10 @@
                                   </td>
                                 </ng-container>
 
-                                <!-- View Content Column -->
+                                <!-- Edit Content Column -->
                                 <ng-container matColumnDef="viewContent">
                                   <th *matHeaderCellDef mat-header-cell>
-                                    View Content
+                                    Edit Content
                                   </th>
                                   <td
                                     *matCellDef="let row; let i = index"
@@ -818,12 +818,12 @@
                                     @if (row.version) {
                                       <button
                                         mat-icon-button
-                                        matTooltip="View Content"
+                                        matTooltip="Edit Content"
                                         (click)="
-                                          viewContentForDailyDebrief(row);
+                                          editContentForDailyDebrief(row);
                                           $event.stopPropagation()
                                         ">
-                                        <mat-icon>visibility</mat-icon>
+                                        <mat-icon>edit</mat-icon>
                                       </button>
                                     } @else {
                                       <span style="color: #999">N/A</span>
@@ -954,10 +954,10 @@
                                   </td>
                                 </ng-container>
 
-                                <!-- View Content Column -->
+                                <!-- Edit Content Column -->
                                 <ng-container matColumnDef="viewContent">
                                   <th *matHeaderCellDef mat-header-cell>
-                                    View Content
+                                    Edit Content
                                   </th>
                                   <td
                                     *matCellDef="let row; let i = index"
@@ -967,12 +967,12 @@
                                     @if (row.version) {
                                       <button
                                         mat-icon-button
-                                        matTooltip="View Content"
+                                        matTooltip="Edit Content"
                                         (click)="
-                                          viewContentForTrackDebrief(row);
+                                          editContentForTrackDebrief(row);
                                           $event.stopPropagation()
                                         ">
-                                        <mat-icon>visibility</mat-icon>
+                                        <mat-icon>edit</mat-icon>
                                       </button>
                                     } @else {
                                       <span style="color: #999">N/A</span>

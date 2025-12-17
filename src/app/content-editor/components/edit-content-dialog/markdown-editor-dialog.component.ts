@@ -48,10 +48,10 @@ export interface MarkdownEditorData {
         <mat-label>{{ isReadOnly ? 'Content' : 'Edit Content' }}</mat-label>
         <textarea
           matInput
+          [disabled]="isReadOnly"
+          [readonly]="isReadOnly"
           [(ngModel)]="markdownContent"
           (ngModelChange)="updatePreview()"
-          [readonly]="isReadOnly"
-          [disabled]="isReadOnly"
           rows="50"></textarea>
       </mat-form-field>
     </div>
@@ -133,14 +133,26 @@ export class MarkdownEditorDialogComponent implements OnInit {
   save(): void {
     this.isLoading = true;
     const markdownContent = this.markdownContent.replace(/\s*\n\s*/g, '');
-    const data = {
+    const data: any = {
       eventId: this.data.eventName,
-      sessionId: this.data.selected_session,
-      sessionType: this.data.selectedSessionType,
       reportType: this.data.selectedReportType,
       version: this.data.version,
       updatedContent: JSON.parse(markdownContent),
     };
+
+    // For daily_debrief and track_debrief, use eventDay/track instead of sessionId/sessionType
+    if (this.data.selectedReportType === 'daily_debrief' || this.data.selectedReportType === 'track_debrief') {
+      if (this.data.selectedReportType === 'daily_debrief') {
+        data.eventDay = this.data.selected_session;
+      } else if (this.data.selectedReportType === 'track_debrief') {
+        data.track = this.data.selected_session;
+      }
+    } else {
+      // For other report types, use sessionId and sessionType
+      data.sessionId = this.data.selected_session;
+      data.sessionType = this.data.selectedSessionType;
+    }
+
     this.backendApiService.saveEditedVersionContent(data).subscribe({
       next: (response) => {
         this.isLoading = false;

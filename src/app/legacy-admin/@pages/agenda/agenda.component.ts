@@ -286,7 +286,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} eventDay - The selected event day filter value
    * @returns {void}
    */
-  public onEventDayFilterChange(eventDay: string): void {
+  onEventDayFilterChange(eventDay: string): void {
     this.selectedEventDay = eventDay;
     this.applyAllFilters();
   }
@@ -350,7 +350,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} eventIdentifier - The identifier of the selected event
    * @returns {void}
    */
-  public onEventChange(eventIdentifier: string): void {
+  onEventChange(eventIdentifier: string): void {
     if (!eventIdentifier) {
       this.sessions = [];
       this.dataSource = new MatTableDataSource([]);
@@ -383,7 +383,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Extracts speakers from sessions and displays them.
    * @param {string} eventIdentifier - The identifier of the event
    */
-  public getSessionsForEvent(eventIdentifier: string): void {
+  getSessionsForEvent(eventIdentifier: string): void {
     this.isLoadingSessions = true;
 
     const sessionsObservable = this._backendApiService
@@ -444,7 +444,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The keyboard event from the search input
    * @returns {void}
    */
-  public applyFilter(event: Event): void {
+  applyFilter(event: Event): void {
     this.textFilterValue = (event.target as HTMLInputElement).value.trim();
     this.applyAllFilters();
   }
@@ -453,7 +453,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Applies all active filters to the table.
    * @returns {void}
    */
-  public applyAllFilters(): void {
+  applyAllFilters(): void {
     this.dataSource.filter = 'active';
     if (this.paginator) {
       this.dataSource.paginator = this.paginator;
@@ -466,7 +466,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Gets the currently filtered/visible sessions from the data source.
    * @returns {Session[]} Array of filtered sessions
    */
-  public getFilteredSessions(): Session[] {
+  getFilteredSessions(): Session[] {
     return this.dataSource.filteredData || this.dataSource.data || [];
   }
 
@@ -474,7 +474,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Gets all speakers from all selected sessions.
    * @returns {SpeakerWithId[]} Array of all speakers from selected sessions
    */
-  public getAllSelectedSpeakers(): SpeakerWithId[] {
+  getAllSelectedSpeakers(): SpeakerWithId[] {
     const allSpeakers: SpeakerWithId[] = [];
     this.sessions.forEach((session: Session) => {
       if (session.SpeakersInfo && Array.isArray(session.SpeakersInfo)) {
@@ -498,7 +498,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Gets the count of selected sessions.
    * @returns {number} Count of selected sessions
    */
-  public getSelectedFilteredCount(): number {
+  getSelectedFilteredCount(): number {
     return this.selectedSessions.size;
   }
 
@@ -507,7 +507,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {boolean} checked - Whether to select or deselect all filtered sessions
    * @returns {void}
    */
-  public toggleAllSessions(checked: boolean): void {
+  toggleAllSessions(checked: boolean): void {
     const filteredSessions = this.getFilteredSessions();
     if (checked) {
       filteredSessions.forEach((session) => {
@@ -527,7 +527,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Checks if all filtered/visible sessions with speakers are currently selected.
    * @returns {boolean} True if all filtered sessions with speakers are selected, false otherwise
    */
-  public isAllSelected(): boolean {
+  isAllSelected(): boolean {
     const filteredSessions = this.getFilteredSessions();
     const sessionsWithSpeakers = filteredSessions.filter((session) =>
       this.hasSpeakers(session)
@@ -545,7 +545,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * This occurs when some but not all filtered sessions with speakers are selected.
    * @returns {boolean} True if some filtered sessions with speakers are selected, false otherwise
    */
-  public isIndeterminate(): boolean {
+  isIndeterminate(): boolean {
     const filteredSessions = this.getFilteredSessions();
     const sessionsWithSpeakers = filteredSessions.filter((session) =>
       this.hasSpeakers(session)
@@ -566,7 +566,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {boolean} checked - Whether the checkbox is checked
    * @returns {void}
    */
-  public onSessionToggle(sessionId: string, checked: boolean): void {
+  onSessionToggle(sessionId: string, checked: boolean): void {
     if (checked) {
       this.selectedSessions.add(sessionId);
     } else {
@@ -579,7 +579,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} sessionId - The identifier of the session
    * @returns {boolean} True if the session is selected, false otherwise
    */
-  public isSessionSelected(sessionId: string): boolean {
+  isSessionSelected(sessionId: string): boolean {
     return this.selectedSessions.has(sessionId);
   }
 
@@ -588,7 +588,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {Session} session - The session object
    * @returns {SpeakerWithId[]} Array of speakers for the session
    */
-  public getSpeakersForSession(session: Session): SpeakerWithId[] {
+  getSpeakersForSession(session: Session): SpeakerWithId[] {
     if (!session.SpeakersInfo || !Array.isArray(session.SpeakersInfo)) {
       return [];
     }
@@ -608,7 +608,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {Session} session - The session object
    * @returns {boolean} True if the session has speakers, false otherwise
    */
-  public hasSpeakers(session: Session): boolean {
+  hasSpeakers(session: Session): boolean {
     return (
       session.SpeakersInfo &&
       Array.isArray(session.SpeakersInfo) &&
@@ -621,7 +621,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {Session} session - The session object
    * @returns {number} Number of speakers
    */
-  public getSpeakerCount(session: Session): number {
+  getSpeakerCount(session: Session): number {
     if (!session.SpeakersInfo || !Array.isArray(session.SpeakersInfo)) {
       return 0;
     }
@@ -632,7 +632,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Gets the total number of displayed columns.
    * @returns {number} Number of columns
    */
-  public getColumnCount(): number {
+  getColumnCount(): number {
     return this.displayedColumns.length;
   }
 
@@ -643,7 +643,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {boolean} checked - Whether the checkbox is checked
    * @returns {void}
    */
-  public onSpeakerToggle(speakerId: string, checked: boolean): void {
+  onSpeakerToggle(speakerId: string, checked: boolean): void {
     if (checked) {
       this.selectedSpeakers.add(speakerId);
     } else {
@@ -656,7 +656,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} speakerId - The identifier of the speaker
    * @returns {boolean} True if the speaker is selected, false otherwise
    */
-  public isSpeakerSelected(speakerId: string): boolean {
+  isSpeakerSelected(speakerId: string): boolean {
     return this.selectedSpeakers.has(speakerId);
   }
 
@@ -666,7 +666,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} sessionId - The session ID to toggle
    * @returns {void}
    */
-  public toggleSessionExpansion(sessionId: string): void {
+  toggleSessionExpansion(sessionId: string): void {
     const session = this.sessions.find((s) => s.SessionId === sessionId);
     if (!session || !this.hasSpeakers(session)) {
       return;
@@ -684,7 +684,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} sessionId - The session ID to check
    * @returns {boolean} True if the session is expanded
    */
-  public isSessionExpanded(sessionId: string): boolean {
+  isSessionExpanded(sessionId: string): boolean {
     return this.expandedSessions.has(sessionId);
   }
 
@@ -694,7 +694,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {number} index - The index of the row in the table
    * @returns {void}
    */
-  public highlightRow(row: Session, index: number): void {
+  highlightRow(row: Session, index: number): void {
     this.selectedRowIndex = index;
   }
 
@@ -703,7 +703,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Truncates speaker bios to 80 words for all speakers in selected sessions.
    * @returns {void}
    */
-  public limitBio(): void {
+  limitBio(): void {
     if (this.selectedSessions.size === 0) {
       this.displayErrorMessage(
         'Please select at least one session to limit bio.'
@@ -769,7 +769,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * Clears all checkbox selections on refresh.
    * @returns {void}
    */
-  public refreshEvents(): void {
+  refreshEvents(): void {
     // Clear all checkbox selections
     this.selectedSessions.clear();
     this.selectedSpeakers.clear();
@@ -784,7 +784,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} message - The error message to display
    * @returns {void}
    */
-  public displayErrorMessage(message: string): void {
+  displayErrorMessage(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 20000,
       panelClass: ['snackbar-error'],
@@ -796,7 +796,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} value - The search input value
    * @returns {void}
    */
-  public filterEvents(value: string): void {
+  filterEvents(value: string): void {
     this.eventSearchInput = value;
     if (!value) {
       this.filteredEvents = this.events;
@@ -833,7 +833,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {any} event - The autocomplete selection event
    * @returns {void}
    */
-  public onEventSelected(event: any): void {
+  onEventSelected(event: any): void {
     const selectedEvent: EventConfig = event.option?.value;
     if (selectedEvent && selectedEvent.EventIdentifier) {
       this.selectedEvent = selectedEvent.EventIdentifier;
@@ -847,7 +847,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {Event} event - The input event
    * @returns {void}
    */
-  public onEventInputChange(event: Event): void {
+  onEventInputChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.filterEvents(value);
 
@@ -878,7 +878,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {SpeakerDetails} speaker - The speaker object
    * @returns {string} The image URL or empty string
    */
-  public getSpeakerImageUrl(speaker: SpeakerDetails): string {
+  getSpeakerImageUrl(speaker: SpeakerDetails): string {
     if (speaker.Url) {
       return speaker.Url;
     }
@@ -896,7 +896,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} text - The text to count words in
    * @returns {number} The number of words in the text
    */
-  public getWordCount(text: string | null | undefined): number {
+  getWordCount(text: string | null | undefined): number {
     if (!text || typeof text !== 'string') {
       return 0;
     }
@@ -914,7 +914,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    * @param {string} status - The status of the session
    * @returns {string} The CSS class name for the status
    */
-  public getStatusClass(status: string): string {
+  getStatusClass(status: string): string {
     switch (status) {
       case EventStatus.NotStarted:
         return 'status-not-started';

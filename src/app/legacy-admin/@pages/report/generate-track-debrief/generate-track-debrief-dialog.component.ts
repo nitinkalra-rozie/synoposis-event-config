@@ -34,7 +34,7 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class GenerateTrackDebriefDialogComponent {
   public selectedTracks: string[] = [];
-  public selectedTracksMap: { [key: string]: boolean } = {};
+  public selectedTracksMap: Record<string, boolean> = {};
   public searchFilter: string = '';
   public filteredTracks: string[] = [];
   public tracks: string[] = [];
