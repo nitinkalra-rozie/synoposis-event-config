@@ -27,6 +27,7 @@ export interface MarkdownEditorData {
   selectedReportType: string;
   version: number;
   readOnly?: boolean; // If true, the dialog will be in read-only/view mode
+  briefId?: string; // For executive_summary, track_debrief, and daily_debrief report types
 }
 
 @Component({
@@ -140,12 +141,19 @@ export class MarkdownEditorDialogComponent implements OnInit {
       updatedContent: JSON.parse(markdownContent),
     };
 
-    // For daily_debrief and track_debrief, use eventDay/track instead of sessionId/sessionType
-    if (this.data.selectedReportType === 'daily_debrief' || this.data.selectedReportType === 'track_debrief') {
+    // For daily_debrief, track_debrief, and executive_summary, use eventDay/track/briefId instead of sessionId/sessionType
+    if (
+      this.data.selectedReportType === 'daily_debrief' ||
+      this.data.selectedReportType === 'track_debrief' ||
+      this.data.selectedReportType === 'executive_summary'
+    ) {
       if (this.data.selectedReportType === 'daily_debrief') {
         data.eventDay = this.data.selected_session;
       } else if (this.data.selectedReportType === 'track_debrief') {
         data.track = this.data.selected_session;
+      } else if (this.data.selectedReportType === 'executive_summary') {
+        // For executive_summary, use briefId if provided, otherwise use selected_session
+        data.briefId = this.data.briefId || this.data.selected_session;
       }
     } else {
       // For other report types, use sessionId and sessionType

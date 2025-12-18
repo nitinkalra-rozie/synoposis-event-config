@@ -1,0 +1,263 @@
+<div class="track-debrief-container">
+  <div class="filter-container">
+    <div class="filter-label">
+      <span>Filter</span>
+    </div>
+    <div class="filter-field">
+      <input
+        id="searchTrackDebriefInput"
+        (keyup)="onSearchFilterChange($event)"
+        placeholder=" "
+        type="text" />
+      <label for="searchTrackDebriefInput">Search Track</label>
+    </div>
+    <div class="filter-select">
+      <mat-form-field class="file-filter-select" appearance="outline">
+        <mat-label>Publish Filter</mat-label>
+        <mat-select
+          [value]="trackDebriefPublishFilterMode"
+          (selectionChange)="onPublishFilterModeChange($event.value)">
+          <mat-option value="all">
+            <div>
+              <div><strong>All</strong></div>
+              <div style="font-size: 12px; color: #666">
+                Show all track debriefs regardless of publish status
+              </div>
+            </div>
+          </mat-option>
+          <mat-option value="publishPdfOnly">
+            <div>
+              <div><strong>Publish PDF Only</strong></div>
+              <div style="font-size: 12px; color: #666">
+                Track debriefs with published PDF
+              </div>
+            </div>
+          </mat-option>
+          <mat-option value="noPublishPdf">
+            <div>
+              <div><strong>No Publish PDF</strong></div>
+              <div style="font-size: 12px; color: #666">
+                Track debriefs without published PDF
+              </div>
+            </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="filter-select">
+      <mat-form-field class="file-filter-select" appearance="outline">
+        <mat-label>PDF Filter</mat-label>
+        <mat-select
+          [value]="trackDebriefPdfFilterMode"
+          (selectionChange)="onPdfFilterModeChange($event.value)">
+          <mat-option value="all">
+            <div>
+              <div><strong>All</strong></div>
+              <div style="font-size: 12px; color: #666">
+                Show all track debriefs regardless of PDF V2 status
+              </div>
+            </div>
+          </mat-option>
+          <mat-option value="hasV2">
+            <div>
+              <div><strong>Has V2</strong></div>
+              <div style="font-size: 12px; color: #666">
+                Track debriefs with PDF V2
+              </div>
+            </div>
+          </mat-option>
+          <mat-option value="noV2">
+            <div>
+              <div><strong>No V2</strong></div>
+              <div style="font-size: 12px; color: #666">
+                Track debriefs without PDF V2
+              </div>
+            </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="generate-debrief-button">
+      <button
+        mat-raised-button
+        matTooltip="Generate PDF V2 for selected tracks"
+        [disabled]="!selectedEvent || uniqueTracks.length === 0 || selectedTrackDebriefs.size === 0"
+        (click)="generateTrackDebrief.emit()"
+        color="primary">
+        <mat-icon>add</mat-icon>
+        Generate PDF V2
+      </button>
+      <button
+        mat-raised-button
+        matTooltip="Publish all selected track debrief reports (requires PDF V2)"
+        [disabled]="selectedTrackDebriefs.size === 0"
+        (click)="publishReport.emit()"
+        color="accent"
+        style="margin-left: 10px">
+        <mat-icon>publish</mat-icon>
+        Publish Report
+      </button>
+    </div>
+    <!-- Second row for range selection -->
+    <div class="range-selection" style="width: 100%; margin-top: 10px;">
+      <div class="range-inputs">
+        <div class="filter-field range-input">
+          <input
+            id="fromTrackInput"
+            [(ngModel)]="fromTrackIndex"
+            (input)="onRangeInputChange('from', $event)"
+            placeholder=" "
+            type="text" />
+          <label for="fromTrackInput">From</label>
+        </div>
+        <div class="filter-field range-input">
+          <input
+            id="toTrackInput"
+            [(ngModel)]="toTrackIndex"
+            (input)="onRangeInputChange('to', $event)"
+            placeholder=" "
+            type="text" />
+          <label for="toTrackInput">To</label>
+        </div>
+        <button
+          mat-raised-button
+          class="select-range-button"
+          [disabled]="!fromTrackIndex || !toTrackIndex"
+          (click)="onSelectRange()"
+          color="primary">
+          <mat-icon>check_box</mat-icon>
+          Select Range
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="track-debrief-table-wrapper">
+    <table
+      mat-table
+      matSort
+      class="versions-table"
+      [dataSource]="dataSource">
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th *matHeaderCellDef mat-header-cell>
+          <mat-checkbox
+            [checked]="isAllSelected()"
+            [indeterminate]="isIndeterminate()"
+            (change)="onToggleAll($event.checked)">
+          </mat-checkbox>
+        </th>
+        <td
+          *matCellDef="let row; let i = index"
+          mat-cell
+          [class.selected]="selectedRowIndex === i"
+          (click)="onHighlightRow(row, i)">
+          <mat-checkbox
+            [checked]="isTrackDebriefSelected(row.Track)"
+         
+            (change)="onTrackDebriefToggle(row.Track, $event.checked)"
+            (click)="$event.stopPropagation()">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Track Column -->
+      <ng-container matColumnDef="track">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Track</th>
+        <td
+          *matCellDef="let row; let i = index"
+          mat-cell
+          [class.selected]="selectedRowIndex === i"
+          (click)="onHighlightRow(row, i)">
+          {{ row.Track }}
+        </td>
+      </ng-container>
+
+      <!-- Edit Content Column -->
+      <ng-container matColumnDef="viewContent">
+        <th *matHeaderCellDef mat-header-cell>Edit Content</th>
+        <td
+          *matCellDef="let row; let i = index"
+          mat-cell
+          [class.selected]="selectedRowIndex === i"
+          (click)="onHighlightRow(row, i)">
+          @if (row.version) {
+            <button
+              mat-icon-button
+              matTooltip="Edit Content"
+              (click)="onEditContent(row); $event.stopPropagation()">
+              <mat-icon>edit</mat-icon>
+            </button>
+          } @else {
+            <span style="color: #999">N/A</span>
+          }
+        </td>
+      </ng-container>
+
+      <!-- PDF Path V2 Column -->
+      <ng-container matColumnDef="pdfPathV2">
+        <th *matHeaderCellDef mat-header-cell>PDF V2</th>
+        <td
+          *matCellDef="let row; let i = index"
+          mat-cell
+          [class.selected]="selectedRowIndex === i"
+          (click)="onHighlightRow(row, i)">
+          @if (row.pdfPathV2) {
+            <button
+              mat-icon-button
+              matTooltip="Open PDF V2"
+              (click)="onViewPdfV2(row); $event.stopPropagation()">
+              <mat-icon>picture_as_pdf</mat-icon>
+            </button>
+          } @else {
+            <span style="color: #999">N/A</span>
+          }
+        </td>
+      </ng-container>
+
+      <!-- Version Column -->
+      <ng-container matColumnDef="version">
+        <th *matHeaderCellDef mat-header-cell mat-sort-header>Version</th>
+        <td
+          *matCellDef="let row; let i = index"
+          mat-cell
+          [class.selected]="selectedRowIndex === i"
+          (click)="onHighlightRow(row, i)">
+          {{ row.version || 'N/A' }}
+        </td>
+      </ng-container>
+
+      <!-- Publish PDF Column -->
+      <ng-container matColumnDef="publishPdf">
+        <th *matHeaderCellDef mat-header-cell>Publish PDF</th>
+        <td
+          *matCellDef="let row; let i = index"
+          mat-cell
+          [class.selected]="selectedRowIndex === i"
+          (click)="onHighlightRow(row, i)">
+          @if (row.reportUrl) {
+            <button
+              mat-icon-button
+              matTooltip="Open Published PDF"
+              (click)="onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()">
+              <mat-icon>picture_as_pdf</mat-icon>
+            </button>
+          } @else {
+            <span style="color: #999">N/A</span>
+          }
+        </td>
+      </ng-container>
+
+      <!-- Table Header and Row Declarations -->
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    </table>
+    <mat-paginator
+      #trackDebriefPaginator
+      [length]="dataSource.data.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 20, 50, 100, 200]"
+      showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>
+

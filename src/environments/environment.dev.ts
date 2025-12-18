@@ -29,8 +29,12 @@ export const environment = {
     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/publish-pdf-content',
   getPreSignedPDFUrl:
     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/get-content-pdf',
+  uploadManualExecutiveSummaryUrl:
+    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/upload-manual-executive-summary',
   generateContentUrl:
     'https://oda3k47th4.execute-api.ca-central-1.amazonaws.com/dev/session-debrief',
+  executiveSummaryUrl:
+    'https://oda3k47th4.execute-api.ca-central-1.amazonaws.com/dev/executive-summary',
   saveEditedVersionContentUrl:
     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
   analyticsApiEndpoint: 'https://dev.api.synopsis.rozie.ai/r5/admin-analytics',

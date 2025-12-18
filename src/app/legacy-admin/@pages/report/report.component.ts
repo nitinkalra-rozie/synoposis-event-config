@@ -14,7 +14,7 @@
  * @component ReportComponent
  * @implements {OnInit, AfterViewInit}
  */
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -58,10 +58,12 @@ import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-ba
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { Session } from '../event-configuration/event-configuration.component';
-import { AudioPlayerDialogComponent } from './audio-player-dialog/audio-player-dialog.component';
-import { GenerateDailyDebriefDialogComponent } from './generate-daily-debrief/generate-daily-debrief-dialog.component';
-import { GenerateTrackDebriefDialogComponent } from './generate-track-debrief/generate-track-debrief-dialog.component';
-import { LoadingDialogComponent } from './loading-dialog/loading-dialog.component';
+import { AudioPlayerDialogComponent } from './components/audio-player-dialog/audio-player-dialog.component';
+import { DailyDebriefComponent } from './components/daily-debrief/daily-debrief.component';
+import { ExecutiveSummaryComponent } from './components/executive-summary/executive-summary.component';
+import { LoadingDialogComponent } from './components/loading-dialog/loading-dialog.component';
+import { SessionDebriefComponent } from './components/session-debrief/session-debrief.component';
+import { TrackDebriefComponent } from './components/track-debrief/track-debrief.component';
 
 /**
  * Interface representing an event configuration.
@@ -107,7 +109,10 @@ interface EventConfig {
     MatTabsModule,
     MatDialogModule,
     TopBarComponent,
-    DatePipe,
+    SessionDebriefComponent,
+    DailyDebriefComponent,
+    TrackDebriefComponent,
+    ExecutiveSummaryComponent,
   ],
   providers: [],
 })
@@ -161,6 +166,12 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public sessions: Session[] = [];
   /** Set of selected session IDs */
   public selectedSessions: Set<string> = new Set();
+  /** Set of selected daily debrief event days */
+  public selectedDailyDebriefs: Set<string> = new Set();
+  /** Set of selected track debrief tracks */
+  public selectedTrackDebriefs: Set<string> = new Set();
+  /** Set of selected executive summary IDs */
+  public selectedExecutiveSummaries: Set<string> = new Set();
 
   /** Default session IDs to be selected by default */
   private readonly _defaultSessionIds: string[] = [];
@@ -195,10 +206,24 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public fromIndex: string | null = null;
   /** To index for range selection */
   public toIndex: string | null = null;
+  /** From index for track debrief range selection */
+  public fromTrackIndex: string | null = null;
+  /** To index for track debrief range selection */
+  public toTrackIndex: string | null = null;
   /** Selected track filter value */
   public selectedTrack: string = '';
   /** Track search filter value */
   public trackSearchFilter: string = '';
+  /** Publish filter mode for track debrief: 'all' | 'publishPdfOnly' | 'noPublishPdf' */
+  public trackDebriefPublishFilterMode:
+    | 'all'
+    | 'publishPdfOnly'
+    | 'noPublishPdf' = 'all';
+  /** PDF filter mode for track debrief: 'all' | 'hasV2' | 'noV2' */
+  public trackDebriefPdfFilterMode:
+    | 'all'
+    | 'hasV2'
+    | 'noV2' = 'all';
   /** Brief filter mode: 'daily_debrief' | 'track_debrief' */
   public briefFilterMode: 'daily_debrief' | 'track_debrief' = 'daily_debrief';
   /** Filter mode for PDF V1 and V2: 'all' | 'pdfV1Only' | 'pdfV2Only' | 'both' | 'either' | 'neither' */
@@ -247,20 +272,32 @@ export class ReportComponent implements OnInit, AfterViewInit {
     'version',
   ];
 
-  /** Column definitions for the Daily Debrief table (eventDay, pdfPathV2, viewContent, version) */
+  /** Column definitions for the Daily Debrief table (select, eventDay, pdfPathV2, viewContent, version, publishPdf) */
   public displayedColumnsDailyDebrief: string[] = [
+    'select',
     'eventDay',
     'pdfPathV2',
     'viewContent',
     'version',
+    'publishPdf',
   ];
 
-  /** Column definitions for the Track Debrief table (only track, pdfPathV2, version) */
+  /** Column definitions for the Track Debrief table (select, track, pdfPathV2, viewContent, version, publishPdf) */
   public displayedColumnsTrackDebrief: string[] = [
+    'select',
     'track',
     'pdfPathV2',
     'viewContent',
     'version',
+    'publishPdf',
+  ];
+
+  /** Column definitions for the Executive Summary table (pdfPathV2, viewContent, version, publishPdf) */
+  public displayedColumnsExecutiveSummary: string[] = [
+    'pdfPathV2',
+    'viewContent',
+    'version',
+    'publishPdf',
   ];
 
   /** Material table data source for sessions */
@@ -269,6 +306,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
   public dailyDebriefDataSource = new MatTableDataSource<any>([]);
   /** Material table data source for unique tracks (Track Debrief) */
   public trackDebriefDataSource = new MatTableDataSource<any>([]);
+  /** Material table data source for executive summary */
+  public executiveSummaryDataSource = new MatTableDataSource<any>([]);
 
   /** EventStatus enum reference for template usage */
   protected readonly EventStatus = EventStatus;
@@ -532,6 +571,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
           if (this.sessions && this.sessions.length > 0) {
             this.mapReportUrlsToSessions();
           }
+          // Map report URLs to daily and track debriefs
+          this.mapReportUrlsToDailyAndTrackDebriefs();
         },
         error: (error) => {
           console.error('Error fetching event report details:', error);
@@ -554,6 +595,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       this.setSortingDataAccessor();
       this.setFilterPredicate();
       this.selectedSessions.clear();
+      this.selectedDailyDebriefs.clear();
+      this.selectedTrackDebriefs.clear();
+      this.selectedExecutiveSummaries.clear();
       // Reset filters
       this.textFilterValue = '';
       this.fileFilterMode = 'all';
@@ -563,6 +607,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
       this.selectedTrack = '';
       this.uniqueTracks = [];
       this.trackSearchFilter = '';
+      this.trackDebriefPublishFilterMode = 'all';
+      this.trackDebriefPdfFilterMode = 'all';
+      // Reset range selections
+      this.fromIndex = null;
+      this.toIndex = null;
+      this.fromTrackIndex = null;
+      this.toTrackIndex = null;
       this.briefFilterMode = 'daily_debrief';
       // Reset event search input
       this.eventSearchInput = '';
@@ -573,6 +624,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.selectedEvent = eventIdentifier;
     this.isLoadingSessions = true;
     this.selectedSessions.clear();
+    this.selectedDailyDebriefs.clear();
+    this.selectedTrackDebriefs.clear();
+    this.selectedExecutiveSummaries.clear();
     // Reset filters
     this.textFilterValue = '';
     this.fileFilterMode = 'all';
@@ -590,7 +644,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {number} index - The index of the row in the table
    * @returns {void}
    */
-  highlightRow(row: Session, index: number): void {
+  highlightRow(row: Session | any, index: number): void {
     this.selectedRowIndex = index;
   }
 
@@ -721,9 +775,17 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     const latestVersion = sortedVersions[0];
     // Handle both camelCase and snake_case field names, and trim whitespace
-    const pdfPathV1 = (latestVersion.pdfPathV1 || latestVersion.pdf_path_v1 || '').trim();
-    const pdfPathV2 = (latestVersion.pdfPathV2 || latestVersion.pdf_path_v2 || '').trim();
-    
+    const pdfPathV1 = (
+      latestVersion.pdfPathV1 ||
+      latestVersion.pdf_path_v1 ||
+      ''
+    ).trim();
+    const pdfPathV2 = (
+      latestVersion.pdfPathV2 ||
+      latestVersion.pdf_path_v2 ||
+      ''
+    ).trim();
+
     return {
       pdfPathV1: pdfPathV1 || '',
       pdfPathV2: pdfPathV2 || '',
@@ -768,6 +830,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
         pdfPathV1: pdfPaths?.pdfPathV1 || '',
         pdfPathV2: pdfPaths?.pdfPathV2 || '',
         version: pdfPaths?.version || 0,
+        reportUrl: '', // Will be populated from eventReportDetails
         // Store track name for PDF viewing
         _trackName: track,
       });
@@ -778,21 +841,85 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Update the track debrief data source
     this.trackDebriefDataSource = new MatTableDataSource(uniqueTracksData);
-    // Set up filter predicate for track search
-    this.trackDebriefDataSource.filterPredicate = (
-      data: any,
-      filter: string
-    ) => {
-      if (!filter) return true;
-      const searchTerm = filter.toLowerCase();
-      return data.Track?.toLowerCase().includes(searchTerm) || false;
-    };
+    console.log('Track Debrief displayedColumns:', this.displayedColumnsTrackDebrief);
+    console.log('Track Debrief data:', uniqueTracksData);
+    // Set up filter predicate for track search, publish filter, and PDF filter
+    this.setupTrackDebriefFilterPredicate();
     setTimeout(() => {
       this.trackDebriefDataSource.sort = this.sort;
       if (this.trackDebriefPaginator) {
         this.trackDebriefDataSource.paginator = this.trackDebriefPaginator;
       }
     }, 100);
+  }
+
+  /**
+   * Sets up the filter predicate for the track debrief data source.
+   * This method should be called whenever a new MatTableDataSource is created.
+   * @returns {void}
+   */
+  setupTrackDebriefFilterPredicate(): void {
+    if (!this.trackDebriefDataSource) {
+      return;
+    }
+    // Set up filter predicate for track search, publish filter, and PDF filter
+    this.trackDebriefDataSource.filterPredicate = (
+      data: any,
+      filter: string
+    ) => {
+      // Text search filter
+      const textMatch =
+        !this.trackSearchFilter ||
+        data.Track?.toLowerCase().includes(this.trackSearchFilter.toLowerCase()) ||
+        false;
+
+      // Publish PDF filter
+      const hasPublishPdf = !!(
+        data.reportUrl &&
+        (typeof data.reportUrl === 'string'
+          ? data.reportUrl.trim().length > 0
+          : data.reportUrl)
+      );
+
+      let publishFilterMatch = true;
+      switch (this.trackDebriefPublishFilterMode) {
+        case 'publishPdfOnly':
+          publishFilterMatch = hasPublishPdf;
+          break;
+        case 'noPublishPdf':
+          publishFilterMatch = !hasPublishPdf;
+          break;
+        case 'all':
+        default:
+          publishFilterMatch = true;
+          break;
+      }
+
+      // PDF filter - only check for V2
+      const hasPdfV2 = !!(
+        data.pdfPathV2 &&
+        (typeof data.pdfPathV2 === 'string'
+          ? data.pdfPathV2.trim().length > 0
+          : data.pdfPathV2)
+      );
+
+      let pdfFilterMatch = true;
+      switch (this.trackDebriefPdfFilterMode) {
+        case 'hasV2':
+          pdfFilterMatch = hasPdfV2;
+          break;
+        case 'noV2':
+          pdfFilterMatch = !hasPdfV2;
+          break;
+        case 'all':
+        default:
+          pdfFilterMatch = true;
+          break;
+      }
+
+      const result = textMatch && publishFilterMatch && pdfFilterMatch;
+      return result;
+    };
   }
 
   /**
@@ -833,6 +960,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
         pdfPathV1: pdfPaths?.pdfPathV1 || '',
         pdfPathV2: pdfPaths?.pdfPathV2 || '',
         version: pdfPaths?.version || 0,
+        reportUrl: '', // Will be populated from eventReportDetails
         // Store event day for PDF viewing
         _eventDay: eventDay,
         _dailyDebriefId: dailyDebriefId,
@@ -844,6 +972,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Update the daily debrief data source
     this.dailyDebriefDataSource = new MatTableDataSource(uniqueEventDaysData);
+    console.log('Daily Debrief displayedColumns:', this.displayedColumnsDailyDebrief);
+    console.log('Daily Debrief data:', uniqueEventDaysData);
     // Set up filter predicate for event day filter
     this.dailyDebriefDataSource.filterPredicate = (
       data: any,
@@ -896,9 +1026,17 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     const latestVersion = sortedVersions[0];
     // Handle both camelCase and snake_case field names, and trim whitespace
-    const pdfPathV1 = (latestVersion.pdfPathV1 || latestVersion.pdf_path_v1 || '').trim();
-    const pdfPathV2 = (latestVersion.pdfPathV2 || latestVersion.pdf_path_v2 || '').trim();
-    
+    const pdfPathV1 = (
+      latestVersion.pdfPathV1 ||
+      latestVersion.pdf_path_v1 ||
+      ''
+    ).trim();
+    const pdfPathV2 = (
+      latestVersion.pdfPathV2 ||
+      latestVersion.pdf_path_v2 ||
+      ''
+    ).trim();
+
     return {
       pdfPathV1: pdfPathV1 || '',
       pdfPathV2: pdfPathV2 || '',
@@ -914,13 +1052,96 @@ export class ReportComponent implements OnInit, AfterViewInit {
   applyTrackDebriefSearchFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.trim();
     this.trackSearchFilter = filterValue;
-    // Apply filter to track debrief data source
-    this.trackDebriefDataSource.filter = filterValue;
+    // Apply filter using the helper method
+    this.applyTrackDebriefFilters();
+  }
+
+  /**
+   * Handles the publish filter mode change for track debrief.
+   * @param {string} mode - The filter mode: 'all' | 'publishPdfOnly' | 'noPublishPdf'
+   * @returns {void}
+   */
+  onTrackDebriefPublishFilterModeChange(mode: string): void {
+    this.trackDebriefPublishFilterMode = mode as
+      | 'all'
+      | 'publishPdfOnly'
+      | 'noPublishPdf';
+    console.log('Track Debrief Publish Filter changed to:', mode);
+    // Trigger filter by forcing a re-evaluation
+    this.applyTrackDebriefFilters();
+  }
+
+  /**
+   * Handles the PDF filter mode change for track debrief.
+   * @param {string} mode - The filter mode: 'all' | 'hasV2' | 'noV2'
+   * @returns {void}
+   */
+  onTrackDebriefPdfFilterModeChange(mode: string): void {
+    this.trackDebriefPdfFilterMode = mode as
+      | 'all'
+      | 'hasV2'
+      | 'noV2';
+    console.log('Track Debrief PDF Filter changed to:', mode);
+    // Trigger filter by forcing a re-evaluation
+    this.applyTrackDebriefFilters();
+  }
+
+  /**
+   * Applies all filters to the track debrief data source.
+   * @returns {void}
+   */
+  applyTrackDebriefFilters(): void {
+    if (!this.trackDebriefDataSource) {
+      return;
+    }
+    // Ensure filter predicate is set up
+    if (!this.trackDebriefDataSource.filterPredicate) {
+      this.setupTrackDebriefFilterPredicate();
+    }
+    // Get current filter value
+    const currentFilter = this.trackSearchFilter || '';
+    
+    // Force filter re-evaluation by temporarily clearing and resetting
+    // This ensures the predicate is re-run with updated filter modes
+    this.trackDebriefDataSource.filter = '';
+    setTimeout(() => {
+      this.trackDebriefDataSource.filter = currentFilter || ' ';
+      this.updateTrackDebriefTable();
+    }, 0);
+  }
+
+  /**
+   * Updates the track debrief table after filter changes.
+   * @returns {void}
+   */
+  updateTrackDebriefTable(): void {
+    if (!this.trackDebriefDataSource) {
+      return;
+    }
+    // Ensure paginator is connected and reset to first page
     if (this.trackDebriefPaginator) {
       this.trackDebriefDataSource.paginator = this.trackDebriefPaginator;
       this.trackDebriefPaginator.firstPage();
-      this.cdr.detectChanges();
     }
+    // Ensure sort is connected
+    if (this.sort) {
+      this.trackDebriefDataSource.sort = this.sort;
+    }
+    
+    // Log filter state for debugging
+    const filteredData = this.trackDebriefDataSource.filteredData;
+    console.log('Track Debrief filter applied:', {
+      searchFilter: this.trackSearchFilter,
+      publishFilter: this.trackDebriefPublishFilterMode,
+      pdfFilter: this.trackDebriefPdfFilterMode,
+      filteredCount: filteredData?.length || 0,
+      totalCount: this.trackDebriefDataSource.data?.length || 0,
+      filterValue: this.trackDebriefDataSource.filter
+    });
+    
+    // Force change detection
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   /**
@@ -980,6 +1201,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     if (tabIndex === 1) {
       // Generate data for Daily Debrief (default sub-tab)
       this.generateUniqueEventDaysData();
+      // Map report URLs after regenerating data to preserve published PDF URLs
+      setTimeout(() => {
+        this.mapReportUrlsToDailyAndTrackDebriefs();
+      }, 0);
     }
   }
 
@@ -996,6 +1221,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
       // Track Debrief tab
       this.generateUniqueTracksData();
     }
+    
+    // Map report URLs after regenerating data to preserve published PDF URLs
+    setTimeout(() => {
+      this.mapReportUrlsToDailyAndTrackDebriefs();
+    }, 0);
   }
 
   /**
@@ -1040,6 +1270,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
    */
   getFilteredSessions(): Session[] {
     return this.dataSource.filteredData || this.dataSource.data || [];
+  }
+
+  /**
+   * Gets the filtered track debriefs from the data source.
+   * @returns {any[]} Array of filtered track debrief rows
+   */
+  getFilteredTrackDebriefs(): any[] {
+    return this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
   }
 
   /**
@@ -1223,9 +1461,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
           this.setSortingDataAccessor();
           this.setFilterPredicate();
           this.totalRecords = 0;
-          // Clear Daily Debrief and Track Debrief data sources
+          // Clear Daily Debrief, Track Debrief, and Executive Summary data sources
           this.dailyDebriefDataSource = new MatTableDataSource([]);
           this.trackDebriefDataSource = new MatTableDataSource([]);
+          this.executiveSummaryDataSource = new MatTableDataSource([]);
         }
 
         this.isLoadingSessions = false;
@@ -1557,6 +1796,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.generateUniqueTracksData();
     // Generate unique event days data for Daily Debrief
     this.generateUniqueEventDaysData();
+    // Generate executive summary data
+    this.generateExecutiveSummaryData();
+    // Map report URLs to daily and track debriefs
+    this.mapReportUrlsToDailyAndTrackDebriefs();
 
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
@@ -1564,6 +1807,163 @@ export class ReportComponent implements OnInit, AfterViewInit {
       // Reapply filters after data source update
       this.applyAllFilters();
     }, 100);
+  }
+
+  /**
+   * Maps published report URLs from eventReportDetails to daily, track debriefs, and executive summary.
+   * Updates the data sources with reportUrl properties.
+   * @returns {void}
+   */
+  mapReportUrlsToDailyAndTrackDebriefs(): void {
+    if (!this.eventReportDetails) {
+      console.log('mapReportUrlsToDailyAndTrackDebriefs: No eventReportDetails');
+      return;
+    }
+
+    // Handle both possible response structures: eventReportDetails.data or eventReportDetails directly
+    const responseData = this.eventReportDetails.data || this.eventReportDetails;
+    
+    if (!responseData) {
+      console.log('mapReportUrlsToDailyAndTrackDebriefs: No response data');
+      return;
+    }
+
+    console.log('mapReportUrlsToDailyAndTrackDebriefs: responseData', responseData);
+    console.log('mapReportUrlsToDailyAndTrackDebriefs: tracks', responseData.tracks);
+    console.log('mapReportUrlsToDailyAndTrackDebriefs: dailyReport', responseData.dailyReport);
+    console.log('mapReportUrlsToDailyAndTrackDebriefs: executiveSummaryReport', responseData.executiveSummaryReport);
+
+    // Map track report URLs
+    if (responseData.tracks && Array.isArray(responseData.tracks)) {
+      const trackReportUrlMap = new Map<string, string>();
+      responseData.tracks.forEach((trackReport: any) => {
+        if (trackReport.Track && trackReport.ReportUrl) {
+          trackReportUrlMap.set(trackReport.Track, trackReport.ReportUrl);
+          console.log(`Mapped track: ${trackReport.Track} -> ${trackReport.ReportUrl}`);
+        }
+      });
+
+      console.log('Track report URL map:', Array.from(trackReportUrlMap.entries()));
+
+      // Update track debrief data source
+      if (this.trackDebriefDataSource && this.trackDebriefDataSource.data && this.trackDebriefDataSource.data.length > 0) {
+        console.log('Track debrief data source rows:', this.trackDebriefDataSource.data.length);
+        const updatedData = this.trackDebriefDataSource.data.map((row: any) => {
+          const reportUrl = trackReportUrlMap.get(row.Track);
+          if (reportUrl) {
+            console.log(`Found report URL for track ${row.Track}: ${reportUrl}`);
+          }
+          return {
+            ...row,
+            reportUrl: reportUrl || row.reportUrl || '',
+          };
+        });
+        // Update data source - create new instance to ensure change detection
+        const currentPaginator = this.trackDebriefDataSource.paginator || this.trackDebriefPaginator;
+        const currentSort = this.trackDebriefDataSource.sort || this.sort;
+        const currentFilter = this.trackDebriefDataSource.filter || this.trackSearchFilter || ' ';
+        this.trackDebriefDataSource = new MatTableDataSource(updatedData);
+        // Restore filter predicate
+        this.setupTrackDebriefFilterPredicate();
+        // Restore paginator, sort, and filter
+        setTimeout(() => {
+          if (currentPaginator) {
+            this.trackDebriefDataSource.paginator = currentPaginator;
+          }
+          if (currentSort) {
+            this.trackDebriefDataSource.sort = currentSort;
+          }
+          // Restore filter value to trigger filtering
+          this.trackDebriefDataSource.filter = currentFilter;
+          // Force change detection
+          this.cdr.detectChanges();
+        }, 0);
+        // Trigger change detection
+        this.cdr.detectChanges();
+        console.log('Updated track debrief data source with report URLs');
+      } else {
+        console.log('Track debrief data source is empty or not initialized');
+      }
+    } else {
+      console.log('No tracks array in response data');
+    }
+
+    // Map daily report URLs
+    if (responseData.dailyReport && Array.isArray(responseData.dailyReport)) {
+      const dailyReportUrlMap = new Map<string, string>();
+      responseData.dailyReport.forEach((dailyReport: any) => {
+        if (dailyReport.Day && dailyReport.ReportUrl) {
+          dailyReportUrlMap.set(dailyReport.Day, dailyReport.ReportUrl);
+          console.log(`Mapped daily report: ${dailyReport.Day} -> ${dailyReport.ReportUrl}`);
+        }
+      });
+
+      console.log('Daily report URL map:', Array.from(dailyReportUrlMap.entries()));
+
+      // Update daily debrief data source
+      if (this.dailyDebriefDataSource && this.dailyDebriefDataSource.data && this.dailyDebriefDataSource.data.length > 0) {
+        console.log('Daily debrief data source rows:', this.dailyDebriefDataSource.data.length);
+        const updatedData = this.dailyDebriefDataSource.data.map((row: any) => {
+          const reportUrl = dailyReportUrlMap.get(row.EventDay);
+          if (reportUrl) {
+            console.log(`Found report URL for event day ${row.EventDay}: ${reportUrl}`);
+          }
+          return {
+            ...row,
+            reportUrl: reportUrl || row.reportUrl || '',
+          };
+        });
+
+        console.log('Updated daily debrief data source with report URLs', updatedData);
+        // Update data source - create new instance to ensure change detection
+        const currentPaginator = this.dailyDebriefDataSource.paginator;
+        const currentSort = this.dailyDebriefDataSource.sort;
+        this.dailyDebriefDataSource = new MatTableDataSource(updatedData);
+        // Restore paginator and sort
+        setTimeout(() => {
+          this.dailyDebriefDataSource.paginator = currentPaginator;
+          this.dailyDebriefDataSource.sort = currentSort;
+        }, 0);
+        // Trigger change detection
+        this.cdr.detectChanges();
+        console.log('Updated daily debrief data source with report URLs');
+      } else {
+        console.log('Daily debrief data source is empty or not initialized');
+      }
+    } else {
+      console.log('No dailyReport array in response data');
+    }
+
+    // Map executive summary report URL
+    if (responseData.executiveSummaryReport && responseData.executiveSummaryReport.ReportUrl) {
+      const executiveSummaryReportUrl = responseData.executiveSummaryReport.ReportUrl;
+      console.log(`Mapped executive summary report URL: ${executiveSummaryReportUrl}`);
+
+      // Update executive summary data source
+      if (this.executiveSummaryDataSource && this.executiveSummaryDataSource.data && this.executiveSummaryDataSource.data.length > 0) {
+        console.log('Executive summary data source rows:', this.executiveSummaryDataSource.data.length);
+        const updatedData = this.executiveSummaryDataSource.data.map((row: any) => ({
+          ...row,
+          reportUrl: executiveSummaryReportUrl || row.reportUrl || '',
+        }));
+        // Update data source - create new instance to ensure change detection
+        const currentPaginator = this.executiveSummaryDataSource.paginator;
+        const currentSort = this.executiveSummaryDataSource.sort;
+        this.executiveSummaryDataSource = new MatTableDataSource(updatedData);
+        // Restore paginator and sort
+        setTimeout(() => {
+          this.executiveSummaryDataSource.paginator = currentPaginator;
+          this.executiveSummaryDataSource.sort = currentSort;
+        }, 0);
+        // Trigger change detection
+        this.cdr.detectChanges();
+        console.log('Updated executive summary data source with report URL');
+      } else {
+        console.log('Executive summary data source is empty or not initialized');
+      }
+    } else {
+      console.log('No executiveSummaryReport in response data');
+    }
   }
 
   /**
@@ -1613,28 +2013,30 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
   /**
    * Opens PDF version 1 for a session.
-   * @param {Session & { pdfVersion?: number }} session - The session object
+   * @param {Session | any} session - The session object
    * @returns {void}
    */
-  viewPdfV1(session: Session & { pdfVersion?: number }): void {
-    if (!session.pdfVersion) {
+  viewPdfV1(session: Session | any): void {
+    const sessionWithVersion = session as Session & { pdfVersion?: number };
+    if (!sessionWithVersion.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;
     }
-    this.getSignedPdfUrl(session, 'v1');
+    this.getSignedPdfUrl(sessionWithVersion, 'v1');
   }
 
   /**
    * Opens PDF version 2 for a session.
-   * @param {Session & { pdfVersion?: number }} session - The session object
+   * @param {Session | any} session - The session object
    * @returns {void}
    */
-  viewPdfV2(session: Session & { pdfVersion?: number }): void {
-    if (!session.pdfVersion) {
+  viewPdfV2(session: Session | any): void {
+    const sessionWithVersion = session as Session & { pdfVersion?: number };
+    if (!sessionWithVersion.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;
     }
-    this.getSignedPdfUrl(session, 'v2');
+    this.getSignedPdfUrl(sessionWithVersion, 'v2');
   }
 
   /**
@@ -2019,8 +2421,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Opens the Generate Daily Debrief dialog to select an Event Day.
-   * After selection, calls the API to generate the daily debrief.
+   * Generates daily debriefs for selected items via checkboxes.
+   * Requires checkbox selection to proceed.
    * @returns {void}
    */
   openGenerateDailyDebriefDialog(): void {
@@ -2029,10 +2431,32 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.uniqueDays || this.uniqueDays.length === 0) {
+    // Require checkbox selection
+    if (this.selectedDailyDebriefs.size === 0) {
       this.displayErrorMessage(
-        'No event days available. Please load sessions first.'
+        'Please select at least one daily debrief to generate.'
       );
+      return;
+    }
+
+    // Generate for selected items
+    this.generateSelectedDailyDebriefs();
+  }
+
+  /**
+   * Generates daily debriefs for selected items based on checkbox selection.
+   * @returns {void}
+   */
+  private generateSelectedDailyDebriefs(): void {
+    if (this.selectedDailyDebriefs.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one daily debrief to generate.'
+      );
+      return;
+    }
+
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
       return;
     }
 
@@ -2052,20 +2476,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(GenerateDailyDebriefDialogComponent, {
-      width: '600px',
-      maxWidth: '90vw',
-      data: { eventDays: this.uniqueDays },
-      disableClose: false,
-    });
-
-    dialogRef
-      .afterClosed()
-      .subscribe((selectedEventDays: string[] | undefined) => {
-        if (selectedEventDays && selectedEventDays.length > 0) {
-          this.generateDailyDebriefs(selectedEventDays, eventDomain);
-        }
-      });
+    // Convert Set to Array
+    const selectedEventDays = Array.from(this.selectedDailyDebriefs);
+    this.generateDailyDebriefs(selectedEventDays, eventDomain);
   }
 
   /**
@@ -2123,8 +2536,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Opens the Generate Track Debrief dialog to select Tracks.
-   * After selection, calls the API to generate the track debriefs for all selected tracks.
+   * Generates track debriefs for selected items via checkboxes.
+   * Requires checkbox selection to proceed.
    * @returns {void}
    */
   openGenerateTrackDebriefDialog(): void {
@@ -2133,10 +2546,32 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.uniqueTracks || this.uniqueTracks.length === 0) {
+    // Require checkbox selection
+    if (this.selectedTrackDebriefs.size === 0) {
       this.displayErrorMessage(
-        'No tracks available. Please load sessions first.'
+        'Please select at least one track debrief to generate.'
       );
+      return;
+    }
+
+    // Generate for selected items
+    this.generateSelectedTrackDebriefs();
+  }
+
+  /**
+   * Generates track debriefs for selected items based on checkbox selection.
+   * @returns {void}
+   */
+  private generateSelectedTrackDebriefs(): void {
+    if (this.selectedTrackDebriefs.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one track debrief to generate.'
+      );
+      return;
+    }
+
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
       return;
     }
 
@@ -2156,20 +2591,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const dialogRef = this.dialog.open(GenerateTrackDebriefDialogComponent, {
-      width: '600px',
-      maxWidth: '90vw',
-      data: { tracks: this.uniqueTracks },
-      disableClose: false,
-    });
-
-    dialogRef
-      .afterClosed()
-      .subscribe((selectedTracks: string[] | undefined) => {
-        if (selectedTracks && selectedTracks.length > 0) {
-          this.generateTrackDebriefs(selectedTracks, eventDomain);
-        }
-      });
+    // Convert Set to Array
+    const selectedTracks = Array.from(this.selectedTrackDebriefs);
+    this.generateTrackDebriefs(selectedTracks, eventDomain);
   }
 
   /**
@@ -2224,6 +2648,883 @@ export class ReportComponent implements OnInit, AfterViewInit {
         this.displayErrorMessage(errorMessage);
       },
     });
+  }
+
+  /**
+   * Gets the latest PDF paths for an executive summary.
+   * @param {string} executiveSummaryId - The executive summary identifier (e.g., "ExecSummary")
+   * @returns {any} Object with pdfPathV1, pdfPathV2, and version
+   * @private
+   */
+  private getLatestPdfPathsForExecutiveSummary(executiveSummaryId: string): any {
+    if (!this.selectedEvent || !this.contentVersions || !executiveSummaryId) {
+      return null;
+    }
+
+    // Create contentIdentifier in format: "Event Name | Executive Summary ID"
+    const contentIdentifier = `${this.selectedEvent}|${executiveSummaryId}`;
+
+    // Filter versions by contentIdentifier and reportType (executive_summary)
+    // Use lowercase comparison on both sides for case-insensitive matching
+    const matchingVersions = this.contentVersions.filter(
+      (version: any) =>
+        version.contentIdentifier?.toLowerCase() ===
+          contentIdentifier.toLowerCase() &&
+        version.reportType === 'executive_summary'
+    );
+
+    if (matchingVersions.length === 0) {
+      return null;
+    }
+
+    // Sort by version number (descending) to get the latest version
+    const sortedVersions = matchingVersions.sort((a: any, b: any) => {
+      const versionA = a.version || 0;
+      const versionB = b.version || 0;
+      return versionB - versionA;
+    });
+
+    const latestVersion = sortedVersions[0];
+    // Handle both camelCase and snake_case field names, and trim whitespace
+    const pdfPathV1 = (
+      latestVersion.pdfPathV1 ||
+      latestVersion.pdf_path_v1 ||
+      ''
+    ).trim();
+    const pdfPathV2 = (
+      latestVersion.pdfPathV2 ||
+      latestVersion.pdf_path_v2 ||
+      ''
+    ).trim();
+
+    return {
+      pdfPathV1: pdfPathV1 || '',
+      pdfPathV2: pdfPathV2 || '',
+      version: latestVersion.version || 0,
+    };
+  }
+
+  /**
+   * Generates executive summary data for the Executive Summary table.
+   * Gets PDF information from content-versions API filtered by contentIdentifier
+   * @private
+   * @returns {void}
+   */
+  private generateExecutiveSummaryData(): void {
+    if (!this.selectedEvent) {
+      this.executiveSummaryDataSource = new MatTableDataSource([]);
+      return;
+    }
+
+    const executiveSummaryId = 'ExecSummary';
+    const pdfPaths = this.getLatestPdfPathsForExecutiveSummary(executiveSummaryId);
+
+    const executiveSummaryData: any[] = [];
+    if (pdfPaths && pdfPaths.version > 0) {
+      executiveSummaryData.push({
+        executiveSummaryId: executiveSummaryId,
+        pdfPathV1: pdfPaths?.pdfPathV1 || '',
+        pdfPathV2: pdfPaths?.pdfPathV2 || '',
+        version: pdfPaths?.version || 0,
+        reportUrl: '', // Will be populated from eventReportDetails
+      });
+    }
+
+    // Update the executive summary data source
+    this.executiveSummaryDataSource = new MatTableDataSource(executiveSummaryData);
+    setTimeout(() => {
+      this.executiveSummaryDataSource.sort = this.sort;
+      if (this.paginator) {
+        this.executiveSummaryDataSource.paginator = this.paginator;
+      }
+    }, 100);
+  }
+
+  /**
+   * Generates executive summary by calling the API with all available event days.
+   * No dialog is opened - it automatically uses all uniqueDays.
+   * @returns {void}
+   */
+  openGenerateExecutiveSummaryDialog(): void {
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    if (!this.uniqueDays || this.uniqueDays.length === 0) {
+      this.displayErrorMessage(
+        'No event days available. Please load sessions first.'
+      );
+      return;
+    }
+
+    // Find the event config to get the domain and title
+    const eventConfig = this.events.find(
+      (e: EventConfig) => e.EventIdentifier === this.selectedEvent
+    );
+
+    if (!eventConfig) {
+      this.displayErrorMessage('Event configuration not found.');
+      return;
+    }
+
+    // Get event title from Information property or use EventIdentifier as fallback
+    const eventTitle =
+      eventConfig?.['Information']?.['EventTitle'] ||
+      eventConfig?.['Information']?.['EventName'] ||
+      this.selectedEvent;
+
+    // Use all available uniqueDays directly without opening a dialog
+    this.generateExecutiveSummary(this.uniqueDays, eventTitle);
+  }
+
+  /**
+   * Generates executive summary by calling the API endpoint via the backend service.
+   * @param {string[]} eventDays - Array of selected event days (e.g., ["Day 1", "Day 2"])
+   * @param {string} eventTitle - The event title
+   * @returns {void}
+   */
+  private generateExecutiveSummary(eventDays: string[], eventTitle: string): void {
+    if (!eventDays || eventDays.length === 0) {
+      return;
+    }
+
+    // Show loading dialog
+    const loadingDialogRef: MatDialogRef<LoadingDialogComponent> =
+      this.dialog.open(LoadingDialogComponent, {
+        disableClose: true,
+        data: { message: 'Generating executive summary...' },
+      });
+
+    // Convert event days to the format expected by the API (e.g., "Day 1" -> "Day_1")
+    const reports = eventDays.map((day) => ({
+      daily_debrief_id: day.replace(/\s+/g, '_'),
+      report_type: 'daily_debrief',
+    }));
+
+    const requestData = {
+      event_id: this.selectedEvent,
+      event_title: eventTitle,
+      executive_summary_id: 'ExecSummary',
+      reports: reports,
+    };
+
+    this._backendApiService.generateExecutiveSummary(requestData).subscribe({
+      next: (response: any) => {
+        loadingDialogRef.close();
+        console.log('Executive summary generation response:', response);
+        this.displaySuccessMessage(
+          'Executive summary generation started. Please check back later.'
+        );
+        // Optionally refresh the sessions list after a delay
+        setTimeout(() => {
+          this.getSessionsForEvent(this.selectedEvent);
+        }, 2000);
+      },
+      error: (error) => {
+        loadingDialogRef.close();
+        console.error('Error generating executive summary:', error);
+        const errorMessage =
+          error.error?.message ||
+          error.message ||
+          'Failed to generate executive summary. Please try again.';
+        this.displayErrorMessage(errorMessage);
+      },
+    });
+  }
+
+  /**
+   * Views PDF V2 for executive summary.
+   * @param {any} executiveSummaryRow - The executive summary row object
+   * @returns {void}
+   */
+  viewPdfV2ForExecutiveSummary(executiveSummaryRow: any): void {
+    if (!executiveSummaryRow.executiveSummaryId || !executiveSummaryRow.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this executive summary.');
+      return;
+    }
+
+    const pdfPaths = this.getLatestPdfPathsForExecutiveSummary(
+      executiveSummaryRow.executiveSummaryId
+    );
+    if (!pdfPaths || !pdfPaths.pdfPathV2) {
+      this.displayErrorMessage('PDF V2 not available for this executive summary.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Opening PDF...' },
+      }
+    );
+
+    // Create contentIdentifier in format: "Event Name | Executive Summary ID"
+    const contentIdentifier = `${this.selectedEvent}|${executiveSummaryRow.executiveSummaryId}`;
+    const reportType = 'executive_summary';
+    const data = {
+      eventId: this.selectedEvent,
+      briefId: contentIdentifier,
+      reportType: reportType,
+      version: executiveSummaryRow.version,
+      promptVersion: 'v2',
+    };
+
+    this._backendApiService.getSignedPdfUrl(data).subscribe({
+      next: (response: any) => {
+        dialogRef.close();
+        console.log(response['presignedUrl']);
+        if (response?.presignedUrl) {
+          window.open(response.presignedUrl, '_blank');
+        } else if (response?.url) {
+          window.open(response.url, '_blank');
+        } else {
+          this.displayErrorMessage('Failed to generate PDF URL.');
+        }
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error getting presigned URL:', error);
+        this.displayErrorMessage('Failed to open PDF. Please try again.');
+      },
+    });
+  }
+
+  /**
+   * Edits the content (JSON) for an executive summary.
+   * @param {any} executiveSummaryRow - The executive summary row object with version properties
+   * @returns {void}
+   */
+  editContentForExecutiveSummary(executiveSummaryRow: any): void {
+    if (!executiveSummaryRow.executiveSummaryId || !executiveSummaryRow.version) {
+      this.displayErrorMessage('No version available for this executive summary.');
+      return;
+    }
+
+    // Open loading dialog
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: { message: 'Loading content for editing...' },
+      }
+    );
+
+    // Create contentIdentifier in format: "Event Name | Executive Summary ID"
+    const contentIdentifier = `${this.selectedEvent}|${executiveSummaryRow.executiveSummaryId}`;
+    const data = {
+      eventId: this.selectedEvent,
+      briefId: contentIdentifier,
+      reportType: 'executive_summary',
+      version: executiveSummaryRow.version,
+    };
+
+    this._backendApiService.getVersionContent(data).subscribe({
+      next: (response) => {
+        dialogRef.close();
+        this.openMarkdownDialogForExecutiveSummary(
+          response,
+          executiveSummaryRow.version,
+          executiveSummaryRow
+        );
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error fetching version content:', error);
+        this.displayErrorMessage(
+          'Failed to load content for editing. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Opens the markdown editor dialog for editing executive summary content.
+   * @param {any} content - The content to edit
+   * @param {number} version - The version number
+   * @param {any} executiveSummaryRow - The executive summary row object
+   * @returns {void}
+   */
+  openMarkdownDialogForExecutiveSummary(
+    content: any,
+    version: number,
+    executiveSummaryRow: any
+  ): void {
+    // Create contentIdentifier in format: "Event Name | Executive Summary ID"
+    const dialogRef = this.dialog.open(MarkdownEditorDialogComponent, {
+      data: {
+        initialText: JSON.stringify(content, null, 2),
+        eventName: this.selectedEvent,
+        selected_session: executiveSummaryRow.executiveSummaryId,
+        selectedSessionType: '',
+        selectedReportType: 'executive_summary',
+        version: version,
+        readOnly: false,
+        briefId: 'ExecSummary',
+      } as MarkdownEditorData,
+      width: '1000px',
+      maxWidth: '100vw',
+    });
+
+    dialogRef.afterClosed().subscribe((result: any | undefined) => {
+      if (result && result.edited) {
+        // Refresh the executive summary list to reflect any changes
+        this.generateExecutiveSummaryData();
+      }
+    });
+  }
+
+  /**
+   * Toggles the selection of a daily debrief.
+   * @param {string} eventDay - The event day identifier
+   * @param {boolean} checked - Whether the checkbox is checked
+   * @returns {void}
+   */
+  onDailyDebriefToggle(eventDay: string, checked: boolean): void {
+    if (checked) {
+      this.selectedDailyDebriefs.add(eventDay);
+    } else {
+      this.selectedDailyDebriefs.delete(eventDay);
+    }
+  }
+
+  /**
+   * Checks if a daily debrief is selected.
+   * @param {string} eventDay - The event day identifier
+   * @returns {boolean} True if selected, false otherwise
+   */
+  isDailyDebriefSelected(eventDay: string): boolean {
+    return this.selectedDailyDebriefs.has(eventDay);
+  }
+
+  /**
+   * Checks if all daily debriefs are selected.
+   * @returns {boolean} True if all are selected, false otherwise
+   */
+  isAllDailyDebriefsSelected(): boolean {
+    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    return (
+      filteredData.length > 0 &&
+      filteredData.every((row: any) =>
+        this.selectedDailyDebriefs.has(row.EventDay)
+      )
+    );
+  }
+
+  /**
+   * Checks if the daily debrief select-all checkbox should be in an indeterminate state.
+   * @returns {boolean} True if some are selected, false otherwise
+   */
+  isDailyDebriefIndeterminate(): boolean {
+    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    const selectedCount = filteredData.filter((row: any) =>
+      this.selectedDailyDebriefs.has(row.EventDay)
+    ).length;
+    return selectedCount > 0 && selectedCount < filteredData.length;
+  }
+
+  /**
+   * Toggles the selection of all daily debriefs.
+   * @param {boolean} checked - Whether to select or deselect all
+   * @returns {void}
+   */
+  toggleAllDailyDebriefs(checked: boolean): void {
+    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    if (checked) {
+      filteredData.forEach((row: any) => {
+        if (row.version) {
+          this.selectedDailyDebriefs.add(row.EventDay);
+        }
+      });
+    } else {
+      filteredData.forEach((row: any) => {
+        this.selectedDailyDebriefs.delete(row.EventDay);
+      });
+    }
+  }
+
+  /**
+   * Publishes all selected daily debrief reports.
+   * @returns {void}
+   */
+  publishDailyDebrief(): void {
+    if (this.selectedDailyDebriefs.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one daily debrief to publish.'
+      );
+      return;
+    }
+
+    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    const selectedRows = filteredData.filter((row: any) => {
+      const hasPdfV2 = row.pdfPathV2 && 
+        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
+      return this.selectedDailyDebriefs.has(row.EventDay) && row.version && hasPdfV2;
+    });
+
+    if (selectedRows.length === 0) {
+      this.displayErrorMessage(
+        'No daily debriefs with PDF V2 available to publish. Please ensure PDF V2 is generated for the selected items.'
+      );
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Publishing ${selectedRows.length} daily debrief report(s)...`,
+        },
+      }
+    );
+
+    const publishObservables = selectedRows.map((row: any) => {
+      const dailyDebriefId =
+        row._dailyDebriefId || row.EventDay.replace(/\s+/g, '_');
+      const contentIdentifier = `${this.selectedEvent}|${dailyDebriefId}`;
+
+      return this._backendApiService
+        .publishDebriefReport({
+          reportType: 'daily_debrief',
+          contentIdentifier: contentIdentifier,
+          version: row.version,
+        })
+        .pipe(
+          catchError((error) => {
+            console.error(
+              `Error publishing daily debrief for ${row.EventDay}:`,
+              error
+            );
+            return of({
+              error: true,
+              eventDay: row.EventDay,
+              errorMessage: error,
+            });
+          })
+        );
+    });
+
+    forkJoin(publishObservables).subscribe({
+      next: (responses) => {
+        console.log('All daily debriefs published:', responses);
+        dialogRef.close();
+
+        const successful = responses.filter((r: any) => !r.error).length;
+        const failed = responses.filter((r: any) => r.error).length;
+
+        if (failed === 0) {
+          this.displaySuccessMessage(
+            `Successfully published ${successful} daily debrief report(s)!`
+          );
+        } else {
+          this.snackBar.open(
+            `Published ${successful} daily debrief(s) successfully. ${failed} failed.`,
+            'Close',
+            {
+              duration: 7000,
+              panelClass: ['snackbar-error'],
+            }
+          );
+        }
+
+        // Clear selections and refresh data
+        this.selectedDailyDebriefs.clear();
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error publishing daily debriefs:', error);
+        this.displayErrorMessage(
+          'Failed to publish some daily debrief reports. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Toggles the selection of a track debrief.
+   * @param {string} track - The track name
+   * @param {boolean} checked - Whether the checkbox is checked
+   * @returns {void}
+   */
+  onTrackDebriefToggle(track: string, checked: boolean): void {
+    if (checked) {
+      this.selectedTrackDebriefs.add(track);
+    } else {
+      this.selectedTrackDebriefs.delete(track);
+    }
+  }
+
+  /**
+   * Checks if a track debrief is selected.
+   * @param {string} track - The track name
+   * @returns {boolean} True if selected, false otherwise
+   */
+  isTrackDebriefSelected(track: string): boolean {
+    return this.selectedTrackDebriefs.has(track);
+  }
+
+  /**
+   * Checks if all track debriefs are selected.
+   * @returns {boolean} True if all are selected, false otherwise
+   */
+  isAllTrackDebriefsSelected(): boolean {
+    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    return (
+      filteredData.length > 0 &&
+      filteredData.every((row: any) =>
+        this.selectedTrackDebriefs.has(row.Track)
+      )
+    );
+  }
+
+  /**
+   * Checks if the track debrief select-all checkbox should be in an indeterminate state.
+   * @returns {boolean} True if some are selected, false otherwise
+   */
+  isTrackDebriefIndeterminate(): boolean {
+    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    const selectedCount = filteredData.filter((row: any) =>
+      this.selectedTrackDebriefs.has(row.Track)
+    ).length;
+    return selectedCount > 0 && selectedCount < filteredData.length;
+  }
+
+  /**
+   * Toggles the selection of all track debriefs.
+   * @param {boolean} checked - Whether to select or deselect all
+   * @returns {void}
+   */
+  toggleAllTrackDebriefs(checked: boolean): void {
+    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    if (checked) {
+      filteredData.forEach((row: any) => {
+        if (row.version) {
+          this.selectedTrackDebriefs.add(row.Track);
+        }
+      });
+    } else {
+      filteredData.forEach((row: any) => {
+        this.selectedTrackDebriefs.delete(row.Track);
+      });
+    }
+  }
+
+  /**
+   * Publishes all selected track debrief reports.
+   * @returns {void}
+   */
+  publishTrackDebrief(): void {
+    if (this.selectedTrackDebriefs.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one track debrief to publish.'
+      );
+      return;
+    }
+
+    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    const selectedRows = filteredData.filter((row: any) => {
+      const hasPdfV2 = row.pdfPathV2 && 
+        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
+      return this.selectedTrackDebriefs.has(row.Track) && row.version && hasPdfV2;
+    });
+
+    if (selectedRows.length === 0) {
+      this.displayErrorMessage(
+        'No track debriefs with PDF V2 available to publish. Please ensure PDF V2 is generated for the selected items.'
+      );
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Publishing ${selectedRows.length} track debrief report(s)...`,
+        },
+      }
+    );
+
+    const publishObservables = selectedRows.map((row: any) => {
+      const track = row.Track.replace(/\s+/g, '_');
+      const contentIdentifier = `${this.selectedEvent}|${track}`;
+
+      return this._backendApiService
+        .publishDebriefReport({
+          reportType: 'track_debrief',
+          contentIdentifier: contentIdentifier,
+          version: row.version,
+        })
+        .pipe(
+          catchError((error) => {
+            console.error(
+              `Error publishing track debrief for ${row.Track}:`,
+              error
+            );
+            return of({
+              error: true,
+              track: row.Track,
+              errorMessage: error,
+            });
+          })
+        );
+    });
+
+    forkJoin(publishObservables).subscribe({
+      next: (responses) => {
+        console.log('All track debriefs published:', responses);
+        dialogRef.close();
+
+        const successful = responses.filter((r: any) => !r.error).length;
+        const failed = responses.filter((r: any) => r.error).length;
+
+        if (failed === 0) {
+          this.displaySuccessMessage(
+            `Successfully published ${successful} track debrief report(s)!`
+          );
+        } else {
+          this.snackBar.open(
+            `Published ${successful} track debrief(s) successfully. ${failed} failed.`,
+            'Close',
+            {
+              duration: 7000,
+              panelClass: ['snackbar-error'],
+            }
+          );
+        }
+
+        // Clear selections and refresh data
+        this.selectedTrackDebriefs.clear();
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error publishing track debriefs:', error);
+        this.displayErrorMessage(
+          'Failed to publish some track debrief reports. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Toggles the selection of an executive summary.
+   * @param {string} executiveSummaryId - The executive summary identifier
+   * @param {boolean} checked - Whether the checkbox is checked
+   * @returns {void}
+   */
+  onExecutiveSummaryToggle(executiveSummaryId: string, checked: boolean): void {
+    if (checked) {
+      this.selectedExecutiveSummaries.add(executiveSummaryId);
+    } else {
+      this.selectedExecutiveSummaries.delete(executiveSummaryId);
+    }
+  }
+
+  /**
+   * Checks if an executive summary is selected.
+   * @param {string} executiveSummaryId - The executive summary identifier
+   * @returns {boolean} True if selected, false otherwise
+   */
+  isExecutiveSummarySelected(executiveSummaryId: string): boolean {
+    return this.selectedExecutiveSummaries.has(executiveSummaryId);
+  }
+
+  /**
+   * Checks if all executive summaries are selected.
+   * @returns {boolean} True if all are selected, false otherwise
+   */
+  isAllExecutiveSummariesSelected(): boolean {
+    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    return (
+      filteredData.length > 0 &&
+      filteredData.every((row: any) =>
+        this.selectedExecutiveSummaries.has(row.executiveSummaryId)
+      )
+    );
+  }
+
+  /**
+   * Checks if the executive summary select-all checkbox should be in an indeterminate state.
+   * @returns {boolean} True if some are selected, false otherwise
+   */
+  isExecutiveSummaryIndeterminate(): boolean {
+    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    const selectedCount = filteredData.filter((row: any) =>
+      this.selectedExecutiveSummaries.has(row.executiveSummaryId)
+    ).length;
+    return selectedCount > 0 && selectedCount < filteredData.length;
+  }
+
+  /**
+   * Toggles the selection of all executive summaries.
+   * @param {boolean} checked - Whether to select or deselect all
+   * @returns {void}
+   */
+  toggleAllExecutiveSummaries(checked: boolean): void {
+    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    if (checked) {
+      filteredData.forEach((row: any) => {
+        if (row.version) {
+          this.selectedExecutiveSummaries.add(row.executiveSummaryId);
+        }
+      });
+    } else {
+      filteredData.forEach((row: any) => {
+        this.selectedExecutiveSummaries.delete(row.executiveSummaryId);
+      });
+    }
+  }
+
+  /**
+   * Publishes all selected executive summary reports.
+   * @returns {void}
+   */
+  publishExecutiveSummary(): void {
+    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    const rowsToPublish = filteredData.filter((row: any) => {
+      const hasPdfV2 = row.pdfPathV2 && 
+        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
+      return row.version && hasPdfV2;
+    });
+
+    if (rowsToPublish.length === 0) {
+      this.displayErrorMessage(
+        'No executive summaries with PDF V2 available to publish.'
+      );
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Publishing ${rowsToPublish.length} executive summary report(s)...`,
+        },
+      }
+    );
+
+    const publishObservables = rowsToPublish.map((row: any) => {
+      const contentIdentifier = `${this.selectedEvent}|${row.executiveSummaryId}`;
+
+      return this._backendApiService
+        .publishDebriefReport({
+          reportType: 'executive_summary',
+          contentIdentifier: contentIdentifier,
+          version: row.version,
+        })
+        .pipe(
+          catchError((error) => {
+            console.error(
+              `Error publishing executive summary for ${row.executiveSummaryId}:`,
+              error
+            );
+            return of({
+              error: true,
+              executiveSummaryId: row.executiveSummaryId,
+              errorMessage: error,
+            });
+          })
+        );
+    });
+
+    forkJoin(publishObservables).subscribe({
+      next: (responses) => {
+        console.log('All executive summaries published:', responses);
+        dialogRef.close();
+
+        const successful = responses.filter((r: any) => !r.error).length;
+        const failed = responses.filter((r: any) => r.error).length;
+
+        if (failed === 0) {
+          this.displaySuccessMessage(
+            `Successfully published ${successful} executive summary report(s)!`
+          );
+        } else {
+          this.snackBar.open(
+            `Published ${successful} executive summary(s) successfully. ${failed} failed.`,
+            'Close',
+            {
+              duration: 7000,
+              panelClass: ['snackbar-error'],
+            }
+          );
+        }
+
+        // Clear selections and refresh data
+        this.selectedExecutiveSummaries.clear();
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error publishing executive summaries:', error);
+        this.displayErrorMessage(
+          'Failed to publish some executive summary reports. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Handles manual upload of publish report PDF for executive summary.
+   * @param {Object} data - The upload data containing file and eventId
+   * @param {File} data.file - The PDF file to upload
+   * @param {string} data.eventId - The event identifier
+   * @returns {void}
+   */
+  onUploadManualPublishReport(data: { file: File; eventId?: string }): void {
+    if (!data.file) {
+      this.displayErrorMessage('Please select a file to upload.');
+      return;
+    }
+
+    // Use selectedEvent from parent if eventId is not provided
+    const eventId = data.eventId || this.selectedEvent;
+    
+    if (!eventId) {
+      this.displayErrorMessage('Event ID is required for upload. Please select an event first.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: 'Uploading manual publish report...',
+        },
+      }
+    );
+
+    // Upload file via Lambda endpoint (avoids CORS issues)
+    this._backendApiService
+      .uploadManualExecutiveSummary(eventId, data.file)
+      .pipe(
+        catchError((error) => {
+          dialogRef.close();
+          console.error('Error uploading file:', error);
+          this.displayErrorMessage(
+            'Failed to upload file. Please try again.'
+          );
+          return of(null);
+        })
+      )
+      .subscribe((uploadResponse: any) => {
+        if (uploadResponse) {
+          dialogRef.close();
+          this.displaySuccessMessage(
+            'Manual publish report uploaded successfully!'
+          );
+          // Refresh the data to show the updated publish PDF
+          setTimeout(() => {
+            this.getSessionsForEvent(this.selectedEvent);
+          }, 1000);
+        }
+      });
   }
 
   /**
@@ -2399,6 +3700,108 @@ export class ReportComponent implements OnInit, AfterViewInit {
     // Clear the input fields after selection
     this.fromIndex = null;
     this.toIndex = null;
+
+    // Trigger change detection
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Handles the range input change for track debrief.
+   * @param {string} field - Either 'from' or 'to'
+   * @param {Event} event - The input event
+   * @returns {void}
+   */
+  onTrackDebriefRangeInputChange(field: 'from' | 'to', event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, '');
+
+    // Update the model with only numeric characters
+    if (field === 'from') {
+      this.fromTrackIndex = numericValue || null;
+
+      // Auto-calculate 'to' as 'from + 49' when 'from' changes
+      if (numericValue && numericValue.trim() !== '') {
+        const fromNum = parseInt(numericValue, 10);
+        if (!isNaN(fromNum)) {
+          const calculatedTo = (fromNum + 49).toString();
+          this.toTrackIndex = calculatedTo;
+        }
+      } else {
+        // If 'from' is cleared, also clear 'to'
+        this.toTrackIndex = null;
+      }
+    } else {
+      // User is manually editing 'to', so just update it
+      this.toTrackIndex = numericValue || null;
+    }
+
+    // Update the input value directly to reflect the change
+    input.value = numericValue;
+
+    // Trigger change detection to update the view
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Selects checkboxes from "from" index to "to" index in the filtered track debriefs list.
+   * The indices are 1-based (first item is index 1).
+   * Clears all previous selections before selecting the new range.
+   * @returns {void}
+   */
+  selectTrackDebriefRange(): void {
+    if (
+      this.fromTrackIndex === null ||
+      this.toTrackIndex === null ||
+      this.fromTrackIndex.trim() === '' ||
+      this.toTrackIndex.trim() === ''
+    ) {
+      return;
+    }
+
+    // Convert string inputs to numbers
+    const fromNum = parseInt(this.fromTrackIndex.trim(), 10);
+    const toNum = parseInt(this.toTrackIndex.trim(), 10);
+
+    // Validate that inputs are valid numbers
+    if (isNaN(fromNum) || isNaN(toNum) || fromNum < 1 || toNum < 1) {
+      this.displayErrorMessage(
+        'Please enter valid numbers for From and To indices.'
+      );
+      return;
+    }
+
+    const filteredTrackDebriefs = this.getFilteredTrackDebriefs();
+
+    if (filteredTrackDebriefs.length === 0) {
+      this.displayErrorMessage('No track debriefs available to select.');
+      return;
+    }
+
+    // Clear all previous checkbox selections
+    this.selectedTrackDebriefs.clear();
+
+    // Convert to 0-based indices and ensure they're within bounds
+    const from = Math.max(1, Math.min(fromNum, filteredTrackDebriefs.length)) - 1;
+    const to = Math.max(1, Math.min(toNum, filteredTrackDebriefs.length)) - 1;
+
+    // Ensure from is less than or equal to to
+    const startIndex = Math.min(from, to);
+    const endIndex = Math.max(from, to);
+
+    // Select all track debriefs in the range
+    for (let i = startIndex; i <= endIndex; i++) {
+      const trackDebrief = filteredTrackDebriefs[i];
+      if (trackDebrief && trackDebrief.Track) {
+        this.selectedTrackDebriefs.add(trackDebrief.Track);
+      }
+    }
+
+    // Clear the input fields after selection
+    this.fromTrackIndex = null;
+    this.toTrackIndex = null;
 
     // Trigger change detection
     this.cdr.detectChanges();
@@ -2730,11 +4133,12 @@ export class ReportComponent implements OnInit, AfterViewInit {
   /**
    * Edits content for a session version.
    * Fetches the version content and opens the markdown editor dialog.
-   * @param {Session & { pdfVersion?: number }} session - The session object with optional pdfVersion
+   * @param {Session | any} session - The session object with optional pdfVersion
    * @returns {void}
    */
-  editContent(session: Session & { pdfVersion?: number }): void {
-    if (!session.pdfVersion) {
+  editContent(session: Session | any): void {
+    const sessionWithVersion = session as Session & { pdfVersion?: number };
+    if (!sessionWithVersion.pdfVersion) {
       this.displayErrorMessage('No PDF version available for this session.');
       return;
     }
@@ -2749,20 +4153,20 @@ export class ReportComponent implements OnInit, AfterViewInit {
     );
 
     const normalizedSessionType = this.normalizeSessionType(
-      session.Type || 'primary'
+      sessionWithVersion.Type || 'primary'
     );
     const data = {
       eventId: this.selectedEvent,
-      sessionId: session.SessionId,
+      sessionId: sessionWithVersion.SessionId,
       sessionType: normalizedSessionType,
       reportType: 'session_debrief',
-      version: session.pdfVersion,
+      version: sessionWithVersion.pdfVersion!,
     };
 
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
         dialogRef.close();
-        this.openMarkdownDialog(response, session.pdfVersion!, session);
+        this.openMarkdownDialog(response, sessionWithVersion.pdfVersion!, sessionWithVersion);
       },
       error: (error) => {
         dialogRef.close();

@@ -247,6 +247,25 @@
   }
 }
 
+.executive-summary-table-wrapper {
+  width: calc(
+    100vw - 200px
+  ); // Full viewport width minus padding (80px left + 20px right)
+  overflow-x: auto;
+
+  @media (max-width: 768px) {
+    width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
+  }
+
+  @media (min-width: 1200px) {
+    width: calc(100vw - 200px); // Adjusted for larger screens
+  }
+
+  @media (min-width: 1200px) {
+    width: calc(100vw - 200px); // Adjusted for larger screens
+  }
+}
+
 .session-status-badge {
   padding: 4px 8px;
   border-radius: 12px;

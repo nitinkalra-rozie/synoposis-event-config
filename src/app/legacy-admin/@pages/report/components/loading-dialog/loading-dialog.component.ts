@@ -23,3 +23,4 @@ export class LoadingDialogComponent {
    */
   constructor(@Inject(MAT_DIALOG_DATA) public data: { message?: string }) {}
 }
+

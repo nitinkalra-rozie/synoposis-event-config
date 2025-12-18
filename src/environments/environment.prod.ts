@@ -18,6 +18,8 @@ export const environment = {
     'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-content-versions',
   generateContentUrl:
     'https://wah065axpe.execute-api.ca-central-1.amazonaws.com/prod/session-debrief',
+  executiveSummaryUrl:
+    'https://wah065axpe.execute-api.ca-central-1.amazonaws.com/prod/executive-summary',
   getVersionContentUrl:
     'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-version-content',
   publishContentPDFUrl:
@@ -28,6 +30,8 @@ export const environment = {
     'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/generate-content-pdf',
   getPreSignedPDFUrl:
     'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-content-pdf',
+  uploadManualExecutiveSummaryUrl:
+    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/upload-manual-executive-summary',
   analyticsApiEndpoint: 'https://api.synopsis.rozie.ai/r5/admin-analytics',
   USER_POOL_WEB_CLIENT_ID: '4uoviltr9pd5km5nltmvkf0ovh',
   USER_POOL_ID: 'ca-central-1_zFNGJuTjd',

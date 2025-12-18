@@ -82,6 +82,11 @@ export class BackendApiService {
       params = params.set('track', data.track);
     }
 
+    // For executive_summary, use briefId
+    if (data.briefId) {
+      params = params.set('briefId', data.briefId);
+    }
+
     return this.http.get(environment.getVersionContentUrl, { params });
   }
 
@@ -93,12 +98,18 @@ export class BackendApiService {
       updatedContent: data.updatedContent,
     };
 
-    // For daily_debrief and track_debrief, use eventDay/track instead of sessionId/sessionType
-    if (data.reportType === 'daily_debrief' || data.reportType === 'track_debrief') {
+    // For daily_debrief, track_debrief, and executive_summary, use eventDay/track/briefId instead of sessionId/sessionType
+    if (
+      data.reportType === 'daily_debrief' ||
+      data.reportType === 'track_debrief' ||
+      data.reportType === 'executive_summary'
+    ) {
       if (data.reportType === 'daily_debrief' && data.eventDay) {
         body.eventDay = data.eventDay;
       } else if (data.reportType === 'track_debrief' && data.track) {
         body.track = data.track;
+      } else if (data.reportType === 'executive_summary' && data.briefId) {
+        body.briefId = data.briefId;
       }
     } else {
       // For other report types, sessionId and sessionType are required
@@ -188,6 +199,66 @@ export class BackendApiService {
     };
     console.log(body);
     return this.http.post(environment.publishContentPDFUrl, body);
+  }
+
+  /**
+   * Publishes a debrief report (daily_debrief, track_debrief, or executive_summary).
+   * @param {Object} data - The request data for publishing debrief report
+   * @param {string} data.reportType - The report type: 'daily_debrief', 'track_debrief', or 'executive_summary'
+   * @param {string} data.contentIdentifier - The content identifier (format: "EventId|Identifier")
+   * @param {number} data.version - The version number
+   * @returns {Observable<Object>} Observable of the API response
+   */
+  publishDebriefReport(data: {
+    reportType: string;
+    contentIdentifier: string;
+    version: number;
+  }): Observable<Object> {
+    const headers = new HttpHeaders({
+      'x-api-key': environment.X_API_KEY || '',
+      'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+      'Content-Type': 'application/json',
+    });
+
+    const body = {
+      reportType: data.reportType,
+      contentIdentifier: data.contentIdentifier,
+      version: data.version,
+    };
+
+    // Use the same base URL pattern as other report generation endpoints
+    // Replace the endpoint path while keeping the base URL
+    let apiUrl = environment.publishContentPDFUrl;
+    if (apiUrl && apiUrl.includes('/publish-pdf-content')) {
+      apiUrl = apiUrl.replace('/publish-pdf-content', '/publish-debrief-reports');
+    } else {
+      // Fallback: construct URL from base pattern
+      const baseUrl = environment.publishContentPDFUrl?.split('/').slice(0, -1).join('/') || 
+                     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev';
+      apiUrl = `${baseUrl}/publish-debrief-reports`;
+    }
+
+    return this.http.post(apiUrl, body, { headers });
+  }
+
+  /**
+   * Uploads a manual executive summary PDF file via Lambda (avoids CORS issues).
+   * @param {string} eventId - The event identifier
+   * @param {File} file - The PDF file to upload
+   * @returns {Observable<Object>} Observable of the API response
+   */
+  uploadManualExecutiveSummary(eventId: string, file: File): Observable<Object> {
+    const headers = new HttpHeaders({
+      'x-api-key': environment.X_API_KEY || '',
+      'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+      // Don't set Content-Type - let browser set it with boundary for multipart
+    });
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('eventId', eventId);
+
+    return this.http.post(environment.uploadManualExecutiveSummaryUrl, formData, { headers });
   }
 
   generateContent(data: any): Observable<Object> {
@@ -362,5 +433,42 @@ export class BackendApiService {
     const apiUrl = (environment as any).postData;
 
     return this.http.post(apiUrl, body);
+  }
+
+  /**
+   * Generates an executive summary by calling the executive summary API endpoint.
+   * @param {Object} data - The request data for generating executive summary
+   * @param {string} data.event_id - The event identifier
+   * @param {string} data.event_title - The event title
+   * @param {string} data.executive_summary_id - The executive summary identifier
+   * @param {Array} data.reports - Array of report objects with daily_debrief_id and report_type
+   * @returns {Observable<Object>} Observable of the API response
+   */
+  generateExecutiveSummary(data: {
+    event_id: string;
+    event_title: string;
+    executive_summary_id: string;
+    reports: Array<{
+      daily_debrief_id: string;
+      report_type: string;
+    }>;
+  }): Observable<Object> {
+    const headers = new HttpHeaders({
+      'x-api-key': environment.X_API_KEY || '',
+      'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+      'Content-Type': 'application/json',
+    });
+
+    const body = {
+      event_id: data.event_id,
+      event_title: data.event_title,
+      executive_summary_id: data.executive_summary_id,
+      reports: data.reports,
+    };
+
+    // Use environment variable for the API URL
+    const apiUrl = (environment as any).executiveSummaryUrl;
+
+    return this.http.post(apiUrl, body, { headers });
   }
 }

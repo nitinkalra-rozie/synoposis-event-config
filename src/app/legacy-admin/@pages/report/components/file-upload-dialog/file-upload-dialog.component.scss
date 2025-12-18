@@ -1,0 +1,138 @@
+.file-upload-dialog-container {
+  min-width: 500px;
+  max-width: 600px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+}
+
+.close-button {
+  margin-left: auto;
+}
+
+.dialog-content {
+  padding: 24px;
+  min-height: 200px;
+}
+
+.upload-section {
+  width: 100%;
+}
+
+.file-input-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+
+  &:hover {
+    border-color: #3f51b5;
+    background-color: #f5f5f5;
+  }
+
+  .upload-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #999;
+    margin-bottom: 16px;
+  }
+
+  .upload-text {
+    font-size: 16px;
+    color: #333;
+    margin: 8px 0;
+    font-weight: 500;
+  }
+
+  .upload-hint {
+    font-size: 12px;
+    color: #999;
+    margin: 4px 0 0 0;
+  }
+}
+
+.file-selected-area {
+  border: 2px solid #3f51b5;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f5f5f5;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .file-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #3f51b5;
+  }
+
+  .file-details {
+    flex: 1;
+
+    .file-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      word-break: break-all;
+    }
+
+    .file-size {
+      margin: 4px 0 0 0;
+      font-size: 12px;
+      color: #999;
+    }
+  }
+
+  .remove-button {
+    color: #f44336;
+  }
+}
+
+.upload-progress {
+  margin-top: 16px;
+
+  .progress-text {
+    margin: 8px 0 0 0;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+  }
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .file-upload-dialog-container {
+    min-width: 90vw;
+  }
+}
+

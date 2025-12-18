@@ -1,0 +1,65 @@
+<div class="file-upload-dialog-container">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Upload Manual Publish Report</h2>
+    <button mat-dialog-close mat-icon-button class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <div class="upload-section">
+      <input
+        #fileInput
+        type="file"
+        accept=".pdf,application/pdf"
+        (change)="onFileSelected($event)"
+        style="display: none" />
+
+      @if (!selectedFile) {
+        <div class="file-input-area" (click)="openFileDialog()">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <p class="upload-text">Click to browse or drag and drop PDF file</p>
+          <p class="upload-hint">Maximum file size: 50MB</p>
+        </div>
+      } @else {
+        <div class="file-selected-area">
+          <div class="file-info">
+            <mat-icon class="file-icon">description</mat-icon>
+            <div class="file-details">
+              <p class="file-name">{{ selectedFile.name }}</p>
+              <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+            </div>
+            <button
+              mat-icon-button
+              (click)="removeFile()"
+              class="remove-button">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (isUploading) {
+        <div class="upload-progress">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p class="progress-text">Uploading file...</p>
+        </div>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isUploading">
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onUpload()"
+      [disabled]="!selectedFile || isUploading">
+      <mat-icon>upload</mat-icon>
+      Upload
+    </button>
+  </mat-dialog-actions>
+</div>
+

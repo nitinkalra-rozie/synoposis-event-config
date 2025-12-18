@@ -1,0 +1,185 @@
+.track-debrief-container {
+  /* Filter container styles */
+  .filter-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #2c3e50;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  /* Filter field styles */
+  .filter-field {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+  }
+
+  .filter-select {
+    display: flex;
+    align-items: center;
+
+    .file-filter-select {
+      min-width: 250px;
+      width: 100%;
+      margin-top: 18px;
+    }
+  }
+
+  .filter-field input {
+    width: 100%;
+    padding: 18px 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  .filter-field input:focus {
+    outline: none;
+    border-color: #3f51b5;
+    box-shadow: 0 0 8px rgba(63, 81, 181, 0.4);
+  }
+
+  .filter-field label {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    background: #fff;
+    padding: 0 4px;
+    color: #aaa;
+    pointer-events: none;
+    transition:
+      top 0.3s,
+      font-size 0.3s,
+      color 0.3s;
+  }
+
+  .filter-field input:focus + label,
+  .filter-field input:not(:placeholder-shown) + label {
+    top: -8px;
+    font-size: 12px;
+    color: #3f51b5;
+  }
+
+  .generate-debrief-button {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding-left: 16px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      margin-top: 12px;
+      padding-left: 0;
+      width: 100%;
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  /* Range Selection Styles */
+  .range-selection {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .range-input {
+    min-width: 180px;
+    width: 180px;
+  }
+
+  .select-range-button {
+    height: 56px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .track-debrief-table-wrapper {
+    width: calc(
+      100vw - 200px
+    ); // Full viewport width minus padding (80px left + 20px right)
+    overflow-x: auto;
+
+    @media (max-width: 768px) {
+      width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
+    }
+
+    @media (min-width: 1200px) {
+      width: calc(100vw - 200px); // Adjusted for larger screens
+    }
+  }
+
+  /* Table styles */
+  .versions-table {
+    width: 100%;
+    font-size: 13px;
+
+    th {
+      font-size: 12px;
+      padding: 8px 8px !important;
+    }
+
+    td {
+      cursor: pointer;
+      font-size: 13px;
+      padding: 8px 8px !important;
+    }
+
+    tr.selected {
+      background-color: #e3ffdf !important;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .filter-container {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .filter-label {
+      min-width: auto;
+    }
+
+    .filter-field {
+      min-width: 100%;
+    }
+  }
+}
+
