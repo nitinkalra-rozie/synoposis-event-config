@@ -29,6 +29,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
@@ -42,7 +43,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
@@ -51,6 +52,8 @@ import {
   Session,
   SpeakerDetails,
 } from '../event-configuration/event-configuration.component';
+import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
 
 /**
  * Interface representing an event configuration.
@@ -105,6 +108,7 @@ export interface SpeakerWithId extends SpeakerDetails {
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatDialogModule,
     TopBarComponent,
     DatePipe,
   ],
@@ -124,7 +128,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     private snackBar: MatSnackBar,
     private matIconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     console.log('AgendaComponent loaded');
     this.matIconRegistry.addSvgIconSet(
@@ -145,6 +150,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public isLoadingSessions: boolean = false;
   /** Flag indicating if bio limiting is in progress */
   public isLimitingBio: boolean = false;
+  /** Flag indicating if sessions are currently being deleted */
+  public isDeletingSessions: boolean = false;
   /** Array of available events */
   public events: EventConfig[] = [];
   /** Filtered events for autocomplete */
@@ -495,15 +502,29 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Gets the count of selected sessions.
-   * @returns {number} Count of selected sessions
+   * Gets the count of selected sessions with speakers (for API operations).
+   * Sessions with 0 speakers are excluded from API calls.
+   * @returns {number} Count of selected sessions with speakers
    */
   getSelectedFilteredCount(): number {
-    return this.selectedSessions.size;
+    return this.getSelectedSessionsWithSpeakers().length;
   }
 
   /**
-   * Toggles the selection state of all filtered/visible sessions with speakers.
+   * Gets the selected session IDs that have speakers (for API operations).
+   * Sessions with 0 speakers are filtered out.
+   * @returns {string[]} Array of selected session IDs with speakers
+   */
+  getSelectedSessionsWithSpeakers(): string[] {
+    return Array.from(this.selectedSessions).filter((sessionId) => {
+      const session = this.sessions.find((s) => s.SessionId === sessionId);
+      return session && this.hasSpeakers(session);
+    });
+  }
+
+  /**
+   * Toggles the selection state of all filtered/visible sessions.
+   * Shows checkboxes for all sessions, but only sessions with speakers are passed to API.
    * @param {boolean} checked - Whether to select or deselect all filtered sessions
    * @returns {void}
    */
@@ -511,10 +532,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const filteredSessions = this.getFilteredSessions();
     if (checked) {
       filteredSessions.forEach((session) => {
-        // Only select sessions that have speakers
-        if (this.hasSpeakers(session)) {
-          this.selectedSessions.add(session.SessionId);
-        }
+        // Select all sessions (including those with 0 speakers)
+        this.selectedSessions.add(session.SessionId);
       });
     } else {
       filteredSessions.forEach((session) => {
@@ -524,17 +543,14 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Checks if all filtered/visible sessions with speakers are currently selected.
-   * @returns {boolean} True if all filtered sessions with speakers are selected, false otherwise
+   * Checks if all filtered/visible sessions are currently selected.
+   * @returns {boolean} True if all filtered sessions are selected, false otherwise
    */
   isAllSelected(): boolean {
     const filteredSessions = this.getFilteredSessions();
-    const sessionsWithSpeakers = filteredSessions.filter((session) =>
-      this.hasSpeakers(session)
-    );
     return (
-      sessionsWithSpeakers.length > 0 &&
-      sessionsWithSpeakers.every((session) =>
+      filteredSessions.length > 0 &&
+      filteredSessions.every((session) =>
         this.selectedSessions.has(session.SessionId)
       )
     );
@@ -542,20 +558,17 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
   /**
    * Checks if the select-all checkbox should be in an indeterminate state.
-   * This occurs when some but not all filtered sessions with speakers are selected.
-   * @returns {boolean} True if some filtered sessions with speakers are selected, false otherwise
+   * This occurs when some but not all filtered sessions are selected.
+   * @returns {boolean} True if some filtered sessions are selected, false otherwise
    */
   isIndeterminate(): boolean {
     const filteredSessions = this.getFilteredSessions();
-    const sessionsWithSpeakers = filteredSessions.filter((session) =>
-      this.hasSpeakers(session)
-    );
-    const selectedFilteredCount = sessionsWithSpeakers.filter((session) =>
+    const selectedFilteredCount = filteredSessions.filter((session) =>
       this.selectedSessions.has(session.SessionId)
     ).length;
     return (
       selectedFilteredCount > 0 &&
-      selectedFilteredCount < sessionsWithSpeakers.length
+      selectedFilteredCount < filteredSessions.length
     );
   }
 
@@ -701,12 +714,15 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   /**
    * Limits the bio for selected sessions by calling the truncate API.
    * Truncates speaker bios to 80 words for all speakers in selected sessions.
+   * Only sessions with speakers are passed to the API.
    * @returns {void}
    */
   limitBio(): void {
-    if (this.selectedSessions.size === 0) {
+    const selectedSessionsWithSpeakers = this.getSelectedSessionsWithSpeakers();
+    
+    if (selectedSessionsWithSpeakers.length === 0) {
       this.displayErrorMessage(
-        'Please select at least one session to limit bio.'
+        'Please select at least one session with speakers to limit bio.'
       );
       return;
     }
@@ -720,11 +736,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       return; // Prevent multiple simultaneous requests
     }
 
-    const selectedSessionIds = Array.from(this.selectedSessions);
     this.isLimitingBio = true;
 
     this._backendApiService
-      .truncateSpeakerBio(this.selectedEvent, selectedSessionIds)
+      .truncateSpeakerBio(this.selectedEvent, selectedSessionsWithSpeakers)
       .subscribe({
         next: (response: any) => {
           this.isLimitingBio = false;
@@ -762,6 +777,143 @@ export class AgendaComponent implements OnInit, AfterViewInit {
           );
         },
       });
+  }
+
+  /**
+   * Deletes the selected sessions by filtering them out and updating the agenda.
+   * All selected sessions can be deleted, regardless of speaker count.
+   * @returns {void}
+   */
+  deleteSelectedSessions(): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to delete.'
+      );
+      return;
+    }
+
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    if (this.isDeletingSessions) {
+      return; // Prevent multiple simultaneous requests
+    }
+
+    // Get all selected session IDs (including those with 0 speakers)
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const selectedCount = selectedSessionIds.length;
+    
+    const message = selectedCount === 1
+      ? 'Are you sure you want to delete the selected session? This action cannot be undone.'
+      : `Are you sure you want to delete the selected ${selectedCount} sessions? This action cannot be undone.`;
+
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '500px',
+      data: {
+        message: message,
+        count: selectedCount,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.performDelete(selectedSessionIds);
+    });
+  }
+
+  /**
+   * Performs the actual deletion of sessions using the deleteEvent API.
+   * Deletes each session individually and tracks success/failure.
+   * @param {string[]} selectedSessionIds - Array of session IDs to delete
+   * @returns {void}
+   */
+  private performDelete(selectedSessionIds: string[]): void {
+    const selectedCount = selectedSessionIds.length;
+    const eventName = this.selectedEvent;
+
+    if (!eventName) {
+      this.displayErrorMessage('Event name is required for deletion.');
+      return;
+    }
+
+    this.isDeletingSessions = true;
+
+    // Create delete requests for all sessions
+    const deleteRequests = selectedSessionIds.map((sessionId) =>
+      this._backendApiService.deleteEvent(eventName, sessionId).pipe(
+        catchError((error) => {
+          console.error(`Error deleting session ${sessionId}:`, error);
+          return of({
+            success: false,
+            sessionId: sessionId,
+            error: error?.error?.error || error?.message || 'Failed to delete session',
+          });
+        })
+      )
+    );
+
+    // Execute all delete requests in parallel
+    forkJoin(deleteRequests).subscribe({
+      next: (responses: any[]) => {
+        this.isDeletingSessions = false;
+
+        // Count successful and failed deletions
+        const successful = responses.filter((r) => r?.success !== false);
+        const failed = responses.filter((r) => r?.success === false);
+
+        if (successful.length > 0) {
+          // Show success message
+          const successMessage =
+            successful.length === 1
+              ? 'Successfully deleted 1 session.'
+              : `Successfully deleted ${successful.length} session(s).`;
+
+          this.snackBar.open(successMessage, 'Close', {
+            duration: 5000,
+            panelClass: ['snackbar-success'],
+          });
+
+          // Refresh sessions to reflect deletion
+          this.getSessionsForEvent(this.selectedEvent);
+
+          // Clear selection after successful deletion
+          this.selectedSessions.clear();
+        }
+
+        // Show error message for failed deletions
+        if (failed.length > 0) {
+          const failedSessionIds = failed
+            .map((f) => f.sessionId)
+            .filter((id) => id)
+            .join(', ');
+          const errorMessage =
+            failed.length === 1
+              ? `Failed to delete session: ${failedSessionIds}`
+              : `Failed to delete ${failed.length} session(s): ${failedSessionIds}`;
+
+          this.displayErrorMessage(errorMessage);
+        }
+
+        // If all deletions failed, show error
+        if (successful.length === 0) {
+          this.displayErrorMessage(
+            'Failed to delete sessions. Please try again.'
+          );
+        }
+      },
+      error: (error) => {
+        this.isDeletingSessions = false;
+        console.error('Error deleting sessions:', error);
+        this.displayErrorMessage(
+          'Error deleting sessions. Please try again.'
+        );
+      },
+    });
   }
 
   /**
@@ -929,5 +1081,275 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       default:
         return '';
     }
+  }
+
+  /**
+   * Gets the next available session ID for the selected event.
+   * Generates session IDs in the format: EventName_001, EventName_002, etc.
+   * @returns {string} The next available session ID
+   * @throws {Error} If event name is not set or if unable to generate unique ID
+   */
+  public getNextSessionId = (): string => {
+    if (!this.selectedEvent || this.selectedEvent.trim() === '') {
+      console.error('Event name is not set. Cannot generate session ID.');
+      throw new Error('Event name is required to generate session ID');
+    }
+
+    let newSessionId;
+    if (!this.sessions.length) {
+      newSessionId = `${this.selectedEvent}_001`;
+    } else {
+      const validSessionIds: string[] = this.sessions
+        .map((session) => {
+          if (!session.SessionId || typeof session.SessionId !== 'string') {
+            console.warn('Invalid SessionId found:', session.SessionId);
+            return null;
+          }
+
+          const parts = session.SessionId.split('_');
+          if (parts.length !== 2) {
+            console.warn(
+              'SessionId format invalid (expected: EventName_Number):',
+              session.SessionId
+            );
+            return null;
+          }
+
+          const numberPart = parts[1];
+          const parsedNumber = parseInt(numberPart, 10);
+
+          if (isNaN(parsedNumber)) {
+            console.warn(
+              'SessionId number part is not a valid number:',
+              numberPart,
+              'from:',
+              session.SessionId
+            );
+            return null;
+          }
+
+          return session.SessionId;
+        })
+        .filter((id): id is string => id !== null);
+
+      if (validSessionIds.length === 0) {
+        console.warn('No valid session IDs found, starting with first session');
+        newSessionId = `${this.selectedEvent}_001`;
+      } else {
+        const sessionNumbers = validSessionIds
+          .map((id) => parseInt(id.split('_')[1], 10))
+          .filter((num) => !isNaN(num));
+
+        const startCounter =
+          sessionNumbers.length > 0 ? Math.max(...sessionNumbers) + 1 : 1;
+
+        let counter = startCounter;
+        const maxAttempts = 1000;
+        let attempts = 0;
+
+        do {
+          newSessionId = `${this.selectedEvent}_${counter.toString().padStart(3, '0')}`;
+          counter++;
+          attempts++;
+
+          if (attempts >= maxAttempts) {
+            console.error(
+              `Failed to generate unique session ID after ${maxAttempts} attempts`
+            );
+            throw new Error(
+              `Failed to generate unique session ID after ${maxAttempts} attempts`
+            );
+          }
+        } while (validSessionIds.includes(newSessionId));
+      }
+    }
+
+    if (!newSessionId) {
+      console.error('Failed to generate session ID');
+      throw new Error('Failed to generate session ID');
+    }
+
+    return newSessionId;
+  };
+
+  /**
+   * Formats a date to UTC string format.
+   * @param {Date} date - The date to format
+   * @returns {string} Formatted UTC date string
+   */
+  getUTCFormattedTime(date: Date): string {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}+00:00`;
+  }
+
+  /**
+   * Creates a new session and opens the session details modal.
+   * @returns {void}
+   */
+  public createNewSession = (): void => {
+    if (!this.selectedEvent || this.selectedEvent.trim() === '') {
+      this.snackBar.open(
+        'Please select an event before creating sessions',
+        'Close',
+        { duration: 3000, panelClass: ['snackbar-error'] }
+      );
+      return;
+    }
+
+    try {
+      const newSessionId = this.getNextSessionId();
+      const startTime = new Date();
+      const duration = 20;
+      const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
+      const sessionData: Session = {
+        GenerateInsights: true,
+        Event: this.selectedEvent,
+        Track: '',
+        Editor: '',
+        SessionTitle: '',
+        SessionId: newSessionId,
+        SpeakersInfo: [],
+        SessionDescription: '',
+        Status: 'NOT_STARTED',
+        EndsAt: this.getUTCFormattedTime(endTime),
+        Type: 'presentation',
+        PrimarySessionId: newSessionId,
+        EventDay: this.uniqueDays.length > 0 ? this.uniqueDays[0] : 'Day 1',
+        Duration: `${duration}`,
+        Location: '',
+        SessionSubject: '',
+        StartsAt: this.getUTCFormattedTime(startTime),
+        ShouldHideOnSecondScreen: false,
+      };
+      this.openSessionDetailsModal(sessionData, 'NEW');
+    } catch (error: any) {
+      console.error('Error creating new session:', error);
+      this.displayErrorMessage(
+        error?.message || 'Failed to create new session. Please try again.'
+      );
+    }
+  };
+
+  /**
+   * Adjusts session times by timezone difference.
+   * For now, returns sessions as-is since timezone handling may not be needed.
+   * @param {Session[]} sessions - Sessions to adjust
+   * @returns {Session[]} Adjusted sessions
+   */
+  adjustSessionTimes(sessions: Session[]): Session[] {
+    // If timezone adjustment is needed, implement it here
+    // For now, just ensure times have proper format
+    return sessions.map((session) => {
+      const updatedSession = { ...session };
+      if (
+        typeof updatedSession.StartsAt === 'string' &&
+        !updatedSession.StartsAt.endsWith('+0000') &&
+        !updatedSession.StartsAt.includes('+')
+      ) {
+        updatedSession.StartsAt += '+0000';
+      }
+      if (
+        typeof updatedSession.EndsAt === 'string' &&
+        !updatedSession.EndsAt.endsWith('+0000') &&
+        !updatedSession.EndsAt.includes('+')
+      ) {
+        updatedSession.EndsAt += '+0000';
+      }
+      return updatedSession;
+    });
+  }
+
+  /**
+   * Opens the session details modal for creating or editing a session.
+   * @param {Session} data - The session data to edit, or new session data
+   * @param {string} type - 'NEW' for new session, 'EDIT' for editing
+   * @returns {void}
+   */
+  openSessionDetailsModal(data: Session, type: string): void {
+    // Convert datetime format to datetime-local format for input fields
+    const sessionData = { ...data };
+    
+    // Ensure StartsAt and EndsAt are in the correct format for datetime-local input
+    // datetime-local expects: YYYY-MM-DDTHH:mm
+    if (sessionData.StartsAt) {
+      try {
+        // Handle various date formats
+        let startDate: Date;
+        if (sessionData.StartsAt.includes('T')) {
+          startDate = new Date(sessionData.StartsAt);
+        } else if (sessionData.StartsAt.includes('+')) {
+          startDate = new Date(sessionData.StartsAt.replace(' ', 'T'));
+        } else {
+          startDate = new Date(sessionData.StartsAt.replace(' ', 'T'));
+        }
+        if (!isNaN(startDate.getTime())) {
+          sessionData.StartsAt = this.formatDateTimeLocal(startDate);
+        }
+      } catch (error) {
+        console.error('Error parsing StartsAt:', error);
+      }
+    }
+    
+    if (sessionData.EndsAt) {
+      try {
+        let endDate: Date;
+        if (sessionData.EndsAt.includes('T')) {
+          endDate = new Date(sessionData.EndsAt);
+        } else if (sessionData.EndsAt.includes('+')) {
+          endDate = new Date(sessionData.EndsAt.replace(' ', 'T'));
+        } else {
+          endDate = new Date(sessionData.EndsAt.replace(' ', 'T'));
+        }
+        if (!isNaN(endDate.getTime())) {
+          sessionData.EndsAt = this.formatDateTimeLocal(endDate);
+        }
+      } catch (error) {
+        console.error('Error parsing EndsAt:', error);
+      }
+    }
+
+    const dialogRef = this.dialog.open(UpdateSessionDialogComponent, {
+      width: '1200px',
+      maxWidth: 'none',
+      data: {
+        data: sessionData,
+        type: type,
+        adjustSessionTimesFn: (sessions: Session[]) => this.adjustSessionTimes(sessions),
+        displayErrorMessageFn: (msg: string) => this.displayErrorMessage(msg),
+        trackList: [
+          ...new Set(
+            this.sessions
+              .map((session) => session.Track)
+              .filter((track) => track)
+          ),
+        ],
+      },
+      panelClass: 'custom-dialog-container',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result == 'SUCCESS') {
+        this.getSessionsForEvent(this.selectedEvent);
+      }
+    });
+  }
+
+  /**
+   * Formats a Date object to datetime-local input format (YYYY-MM-DDTHH:mm).
+   * @param {Date} date - The date to format
+   * @returns {string} Formatted date string
+   */
+  formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 }

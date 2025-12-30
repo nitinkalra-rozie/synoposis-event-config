@@ -26,7 +26,9 @@
       <button
         mat-raised-button
         matTooltip="Upload a manual publish report PDF file"
-        [disabled]="!dataSource || !dataSource.data || dataSource.data.length === 0"
+        [disabled]="
+          !dataSource || !dataSource.data || dataSource.data.length === 0
+        "
         (click)="onUploadManualPublishReport()"
         color="primary"
         style="margin-left: 10px">
@@ -36,11 +38,7 @@
     </div>
   </div>
   <div class="executive-summary-table-wrapper">
-    <table
-      mat-table
-      matSort
-      class="versions-table"
-      [dataSource]="dataSource">
+    <table mat-table matSort class="versions-table" [dataSource]="dataSource">
       <!-- Edit Content Column -->
       <ng-container matColumnDef="viewContent">
         <th *matHeaderCellDef mat-header-cell>Edit Content</th>
@@ -107,7 +105,9 @@
             <button
               mat-icon-button
               matTooltip="Open Published PDF"
-              (click)="onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()">
+              (click)="
+                onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()
+              ">
               <mat-icon>picture_as_pdf</mat-icon>
             </button>
           } @else {
@@ -128,4 +128,3 @@
     </mat-paginator>
   </div>
 </div>
-

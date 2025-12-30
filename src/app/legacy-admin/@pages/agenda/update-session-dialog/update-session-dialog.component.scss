@@ -1,0 +1,163 @@
+.custom-dialog-container .mat-dialog-container {
+  max-width: 1200px !important;
+  width: 1200px !important;
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding-top: 10px;
+  gap: 16px;
+  .hide-on-second-screen-label {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.loading-container {
+  width: 100%;
+}
+
+.save-button {
+  padding: 10px 15px;
+  align-items: center;
+  border-radius: 4px;
+  background: #534ad8;
+  cursor: pointer;
+  color: #fff !important;
+  border: none;
+  font-family: Lexend;
+  font-size: 16px;
+}
+
+.save-button:disabled {
+  background: #e0e0e0;
+  color: #9e9e9e;
+  cursor: not-allowed;
+}
+
+.remove-speaker-button {
+  padding: 10px 15px;
+  align-items: center;
+  border-radius: 4px;
+  border-color: #d84a4a !important;
+  background: #ffffff;
+  cursor: pointer;
+  color: #d84a4a !important;
+  border: 1px solid #d84a4a;
+  font-family: Lexend;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.add-speaker-button {
+  padding: 10px 15px;
+  align-items: center;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  color: #534ad8 !important;
+  border: 1px solid #8d87de;
+  font-family: Lexend;
+  font-size: 16px;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+.cancel-button {
+  padding: 10px 15px;
+  align-items: center;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+  color: #534ad8 !important;
+  border: 1px solid #8d87de;
+  font-family: Lexend;
+  font-size: 16px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.dialog-title {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #333;
+}
+
+.dialog-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dialog-body {
+  padding: 16px;
+  mat-form-field {
+    width: 100%;
+    color: #333 !important;
+  }
+
+  .mat-mdc-input-element {
+    color: #333 !important;
+  }
+}
+
+.dialog-footer {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+}
+
+.form-label {
+  color: #333;
+}
+
+/** speaker details section**/
+.speaker-card {
+  margin: 20px 0;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.bio-field textarea {
+  min-height: 100px;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+mat-card-header {
+  justify-content: space-between;
+}
+

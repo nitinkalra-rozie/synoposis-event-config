@@ -74,4 +74,3 @@ export type TrackDebriefPublishFilterMode =
   | 'noPublishPdf';
 
 export type TrackDebriefPdfFilterMode = 'all' | 'hasV2' | 'noV2';
-

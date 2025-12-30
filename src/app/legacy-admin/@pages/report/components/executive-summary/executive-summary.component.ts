@@ -59,15 +59,24 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
   @Input() public uniqueDays: string[] = [];
   @Input() public pageSize: number = 10;
 
-  @Output() public executiveSummaryToggle = new EventEmitter<{ executiveSummaryId: string; checked: boolean }>();
+  @Output() public executiveSummaryToggle = new EventEmitter<{
+    executiveSummaryId: string;
+    checked: boolean;
+  }>();
   @Output() public toggleAll = new EventEmitter<boolean>();
   @Output() public generateExecutiveSummary = new EventEmitter<void>();
   @Output() public publishReport = new EventEmitter<void>();
-  @Output() public uploadManualPublishReport = new EventEmitter<{ file: File; eventId?: string }>();
+  @Output() public uploadManualPublishReport = new EventEmitter<{
+    file: File;
+    eventId?: string;
+  }>();
   @Output() public editContent = new EventEmitter<ExecutiveSummaryRow>();
   @Output() public viewPdfV2 = new EventEmitter<ExecutiveSummaryRow>();
   @Output() public openPublishPdf = new EventEmitter<string>();
-  @Output() public highlightRow = new EventEmitter<{ row: ExecutiveSummaryRow; index: number }>();
+  @Output() public highlightRow = new EventEmitter<{
+    row: ExecutiveSummaryRow;
+    index: number;
+  }>();
 
   @ViewChild(MatSort) public sort!: MatSort;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
@@ -116,10 +125,10 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
     if (!this.dataSource) {
       return true;
     }
-    
+
     // Check the actual data array - MatTableDataSource always has a data property
     const data = this.dataSource.data;
-    
+
     // Return true if data is null, undefined, or empty array
     // Note: MatTableDataSource initializes with empty array [], so we check length
     return !data || !Array.isArray(data) || data.length === 0;
@@ -142,8 +151,11 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
 
     // Check if at least one row has PDF V2
     return data.some((row: ExecutiveSummaryRow) => {
-      const hasPdfV2 = row.pdfPathV2 && 
-        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
+      const hasPdfV2 =
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2);
       return hasPdfV2 && row.version;
     });
   }
@@ -179,9 +191,10 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
    */
   onUploadManualPublishReport(): void {
     // Handle both string (EventIdentifier) and object (EventConfig) types
-    const eventId = typeof this.selectedEvent === 'string' 
-      ? this.selectedEvent 
-      : this.selectedEvent?.EventIdentifier;
+    const eventId =
+      typeof this.selectedEvent === 'string'
+        ? this.selectedEvent
+        : this.selectedEvent?.EventIdentifier;
 
     if (!eventId) {
       // Emit error event or show error - for now, we'll let parent handle it
@@ -210,4 +223,3 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
     });
   }
 }
-

@@ -10,6 +10,7 @@ export const environment = {
   getEventReportDetails:
     'https://api.synopsis.rozie.ai/r1/getEventReportDetails',
   truncateSpeakerBioUrl: 'https://api.synopsis.rozie.ai/r3/truncateSpeakerBio',
+  deleteEventUrl: 'https://api.synopsis.rozie.ai/r3/deleteEvent',
   updateAgendaUrl: 'https://api.synopsis.rozie.ai/r5/postEventDetails',
   getUploadFilePresignedUrl: 'https://api.synopsis.rozie.ai/r6/config',
   postCurrentSessionId:

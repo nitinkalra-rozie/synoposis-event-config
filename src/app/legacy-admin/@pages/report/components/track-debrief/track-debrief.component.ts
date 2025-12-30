@@ -59,25 +59,37 @@ export class TrackDebriefComponent implements AfterViewInit {
   @Input() public selectedEvent: any = null;
   @Input() public uniqueTracks: string[] = [];
   @Input() public trackSearchFilter: string = '';
-  @Input() public trackDebriefPublishFilterMode: TrackDebriefPublishFilterMode = 'all';
+  @Input() public trackDebriefPublishFilterMode: TrackDebriefPublishFilterMode =
+    'all';
   @Input() public trackDebriefPdfFilterMode: TrackDebriefPdfFilterMode = 'all';
   @Input() public fromTrackIndex: string | null = null;
   @Input() public toTrackIndex: string | null = null;
   @Input() public pageSize: number = 10;
 
-  @Output() public trackDebriefToggle = new EventEmitter<{ track: string; checked: boolean }>();
+  @Output() public trackDebriefToggle = new EventEmitter<{
+    track: string;
+    checked: boolean;
+  }>();
   @Output() public toggleAll = new EventEmitter<boolean>();
   @Output() public generateTrackDebrief = new EventEmitter<void>();
   @Output() public publishReport = new EventEmitter<void>();
   @Output() public searchFilterChange = new EventEmitter<Event>();
-  @Output() public publishFilterModeChange = new EventEmitter<TrackDebriefPublishFilterMode>();
-  @Output() public pdfFilterModeChange = new EventEmitter<TrackDebriefPdfFilterMode>();
-  @Output() public rangeInputChange = new EventEmitter<{ field: 'from' | 'to'; event: Event }>();
+  @Output() public publishFilterModeChange =
+    new EventEmitter<TrackDebriefPublishFilterMode>();
+  @Output() public pdfFilterModeChange =
+    new EventEmitter<TrackDebriefPdfFilterMode>();
+  @Output() public rangeInputChange = new EventEmitter<{
+    field: 'from' | 'to';
+    event: Event;
+  }>();
   @Output() public selectRange = new EventEmitter<void>();
   @Output() public editContent = new EventEmitter<TrackDebriefRow>();
   @Output() public viewPdfV2 = new EventEmitter<TrackDebriefRow>();
   @Output() public openPublishPdf = new EventEmitter<string>();
-  @Output() public highlightRow = new EventEmitter<{ row: TrackDebriefRow; index: number }>();
+  @Output() public highlightRow = new EventEmitter<{
+    row: TrackDebriefRow;
+    index: number;
+  }>();
 
   @ViewChild(MatSort) public sort!: MatSort;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
@@ -159,4 +171,3 @@ export class TrackDebriefComponent implements AfterViewInit {
     this.highlightRow.emit({ row, index });
   }
 }
-

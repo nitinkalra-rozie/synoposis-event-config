@@ -14,12 +14,6 @@
             </div>
 
             <div class="action-buttons">
-              <button
-                class="refresh-button"
-                [disabled]="isLoading"
-                (click)="refreshEvents()">
-                <mat-icon>refresh</mat-icon>
-              </button>
             </div>
           </div>
 
@@ -62,6 +56,43 @@
                       {{ getSelectedFilteredCount() }} session(s) selected
                     </span>
                   }
+                  <button
+                    mat-raised-button
+                    class="refresh-sessions-button"
+                    [disabled]="isLoadingSessions"
+                    (click)="refreshEvents()"
+                    color="primary">
+                    <mat-icon>refresh</mat-icon>
+                    Refresh
+                  </button>
+                  <button
+                    mat-raised-button
+                    class="add-session-header-button"
+                    [disabled]="!selectedEvent || isLoadingSessions"
+                    (click)="createNewSession()"
+                    color="primary">
+                    <mat-icon>add</mat-icon>
+                    Add New Session
+                  </button>
+                  <button
+                    mat-raised-button
+                    class="delete-session-button"
+                    [disabled]="
+                      selectedSessions.size === 0 ||
+                      isLoadingSessions ||
+                      isDeletingSessions
+                    "
+                    (click)="deleteSelectedSessions()"
+                    color="warn">
+                    @if (isDeletingSessions) {
+                      <mat-spinner
+                        class="inline-spinner"
+                        diameter="20"></mat-spinner>
+                    } @else {
+                      <mat-icon>delete</mat-icon>
+                    }
+                    {{ isDeletingSessions ? 'Deleting...' : 'Delete Session' }}
+                  </button>
                   <button
                     mat-raised-button
                     class="limit-bio-button"
@@ -146,15 +177,13 @@
                         mat-cell
                         [class.selected]="selectedRowIndex === i"
                         (click)="highlightRow(row, i)">
-                        @if (hasSpeakers(row)) {
-                          <mat-checkbox
-                            [checked]="isSessionSelected(row.SessionId)"
-                            (change)="
-                              onSessionToggle(row.SessionId, $event.checked)
-                            "
-                            (click)="$event.stopPropagation()">
-                          </mat-checkbox>
-                        }
+                        <mat-checkbox
+                          [checked]="isSessionSelected(row.SessionId)"
+                          (change)="
+                            onSessionToggle(row.SessionId, $event.checked)
+                          "
+                          (click)="$event.stopPropagation()">
+                        </mat-checkbox>
                       </td>
                     </ng-container>
 

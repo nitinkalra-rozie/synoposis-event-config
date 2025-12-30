@@ -37,48 +37,55 @@ components/
 ## Component Responsibilities
 
 ### SessionDebriefComponent
+
 - Displays session debrief table with filters
 - Handles session selection via checkboxes
 - Manages filters: search, file filter, event day, PDF filter, range selection
 - Emits events for parent component to handle business logic
 
 ### DailyDebriefComponent
+
 - Displays daily debrief table
 - Handles daily debrief selection
 - Manages event day filter
 - Emits events for generation and publishing
 
 ### TrackDebriefComponent
+
 - Displays track debrief table
 - Handles track debrief selection
 - Manages filters: search, publish filter, PDF filter, range selection
 - Emits events for generation and publishing
 
 ### ExecutiveSummaryComponent
+
 - Displays executive summary table
 - Handles executive summary selection
 - Emits events for generation and publishing
 
 ### AudioPlayerDialogComponent
+
 - Dialog component for playing audio files
 - Displays audio player controls in a modal
 
 ### LoadingDialogComponent
+
 - Dialog component for displaying loading state
 - Shows spinner and optional message during operations
 
 ## Integration
 
-To use these components in the main `report.component.html`, replace the corresponding sections with:
+To use these components in the main `report.component.html`, replace the
+corresponding sections with:
 
 ```html
 <app-session-debrief
   [dataSource]="dataSource"
   [displayedColumns]="displayedColumns"
   [selectedSessions]="selectedSessions"
-  ...
-  (sessionToggle)="onSessionToggle($event.sessionId, $event.checked)"
   (generatePdf)="generatePDF()"
+  (sessionToggle)="onSessionToggle($event.sessionId, $event.checked)"
+  ...
   ...>
 </app-session-debrief>
 ```
@@ -89,4 +96,3 @@ To use these components in the main `report.component.html`, replace the corresp
 2. Child components receive data via `@Input()` properties
 3. Child components emit events via `@Output()` EventEmitters
 4. Parent component handles events and updates data accordingly
-

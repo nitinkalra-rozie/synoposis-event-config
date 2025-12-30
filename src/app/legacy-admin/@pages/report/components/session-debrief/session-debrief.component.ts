@@ -26,11 +26,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
-import {
-  FileFilterMode,
-  PdfFilterMode,
-  Session,
-} from '../shared/report.types';
+import { FileFilterMode, PdfFilterMode, Session } from '../shared/report.types';
 
 @Component({
   selector: 'app-session-debrief',
@@ -68,7 +64,10 @@ export class SessionDebriefComponent implements AfterViewInit {
   @Input() public pageSize: number = 10;
   @Input() public totalRecords: number = 0;
 
-  @Output() public sessionToggle = new EventEmitter<{ sessionId: string; checked: boolean }>();
+  @Output() public sessionToggle = new EventEmitter<{
+    sessionId: string;
+    checked: boolean;
+  }>();
   @Output() public toggleAll = new EventEmitter<boolean>();
   @Output() public generatePdf = new EventEmitter<void>();
   @Output() public publishReport = new EventEmitter<void>();
@@ -76,14 +75,20 @@ export class SessionDebriefComponent implements AfterViewInit {
   @Output() public fileFilterModeChange = new EventEmitter<FileFilterMode>();
   @Output() public pdfFilterModeChange = new EventEmitter<PdfFilterMode>();
   @Output() public eventDayFilterChange = new EventEmitter<string>();
-  @Output() public rangeInputChange = new EventEmitter<{ field: 'from' | 'to'; event: Event }>();
+  @Output() public rangeInputChange = new EventEmitter<{
+    field: 'from' | 'to';
+    event: Event;
+  }>();
   @Output() public selectRange = new EventEmitter<void>();
   @Output() public editContent = new EventEmitter<Session>();
   @Output() public viewPdfV1 = new EventEmitter<Session>();
   @Output() public viewPdfV2 = new EventEmitter<Session>();
   @Output() public openPublishPdf = new EventEmitter<string>();
   @Output() public openAudioPlayer = new EventEmitter<string>();
-  @Output() public highlightRow = new EventEmitter<{ row: Session; index: number }>();
+  @Output() public highlightRow = new EventEmitter<{
+    row: Session;
+    index: number;
+  }>();
 
   @ViewChild(MatSort) public sort!: MatSort;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
@@ -178,4 +183,3 @@ export class SessionDebriefComponent implements AfterViewInit {
     this.highlightRow.emit({ row, index });
   }
 }
-

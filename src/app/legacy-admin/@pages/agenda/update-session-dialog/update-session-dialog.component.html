@@ -1,0 +1,215 @@
+<h2 mat-dialog-title>Session Details</h2>
+<mat-dialog-content class="dialog-container">
+  <form [formGroup]="sessionForm">
+    <div class="form-container">
+      <!-- Session Fields -->
+      <mat-form-field appearance="outline">
+        <mat-label>Event</mat-label>
+        <input matInput formControlName="Event" required />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Session Title</mat-label>
+        <input matInput formControlName="SessionTitle" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Track</mat-label>
+        <input
+          matInput
+          [formControl]="trackControl"
+          [matAutocomplete]="auto"
+          placeholder="Select or enter track"
+          type="text" />
+        <mat-autocomplete #auto="matAutocomplete">
+          @for (option of filteredTrackOptions(); track option) {
+            <mat-option [value]="option">
+              {{ option }}
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Session ID</mat-label>
+        <input matInput formControlName="SessionId" required />
+      </mat-form-field>
+
+      <mat-form-field class="span-2" appearance="outline">
+        <mat-label>Session Description</mat-label>
+        <textarea
+          matInput
+          formControlName="SessionDescription"
+          rows="4"></textarea>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="Status" required>
+          <mat-option value="NOT_STARTED">Not Started</mat-option>
+          <mat-option value="NOT_AVAILABLE">Hidden</mat-option>
+          <mat-option value="IN_PROGRESS">Live</mat-option>
+          <mat-option value="UNDER_REVIEW">Under Review</mat-option>
+          <mat-option value="REVIEW_COMPLETE">Review Complete</mat-option>
+          <mat-option value="PROCESSING_INSIGHTS"
+            >Processing Insights</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="Type">
+          <mat-option value="Keynote">Keynote</mat-option>
+          <mat-option value="PrimarySession">Primary Session</mat-option>
+          <mat-option value="BreakoutSession">Breakout Session</mat-option>
+          <mat-option value="presentation">Presentation</mat-option>
+          <mat-option value="fireside_chat">Fireside chat</mat-option>
+          <mat-option value="audience_debate">Audience Debate</mat-option>
+          <mat-option value="panel_discussion">Panel discussion</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Primary Session ID</mat-label>
+        <input matInput formControlName="PrimarySessionId" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Event Day</mat-label>
+        <input matInput formControlName="EventDay" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Location</mat-label>
+        <input matInput formControlName="Location" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Session Subject</mat-label>
+        <input matInput formControlName="SessionSubject" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Starts At</mat-label>
+        <input
+          matInput
+          formControlName="StartsAt"
+          required
+          type="datetime-local" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ends At</mat-label>
+        <input
+          matInput
+          formControlName="EndsAt"
+          required
+          type="datetime-local" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Duration</mat-label>
+        <input matInput formControlName="Duration" />
+      </mat-form-field>
+
+      <mat-checkbox formControlName="ShouldHideOnSecondScreen">
+        <div class="hide-on-second-screen-label">Hide on Second Screen</div>
+      </mat-checkbox>
+    </div>
+    <div>
+      <!-- Speakers Section -->
+      <div class="speakers-section">
+        <h3>Speakers</h3>
+        <div formArrayName="SpeakersInfo">
+          @for (speaker of speakers.controls; track $index; let i = $index) {
+            <div class="speaker-card" [formGroupName]="i">
+              <mat-card>
+                <mat-card-header>
+                  <mat-card-title>Speaker {{ i + 1 }}</mat-card-title>
+                  <button
+                    mat-stroked-button
+                    class="remove-speaker-button"
+                    (click)="removeSpeaker(i)"
+                    color="danger">
+                    Remove Speaker
+                  </button>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="form-row">
+                    <app-speaker-image-uploader
+                      [eventName]="dialogData?.data?.Event"
+                      [isUploading]="isUploading"
+                      [speakerImage]="speaker.get('Url')?.value"
+                      (displayErrorMessageFn)="
+                        this.dialogData.displayErrorMessageFn?.($event)
+                      "
+                      (updateSpeakerImage)="
+                        updateSpeakerImage($event, speaker)
+                      ">
+                    </app-speaker-image-uploader>
+
+                    <div class="form-fields">
+                      <mat-form-field appearance="fill">
+                        <mat-label>Name</mat-label>
+                        <input matInput formControlName="Name" required />
+                      </mat-form-field>
+
+                      <mat-form-field appearance="fill">
+                        <mat-label>Title</mat-label>
+                        <input matInput formControlName="Title" />
+                      </mat-form-field>
+
+                      <mat-form-field appearance="fill">
+                        <mat-label>Organization</mat-label>
+                        <input matInput formControlName="Organization" />
+                      </mat-form-field>
+
+                      <mat-checkbox formControlName="isModerator"
+                        >Is Moderator</mat-checkbox
+                      >
+
+                      <mat-form-field class="bio-field" appearance="fill">
+                        <mat-label>Speaker Bio</mat-label>
+                        <textarea
+                          matInput
+                          formControlName="SpeakerBio"
+                          rows="4"></textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          }
+        </div>
+        <button
+          mat-stroked-button
+          class="add-speaker-button"
+          (click)="addSpeaker()"
+          color="primary"
+          type="button">
+          <mat-icon>add</mat-icon> Add Speaker
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+  } @else {
+    <button mat-button class="cancel-button" (click)="closeDialog()">
+      Cancel
+    </button>
+    <button
+      mat-button
+      class="save-button"
+      [disabled]="!sessionForm.valid"
+      (click)="saveChanges()">
+      Save
+    </button>
+  }
+</mat-dialog-actions>
+

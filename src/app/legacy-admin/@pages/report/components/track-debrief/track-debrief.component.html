@@ -81,7 +81,11 @@
       <button
         mat-raised-button
         matTooltip="Generate PDF V2 for selected tracks"
-        [disabled]="!selectedEvent || uniqueTracks.length === 0 || selectedTrackDebriefs.size === 0"
+        [disabled]="
+          !selectedEvent ||
+          uniqueTracks.length === 0 ||
+          selectedTrackDebriefs.size === 0
+        "
         (click)="generateTrackDebrief.emit()"
         color="primary">
         <mat-icon>add</mat-icon>
@@ -99,7 +103,7 @@
       </button>
     </div>
     <!-- Second row for range selection -->
-    <div class="range-selection" style="width: 100%; margin-top: 10px;">
+    <div class="range-selection" style="width: 100%; margin-top: 10px">
       <div class="range-inputs">
         <div class="filter-field range-input">
           <input
@@ -132,11 +136,7 @@
     </div>
   </div>
   <div class="track-debrief-table-wrapper">
-    <table
-      mat-table
-      matSort
-      class="versions-table"
-      [dataSource]="dataSource">
+    <table mat-table matSort class="versions-table" [dataSource]="dataSource">
       <!-- Checkbox Column -->
       <ng-container matColumnDef="select">
         <th *matHeaderCellDef mat-header-cell>
@@ -153,7 +153,6 @@
           (click)="onHighlightRow(row, i)">
           <mat-checkbox
             [checked]="isTrackDebriefSelected(row.Track)"
-         
             (change)="onTrackDebriefToggle(row.Track, $event.checked)"
             (click)="$event.stopPropagation()">
           </mat-checkbox>
@@ -238,7 +237,9 @@
             <button
               mat-icon-button
               matTooltip="Open Published PDF"
-              (click)="onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()">
+              (click)="
+                onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()
+              ">
               <mat-icon>picture_as_pdf</mat-icon>
             </button>
           } @else {
@@ -260,4 +261,3 @@
     </mat-paginator>
   </div>
 </div>
-

@@ -75,32 +75,36 @@
                       <app-session-debrief
                         [dataSource]="dataSource"
                         [displayedColumns]="displayedColumns"
-                        [selectedSessions]="selectedSessions"
-                        [isLoadingSessions]="isLoadingSessions"
-                        [uniqueDays]="uniqueDays"
                         [fileFilterMode]="fileFilterMode"
+                        [fromIndex]="fromIndex"
+                        [isLoadingSessions]="isLoadingSessions"
+                        [pageSize]="pageSize"
                         [pdfFilterMode]="pdfFilterMode"
                         [selectedEventDay]="selectedEventDay"
-                        [fromIndex]="fromIndex"
+                        [selectedSessions]="selectedSessions"
                         [toIndex]="toIndex"
-                          [pageSize]="pageSize"
                         [totalRecords]="totalRecords"
-                        (sessionToggle)="onSessionToggle($event.sessionId, $event.checked)"
-                        (toggleAll)="toggleAllSessions($event)"
-                        (generatePdf)="generatePDF()"
-                        (publishReport)="publishReport()"
-                        (filterChange)="applyFilter($event)"
-                        (fileFilterModeChange)="onFileFilterModeChange($event)"
-                        (pdfFilterModeChange)="onPdfFilterModeChange($event)"
-                        (eventDayFilterChange)="onEventDayFilterChange($event)"
-                        (rangeInputChange)="onRangeInputChange($event.field, $event.event)"
-                        (selectRange)="selectRange()"
+                        [uniqueDays]="uniqueDays"
                         (editContent)="editContent($event)"
-                        (viewPdfV1)="viewPdfV1($event)"
-                        (viewPdfV2)="viewPdfV2($event)"
-                        (openPublishPdf)="openPublishPdf($event)"
+                        (eventDayFilterChange)="onEventDayFilterChange($event)"
+                        (fileFilterModeChange)="onFileFilterModeChange($event)"
+                        (filterChange)="applyFilter($event)"
+                        (generatePdf)="generatePDF()"
+                        (highlightRow)="highlightRow($event.row, $event.index)"
                         (openAudioPlayer)="openAudioPlayer($event)"
-                        (highlightRow)="highlightRow($event.row, $event.index)">
+                        (openPublishPdf)="openPublishPdf($event)"
+                        (pdfFilterModeChange)="onPdfFilterModeChange($event)"
+                        (publishReport)="publishReport()"
+                        (rangeInputChange)="
+                          onRangeInputChange($event.field, $event.event)
+                        "
+                        (selectRange)="selectRange()"
+                        (sessionToggle)="
+                          onSessionToggle($event.sessionId, $event.checked)
+                        "
+                        (toggleAll)="toggleAllSessions($event)"
+                        (viewPdfV1)="viewPdfV1($event)"
+                        (viewPdfV2)="viewPdfV2($event)">
                       </app-session-debrief>
                     }
                   </div>
@@ -127,20 +131,31 @@
                             <app-daily-debrief
                               [dataSource]="dailyDebriefDataSource"
                               [displayedColumns]="displayedColumnsDailyDebrief"
+                              [pageSize]="pageSize"
                               [selectedDailyDebriefs]="selectedDailyDebriefs"
-                              [uniqueDays]="uniqueDays"
-                              [selectedEventDay]="selectedEventDay"
                               [selectedEvent]="selectedEvent"
-                                [pageSize]="pageSize"
-                              (dailyDebriefToggle)="onDailyDebriefToggle($event.eventDay, $event.checked)"
-                              (toggleAll)="toggleAllDailyDebriefs($event)"
-                              (generateDailyDebrief)="openGenerateDailyDebriefDialog()"
-                              (publishReport)="publishDailyDebrief()"
-                              (eventDayFilterChange)="onDailyDebriefEventDayFilterChange($event)"
+                              [selectedEventDay]="selectedEventDay"
+                              [uniqueDays]="uniqueDays"
+                              (dailyDebriefToggle)="
+                                onDailyDebriefToggle(
+                                  $event.eventDay,
+                                  $event.checked
+                                )
+                              "
                               (editContent)="editContentForDailyDebrief($event)"
-                              (viewPdfV2)="viewPdfV2ForDailyDebrief($event)"
+                              (eventDayFilterChange)="
+                                onDailyDebriefEventDayFilterChange($event)
+                              "
+                              (generateDailyDebrief)="
+                                openGenerateDailyDebriefDialog()
+                              "
+                              (highlightRow)="
+                                highlightRow($event.row, $event.index)
+                              "
                               (openPublishPdf)="openPublishPdf($event)"
-                              (highlightRow)="highlightRow($event.row, $event.index)">
+                              (publishReport)="publishDailyDebrief()"
+                              (toggleAll)="toggleAllDailyDebriefs($event)"
+                              (viewPdfV2)="viewPdfV2ForDailyDebrief($event)">
                             </app-daily-debrief>
                           </div>
                         </mat-tab>
@@ -150,50 +165,93 @@
                             <app-track-debrief
                               [dataSource]="trackDebriefDataSource"
                               [displayedColumns]="displayedColumnsTrackDebrief"
-                              [selectedTrackDebriefs]="selectedTrackDebriefs"
-                              [selectedEvent]="selectedEvent"
-                              [uniqueTracks]="uniqueTracks"
-                              [trackSearchFilter]="trackSearchFilter"
-                              [trackDebriefPublishFilterMode]="trackDebriefPublishFilterMode"
-                              [trackDebriefPdfFilterMode]="trackDebriefPdfFilterMode"
                               [fromTrackIndex]="fromTrackIndex"
-                              [toTrackIndex]="toTrackIndex"
                               [pageSize]="pageSize"
-                              (trackDebriefToggle)="onTrackDebriefToggle($event.track, $event.checked)"
-                              (toggleAll)="toggleAllTrackDebriefs($event)"
-                              (generateTrackDebrief)="openGenerateTrackDebriefDialog()"
-                              (publishReport)="publishTrackDebrief()"
-                              (searchFilterChange)="applyTrackDebriefSearchFilter($event)"
-                              (publishFilterModeChange)="onTrackDebriefPublishFilterModeChange($event)"
-                              (pdfFilterModeChange)="onTrackDebriefPdfFilterModeChange($event)"
-                              (rangeInputChange)="onTrackDebriefRangeInputChange($event.field, $event.event)"
-                              (selectRange)="selectTrackDebriefRange()"
+                              [selectedEvent]="selectedEvent"
+                              [selectedTrackDebriefs]="selectedTrackDebriefs"
+                              [toTrackIndex]="toTrackIndex"
+                              [trackDebriefPdfFilterMode]="
+                                trackDebriefPdfFilterMode
+                              "
+                              [trackDebriefPublishFilterMode]="
+                                trackDebriefPublishFilterMode
+                              "
+                              [trackSearchFilter]="trackSearchFilter"
+                              [uniqueTracks]="uniqueTracks"
                               (editContent)="editContentForTrackDebrief($event)"
-                              (viewPdfV2)="viewPdfV2ForTrackDebrief($event)"
+                              (generateTrackDebrief)="
+                                openGenerateTrackDebriefDialog()
+                              "
+                              (highlightRow)="
+                                highlightRow($event.row, $event.index)
+                              "
                               (openPublishPdf)="openPublishPdf($event)"
-                              (highlightRow)="highlightRow($event.row, $event.index)">
+                              (pdfFilterModeChange)="
+                                onTrackDebriefPdfFilterModeChange($event)
+                              "
+                              (publishFilterModeChange)="
+                                onTrackDebriefPublishFilterModeChange($event)
+                              "
+                              (publishReport)="publishTrackDebrief()"
+                              (rangeInputChange)="
+                                onTrackDebriefRangeInputChange(
+                                  $event.field,
+                                  $event.event
+                                )
+                              "
+                              (searchFilterChange)="
+                                applyTrackDebriefSearchFilter($event)
+                              "
+                              (selectRange)="selectTrackDebriefRange()"
+                              (toggleAll)="toggleAllTrackDebriefs($event)"
+                              (trackDebriefToggle)="
+                                onTrackDebriefToggle(
+                                  $event.track,
+                                  $event.checked
+                                )
+                              "
+                              (viewPdfV2)="viewPdfV2ForTrackDebrief($event)">
                             </app-track-debrief>
-                              </div>
+                          </div>
                         </mat-tab>
                         <!-- Executive Summary Sub-tab -->
                         <mat-tab label="Executive Summary">
                           <div class="nested-tab-content">
                             <app-executive-summary
                               [dataSource]="executiveSummaryDataSource"
-                              [displayedColumns]="displayedColumnsExecutiveSummary"
-                              [selectedExecutiveSummaries]="selectedExecutiveSummaries"
+                              [displayedColumns]="
+                                displayedColumnsExecutiveSummary
+                              "
+                              [pageSize]="pageSize"
                               [selectedEvent]="selectedEvent"
+                              [selectedExecutiveSummaries]="
+                                selectedExecutiveSummaries
+                              "
                               [uniqueDays]="uniqueDays"
-                                [pageSize]="pageSize"
-                              (executiveSummaryToggle)="onExecutiveSummaryToggle($event.executiveSummaryId, $event.checked)"
-                              (toggleAll)="toggleAllExecutiveSummaries($event)"
-                              (generateExecutiveSummary)="openGenerateExecutiveSummaryDialog()"
-                              (publishReport)="publishExecutiveSummary()"
-                              (uploadManualPublishReport)="onUploadManualPublishReport($event)"
-                              (editContent)="editContentForExecutiveSummary($event)"
-                              (viewPdfV2)="viewPdfV2ForExecutiveSummary($event)"
+                              (editContent)="
+                                editContentForExecutiveSummary($event)
+                              "
+                              (executiveSummaryToggle)="
+                                onExecutiveSummaryToggle(
+                                  $event.executiveSummaryId,
+                                  $event.checked
+                                )
+                              "
+                              (generateExecutiveSummary)="
+                                openGenerateExecutiveSummaryDialog()
+                              "
+                              (highlightRow)="
+                                highlightRow($event.row, $event.index)
+                              "
                               (openPublishPdf)="openPublishPdf($event)"
-                              (highlightRow)="highlightRow($event.row, $event.index)">
+                              (publishReport)="publishExecutiveSummary()"
+                              (toggleAll)="toggleAllExecutiveSummaries($event)"
+                              (uploadManualPublishReport)="
+                                onUploadManualPublishReport($event)
+                              "
+                              (viewPdfV2)="
+                                viewPdfV2ForExecutiveSummary($event)
+                              ">
                             </app-executive-summary>
                           </div>
                         </mat-tab>

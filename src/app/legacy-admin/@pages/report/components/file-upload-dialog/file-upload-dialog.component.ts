@@ -35,7 +35,8 @@ export class FileUploadDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<FileUploadDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { eventId?: string; reportType?: string }
+    @Inject(MAT_DIALOG_DATA)
+    public data: { eventId?: string; reportType?: string }
   ) {}
 
   /**
@@ -120,7 +121,6 @@ export class FileUploadDialogComponent {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 }
-

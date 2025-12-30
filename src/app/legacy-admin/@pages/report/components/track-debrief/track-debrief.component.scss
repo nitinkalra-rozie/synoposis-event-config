@@ -136,7 +136,9 @@
     overflow-x: auto;
 
     @media (max-width: 768px) {
-      width: calc(100vw - 40px); // Smaller padding on mobile (20px on each side)
+      width: calc(
+        100vw - 40px
+      ); // Smaller padding on mobile (20px on each side)
     }
 
     @media (min-width: 1200px) {
@@ -182,4 +184,3 @@
     }
   }
 }
-

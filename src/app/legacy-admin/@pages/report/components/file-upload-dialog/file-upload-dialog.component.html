@@ -10,10 +10,10 @@
     <div class="upload-section">
       <input
         #fileInput
-        type="file"
-        accept=".pdf,application/pdf"
         (change)="onFileSelected($event)"
-        style="display: none" />
+        accept=".pdf,application/pdf"
+        style="display: none"
+        type="file" />
 
       @if (!selectedFile) {
         <div class="file-input-area" (click)="openFileDialog()">
@@ -31,8 +31,8 @@
             </div>
             <button
               mat-icon-button
-              (click)="removeFile()"
-              class="remove-button">
+              class="remove-button"
+              (click)="removeFile()">
               <mat-icon>close</mat-icon>
             </button>
           </div>
@@ -48,18 +48,17 @@
     </div>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end" class="dialog-actions">
-    <button mat-button (click)="onCancel()" [disabled]="isUploading">
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-button [disabled]="isUploading" (click)="onCancel()">
       Cancel
     </button>
     <button
       mat-raised-button
-      color="primary"
+      [disabled]="!selectedFile || isUploading"
       (click)="onUpload()"
-      [disabled]="!selectedFile || isUploading">
+      color="primary">
       <mat-icon>upload</mat-icon>
       Upload
     </button>
   </mat-dialog-actions>
 </div>
-

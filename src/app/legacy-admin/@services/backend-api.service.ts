@@ -47,10 +47,15 @@ export class BackendApiService {
   }
 
   updateAgenda(data: Session[], timezone: string = ''): Observable<Object> {
+    // Get eventName from the first session in the data array
+    const eventName = data && data.length > 0 && data[0].Event 
+      ? data[0].Event 
+      : this._backendApiService.getCurrentEventName();
+    
     const body = {
       clearCurrentEvents: false,
       timeZoneUpdate: timezone,
-      eventName: this._backendApiService.getCurrentEventName(),
+      eventName: eventName,
       eventDetails: data,
     };
     return this.http.post(environment.updateAgendaUrl, body);
@@ -230,11 +235,15 @@ export class BackendApiService {
     // Replace the endpoint path while keeping the base URL
     let apiUrl = environment.publishContentPDFUrl;
     if (apiUrl && apiUrl.includes('/publish-pdf-content')) {
-      apiUrl = apiUrl.replace('/publish-pdf-content', '/publish-debrief-reports');
+      apiUrl = apiUrl.replace(
+        '/publish-pdf-content',
+        '/publish-debrief-reports'
+      );
     } else {
       // Fallback: construct URL from base pattern
-      const baseUrl = environment.publishContentPDFUrl?.split('/').slice(0, -1).join('/') || 
-                     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev';
+      const baseUrl =
+        environment.publishContentPDFUrl?.split('/').slice(0, -1).join('/') ||
+        'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev';
       apiUrl = `${baseUrl}/publish-debrief-reports`;
     }
 
@@ -247,7 +256,10 @@ export class BackendApiService {
    * @param {File} file - The PDF file to upload
    * @returns {Observable<Object>} Observable of the API response
    */
-  uploadManualExecutiveSummary(eventId: string, file: File): Observable<Object> {
+  uploadManualExecutiveSummary(
+    eventId: string,
+    file: File
+  ): Observable<Object> {
     const headers = new HttpHeaders({
       'x-api-key': environment.X_API_KEY || '',
       'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
@@ -258,7 +270,11 @@ export class BackendApiService {
     formData.append('file', file);
     formData.append('eventId', eventId);
 
-    return this.http.post(environment.uploadManualExecutiveSummaryUrl, formData, { headers });
+    return this.http.post(
+      environment.uploadManualExecutiveSummaryUrl,
+      formData,
+      { headers }
+    );
   }
 
   generateContent(data: any): Observable<Object> {
@@ -371,6 +387,27 @@ export class BackendApiService {
     };
 
     return this.http.post(environment.truncateSpeakerBioUrl, body);
+  }
+
+  /**
+   * Deletes a session/event with S3 backup.
+   * @param {string} eventName - The event name
+   * @param {string} sessionId - The session ID to delete
+   * @returns {Observable<Object>} Observable of the API response
+   */
+  deleteEvent(eventName: string, sessionId: string): Observable<Object> {
+    const headers = new HttpHeaders({
+      'x-api-key': environment.X_API_KEY || '',
+      'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
+      'Content-Type': 'application/json',
+    });
+
+    const body = {
+      event: eventName,
+      sessionId: sessionId,
+    };
+
+    return this.http.post(environment.deleteEventUrl, body, { headers });
   }
 
   /**

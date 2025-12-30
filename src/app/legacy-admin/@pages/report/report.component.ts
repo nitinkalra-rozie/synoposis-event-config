@@ -220,10 +220,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     | 'publishPdfOnly'
     | 'noPublishPdf' = 'all';
   /** PDF filter mode for track debrief: 'all' | 'hasV2' | 'noV2' */
-  public trackDebriefPdfFilterMode:
-    | 'all'
-    | 'hasV2'
-    | 'noV2' = 'all';
+  public trackDebriefPdfFilterMode: 'all' | 'hasV2' | 'noV2' = 'all';
   /** Brief filter mode: 'daily_debrief' | 'track_debrief' */
   public briefFilterMode: 'daily_debrief' | 'track_debrief' = 'daily_debrief';
   /** Filter mode for PDF V1 and V2: 'all' | 'pdfV1Only' | 'pdfV2Only' | 'both' | 'either' | 'neither' */
@@ -841,7 +838,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Update the track debrief data source
     this.trackDebriefDataSource = new MatTableDataSource(uniqueTracksData);
-    console.log('Track Debrief displayedColumns:', this.displayedColumnsTrackDebrief);
+    console.log(
+      'Track Debrief displayedColumns:',
+      this.displayedColumnsTrackDebrief
+    );
     console.log('Track Debrief data:', uniqueTracksData);
     // Set up filter predicate for track search, publish filter, and PDF filter
     this.setupTrackDebriefFilterPredicate();
@@ -870,7 +870,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       // Text search filter
       const textMatch =
         !this.trackSearchFilter ||
-        data.Track?.toLowerCase().includes(this.trackSearchFilter.toLowerCase()) ||
+        data.Track?.toLowerCase().includes(
+          this.trackSearchFilter.toLowerCase()
+        ) ||
         false;
 
       // Publish PDF filter
@@ -972,7 +974,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Update the daily debrief data source
     this.dailyDebriefDataSource = new MatTableDataSource(uniqueEventDaysData);
-    console.log('Daily Debrief displayedColumns:', this.displayedColumnsDailyDebrief);
+    console.log(
+      'Daily Debrief displayedColumns:',
+      this.displayedColumnsDailyDebrief
+    );
     console.log('Daily Debrief data:', uniqueEventDaysData);
     // Set up filter predicate for event day filter
     this.dailyDebriefDataSource.filterPredicate = (
@@ -1077,10 +1082,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   onTrackDebriefPdfFilterModeChange(mode: string): void {
-    this.trackDebriefPdfFilterMode = mode as
-      | 'all'
-      | 'hasV2'
-      | 'noV2';
+    this.trackDebriefPdfFilterMode = mode as 'all' | 'hasV2' | 'noV2';
     console.log('Track Debrief PDF Filter changed to:', mode);
     // Trigger filter by forcing a re-evaluation
     this.applyTrackDebriefFilters();
@@ -1100,7 +1102,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
     // Get current filter value
     const currentFilter = this.trackSearchFilter || '';
-    
+
     // Force filter re-evaluation by temporarily clearing and resetting
     // This ensures the predicate is re-run with updated filter modes
     this.trackDebriefDataSource.filter = '';
@@ -1127,7 +1129,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
     if (this.sort) {
       this.trackDebriefDataSource.sort = this.sort;
     }
-    
+
     // Log filter state for debugging
     const filteredData = this.trackDebriefDataSource.filteredData;
     console.log('Track Debrief filter applied:', {
@@ -1136,9 +1138,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       pdfFilter: this.trackDebriefPdfFilterMode,
       filteredCount: filteredData?.length || 0,
       totalCount: this.trackDebriefDataSource.data?.length || 0,
-      filterValue: this.trackDebriefDataSource.filter
+      filterValue: this.trackDebriefDataSource.filter,
     });
-    
+
     // Force change detection
     this.cdr.markForCheck();
     this.cdr.detectChanges();
@@ -1221,7 +1223,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
       // Track Debrief tab
       this.generateUniqueTracksData();
     }
-    
+
     // Map report URLs after regenerating data to preserve published PDF URLs
     setTimeout(() => {
       this.mapReportUrlsToDailyAndTrackDebriefs();
@@ -1277,7 +1279,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {any[]} Array of filtered track debrief rows
    */
   getFilteredTrackDebriefs(): any[] {
-    return this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    return (
+      this.trackDebriefDataSource.filteredData ||
+      this.trackDebriefDataSource.data ||
+      []
+    );
   }
 
   /**
@@ -1816,22 +1822,37 @@ export class ReportComponent implements OnInit, AfterViewInit {
    */
   mapReportUrlsToDailyAndTrackDebriefs(): void {
     if (!this.eventReportDetails) {
-      console.log('mapReportUrlsToDailyAndTrackDebriefs: No eventReportDetails');
+      console.log(
+        'mapReportUrlsToDailyAndTrackDebriefs: No eventReportDetails'
+      );
       return;
     }
 
     // Handle both possible response structures: eventReportDetails.data or eventReportDetails directly
-    const responseData = this.eventReportDetails.data || this.eventReportDetails;
-    
+    const responseData =
+      this.eventReportDetails.data || this.eventReportDetails;
+
     if (!responseData) {
       console.log('mapReportUrlsToDailyAndTrackDebriefs: No response data');
       return;
     }
 
-    console.log('mapReportUrlsToDailyAndTrackDebriefs: responseData', responseData);
-    console.log('mapReportUrlsToDailyAndTrackDebriefs: tracks', responseData.tracks);
-    console.log('mapReportUrlsToDailyAndTrackDebriefs: dailyReport', responseData.dailyReport);
-    console.log('mapReportUrlsToDailyAndTrackDebriefs: executiveSummaryReport', responseData.executiveSummaryReport);
+    console.log(
+      'mapReportUrlsToDailyAndTrackDebriefs: responseData',
+      responseData
+    );
+    console.log(
+      'mapReportUrlsToDailyAndTrackDebriefs: tracks',
+      responseData.tracks
+    );
+    console.log(
+      'mapReportUrlsToDailyAndTrackDebriefs: dailyReport',
+      responseData.dailyReport
+    );
+    console.log(
+      'mapReportUrlsToDailyAndTrackDebriefs: executiveSummaryReport',
+      responseData.executiveSummaryReport
+    );
 
     // Map track report URLs
     if (responseData.tracks && Array.isArray(responseData.tracks)) {
@@ -1839,19 +1860,33 @@ export class ReportComponent implements OnInit, AfterViewInit {
       responseData.tracks.forEach((trackReport: any) => {
         if (trackReport.Track && trackReport.ReportUrl) {
           trackReportUrlMap.set(trackReport.Track, trackReport.ReportUrl);
-          console.log(`Mapped track: ${trackReport.Track} -> ${trackReport.ReportUrl}`);
+          console.log(
+            `Mapped track: ${trackReport.Track} -> ${trackReport.ReportUrl}`
+          );
         }
       });
 
-      console.log('Track report URL map:', Array.from(trackReportUrlMap.entries()));
+      console.log(
+        'Track report URL map:',
+        Array.from(trackReportUrlMap.entries())
+      );
 
       // Update track debrief data source
-      if (this.trackDebriefDataSource && this.trackDebriefDataSource.data && this.trackDebriefDataSource.data.length > 0) {
-        console.log('Track debrief data source rows:', this.trackDebriefDataSource.data.length);
+      if (
+        this.trackDebriefDataSource &&
+        this.trackDebriefDataSource.data &&
+        this.trackDebriefDataSource.data.length > 0
+      ) {
+        console.log(
+          'Track debrief data source rows:',
+          this.trackDebriefDataSource.data.length
+        );
         const updatedData = this.trackDebriefDataSource.data.map((row: any) => {
           const reportUrl = trackReportUrlMap.get(row.Track);
           if (reportUrl) {
-            console.log(`Found report URL for track ${row.Track}: ${reportUrl}`);
+            console.log(
+              `Found report URL for track ${row.Track}: ${reportUrl}`
+            );
           }
           return {
             ...row,
@@ -1859,9 +1894,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
           };
         });
         // Update data source - create new instance to ensure change detection
-        const currentPaginator = this.trackDebriefDataSource.paginator || this.trackDebriefPaginator;
+        const currentPaginator =
+          this.trackDebriefDataSource.paginator || this.trackDebriefPaginator;
         const currentSort = this.trackDebriefDataSource.sort || this.sort;
-        const currentFilter = this.trackDebriefDataSource.filter || this.trackSearchFilter || ' ';
+        const currentFilter =
+          this.trackDebriefDataSource.filter || this.trackSearchFilter || ' ';
         this.trackDebriefDataSource = new MatTableDataSource(updatedData);
         // Restore filter predicate
         this.setupTrackDebriefFilterPredicate();
@@ -1894,19 +1931,33 @@ export class ReportComponent implements OnInit, AfterViewInit {
       responseData.dailyReport.forEach((dailyReport: any) => {
         if (dailyReport.Day && dailyReport.ReportUrl) {
           dailyReportUrlMap.set(dailyReport.Day, dailyReport.ReportUrl);
-          console.log(`Mapped daily report: ${dailyReport.Day} -> ${dailyReport.ReportUrl}`);
+          console.log(
+            `Mapped daily report: ${dailyReport.Day} -> ${dailyReport.ReportUrl}`
+          );
         }
       });
 
-      console.log('Daily report URL map:', Array.from(dailyReportUrlMap.entries()));
+      console.log(
+        'Daily report URL map:',
+        Array.from(dailyReportUrlMap.entries())
+      );
 
       // Update daily debrief data source
-      if (this.dailyDebriefDataSource && this.dailyDebriefDataSource.data && this.dailyDebriefDataSource.data.length > 0) {
-        console.log('Daily debrief data source rows:', this.dailyDebriefDataSource.data.length);
+      if (
+        this.dailyDebriefDataSource &&
+        this.dailyDebriefDataSource.data &&
+        this.dailyDebriefDataSource.data.length > 0
+      ) {
+        console.log(
+          'Daily debrief data source rows:',
+          this.dailyDebriefDataSource.data.length
+        );
         const updatedData = this.dailyDebriefDataSource.data.map((row: any) => {
           const reportUrl = dailyReportUrlMap.get(row.EventDay);
           if (reportUrl) {
-            console.log(`Found report URL for event day ${row.EventDay}: ${reportUrl}`);
+            console.log(
+              `Found report URL for event day ${row.EventDay}: ${reportUrl}`
+            );
           }
           return {
             ...row,
@@ -1914,7 +1965,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
           };
         });
 
-        console.log('Updated daily debrief data source with report URLs', updatedData);
+        console.log(
+          'Updated daily debrief data source with report URLs',
+          updatedData
+        );
         // Update data source - create new instance to ensure change detection
         const currentPaginator = this.dailyDebriefDataSource.paginator;
         const currentSort = this.dailyDebriefDataSource.sort;
@@ -1935,17 +1989,32 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     // Map executive summary report URL
-    if (responseData.executiveSummaryReport && responseData.executiveSummaryReport.ReportUrl) {
-      const executiveSummaryReportUrl = responseData.executiveSummaryReport.ReportUrl;
-      console.log(`Mapped executive summary report URL: ${executiveSummaryReportUrl}`);
+    if (
+      responseData.executiveSummaryReport &&
+      responseData.executiveSummaryReport.ReportUrl
+    ) {
+      const executiveSummaryReportUrl =
+        responseData.executiveSummaryReport.ReportUrl;
+      console.log(
+        `Mapped executive summary report URL: ${executiveSummaryReportUrl}`
+      );
 
       // Update executive summary data source
-      if (this.executiveSummaryDataSource && this.executiveSummaryDataSource.data && this.executiveSummaryDataSource.data.length > 0) {
-        console.log('Executive summary data source rows:', this.executiveSummaryDataSource.data.length);
-        const updatedData = this.executiveSummaryDataSource.data.map((row: any) => ({
-          ...row,
-          reportUrl: executiveSummaryReportUrl || row.reportUrl || '',
-        }));
+      if (
+        this.executiveSummaryDataSource &&
+        this.executiveSummaryDataSource.data &&
+        this.executiveSummaryDataSource.data.length > 0
+      ) {
+        console.log(
+          'Executive summary data source rows:',
+          this.executiveSummaryDataSource.data.length
+        );
+        const updatedData = this.executiveSummaryDataSource.data.map(
+          (row: any) => ({
+            ...row,
+            reportUrl: executiveSummaryReportUrl || row.reportUrl || '',
+          })
+        );
         // Update data source - create new instance to ensure change detection
         const currentPaginator = this.executiveSummaryDataSource.paginator;
         const currentSort = this.executiveSummaryDataSource.sort;
@@ -1959,7 +2028,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
         this.cdr.detectChanges();
         console.log('Updated executive summary data source with report URL');
       } else {
-        console.log('Executive summary data source is empty or not initialized');
+        console.log(
+          'Executive summary data source is empty or not initialized'
+        );
       }
     } else {
       console.log('No executiveSummaryReport in response data');
@@ -2656,7 +2727,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {any} Object with pdfPathV1, pdfPathV2, and version
    * @private
    */
-  private getLatestPdfPathsForExecutiveSummary(executiveSummaryId: string): any {
+  private getLatestPdfPathsForExecutiveSummary(
+    executiveSummaryId: string
+  ): any {
     if (!this.selectedEvent || !this.contentVersions || !executiveSummaryId) {
       return null;
     }
@@ -2717,7 +2790,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     const executiveSummaryId = 'ExecSummary';
-    const pdfPaths = this.getLatestPdfPathsForExecutiveSummary(executiveSummaryId);
+    const pdfPaths =
+      this.getLatestPdfPathsForExecutiveSummary(executiveSummaryId);
 
     const executiveSummaryData: any[] = [];
     if (pdfPaths && pdfPaths.version > 0) {
@@ -2731,7 +2805,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
     }
 
     // Update the executive summary data source
-    this.executiveSummaryDataSource = new MatTableDataSource(executiveSummaryData);
+    this.executiveSummaryDataSource = new MatTableDataSource(
+      executiveSummaryData
+    );
     setTimeout(() => {
       this.executiveSummaryDataSource.sort = this.sort;
       if (this.paginator) {
@@ -2784,7 +2860,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @param {string} eventTitle - The event title
    * @returns {void}
    */
-  private generateExecutiveSummary(eventDays: string[], eventTitle: string): void {
+  private generateExecutiveSummary(
+    eventDays: string[],
+    eventTitle: string
+  ): void {
     if (!eventDays || eventDays.length === 0) {
       return;
     }
@@ -2839,8 +2918,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   viewPdfV2ForExecutiveSummary(executiveSummaryRow: any): void {
-    if (!executiveSummaryRow.executiveSummaryId || !executiveSummaryRow.pdfPathV2) {
-      this.displayErrorMessage('PDF V2 not available for this executive summary.');
+    if (
+      !executiveSummaryRow.executiveSummaryId ||
+      !executiveSummaryRow.pdfPathV2
+    ) {
+      this.displayErrorMessage(
+        'PDF V2 not available for this executive summary.'
+      );
       return;
     }
 
@@ -2848,7 +2932,9 @@ export class ReportComponent implements OnInit, AfterViewInit {
       executiveSummaryRow.executiveSummaryId
     );
     if (!pdfPaths || !pdfPaths.pdfPathV2) {
-      this.displayErrorMessage('PDF V2 not available for this executive summary.');
+      this.displayErrorMessage(
+        'PDF V2 not available for this executive summary.'
+      );
       return;
     }
 
@@ -2897,8 +2983,13 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   editContentForExecutiveSummary(executiveSummaryRow: any): void {
-    if (!executiveSummaryRow.executiveSummaryId || !executiveSummaryRow.version) {
-      this.displayErrorMessage('No version available for this executive summary.');
+    if (
+      !executiveSummaryRow.executiveSummaryId ||
+      !executiveSummaryRow.version
+    ) {
+      this.displayErrorMessage(
+        'No version available for this executive summary.'
+      );
       return;
     }
 
@@ -3003,7 +3094,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {boolean} True if all are selected, false otherwise
    */
   isAllDailyDebriefsSelected(): boolean {
-    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    const filteredData =
+      this.dailyDebriefDataSource.filteredData ||
+      this.dailyDebriefDataSource.data ||
+      [];
     return (
       filteredData.length > 0 &&
       filteredData.every((row: any) =>
@@ -3017,7 +3111,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {boolean} True if some are selected, false otherwise
    */
   isDailyDebriefIndeterminate(): boolean {
-    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    const filteredData =
+      this.dailyDebriefDataSource.filteredData ||
+      this.dailyDebriefDataSource.data ||
+      [];
     const selectedCount = filteredData.filter((row: any) =>
       this.selectedDailyDebriefs.has(row.EventDay)
     ).length;
@@ -3030,7 +3127,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   toggleAllDailyDebriefs(checked: boolean): void {
-    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    const filteredData =
+      this.dailyDebriefDataSource.filteredData ||
+      this.dailyDebriefDataSource.data ||
+      [];
     if (checked) {
       filteredData.forEach((row: any) => {
         if (row.version) {
@@ -3056,11 +3156,19 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const filteredData = this.dailyDebriefDataSource.filteredData || this.dailyDebriefDataSource.data || [];
+    const filteredData =
+      this.dailyDebriefDataSource.filteredData ||
+      this.dailyDebriefDataSource.data ||
+      [];
     const selectedRows = filteredData.filter((row: any) => {
-      const hasPdfV2 = row.pdfPathV2 && 
-        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
-      return this.selectedDailyDebriefs.has(row.EventDay) && row.version && hasPdfV2;
+      const hasPdfV2 =
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2);
+      return (
+        this.selectedDailyDebriefs.has(row.EventDay) && row.version && hasPdfV2
+      );
     });
 
     if (selectedRows.length === 0) {
@@ -3171,7 +3279,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {boolean} True if all are selected, false otherwise
    */
   isAllTrackDebriefsSelected(): boolean {
-    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    const filteredData =
+      this.trackDebriefDataSource.filteredData ||
+      this.trackDebriefDataSource.data ||
+      [];
     return (
       filteredData.length > 0 &&
       filteredData.every((row: any) =>
@@ -3185,7 +3296,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {boolean} True if some are selected, false otherwise
    */
   isTrackDebriefIndeterminate(): boolean {
-    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    const filteredData =
+      this.trackDebriefDataSource.filteredData ||
+      this.trackDebriefDataSource.data ||
+      [];
     const selectedCount = filteredData.filter((row: any) =>
       this.selectedTrackDebriefs.has(row.Track)
     ).length;
@@ -3198,7 +3312,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   toggleAllTrackDebriefs(checked: boolean): void {
-    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    const filteredData =
+      this.trackDebriefDataSource.filteredData ||
+      this.trackDebriefDataSource.data ||
+      [];
     if (checked) {
       filteredData.forEach((row: any) => {
         if (row.version) {
@@ -3224,11 +3341,19 @@ export class ReportComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const filteredData = this.trackDebriefDataSource.filteredData || this.trackDebriefDataSource.data || [];
+    const filteredData =
+      this.trackDebriefDataSource.filteredData ||
+      this.trackDebriefDataSource.data ||
+      [];
     const selectedRows = filteredData.filter((row: any) => {
-      const hasPdfV2 = row.pdfPathV2 && 
-        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
-      return this.selectedTrackDebriefs.has(row.Track) && row.version && hasPdfV2;
+      const hasPdfV2 =
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2);
+      return (
+        this.selectedTrackDebriefs.has(row.Track) && row.version && hasPdfV2
+      );
     });
 
     if (selectedRows.length === 0) {
@@ -3338,7 +3463,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {boolean} True if all are selected, false otherwise
    */
   isAllExecutiveSummariesSelected(): boolean {
-    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    const filteredData =
+      this.executiveSummaryDataSource.filteredData ||
+      this.executiveSummaryDataSource.data ||
+      [];
     return (
       filteredData.length > 0 &&
       filteredData.every((row: any) =>
@@ -3352,7 +3480,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {boolean} True if some are selected, false otherwise
    */
   isExecutiveSummaryIndeterminate(): boolean {
-    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    const filteredData =
+      this.executiveSummaryDataSource.filteredData ||
+      this.executiveSummaryDataSource.data ||
+      [];
     const selectedCount = filteredData.filter((row: any) =>
       this.selectedExecutiveSummaries.has(row.executiveSummaryId)
     ).length;
@@ -3365,7 +3496,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   toggleAllExecutiveSummaries(checked: boolean): void {
-    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    const filteredData =
+      this.executiveSummaryDataSource.filteredData ||
+      this.executiveSummaryDataSource.data ||
+      [];
     if (checked) {
       filteredData.forEach((row: any) => {
         if (row.version) {
@@ -3384,10 +3518,16 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   publishExecutiveSummary(): void {
-    const filteredData = this.executiveSummaryDataSource.filteredData || this.executiveSummaryDataSource.data || [];
+    const filteredData =
+      this.executiveSummaryDataSource.filteredData ||
+      this.executiveSummaryDataSource.data ||
+      [];
     const rowsToPublish = filteredData.filter((row: any) => {
-      const hasPdfV2 = row.pdfPathV2 && 
-        (typeof row.pdfPathV2 === 'string' ? row.pdfPathV2.trim().length > 0 : row.pdfPathV2);
+      const hasPdfV2 =
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2);
       return row.version && hasPdfV2;
     });
 
@@ -3484,9 +3624,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
 
     // Use selectedEvent from parent if eventId is not provided
     const eventId = data.eventId || this.selectedEvent;
-    
+
     if (!eventId) {
-      this.displayErrorMessage('Event ID is required for upload. Please select an event first.');
+      this.displayErrorMessage(
+        'Event ID is required for upload. Please select an event first.'
+      );
       return;
     }
 
@@ -3507,9 +3649,7 @@ export class ReportComponent implements OnInit, AfterViewInit {
         catchError((error) => {
           dialogRef.close();
           console.error('Error uploading file:', error);
-          this.displayErrorMessage(
-            'Failed to upload file. Please try again.'
-          );
+          this.displayErrorMessage('Failed to upload file. Please try again.');
           return of(null);
         })
       )
@@ -3784,7 +3924,8 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.selectedTrackDebriefs.clear();
 
     // Convert to 0-based indices and ensure they're within bounds
-    const from = Math.max(1, Math.min(fromNum, filteredTrackDebriefs.length)) - 1;
+    const from =
+      Math.max(1, Math.min(fromNum, filteredTrackDebriefs.length)) - 1;
     const to = Math.max(1, Math.min(toNum, filteredTrackDebriefs.length)) - 1;
 
     // Ensure from is less than or equal to to
@@ -4166,7 +4307,11 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
         dialogRef.close();
-        this.openMarkdownDialog(response, sessionWithVersion.pdfVersion!, sessionWithVersion);
+        this.openMarkdownDialog(
+          response,
+          sessionWithVersion.pdfVersion!,
+          sessionWithVersion
+        );
       },
       error: (error) => {
         dialogRef.close();

@@ -87,7 +87,9 @@
           </mat-option>
           <mat-option value="neither">
             <div>
-              <div><strong>Neither (No Publish PDF & No Audio File)</strong></div>
+              <div>
+                <strong>Neither (No Publish PDF & No Audio File)</strong>
+              </div>
               <div style="font-size: 12px; color: #666">
                 Sessions without published PDF or audio file
               </div>
@@ -199,11 +201,7 @@
     </div>
   </div>
 
-  <table
-    mat-table
-    matSort
-    class="versions-table"
-    [dataSource]="dataSource">
+  <table mat-table matSort class="versions-table" [dataSource]="dataSource">
     <!-- Checkbox Column -->
     <ng-container matColumnDef="select">
       <th *matHeaderCellDef mat-header-cell>
@@ -452,7 +450,9 @@
           <button
             mat-icon-button
             matTooltip="Open Published PDF"
-            (click)="onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()">
+            (click)="
+              onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()
+            ">
             <mat-icon>picture_as_pdf</mat-icon>
           </button>
         } @else {
@@ -473,7 +473,9 @@
           <button
             mat-icon-button
             matTooltip="Play Audio File"
-            (click)="onOpenAudioPlayer(row.audioSegmentUrl!); $event.stopPropagation()">
+            (click)="
+              onOpenAudioPlayer(row.audioSegmentUrl!); $event.stopPropagation()
+            ">
             <mat-icon>audiotrack</mat-icon>
           </button>
         } @else {
@@ -493,4 +495,3 @@
     showFirstLastButtons>
   </mat-paginator>
 </div>
-

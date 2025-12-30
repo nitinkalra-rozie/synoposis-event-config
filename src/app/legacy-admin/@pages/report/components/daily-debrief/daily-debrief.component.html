@@ -20,7 +20,11 @@
       <button
         mat-raised-button
         matTooltip="Generate PDF V2 for selected event days"
-        [disabled]="!selectedEvent || uniqueDays.length === 0 || selectedDailyDebriefs.size === 0"
+        [disabled]="
+          !selectedEvent ||
+          uniqueDays.length === 0 ||
+          selectedDailyDebriefs.size === 0
+        "
         (click)="generateDailyDebrief.emit()"
         color="primary">
         <mat-icon>add</mat-icon>
@@ -39,11 +43,7 @@
     </div>
   </div>
   <div class="daily-debrief-table-wrapper">
-    <table
-      mat-table
-      matSort
-      class="versions-table"
-      [dataSource]="dataSource">
+    <table mat-table matSort class="versions-table" [dataSource]="dataSource">
       <!-- Checkbox Column -->
       <ng-container matColumnDef="select">
         <th *matHeaderCellDef mat-header-cell>
@@ -60,7 +60,6 @@
           (click)="onHighlightRow(row, i)">
           <mat-checkbox
             [checked]="isDailyDebriefSelected(row.EventDay)"
-          
             (change)="onDailyDebriefToggle(row.EventDay, $event.checked)"
             (click)="$event.stopPropagation()">
           </mat-checkbox>
@@ -145,7 +144,9 @@
             <button
               mat-icon-button
               matTooltip="Open Published PDF"
-              (click)="onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()">
+              (click)="
+                onOpenPublishPdf(row.reportUrl!); $event.stopPropagation()
+              ">
               <mat-icon>picture_as_pdf</mat-icon>
             </button>
           } @else {
@@ -166,4 +167,3 @@
     </mat-paginator>
   </div>
 </div>
-
