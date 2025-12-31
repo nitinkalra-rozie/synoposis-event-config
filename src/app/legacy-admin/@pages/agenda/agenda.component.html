@@ -13,8 +13,7 @@
               </div>
             </div>
 
-            <div class="action-buttons">
-            </div>
+            <div class="action-buttons"></div>
           </div>
 
           <!-- Event Dropdown -->
@@ -189,44 +188,20 @@
 
                     <!-- Start Date Column -->
                     <ng-container matColumnDef="startDate">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                      <th
+                        *matHeaderCellDef
+                        mat-header-cell
+                        mat-sort-header
+                        class="start-date-header">
                         Start Date
                       </th>
                       <td
                         *matCellDef="let row; let i = index"
                         mat-cell
+                        class="start-date-cell"
                         [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)"
-                        style="min-width: 110px">
+                        (click)="highlightRow(row, i)">
                         {{ row.StartsAt | date: 'yyyy-MM-dd' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Start Time Column -->
-                    <ng-container matColumnDef="startTime">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        Start Time
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.StartsAt | date: 'HH:mm' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- End Time Column -->
-                    <ng-container matColumnDef="endTime">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
-                        End Time
-                      </th>
-                      <td
-                        *matCellDef="let row; let i = index"
-                        mat-cell
-                        [class.selected]="selectedRowIndex === i"
-                        (click)="highlightRow(row, i)">
-                        {{ row.EndsAt | date: 'HH:mm' }}
                       </td>
                     </ng-container>
 
@@ -246,15 +221,31 @@
 
                     <!-- Session Title Column -->
                     <ng-container matColumnDef="title">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                      <th
+                        *matHeaderCellDef
+                        mat-header-cell
+                        mat-sort-header
+                        class="session-title-header">
                         Session Title
                       </th>
                       <td
                         *matCellDef="let row; let i = index"
                         mat-cell
+                        class="session-title-cell"
                         [class.selected]="selectedRowIndex === i"
                         (click)="highlightRow(row, i)">
-                        {{ row.SessionTitle }}
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span>{{ row.SessionTitle }}</span>
+                          <button
+                            mat-icon-button
+                            class="copy-session-title-button"
+                            (click)="copySessionTitle(row.SessionTitle); $event.stopPropagation()"
+                            type="button"
+                            matTooltip="Copy Session Title"
+                            matTooltipPosition="above">
+                            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">content_copy</mat-icon>
+                          </button>
+                        </div>
                       </td>
                     </ng-container>
 
@@ -273,7 +264,18 @@
                         class="session-id-cell"
                         [class.selected]="selectedRowIndex === i"
                         (click)="highlightRow(row, i)">
-                        {{ row.SessionId }}
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span>{{ row.SessionId }}</span>
+                          <button
+                            mat-icon-button
+                            class="copy-session-id-button"
+                            (click)="copySessionId(row.SessionId); $event.stopPropagation()"
+                            type="button"
+                            matTooltip="Copy Session ID"
+                            matTooltipPosition="above">
+                            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">content_copy</mat-icon>
+                          </button>
+                        </div>
                       </td>
                     </ng-container>
 
@@ -359,26 +361,47 @@
 
                     <!-- Track Column -->
                     <ng-container matColumnDef="track">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                      <th
+                        *matHeaderCellDef
+                        mat-header-cell
+                        mat-sort-header
+                        class="track-header">
                         Track
                       </th>
                       <td
                         *matCellDef="let row; let i = index"
                         mat-cell
+                        class="track-cell"
                         [class.selected]="selectedRowIndex === i"
                         (click)="highlightRow(row, i)">
-                        {{ row.Track }}
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span>{{ row.Track }}</span>
+                          <button
+                            mat-icon-button
+                            class="copy-track-button"
+                            (click)="copyTrack(row.Track); $event.stopPropagation()"
+                            type="button"
+                            matTooltip="Copy Track"
+                            matTooltipPosition="above">
+                            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">content_copy</mat-icon>
+                          </button>
+                        </div>
                       </td>
                     </ng-container>
 
                     <!-- Type Column -->
                     <ng-container matColumnDef="Type">
-                      <th *matHeaderCellDef mat-header-cell mat-sort-header>
+                      <th
+                        *matHeaderCellDef
+                        mat-header-cell
+                        mat-sort-header
+                        class="type-header">
                         Type
                       </th>
                       <td
                         *matCellDef="let row; let i = index"
                         mat-cell
+                        class="type-cell"
                         [class.selected]="selectedRowIndex === i"
                         (click)="highlightRow(row, i)">
                         {{ row.Type }}
@@ -442,7 +465,7 @@
                         *matCellDef="let row"
                         mat-cell
                         class="expanded-row"
-                        colspan="12">
+                        colspan="10">
                         @if (
                           isSessionExpanded(row.SessionId) && hasSpeakers(row)
                         ) {

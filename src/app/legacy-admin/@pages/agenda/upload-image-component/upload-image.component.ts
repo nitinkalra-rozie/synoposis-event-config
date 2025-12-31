@@ -202,4 +202,3 @@ export class UploadImageComponent {
     return true;
   }
 }
-

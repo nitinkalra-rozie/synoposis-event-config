@@ -11,7 +11,9 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -22,6 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -47,10 +50,11 @@ import { FileFilterMode, PdfFilterMode, Session } from '../shared/report.types';
     MatSelectModule,
     MatInputModule,
     MatTooltipModule,
+    MatSnackBarModule,
     DatePipe,
   ],
 })
-export class SessionDebriefComponent implements AfterViewInit {
+export class SessionDebriefComponent implements AfterViewInit, OnChanges {
   @Input() public dataSource!: MatTableDataSource<Session>;
   @Input() public displayedColumns: string[] = [];
   @Input() public selectedSessions: Set<string> = new Set();
@@ -96,7 +100,10 @@ export class SessionDebriefComponent implements AfterViewInit {
   protected readonly EventStatus = EventStatus;
   public selectedRowIndex: number | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar
+  ) {}
 
   isSessionSelected(sessionId: string): boolean {
     return this.selectedSessions.has(sessionId);
@@ -150,11 +157,53 @@ export class SessionDebriefComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.dataSource && this.sort) {
+    // Connect sort and paginator after view initialization
+    // Use setTimeout to ensure view is fully ready
+    setTimeout(() => {
+      this.connectSortAndPaginator();
+    }, 0);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Reconnect when relevant inputs change
+    if (changes['dataSource'] || changes['pageSize']) {
+      // Use setTimeout to ensure view is ready
+      setTimeout(() => {
+        this.connectSortAndPaginator();
+        this.cdr.markForCheck();
+      }, 0);
+    }
+  }
+
+  private connectSortAndPaginator(): void {
+    if (!this.dataSource) {
+      return;
+    }
+
+    // Connect sort - ensure it's always connected
+    if (this.sort) {
       this.dataSource.sort = this.sort;
     }
-    if (this.dataSource && this.paginator) {
+
+    // Connect paginator - ensure it's always connected
+    if (this.paginator) {
+      // Disconnect any existing paginator first to avoid conflicts
+      if (this.dataSource.paginator && this.dataSource.paginator !== this.paginator) {
+        this.dataSource.paginator = null;
+      }
+      
+      // Connect this component's paginator to dataSource
+      // This enables client-side pagination - MatTableDataSource will automatically
+      // limit the displayed rows based on the paginator's pageSize and pageIndex
       this.dataSource.paginator = this.paginator;
+      
+      // Ensure paginator pageSize is set
+      if (this.pageSize) {
+        this.paginator.pageSize = this.pageSize;
+      }
+      
+      // Trigger change detection to ensure UI updates
+      this.cdr.markForCheck();
     }
   }
 
@@ -181,5 +230,92 @@ export class SessionDebriefComponent implements AfterViewInit {
   onHighlightRow(row: Session, index: number): void {
     this.selectedRowIndex = index;
     this.highlightRow.emit({ row, index });
+  }
+
+  /**
+   * Copies the session ID to the clipboard and shows a success message.
+   * @param {string} sessionId - The session ID to copy
+   * @returns {void}
+   */
+  copySessionId(sessionId: string): void {
+    if (!sessionId) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(sessionId)
+      .then(() => {
+        this.snackBar.open('Session ID copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy session ID:', err);
+        this.snackBar.open('Failed to copy Session ID', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      });
+  }
+
+  /**
+   * Copies the session title to the clipboard and shows a success message.
+   * @param {string} sessionTitle - The session title to copy
+   * @returns {void}
+   */
+  copySessionTitle(sessionTitle: string): void {
+    if (!sessionTitle) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(sessionTitle)
+      .then(() => {
+        this.snackBar.open('Session Title copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy session title:', err);
+        this.snackBar.open('Failed to copy Session Title', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      });
+  }
+
+  /**
+   * Copies the track to the clipboard and shows a success message.
+   * @param {string} track - The track to copy
+   * @returns {void}
+   */
+  copyTrack(track: string): void {
+    if (!track) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(track)
+      .then(() => {
+        this.snackBar.open('Track copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy track:', err);
+        this.snackBar.open('Failed to copy Track', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      });
   }
 }

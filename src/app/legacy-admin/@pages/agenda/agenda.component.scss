@@ -207,14 +207,67 @@
     padding: 8px 8px !important;
   }
 
-  // Session ID column - allow text wrapping
-  .session-id-header,
-  .session-id-cell {
+  // Session Title column - increase width
+  .session-title-header,
+  .session-title-cell {
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
     white-space: normal !important;
     word-wrap: break-word;
     word-break: break-word;
     overflow-wrap: break-word;
-    max-width: 200px;
+    line-height: 1.4;
+  }
+
+  // Session ID column - increase width and allow text wrapping
+  .session-id-header,
+  .session-id-cell {
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+  }
+
+  // Start Date column - increase width
+  .start-date-header,
+  .start-date-cell {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+
+  // Type column - increase width and remove ellipsis
+  .type-header,
+  .type-cell {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-overflow: clip !important;
+    overflow: visible !important;
+    line-height: 1.4;
+  }
+
+  // Track column - increase width, remove ellipsis and allow text wrapping
+  .track-header,
+  .track-cell {
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: normal;
+    overflow-wrap: break-word;
+    text-overflow: clip !important;
+    overflow: visible !important;
     line-height: 1.4;
   }
 
@@ -231,9 +284,9 @@
   // Status column - increase width
   .status-header,
   .status-cell {
-    width: 180px !important;
-    min-width: 180px !important;
-    max-width: 180px !important;
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
   }
 
   // Total Speakers column - increase width
@@ -588,6 +641,11 @@
   span {
     color: #555;
     flex: 1;
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.4;
   }
 }
 

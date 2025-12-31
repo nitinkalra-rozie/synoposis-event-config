@@ -48,10 +48,11 @@ export class BackendApiService {
 
   updateAgenda(data: Session[], timezone: string = ''): Observable<Object> {
     // Get eventName from the first session in the data array
-    const eventName = data && data.length > 0 && data[0].Event 
-      ? data[0].Event 
-      : this._backendApiService.getCurrentEventName();
-    
+    const eventName =
+      data && data.length > 0 && data[0].Event
+        ? data[0].Event
+        : this._backendApiService.getCurrentEventName();
+
     const body = {
       clearCurrentEvents: false,
       timeZoneUpdate: timezone,

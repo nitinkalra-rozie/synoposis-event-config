@@ -30,7 +30,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { map, startWith } from 'rxjs/operators';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
-import { Session, SpeakerDetails } from '../../event-configuration/event-configuration.component';
+import {
+  Session,
+  SpeakerDetails,
+} from '../../event-configuration/event-configuration.component';
 import {
   resizeImage,
   UploadImageComponent,
@@ -338,4 +341,3 @@ export class UpdateSessionDialogComponent {
     );
   }
 }
-

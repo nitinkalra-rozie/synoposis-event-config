@@ -336,8 +336,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
    * @returns {void}
    */
   ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
+    // Note: sort and paginator are managed by the child component (app-session-debrief)
+    // Do not connect parent's sort/paginator to dataSource as it conflicts with child component
+    // this.dataSource.sort = this.sort;
+    // this.dataSource.paginator = this.paginator;
     // Set up custom sorting data accessor
     this.setSortingDataAccessor();
     // Set up custom filter predicate
@@ -662,11 +664,14 @@ export class ReportComponent implements OnInit, AfterViewInit {
   applyAllFilters(): void {
     // Trigger filter by setting a non-empty string (the actual filtering is done in filterPredicate)
     this.dataSource.filter = 'active';
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-      this.paginator.firstPage();
-      this.cdr.detectChanges();
-    }
+    // Note: paginator is managed by the child component (app-session-debrief)
+    // Do not connect parent's paginator to dataSource as it conflicts with child component
+    // if (this.paginator) {
+    //   this.dataSource.paginator = this.paginator;
+    //   this.paginator.firstPage();
+    //   this.cdr.detectChanges();
+    // }
+    this.cdr.detectChanges();
   }
 
   /**
@@ -1725,8 +1730,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
       this.setFilterPredicate();
       this.totalRecords = this.sessions.length;
       setTimeout(() => {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        // Note: sort and paginator are managed by the child component (app-session-debrief)
+        // Do not connect parent's sort/paginator to dataSource as it conflicts with child component
+        // this.dataSource.paginator = this.paginator;
+        // this.dataSource.sort = this.sort;
         // Reapply filters after data source update
         this.applyAllFilters();
       }, 100);
@@ -1808,8 +1815,10 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this.mapReportUrlsToDailyAndTrackDebriefs();
 
     setTimeout(() => {
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      // Note: sort and paginator are managed by the child component (app-session-debrief)
+      // Do not connect parent's sort/paginator to dataSource as it conflicts with child component
+      // this.dataSource.paginator = this.paginator;
+      // this.dataSource.sort = this.sort;
       // Reapply filters after data source update
       this.applyAllFilters();
     }, 100);

@@ -41,6 +41,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -109,6 +110,7 @@ export interface SpeakerWithId extends SpeakerDetails {
     MatSortModule,
     MatPaginatorModule,
     MatDialogModule,
+    MatTooltipModule,
     TopBarComponent,
     DatePipe,
   ],
@@ -185,8 +187,6 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public displayedColumns: string[] = [
     'select',
     'startDate',
-    'startTime',
-    'endTime',
     'eventDay',
     'title',
     'sessionid',
@@ -719,7 +719,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    */
   limitBio(): void {
     const selectedSessionsWithSpeakers = this.getSelectedSessionsWithSpeakers();
-    
+
     if (selectedSessionsWithSpeakers.length === 0) {
       this.displayErrorMessage(
         'Please select at least one session with speakers to limit bio.'
@@ -786,9 +786,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    */
   deleteSelectedSessions(): void {
     if (this.selectedSessions.size === 0) {
-      this.displayErrorMessage(
-        'Please select at least one session to delete.'
-      );
+      this.displayErrorMessage('Please select at least one session to delete.');
       return;
     }
 
@@ -804,10 +802,11 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     // Get all selected session IDs (including those with 0 speakers)
     const selectedSessionIds = Array.from(this.selectedSessions);
     const selectedCount = selectedSessionIds.length;
-    
-    const message = selectedCount === 1
-      ? 'Are you sure you want to delete the selected session? This action cannot be undone.'
-      : `Are you sure you want to delete the selected ${selectedCount} sessions? This action cannot be undone.`;
+
+    const message =
+      selectedCount === 1
+        ? 'Are you sure you want to delete the selected session? This action cannot be undone.'
+        : `Are you sure you want to delete the selected ${selectedCount} sessions? This action cannot be undone.`;
 
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
       width: '500px',
@@ -851,7 +850,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
           return of({
             success: false,
             sessionId: sessionId,
-            error: error?.error?.error || error?.message || 'Failed to delete session',
+            error:
+              error?.error?.error ||
+              error?.message ||
+              'Failed to delete session',
           });
         })
       )
@@ -909,9 +911,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       error: (error) => {
         this.isDeletingSessions = false;
         console.error('Error deleting sessions:', error);
-        this.displayErrorMessage(
-          'Error deleting sessions. Please try again.'
-        );
+        this.displayErrorMessage('Error deleting sessions. Please try again.');
       },
     });
   }
@@ -1273,7 +1273,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   openSessionDetailsModal(data: Session, type: string): void {
     // Convert datetime format to datetime-local format for input fields
     const sessionData = { ...data };
-    
+
     // Ensure StartsAt and EndsAt are in the correct format for datetime-local input
     // datetime-local expects: YYYY-MM-DDTHH:mm
     if (sessionData.StartsAt) {
@@ -1294,7 +1294,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         console.error('Error parsing StartsAt:', error);
       }
     }
-    
+
     if (sessionData.EndsAt) {
       try {
         let endDate: Date;
@@ -1319,7 +1319,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       data: {
         data: sessionData,
         type: type,
-        adjustSessionTimesFn: (sessions: Session[]) => this.adjustSessionTimes(sessions),
+        adjustSessionTimesFn: (sessions: Session[]) =>
+          this.adjustSessionTimes(sessions),
         displayErrorMessageFn: (msg: string) => this.displayErrorMessage(msg),
         trackList: [
           ...new Set(
@@ -1351,5 +1352,92 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  /**
+   * Copies the session ID to the clipboard and shows a success message.
+   * @param {string} sessionId - The session ID to copy
+   * @returns {void}
+   */
+  copySessionId(sessionId: string): void {
+    if (!sessionId) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(sessionId)
+      .then(() => {
+        this.snackBar.open('Session ID copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy session ID:', err);
+        this.snackBar.open('Failed to copy Session ID', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      });
+  }
+
+  /**
+   * Copies the session title to the clipboard and shows a success message.
+   * @param {string} sessionTitle - The session title to copy
+   * @returns {void}
+   */
+  copySessionTitle(sessionTitle: string): void {
+    if (!sessionTitle) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(sessionTitle)
+      .then(() => {
+        this.snackBar.open('Session Title copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy session title:', err);
+        this.snackBar.open('Failed to copy Session Title', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      });
+  }
+
+  /**
+   * Copies the track to the clipboard and shows a success message.
+   * @param {string} track - The track to copy
+   * @returns {void}
+   */
+  copyTrack(track: string): void {
+    if (!track) {
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(track)
+      .then(() => {
+        this.snackBar.open('Track copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy track:', err);
+        this.snackBar.open('Failed to copy Track', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+        });
+      });
   }
 }

@@ -12,15 +12,8 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()" class="cancel-button">
-    Cancel
-  </button>
-  <button
-    mat-button
-    (click)="onConfirm()"
-    class="confirm-button"
-    color="warn">
+  <button mat-button class="cancel-button" (click)="onCancel()">Cancel</button>
+  <button mat-button class="confirm-button" (click)="onConfirm()" color="warn">
     Delete
   </button>
 </mat-dialog-actions>
-
