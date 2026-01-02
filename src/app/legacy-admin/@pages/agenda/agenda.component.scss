@@ -207,6 +207,19 @@
     padding: 8px 8px !important;
   }
 
+  // Select/Checkbox column - ensure visibility
+  th.mat-column-select,
+  td.mat-column-select {
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    padding: 8px 4px !important;
+    text-align: center;
+    display: table-cell !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
   // Session Title column - increase width
   .session-title-header,
   .session-title-cell {

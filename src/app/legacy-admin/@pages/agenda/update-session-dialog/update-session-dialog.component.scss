@@ -1,6 +1,13 @@
 .custom-dialog-container .mat-dialog-container {
   max-width: 1200px !important;
   width: 1200px !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+.custom-dialog-container .mat-dialog-content {
+  max-height: calc(90vh - 120px) !important;
+  overflow-y: auto !important;
 }
 
 .form-container {

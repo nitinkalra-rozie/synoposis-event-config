@@ -283,16 +283,20 @@
         mat-cell
         [class.selected]="selectedRowIndex === i"
         (click)="onHighlightRow(row, i)">
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px">
           <span>{{ row.SessionTitle }}</span>
           <button
             mat-icon-button
-            class="copy-session-title-button"
-            (click)="copySessionTitle(row.SessionTitle); $event.stopPropagation()"
-            type="button"
             matTooltip="Copy Session Title"
-            matTooltipPosition="above">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">content_copy</mat-icon>
+            matTooltipPosition="above"
+            class="copy-session-title-button"
+            (click)="
+              copySessionTitle(row.SessionTitle); $event.stopPropagation()
+            "
+            type="button">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px"
+              >content_copy</mat-icon
+            >
           </button>
         </div>
       </td>
@@ -306,16 +310,18 @@
         mat-cell
         [class.selected]="selectedRowIndex === i"
         (click)="onHighlightRow(row, i)">
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px">
           <span>{{ row.SessionId }}</span>
           <button
             mat-icon-button
+            matTooltip="Copy Session ID"
+            matTooltipPosition="above"
             class="copy-session-id-button"
             (click)="copySessionId(row.SessionId); $event.stopPropagation()"
-            type="button"
-            matTooltip="Copy Session ID"
-            matTooltipPosition="above">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">content_copy</mat-icon>
+            type="button">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px"
+              >content_copy</mat-icon
+            >
           </button>
         </div>
       </td>
@@ -369,16 +375,18 @@
         mat-cell
         [class.selected]="selectedRowIndex === i"
         (click)="onHighlightRow(row, i)">
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px">
           <span>{{ row.Track }}</span>
           <button
             mat-icon-button
+            matTooltip="Copy Track"
+            matTooltipPosition="above"
             class="copy-track-button"
             (click)="copyTrack(row.Track); $event.stopPropagation()"
-            type="button"
-            matTooltip="Copy Track"
-            matTooltipPosition="above">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">content_copy</mat-icon>
+            type="button">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px"
+              >content_copy</mat-icon
+            >
           </button>
         </div>
       </td>

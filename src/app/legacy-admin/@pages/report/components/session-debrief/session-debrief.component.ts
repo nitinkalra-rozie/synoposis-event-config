@@ -188,20 +188,23 @@ export class SessionDebriefComponent implements AfterViewInit, OnChanges {
     // Connect paginator - ensure it's always connected
     if (this.paginator) {
       // Disconnect any existing paginator first to avoid conflicts
-      if (this.dataSource.paginator && this.dataSource.paginator !== this.paginator) {
+      if (
+        this.dataSource.paginator &&
+        this.dataSource.paginator !== this.paginator
+      ) {
         this.dataSource.paginator = null;
       }
-      
+
       // Connect this component's paginator to dataSource
       // This enables client-side pagination - MatTableDataSource will automatically
       // limit the displayed rows based on the paginator's pageSize and pageIndex
       this.dataSource.paginator = this.paginator;
-      
+
       // Ensure paginator pageSize is set
       if (this.pageSize) {
         this.paginator.pageSize = this.pageSize;
       }
-      
+
       // Trigger change detection to ensure UI updates
       this.cdr.markForCheck();
     }

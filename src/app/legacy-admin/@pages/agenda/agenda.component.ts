@@ -44,7 +44,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { catchError, forkJoin, of } from 'rxjs';
+import { catchError, firstValueFrom, forkJoin, of } from 'rxjs';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
@@ -53,8 +53,14 @@ import {
   Session,
   SpeakerDetails,
 } from '../event-configuration/event-configuration.component';
+import {
+  ColumnOption,
+  ColumnSelectionDialogComponent,
+} from './column-selection-dialog/column-selection-dialog.component';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { UpdateSessionDialogComponent } from './update-session-dialog/update-session-dialog.component';
+// Dynamic import for xlsx to work with Vite
+let XLSX: any;
 
 /**
  * Interface representing an event configuration.
@@ -152,6 +158,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public isLoadingSessions: boolean = false;
   /** Flag indicating if bio limiting is in progress */
   public isLimitingBio: boolean = false;
+  /** Flag indicating if links are currently being generated */
+  public isGeneratingLinks: boolean = false;
   /** Flag indicating if sessions are currently being deleted */
   public isDeletingSessions: boolean = false;
   /** Array of available events */
@@ -160,6 +168,8 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   public filteredEvents: EventConfig[] = [];
   /** The currently selected event identifier */
   public selectedEvent: string = '';
+  /** The currently selected event configuration object */
+  public selectedEventConfig: EventConfig | null = null;
   /** Event search input control */
   public eventSearchInput: string = '';
   /** Array of sessions for the selected event */
@@ -370,10 +380,15 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       this.eventSearchInput = '';
       this.filteredEvents = this.events;
       this.totalRecords = 0;
+      this.selectedEventConfig = null;
       return;
     }
 
     this.selectedEvent = eventIdentifier;
+    // Update selectedEventConfig if not already set
+    if (!this.selectedEventConfig || this.selectedEventConfig.EventIdentifier !== eventIdentifier) {
+      this.selectedEventConfig = this.events.find((e) => e.EventIdentifier === eventIdentifier) || null;
+    }
     this.isLoadingSessions = true;
     this.selectedSessions.clear();
     this.selectedSpeakers.clear();
@@ -508,6 +523,18 @@ export class AgendaComponent implements OnInit, AfterViewInit {
    */
   getSelectedFilteredCount(): number {
     return this.getSelectedSessionsWithSpeakers().length;
+  }
+
+  /**
+   * Gets the total count of all selected sessions (including those with 0 speakers).
+   * Used for display purposes.
+   * @returns {number} Total count of selected sessions
+   */
+  getTotalSelectedCount(): number {
+    const filteredSessions = this.getFilteredSessions();
+    return filteredSessions.filter((session) =>
+      this.selectedSessions.has(session.SessionId)
+    ).length;
   }
 
   /**
@@ -780,6 +807,229 @@ export class AgendaComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Opens a dialog to select columns and generates an XLSX file with session links.
+   * @returns {Promise<void>}
+   */
+  async generateLinks(): Promise<void> {
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    // Get the event configuration to access Domain
+    const eventConfig =
+      this.selectedEventConfig ||
+      this.events.find((e) => e.EventIdentifier === this.selectedEvent);
+
+    if (!eventConfig || !eventConfig.Domain) {
+      this.displayErrorMessage(
+        'Unable to find event domain. Please select an event again.'
+      );
+      return;
+    }
+
+    // Get only selected sessions
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage('Please select at least one session to generate links.');
+      return;
+    }
+
+    if (this.isGeneratingLinks) {
+      return; // Prevent multiple simultaneous requests
+    }
+
+    // Define available columns - matching table display order with Link last
+    const availableColumns: ColumnOption[] = [
+      { key: 'startDate', label: 'Start Date', selected: true },
+      { key: 'eventDay', label: 'Event Day', selected: true },
+      { key: 'sessionTitle', label: 'Session Title', selected: true },
+      { key: 'sessionId', label: 'Session ID', selected: true },
+      { key: 'status', label: 'Status', selected: true },
+      { key: 'track', label: 'Track', selected: true },
+      { key: 'type', label: 'Type', selected: true },
+      { key: 'totalSpeakers', label: 'Total Speakers', selected: false },
+      { key: 'location', label: 'Location', selected: false },
+      { key: 'link', label: 'Link', selected: true },
+    ];
+
+    // Open column selection dialog
+    const dialogRef = this.dialog.open(ColumnSelectionDialogComponent, {
+      width: '500px',
+      maxHeight: '90vh',
+      data: {
+        columns: availableColumns,
+      },
+    });
+
+    const selectedColumns = await firstValueFrom(dialogRef.afterClosed());
+
+    // If user cancelled or no columns selected
+    if (!selectedColumns || selectedColumns.length === 0) {
+      return;
+    }
+
+    this.isGeneratingLinks = true;
+
+    try {
+      // Get all sessions and filter to only selected ones
+      const allSessions = this.getFilteredSessions();
+      const selectedSessions = allSessions.filter((session) =>
+        this.selectedSessions.has(session.SessionId)
+      );
+
+      if (selectedSessions.length === 0) {
+        this.displayErrorMessage('No selected sessions found. Please select sessions and try again.');
+        this.isGeneratingLinks = false;
+        return;
+      }
+
+      // Dynamically import xlsx
+      if (!XLSX) {
+        XLSX = await import('xlsx');
+      }
+
+      // Prepare data for Excel based on selected columns
+      // Maintain the order from availableColumns (matching table order) with Link last
+      const link = `https://${eventConfig.Domain}/session/`;
+      const excelData = selectedSessions.map((session) => {
+        const rowData: any = {};
+        const sessionLink = `${link}${session.SessionId}`;
+
+        // Process columns in the order they appear in availableColumns, with Link always last
+        availableColumns.forEach((column: ColumnOption) => {
+          // Only include if this column is selected
+          if (!selectedColumns.find((sc: ColumnOption) => sc.key === column.key)) {
+            return;
+          }
+
+          // Handle Link column last
+          if (column.key === 'link') {
+            return; // Will be added at the end
+          }
+
+          switch (column.key) {
+            case 'startDate':
+              rowData['Start Date'] = session.StartsAt
+                ? new Date(session.StartsAt).toLocaleDateString()
+                : '';
+              break;
+            case 'eventDay':
+              rowData['Event Day'] = session.EventDay || '';
+              break;
+            case 'sessionTitle':
+              rowData['Session Title'] = session.SessionTitle || '';
+              break;
+            case 'sessionId':
+              rowData['Session ID'] = session.SessionId || '';
+              break;
+            case 'status':
+              rowData['Status'] = this.getStatusLabel(session.Status);
+              break;
+            case 'track':
+              rowData['Track'] = session.Track || '';
+              break;
+            case 'type':
+              rowData['Type'] = session.Type || '';
+              break;
+            case 'totalSpeakers':
+              rowData['Total Speakers'] = this.getSpeakerCount(session);
+              break;
+            case 'location':
+              rowData['Location'] = session.Location || '';
+              break;
+          }
+        });
+
+        // Add Link column last if it's selected
+        if (selectedColumns.find((sc: ColumnOption) => sc.key === 'link')) {
+          rowData['Link'] = sessionLink;
+        }
+
+        return rowData;
+      });
+
+      // Create workbook and worksheet
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Session Links');
+
+      // Set column widths dynamically based on selected columns
+      const columnWidths = selectedColumns.map((column: ColumnOption) => {
+        switch (column.key) {
+          case 'sessionId':
+            return { wch: 40 };
+          case 'sessionTitle':
+            return { wch: 50 };
+          case 'track':
+            return { wch: 30 };
+          case 'location':
+            return { wch: 30 };
+          case 'link':
+            return { wch: 80 };
+          case 'startDate':
+            return { wch: 20 };
+          case 'eventDay':
+            return { wch: 15 };
+          case 'status':
+            return { wch: 20 };
+          case 'type':
+            return { wch: 20 };
+          case 'totalSpeakers':
+            return { wch: 15 };
+          default:
+            return { wch: 20 };
+        }
+      });
+      worksheet['!cols'] = columnWidths;
+
+      // Generate file name with timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const fileName = `${this.selectedEvent}_session_links_${timestamp}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(workbook, fileName);
+
+      this.snackBar.open(
+        `Successfully generated links file with ${selectedSessions.length} selected session(s) and ${selectedColumns.length} column(s).`,
+        'Close',
+        {
+          duration: 5000,
+          panelClass: ['snackbar-success'],
+        }
+      );
+    } catch (error: any) {
+      console.error('Error generating links file:', error);
+      this.displayErrorMessage(
+        error?.message || 'Failed to generate links file. Please try again.'
+      );
+    } finally {
+      this.isGeneratingLinks = false;
+    }
+  }
+
+  /**
+   * Gets the status label for a session status.
+   * @param {string} status - The session status
+   * @returns {string} The status label
+   */
+  private getStatusLabel(status: string): string {
+    if (status === EventStatus.NotStarted) {
+      return 'Not Started';
+    } else if (status === EventStatus.InProgress) {
+      return 'Live';
+    } else if (status === 'NOT_AVAILABLE') {
+      return 'Hidden';
+    } else if (status === EventStatus.UnderReview) {
+      return 'To Review';
+    } else if (status === EventStatus.ReviewComplete) {
+      return 'Completed';
+    } else if (status === EventStatus.ProcessingInsights) {
+      return 'Processing Insights';
+    }
+    return status || '';
+  }
+
+  /**
    * Deletes the selected sessions by filtering them out and updating the agenda.
    * All selected sessions can be deleted, regardless of speaker count.
    * @returns {void}
@@ -989,6 +1239,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const selectedEvent: EventConfig = event.option?.value;
     if (selectedEvent && selectedEvent.EventIdentifier) {
       this.selectedEvent = selectedEvent.EventIdentifier;
+      this.selectedEventConfig = selectedEvent;
       this.eventSearchInput = this.getEventDisplayValue(selectedEvent);
       this.onEventChange(selectedEvent.EventIdentifier);
     }
@@ -1316,6 +1567,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(UpdateSessionDialogComponent, {
       width: '1200px',
       maxWidth: 'none',
+      maxHeight: '90vh',
       data: {
         data: sessionData,
         type: type,
