@@ -262,6 +262,7 @@ export class UpdateSessionDialogComponent {
     }
 
     if (this.dialogData.adjustSessionTimesFn) {
+      const eventId = this.dialogData.data?.Event;
       for (const speaker of sessionData.SpeakersInfo) {
         if (speaker?.Url && !this.isPresignedUrl(speaker.Url)) {
           try {
@@ -270,7 +271,8 @@ export class UpdateSessionDialogComponent {
               const resizedFile = await resizeImage(speakerImageFile, 400, 400);
               speaker.S3FileKey = await uploadSpeakerImage(
                 resizedFile,
-                this._backendApiService
+                this._backendApiService,
+                eventId
               );
             }
           } catch (error) {

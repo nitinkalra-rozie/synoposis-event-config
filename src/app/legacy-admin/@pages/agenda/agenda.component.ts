@@ -386,8 +386,12 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
     this.selectedEvent = eventIdentifier;
     // Update selectedEventConfig if not already set
-    if (!this.selectedEventConfig || this.selectedEventConfig.EventIdentifier !== eventIdentifier) {
-      this.selectedEventConfig = this.events.find((e) => e.EventIdentifier === eventIdentifier) || null;
+    if (
+      !this.selectedEventConfig ||
+      this.selectedEventConfig.EventIdentifier !== eventIdentifier
+    ) {
+      this.selectedEventConfig =
+        this.events.find((e) => e.EventIdentifier === eventIdentifier) || null;
     }
     this.isLoadingSessions = true;
     this.selectedSessions.clear();
@@ -830,7 +834,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
 
     // Get only selected sessions
     if (this.selectedSessions.size === 0) {
-      this.displayErrorMessage('Please select at least one session to generate links.');
+      this.displayErrorMessage(
+        'Please select at least one session to generate links.'
+      );
       return;
     }
 
@@ -878,7 +884,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       );
 
       if (selectedSessions.length === 0) {
-        this.displayErrorMessage('No selected sessions found. Please select sessions and try again.');
+        this.displayErrorMessage(
+          'No selected sessions found. Please select sessions and try again.'
+        );
         this.isGeneratingLinks = false;
         return;
       }
@@ -898,7 +906,9 @@ export class AgendaComponent implements OnInit, AfterViewInit {
         // Process columns in the order they appear in availableColumns, with Link always last
         availableColumns.forEach((column: ColumnOption) => {
           // Only include if this column is selected
-          if (!selectedColumns.find((sc: ColumnOption) => sc.key === column.key)) {
+          if (
+            !selectedColumns.find((sc: ColumnOption) => sc.key === column.key)
+          ) {
             return;
           }
 
@@ -983,7 +993,10 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       worksheet['!cols'] = columnWidths;
 
       // Generate file name with timestamp
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .slice(0, -5);
       const fileName = `${this.selectedEvent}_session_links_${timestamp}.xlsx`;
 
       // Write file
@@ -1053,6 +1066,17 @@ export class AgendaComponent implements OnInit, AfterViewInit {
     const selectedSessionIds = Array.from(this.selectedSessions);
     const selectedCount = selectedSessionIds.length;
 
+    // Get selected sessions with their titles
+    const allSessions = this.getFilteredSessions();
+    const selectedSessions = allSessions.filter((session) =>
+      this.selectedSessions.has(session.SessionId)
+    );
+
+    // Extract session titles
+    const sessionTitles = selectedSessions
+      .map((session) => session.SessionTitle || 'Untitled Session')
+      .filter((title) => title.trim() !== '');
+
     const message =
       selectedCount === 1
         ? 'Are you sure you want to delete the selected session? This action cannot be undone.'
@@ -1063,6 +1087,7 @@ export class AgendaComponent implements OnInit, AfterViewInit {
       data: {
         message: message,
         count: selectedCount,
+        sessionTitles: sessionTitles, // Pass session titles to dialog
       },
     });
 

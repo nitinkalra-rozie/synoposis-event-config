@@ -25,11 +25,12 @@ export class BackendApiService {
 
   getUploadPresignedUrl(
     fileType: string,
-    fileExtension: string
+    fileExtension: string,
+    eventId?: string
   ): Observable<Object> {
     const data = {
       action: 'uploadFile',
-      eventName: this._backendApiService.getCurrentEventName(),
+      eventName: eventId || this._backendApiService.getCurrentEventName(),
       clientType: 'client',
       fileType: fileType,
       fileExtension: fileExtension,

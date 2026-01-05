@@ -95,7 +95,8 @@ export async function urlToFile(url: string, filename: string): Promise<File> {
 
 export async function uploadSpeakerImage(
   file: File,
-  backendApiService: BackendApiService
+  backendApiService: BackendApiService,
+  eventId?: string
 ): Promise<string> {
   if (!file) return '';
 
@@ -104,7 +105,7 @@ export async function uploadSpeakerImage(
 
   try {
     const uploadUrlResponse = await backendApiService
-      .getUploadPresignedUrl(fileType, fileExtension)
+      .getUploadPresignedUrl(fileType, fileExtension, eventId)
       .toPromise();
 
     if (uploadUrlResponse?.['success']) {
@@ -151,7 +152,8 @@ export class UploadImageComponent {
         const resizedFile = await resizeImage(file, 400, 400);
         const imageS3Key = await uploadSpeakerImage(
           resizedFile,
-          this._backendApiService
+          this._backendApiService,
+          this.eventName
         );
 
         if (imageS3Key) {

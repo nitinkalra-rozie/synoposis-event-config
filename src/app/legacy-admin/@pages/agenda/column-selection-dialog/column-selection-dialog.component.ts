@@ -65,4 +65,3 @@ export class ColumnSelectionDialogComponent implements OnInit {
     return this.columns.filter((col) => col.selected).length;
   }
 }
-
