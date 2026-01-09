@@ -73,6 +73,25 @@
                     <button mat-icon-button (click)="openTemplateEditor(row)">
                       <mat-icon>picture_as_pdf</mat-icon>
                     </button>
+                    @if (!hasEventParameters(row.EventIdentifier)) {
+                      <button
+                        mat-icon-button
+                        matTooltip="Create Event Parameters"
+                        [disabled]="creatingParameters[row.EventIdentifier]"
+                        (click)="createEventParameters(row)">
+                        @if (creatingParameters[row.EventIdentifier]) {
+                          <mat-spinner diameter="20"></mat-spinner>
+                        } @else {
+                          <mat-icon>vpn_key</mat-icon>
+                        }
+                      </button>
+                    } @else {
+                      <mat-icon
+                        matTooltip="Event Parameters Created"
+                        style="color: green; margin-left: 8px">
+                        check_circle
+                      </mat-icon>
+                    }
                   </td>
                 </ng-container>
 

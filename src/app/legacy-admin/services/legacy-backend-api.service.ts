@@ -169,4 +169,27 @@ export class LegacyBackendApiService {
       template: template,
     });
   }
+
+  /**
+   * Get eventIds that have both username and password parameters
+   * @returns {Observable<any>} Observable with array of eventIds
+   */
+  getEventIds(): Observable<any> {
+    return this.http.post(environment.apiBaseUrl + '/r3/getEventIds', {
+      parameterFilters: [],
+    });
+  }
+
+  /**
+   * Create event parameters (username and password) for an event
+   * @param {string} eventId - Event ID
+   * @param {string} domain - Domain associated with the event
+   * @returns {Observable<any>} Observable of the API response
+   */
+  createEventParameters(eventId: string, domain: string): Observable<any> {
+    return this.http.post(
+      environment.apiBaseUrl + '/r3/createEventParameters',
+      { eventId, domain }
+    );
+  }
 }

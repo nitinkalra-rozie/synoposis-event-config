@@ -166,6 +166,9 @@ export class EventConfigurationComponent implements OnInit, AfterViewInit {
   public dataSource = new MatTableDataSource<Session>([]);
   public selectedRowIndex: number | null = null;
   public totalRecords = 10;
+  public eventIdsWithParameters: Set<string> = new Set();
+  public checkingParameters: boolean = false;
+  public creatingParameters: Record<string, boolean> = {};
 
   private _backendApiService = inject(BackendApiService);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
@@ -214,10 +217,100 @@ export class EventConfigurationComponent implements OnInit, AfterViewInit {
             this.dataSource.sort = this.sort;
           }, 100);
           this.cdr.detectChanges();
+          // Check which events have parameters
+          this.checkEventParameters();
         }
         this.isLoading = false;
       });
   };
+
+  /**
+   * Check which eventIds have parameters by calling getEventIds API
+   */
+  private checkEventParameters(): void {
+    this.checkingParameters = true;
+    this._legacyBackendApiService.getEventIds().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data && response.data.eventIds) {
+          // Convert array to Set for faster lookup
+          this.eventIdsWithParameters = new Set(
+            response.data.eventIds.map((id: string) => id.toLowerCase())
+          );
+        }
+        this.checkingParameters = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error checking event parameters:', error);
+        this.checkingParameters = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  /**
+   * Check if event has parameters
+   * @param {string} eventId - Event ID to check
+   * @returns {boolean} True if event has parameters
+   */
+  hasEventParameters(eventId: string): boolean {
+    if (!eventId) return false;
+    return this.eventIdsWithParameters.has(eventId.toLowerCase());
+  }
+
+  /**
+   * Create event parameters for a given event
+   * @param {any} eventConfig - Event configuration object with EventIdentifier and Domain
+   */
+  createEventParameters(eventConfig: any): void {
+    const eventId =
+      eventConfig.EventIdentifier || eventConfig.eventNameIdentifier;
+    const domain = eventConfig.Domain || eventConfig.domain;
+
+    if (!eventId || !domain) {
+      this.displayErrorMessage(
+        'Event ID and Domain are required to create parameters'
+      );
+      return;
+    }
+
+    // Set loading state for this specific event
+    this.creatingParameters[eventId] = true;
+    this.cdr.detectChanges();
+
+    this._legacyBackendApiService
+      .createEventParameters(eventId, domain)
+      .subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.snackBar.open(
+              `Parameters created successfully for ${eventId}`,
+              'Close',
+              { duration: 3000, panelClass: ['success-snackbar'] }
+            );
+            // Add to the set of events with parameters
+            this.eventIdsWithParameters.add(eventId.toLowerCase());
+            this.creatingParameters[eventId] = false;
+            this.cdr.detectChanges();
+          } else {
+            this.displayErrorMessage(
+              response.message || `Failed to create parameters for ${eventId}`
+            );
+            this.creatingParameters[eventId] = false;
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error) => {
+          console.error('Error creating event parameters:', error);
+          const errorMessage =
+            error.error?.message ||
+            `Failed to create parameters for ${eventId}`;
+          this.displayErrorMessage(errorMessage);
+          this.creatingParameters[eventId] = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value
