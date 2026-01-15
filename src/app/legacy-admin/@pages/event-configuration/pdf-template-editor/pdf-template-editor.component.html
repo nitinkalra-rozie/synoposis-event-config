@@ -17,6 +17,7 @@
             <option value="SISO20251">SISO20251 (Blue)</option>
             <option value="HLTH">HLTH (Red/Pink)</option>
             <option value="ITC">ITC (Purple)</option>
+            <option value="DTECH2026">DTECH2026 (Navy)</option>
           </select>
         </div>
 
@@ -479,6 +480,39 @@
             </div>
           </div>
 
+          <hr class="section-divider" />
+
+          <div class="control-group">
+            <label>Use Sponsor Logo</label>
+            <div class="checkbox-wrapper">
+              <input
+                [checked]="currentConfig.useSponsorLogo || false"
+                (change)="onColorChange($event, 'useSponsorLogo')"
+                type="checkbox" />
+              <span>Use sponsor logo instead of event logo</span>
+            </div>
+          </div>
+
+          @if (currentConfig.useSponsorLogo) {
+            <div class="control-group">
+              <label>Sponsor Logo URL</label>
+              <input
+                class="text-input"
+                [value]="currentConfig.sponsorLogoUrl || ''"
+                (input)="onColorChange($event, 'sponsorLogoUrl')"
+                type="text" />
+              <div class="logo-preview" style="background: #333">
+                <div class="logo-preview-label" style="color: #aaa">Preview:</div>
+                <img
+                  src="currentConfig.sponsorLogoUrl"
+                  alt="Sponsor Logo"
+                  onerror="this.style.display='none'" />
+              </div>
+            </div>
+          }
+
+          <hr class="section-divider" />
+
           <div class="control-group">
             <label>Speaker Bio Section</label>
             <div class="checkbox-wrapper">
@@ -495,7 +529,7 @@
       <!-- Preview Panel -->
       <div class="preview-panel">
         @if (config(); as currentConfig) {
-          <div class="preview-container">
+          <div class="preview-container" #previewContainer>
             <!-- Header Section -->
             <div
               class="pdf-header"
@@ -532,11 +566,22 @@
                         currentConfig.rozieLogoBackgroundColor2 +
                         ')',
                     }">
-                    <img
-                      alt="Rozie Logo"
-                      src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/Rozie-Synopsis-Logo-RGB-White.png"
-                      style="width: 97px; height: 27px; margin-bottom: 3px" />
-                    <div class="synopsis-text">Synopsis for Events</div>
+                    @if (config().useSponsorLogo && config().sponsorLogoUrl) {
+                      <img
+                        alt="Sponsor Logo"
+                        [src]="config().sponsorLogoUrl"
+                        (error)="onLogoError($event)"
+                        style="width: 97px; height: 27px; margin-bottom: 3px; object-fit: contain" />
+                    } @else {
+                      <img
+                        alt="Rozie Logo"
+                        src="https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/Rozie-Synopsis-Logo-RGB-White.png"
+                        style="width: 97px; height: 27px; margin-bottom: 3px" />
+                    }
+                    @if (!config().useSponsorLogo) {
+                      <div class="synopsis-text">Synopsis for Events</div>
+                    }
+                    
                   </div>
                 </div>
                 <div class="pdf-title">
@@ -938,5 +983,13 @@
     color="primary"
     type="submit">
     {{ isLoading ? 'Saving...' : 'Save' }}
+  </button>
+  <button
+    mat-button
+    [disabled]="isExporting"
+    (click)="exportPreviewAsPDF()"
+    color="accent">
+    <span>📄</span>
+    <span>{{ isExporting ? 'Exporting...' : 'Export Preview as PDF' }}</span>
   </button>
 </mat-dialog-actions>

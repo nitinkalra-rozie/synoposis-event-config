@@ -4,8 +4,10 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  ElementRef,
   inject,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -39,6 +41,8 @@ interface TemplateConfig {
   eventLogoDark: string;
   eventLogoLight: string;
   speaker_bio: boolean;
+  useSponsorLogo?: boolean;
+  sponsorLogoUrl?: string;
 }
 
 /**
@@ -67,6 +71,8 @@ interface TemplateConfig {
   imports: [CommonModule, MatDialogModule, MatSnackBarModule, MatButtonModule],
 })
 export class TemplateEditorComponent {
+  @ViewChild('previewContainer', { static: false }) public previewContainer!: ElementRef;
+
   constructor(private cdr: ChangeDetectorRef) {
     this._dialogData = inject(MAT_DIALOG_DATA);
     this.config = signal<TemplateConfig>(
@@ -172,8 +178,57 @@ export class TemplateEditorComponent {
       eventLogoDark: '',
       eventLogoLight: '',
     },
+    DTECH2026: {
+      // Core brand colors
+      primaryColor: '#160A34',          // Dark Blue (Primary DTECH)
+      secondaryColor: '#1E46F5',        // EDU Blue (Tech accent)
+    
+      // Header gradients (strong, premium)
+      headerBackgroundGradientColor1: '#160A34', // Dark Blue
+      headerBackgroundGradientColor2: '#6D3293', // Bold Plum
+      headerBackgroundGradientColor3: '#1E46F5', // EDU Blue
+    
+      // Rozie logo background (keeps logo crisp)
+      rozieLogoBackgroundColor1: '#160A34',
+      rozieLogoBackgroundColor2: '#1E46F5',
+    
+      // Topics / section highlights
+      topicsGradientColor1: '#9188B2',  // Purple
+      topicsGradientColor2: '#BBB2E8',  // New Purple (lighter)
+    
+      // Page background (soft + modern)
+      backgroundGradientColor1: '#DFE3F6', // Lavender
+      backgroundGradientColor2: '#FFFFFF',
+      backgroundGradientColor3: '#FFFFFF',
+    
+      // Content cards (glass-like effect)
+      contentBackgroundColor1: 'rgba(255, 255, 255, 0.95)',
+      contentBackgroundColor2: 'rgba(255, 255, 255, 0.95)',
+    
+      // UI accents
+      checkboxIcon: 'emoji@2x.png',
+    
+      // Assets
+      backgroundMask:
+        'https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/background_image.svg',
+    
+      speaker_bio: true,
+    
+      // Speaker bio header (slightly energetic)
+      headerSpeakerBioGradient1: '#6D3293', // Bold Plum
+      headerSpeakerBioGradient2: '#EA33A0', // Initiative Pink
+    
+      // Event logos
+      eventLogoDark:
+        'https://rozie-logos.s3.ca-central-1.amazonaws.com/dtech/DTECH2026/event-logo.svg',
+    
+      eventLogoLight:
+        'https://rozie-logos.s3.ca-central-1.amazonaws.com/dtech/DTECH2026/event-logo.svg'
+    }
+    
   } as const;
   public isLoading = false;
+  public isExporting = false;
   public config!: ReturnType<typeof signal<TemplateConfig>>;
 
   // Fields that accept hex color codes
@@ -357,6 +412,219 @@ export class TemplateEditorComponent {
       this._showToast('Failed to copy to clipboard. Please try again.');
     }
   }
+
+  exportPDFTemplate(): void {
+    try {
+      // Validate configuration before exporting
+      if (!this.isValid()) {
+        this._showToast('Please fill in all required fields before exporting', true);
+        return;
+      }
+
+      const config = this.config();
+      const json = JSON.stringify(config, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      link.download = `pdf-template-${timestamp}.json`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      this._showToast('✓ PDF template exported successfully!');
+    } catch (err) {
+      this._showToast('Failed to export PDF template. Please try again.', true);
+    }
+  }
+
+  async exportPreviewAsPDF(): Promise<void> {
+    try {
+      if (!this.previewContainer) {
+        this._showToast('Preview container not found. Please try again.', true);
+        return;
+      }
+
+      this.isExporting = true;
+      this.cdr.markForCheck();
+
+      // Wait for all images to load
+      await this.waitForImages(this.previewContainer.nativeElement);
+
+      // Use browser's native print-to-PDF functionality
+      await this.printToPDF();
+
+      this._showToast('✓ PDF preview ready for download!');
+    } catch (err: any) {
+      console.error('Error exporting PDF:', err);
+      this._showToast('Failed to export PDF preview. Please try again.', true);
+    } finally {
+      this.isExporting = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private async printToPDF(): Promise<void> {
+    const element = this.previewContainer.nativeElement;
+    
+    // Get all computed styles
+    const styles = Array.from(document.styleSheets)
+      .map((sheet) => {
+        try {
+          return Array.from(sheet.cssRules)
+            .map((rule) => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          return '';
+        }
+      })
+      .join('\n');
+
+    // Get inline styles from the element and its children
+    const getInlineStyles = (el: HTMLElement): string => {
+      let styles = '';
+      const computed = window.getComputedStyle(el);
+      const styleProps = [
+        'backgroundColor', 'color', 'fontSize', 'fontFamily', 'fontWeight',
+        'padding', 'margin', 'border', 'borderRadius', 'boxShadow',
+        'background', 'backgroundImage', 'backgroundSize', 'backgroundPosition',
+        'width', 'height', 'display', 'flexDirection', 'alignItems', 'justifyContent'
+      ];
+      
+      styleProps.forEach((prop) => {
+        const value = computed.getPropertyValue(prop);
+        if (value) {
+          styles += `${prop}: ${value}; `;
+        }
+      });
+      
+      return styles;
+    };
+
+    // Create print-optimized HTML
+    const printHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>PDF Preview</title>
+          <style>
+            ${styles}
+            @media print {
+              @page {
+                size: A4;
+                margin: 0;
+              }
+              body {
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+              }
+              * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+              }
+              .pdf-footer {
+                min-height: 80px !important;
+                height: auto !important;
+                padding: 12px 8px !important;
+                box-sizing: border-box !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+              }
+            }
+            body {
+              margin: 0;
+              padding: 0;
+              background: white;
+            }
+            .preview-container {
+              width: 100%;
+              margin: 0;
+              padding: 0;
+            }
+          </style>
+        </head>
+        <body>
+          ${element.outerHTML}
+        </body>
+      </html>
+    `;
+
+    // Open print window
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      throw new Error('Please allow popups to export PDF');
+    }
+
+    printWindow.document.write(printHTML);
+    printWindow.document.close();
+
+    // Wait for content to load, then trigger print
+    return new Promise((resolve, reject) => {
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          // Close window after print dialog is closed (user may save as PDF)
+          setTimeout(() => {
+            printWindow.close();
+            resolve();
+          }, 500);
+        }, 250);
+      };
+
+      // Timeout fallback
+      setTimeout(() => {
+        if (printWindow.document.readyState === 'complete') {
+          printWindow.print();
+          setTimeout(() => {
+            printWindow.close();
+            resolve();
+          }, 500);
+        }
+      }, 2000);
+    });
+  }
+
+  private waitForImages(element: HTMLElement): Promise<void> {
+    return new Promise((resolve) => {
+      const images = element.querySelectorAll('img');
+      if (images.length === 0) {
+        resolve();
+        return;
+      }
+
+      let loadedCount = 0;
+      const totalImages = images.length;
+
+      const checkComplete = (): void => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          // Wait a bit more for rendering
+          setTimeout(resolve, 300);
+        }
+      };
+
+      images.forEach((img: HTMLImageElement) => {
+        if (img.complete && img.naturalHeight !== 0) {
+          checkComplete();
+        } else {
+          img.onload = checkComplete;
+          img.onerror = checkComplete; // Continue even if image fails to load
+        }
+      });
+    });
+  }
+
 
   resetToDefault(): void {
     this.config.set(this.presets['SLC2025']);
