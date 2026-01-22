@@ -19,15 +19,15 @@ export const environment = {
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:
-    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/get-content-versions',
+    'http://localhost:4000/dev/r4/get-content-versions',
   getVersionContentUrl:
-    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/get-version-content',
+    'http://localhost:4000/dev/r4/get-version-content',
   generateContentPDFUrl:
-    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/generate-content-pdf',
+    'http://localhost:4000/dev/r4/generate-content-pdf',
   publishContentPDFUrl:
-    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/publish-pdf-content',
+    'http://localhost:4000/dev/r4/publish-pdf-content',
   getPreSignedPDFUrl:
-    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/get-content-pdf',
+    'http://localhost:4000/dev/r4/get-content-pdf',
   uploadManualExecutiveSummaryUrl:
     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/upload-manual-executive-summary',
   generateContentUrl:
@@ -35,7 +35,7 @@ export const environment = {
   executiveSummaryUrl:
     'https://oda3k47th4.execute-api.ca-central-1.amazonaws.com/dev/executive-summary',
   saveEditedVersionContentUrl:
-    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/manual-edit-generated-content',
+    'http://localhost:4000/dev/r4/manual-edit-generated-content',
   analyticsApiEndpoint: 'https://dev.api.synopsis.rozie.ai/r5/admin-analytics',
   USER_POOL_WEB_CLIENT_ID: 'ckj0esj3hj5utldceksic8p9f',
   USER_POOL_ID: 'ca-central-1_OQOEfllk7',

@@ -71,7 +71,8 @@ interface TemplateConfig {
   imports: [CommonModule, MatDialogModule, MatSnackBarModule, MatButtonModule],
 })
 export class TemplateEditorComponent {
-  @ViewChild('previewContainer', { static: false }) public previewContainer!: ElementRef;
+  @ViewChild('previewContainer', { static: false })
+  public previewContainer!: ElementRef;
 
   constructor(private cdr: ChangeDetectorRef) {
     this._dialogData = inject(MAT_DIALOG_DATA);
@@ -180,52 +181,51 @@ export class TemplateEditorComponent {
     },
     DTECH2026: {
       // Core brand colors
-      primaryColor: '#160A34',          // Dark Blue (Primary DTECH)
-      secondaryColor: '#1E46F5',        // EDU Blue (Tech accent)
-    
+      primaryColor: '#160A34', // Dark Blue (Primary DTECH)
+      secondaryColor: '#1E46F5', // EDU Blue (Tech accent)
+
       // Header gradients (strong, premium)
       headerBackgroundGradientColor1: '#160A34', // Dark Blue
       headerBackgroundGradientColor2: '#6D3293', // Bold Plum
       headerBackgroundGradientColor3: '#1E46F5', // EDU Blue
-    
+
       // Rozie logo background (keeps logo crisp)
       rozieLogoBackgroundColor1: '#160A34',
       rozieLogoBackgroundColor2: '#1E46F5',
-    
+
       // Topics / section highlights
-      topicsGradientColor1: '#9188B2',  // Purple
-      topicsGradientColor2: '#BBB2E8',  // New Purple (lighter)
-    
+      topicsGradientColor1: '#9188B2', // Purple
+      topicsGradientColor2: '#BBB2E8', // New Purple (lighter)
+
       // Page background (soft + modern)
       backgroundGradientColor1: '#DFE3F6', // Lavender
       backgroundGradientColor2: '#FFFFFF',
       backgroundGradientColor3: '#FFFFFF',
-    
+
       // Content cards (glass-like effect)
       contentBackgroundColor1: 'rgba(255, 255, 255, 0.95)',
       contentBackgroundColor2: 'rgba(255, 255, 255, 0.95)',
-    
+
       // UI accents
       checkboxIcon: 'emoji@2x.png',
-    
+
       // Assets
       backgroundMask:
         'https://elsa-events-dev-assets.s3.ca-central-1.amazonaws.com/background_image.svg',
-    
+
       speaker_bio: true,
-    
+
       // Speaker bio header (slightly energetic)
       headerSpeakerBioGradient1: '#6D3293', // Bold Plum
       headerSpeakerBioGradient2: '#EA33A0', // Initiative Pink
-    
+
       // Event logos
       eventLogoDark:
         'https://rozie-logos.s3.ca-central-1.amazonaws.com/dtech/DTECH2026/event-logo.svg',
-    
+
       eventLogoLight:
-        'https://rozie-logos.s3.ca-central-1.amazonaws.com/dtech/DTECH2026/event-logo.svg'
-    }
-    
+        'https://rozie-logos.s3.ca-central-1.amazonaws.com/dtech/DTECH2026/event-logo.svg',
+    },
   } as const;
   public isLoading = false;
   public isExporting = false;
@@ -417,7 +417,10 @@ export class TemplateEditorComponent {
     try {
       // Validate configuration before exporting
       if (!this.isValid()) {
-        this._showToast('Please fill in all required fields before exporting', true);
+        this._showToast(
+          'Please fill in all required fields before exporting',
+          true
+        );
         return;
       }
 
@@ -427,16 +430,19 @@ export class TemplateEditorComponent {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      
+
       // Generate filename with timestamp
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[:.]/g, '-')
+        .slice(0, -5);
       link.download = `pdf-template-${timestamp}.json`;
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       this._showToast('✓ PDF template exported successfully!');
     } catch (err) {
       this._showToast('Failed to export PDF template. Please try again.', true);
@@ -471,7 +477,7 @@ export class TemplateEditorComponent {
 
   private async printToPDF(): Promise<void> {
     const element = this.previewContainer.nativeElement;
-    
+
     // Get all computed styles
     const styles = Array.from(document.styleSheets)
       .map((sheet) => {
@@ -490,19 +496,35 @@ export class TemplateEditorComponent {
       let styles = '';
       const computed = window.getComputedStyle(el);
       const styleProps = [
-        'backgroundColor', 'color', 'fontSize', 'fontFamily', 'fontWeight',
-        'padding', 'margin', 'border', 'borderRadius', 'boxShadow',
-        'background', 'backgroundImage', 'backgroundSize', 'backgroundPosition',
-        'width', 'height', 'display', 'flexDirection', 'alignItems', 'justifyContent'
+        'backgroundColor',
+        'color',
+        'fontSize',
+        'fontFamily',
+        'fontWeight',
+        'padding',
+        'margin',
+        'border',
+        'borderRadius',
+        'boxShadow',
+        'background',
+        'backgroundImage',
+        'backgroundSize',
+        'backgroundPosition',
+        'width',
+        'height',
+        'display',
+        'flexDirection',
+        'alignItems',
+        'justifyContent',
       ];
-      
+
       styleProps.forEach((prop) => {
         const value = computed.getPropertyValue(prop);
         if (value) {
           styles += `${prop}: ${value}; `;
         }
       });
-      
+
       return styles;
     };
 
@@ -624,7 +646,6 @@ export class TemplateEditorComponent {
       });
     });
   }
-
 
   resetToDefault(): void {
     this.config.set(this.presets['SLC2025']);

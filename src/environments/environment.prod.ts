@@ -16,21 +16,21 @@ export const environment = {
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:
-    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-content-versions',
+    'https://api.synopsis.rozie.ai/r4/get-content-versions',
   generateContentUrl:
     'https://wah065axpe.execute-api.ca-central-1.amazonaws.com/prod/session-debrief',
   executiveSummaryUrl:
     'https://wah065axpe.execute-api.ca-central-1.amazonaws.com/prod/executive-summary',
   getVersionContentUrl:
-    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-version-content',
+    'https://api.synopsis.rozie.ai/r4/get-version-content',
   publishContentPDFUrl:
-    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/publish-pdf-content',
+    'https://api.synopsis.rozie.ai/r4/publish-pdf-content',
   saveEditedVersionContentUrl:
-    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/manual-edit-generated-content',
+    'https://api.synopsis.rozie.ai/r4/manual-edit-generated-content',
   generateContentPDFUrl:
-    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/generate-content-pdf',
+    'https://api.synopsis.rozie.ai/r4/generate-content-pdf',
   getPreSignedPDFUrl:
-    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-content-pdf',
+    'https://api.synopsis.rozie.ai/r4/get-content-pdf',
   uploadManualExecutiveSummaryUrl:
     'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/upload-manual-executive-summary',
   analyticsApiEndpoint: 'https://api.synopsis.rozie.ai/r5/admin-analytics',

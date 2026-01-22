@@ -502,11 +502,13 @@
                 (input)="onColorChange($event, 'sponsorLogoUrl')"
                 type="text" />
               <div class="logo-preview" style="background: #333">
-                <div class="logo-preview-label" style="color: #aaa">Preview:</div>
+                <div class="logo-preview-label" style="color: #aaa">
+                  Preview:
+                </div>
                 <img
-                  src="currentConfig.sponsorLogoUrl"
                   alt="Sponsor Logo"
-                  onerror="this.style.display='none'" />
+                  onerror="this.style.display='none'"
+                  src="currentConfig.sponsorLogoUrl" />
               </div>
             </div>
           }
@@ -529,7 +531,7 @@
       <!-- Preview Panel -->
       <div class="preview-panel">
         @if (config(); as currentConfig) {
-          <div class="preview-container" #previewContainer>
+          <div #previewContainer class="preview-container">
             <!-- Header Section -->
             <div
               class="pdf-header"
@@ -568,10 +570,15 @@
                     }">
                     @if (config().useSponsorLogo && config().sponsorLogoUrl) {
                       <img
-                        alt="Sponsor Logo"
                         [src]="config().sponsorLogoUrl"
                         (error)="onLogoError($event)"
-                        style="width: 97px; height: 27px; margin-bottom: 3px; object-fit: contain" />
+                        alt="Sponsor Logo"
+                        style="
+                          width: 97px;
+                          height: 27px;
+                          margin-bottom: 3px;
+                          object-fit: contain;
+                        " />
                     } @else {
                       <img
                         alt="Rozie Logo"
@@ -581,7 +588,6 @@
                     @if (!config().useSponsorLogo) {
                       <div class="synopsis-text">Synopsis for Events</div>
                     }
-                    
                   </div>
                 </div>
                 <div class="pdf-title">
