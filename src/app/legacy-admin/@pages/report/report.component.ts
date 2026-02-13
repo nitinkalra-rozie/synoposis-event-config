@@ -16,13 +16,13 @@
  */
 import { CommonModule } from '@angular/common';
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    inject,
-    OnInit,
-    ViewChild,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -30,9 +30,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-    MatDialog,
-    MatDialogModule,
-    MatDialogRef,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
@@ -50,8 +50,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, Observable, of } from 'rxjs';
 import {
-    MarkdownEditorData,
-    MarkdownEditorDialogComponent,
+  MarkdownEditorData,
+  MarkdownEditorDialogComponent,
 } from 'src/app/content-editor/components/edit-content-dialog/markdown-editor-dialog.component';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
