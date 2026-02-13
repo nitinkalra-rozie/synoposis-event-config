@@ -5,6 +5,8 @@ export const environment = {
     'https://api.synopsis.rozie.ai/r2/getPreSignedUrl',
   putTranscript: 'https://api.synopsis.rozie.ai/r2/postTranscript',
   postData: 'https://api.synopsis.rozie.ai/r2/config',
+  generateRealtimeInsightsUrl:
+    'https://api.synopsis.rozie.ai/r2/generateRealtimeInsights',
   postDebriefData: 'https://api.synopsis.rozie.ai/r4/config',
   getEventDetails: 'https://api.synopsis.rozie.ai/r1/getEventDetails',
   getEventReportDetails:
@@ -21,18 +23,18 @@ export const environment = {
     'https://wah065axpe.execute-api.ca-central-1.amazonaws.com/prod/session-debrief',
   executiveSummaryUrl:
     'https://wah065axpe.execute-api.ca-central-1.amazonaws.com/prod/executive-summary',
-  getVersionContentUrl:
-    'https://api.synopsis.rozie.ai/r4/get-version-content',
-  publishContentPDFUrl:
-    'https://api.synopsis.rozie.ai/r4/publish-pdf-content',
+  getVersionContentUrl: 'https://api.synopsis.rozie.ai/r4/get-version-content',
+  publishContentPDFUrl: 'https://api.synopsis.rozie.ai/r4/publish-pdf-content',
+  publishDebriefReportsUrl:
+    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/publish-debrief-reports',
   saveEditedVersionContentUrl:
     'https://api.synopsis.rozie.ai/r4/manual-edit-generated-content',
-  generateContentPDFUrl:
-    'https://api.synopsis.rozie.ai/r4/generate-content-pdf',
-  getPreSignedPDFUrl:
-    'https://api.synopsis.rozie.ai/r4/get-content-pdf',
+  generateContentPDFUrl: 'https://api.synopsis.rozie.ai/generate-content-pdf',
+  getPreSignedPDFUrl: 'https://api.synopsis.rozie.ai/r4/get-content-pdf',
   uploadManualExecutiveSummaryUrl:
     'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/upload-manual-executive-summary',
+  getExecutiveSummaryUploadUrl:
+    'https://0s35g6c1ie.execute-api.ca-central-1.amazonaws.com/prod/get-executive-summary-upload-url',
   analyticsApiEndpoint: 'https://api.synopsis.rozie.ai/r5/admin-analytics',
   USER_POOL_WEB_CLIENT_ID: '4uoviltr9pd5km5nltmvkf0ovh',
   USER_POOL_ID: 'ca-central-1_zFNGJuTjd',

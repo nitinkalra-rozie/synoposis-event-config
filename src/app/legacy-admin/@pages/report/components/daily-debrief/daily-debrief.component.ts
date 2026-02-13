@@ -66,6 +66,7 @@ export class DailyDebriefComponent {
   @Output() public eventDayFilterChange = new EventEmitter<string>();
   @Output() public editContent = new EventEmitter<DailyDebriefRow>();
   @Output() public viewPdfV2 = new EventEmitter<DailyDebriefRow>();
+  @Output() public downloadPdfV2 = new EventEmitter<void>();
   @Output() public openPublishPdf = new EventEmitter<string>();
   @Output() public highlightRow = new EventEmitter<{
     row: DailyDebriefRow;
@@ -116,6 +117,10 @@ export class DailyDebriefComponent {
 
   onViewPdfV2(row: DailyDebriefRow): void {
     this.viewPdfV2.emit(row);
+  }
+
+  onDownloadPdfV2(): void {
+    this.downloadPdfV2.emit();
   }
 
   onOpenPublishPdf(url: string): void {

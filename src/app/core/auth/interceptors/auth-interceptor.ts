@@ -22,6 +22,7 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     'r1/getEventConfig',
     'r1/getEventDetails',
     'r2/config',
+    'r2/generateRealtimeInsights',
     'r2/stage',
     'r2/getPreSignedUrl',
     'r2/postTranscript',
@@ -45,6 +46,7 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     'r3/deleteEvent',
     'r3/getEventIds',
     'r3/createEventParameters',
+    '/publish-debrief-reports',
   ];
 
   const publicAPIEndpoints = [

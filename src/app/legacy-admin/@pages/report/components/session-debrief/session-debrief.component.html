@@ -8,6 +8,33 @@
       }
       <button
         mat-raised-button
+        class="regenerate-content-button"
+        [disabled]="selectedSessions.size === 0 || isLoadingSessions"
+        (click)="regenerateContent.emit()"
+        color="accent">
+        <mat-icon>refresh</mat-icon>
+        Regenerate Content
+      </button>
+      <button
+        mat-raised-button
+        class="generate-realtime-insights-button"
+        [disabled]="selectedSessions.size === 0 || isLoadingSessions"
+        (click)="generateRealtimeInsights.emit()"
+        color="accent">
+        <mat-icon>insights</mat-icon>
+        Generate Realtime Insights
+      </button>
+      <button
+        mat-raised-button
+        class="generate-pdf-v1-button"
+        [disabled]="selectedSessions.size === 0 || isLoadingSessions"
+        (click)="generatePdfV1.emit()"
+        color="accent">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Generate PDF V1
+      </button>
+      <button
+        mat-raised-button
         class="generate-pdf-button"
         [disabled]="selectedSessions.size === 0 || isLoadingSessions"
         (click)="generatePdf.emit()"
@@ -17,12 +44,41 @@
       </button>
       <button
         mat-raised-button
+        class="publish-report-v1-button"
+        [disabled]="selectedSessions.size === 0 || isLoadingSessions"
+        (click)="publishReportV1.emit()"
+        color="primary">
+        <mat-icon>publish</mat-icon>
+        Publish Report V1
+      </button>
+      <button
+        mat-raised-button
         class="publish-report-button"
         [disabled]="selectedSessions.size === 0 || isLoadingSessions"
         (click)="publishReport.emit()"
         color="primary">
         <mat-icon>publish</mat-icon>
-        Publish Report
+        Publish Report V2
+      </button>
+    </div>
+    <div class="download-pdf-section">
+      <button
+        mat-raised-button
+        class="download-pdf-v1-button"
+        [disabled]="selectedSessions.size === 0 || isLoadingSessions"
+        (click)="onDownloadPdfV1()"
+        color="accent">
+        <mat-icon>download</mat-icon>
+        Download PDF V1
+      </button>
+      <button
+        mat-raised-button
+        class="download-pdf-v2-button"
+        [disabled]="selectedSessions.size === 0 || isLoadingSessions"
+        (click)="onDownloadPdfV2()"
+        color="accent">
+        <mat-icon>download</mat-icon>
+        Download PDF V2
       </button>
     </div>
   </div>

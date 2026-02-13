@@ -9,6 +9,8 @@ export const environment = {
     'https://dev.api.synopsis.rozie.ai/r2/getPreSignedUrl',
   putTranscript: 'https://dev.api.synopsis.rozie.ai/r2/postTranscript',
   postData: 'https://dev.api.synopsis.rozie.ai/r2/config',
+  generateRealtimeInsightsUrl:
+    'https://dev.api.synopsis.rozie.ai/r2/generateRealtimeInsights',
   postDebriefData: 'https://dev.api.synopsis.rozie.ai/r4/config',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
   truncateSpeakerBioUrl:
@@ -18,18 +20,16 @@ export const environment = {
   getUploadFilePresignedUrl: 'https://dev.api.synopsis.rozie.ai/r6/config',
   postCurrentSessionId:
     'https://dev.api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
-  getContentVersionsUrl:
-    'http://localhost:4000/dev/r4/get-content-versions',
-  getVersionContentUrl:
-    'http://localhost:4000/dev/r4/get-version-content',
-  generateContentPDFUrl:
-    'http://localhost:4000/dev/r4/generate-content-pdf',
-  publishContentPDFUrl:
-    'http://localhost:4000/dev/r4/publish-pdf-content',
-  getPreSignedPDFUrl:
-    'http://localhost:4000/dev/r4/get-content-pdf',
+  getContentVersionsUrl: 'http://localhost:4000/dev/r4/get-content-versions',
+  getVersionContentUrl: 'http://localhost:4000/dev/r4/get-version-content',
+  generateContentPDFUrl: 'http://localhost:4000/dev/generate-content-pdf',
+  publishContentPDFUrl: 'http://localhost:4000/dev/r4/publish-pdf-content',
+  publishDebriefReportsUrl: 'http://localhost:4000/dev/publish-debrief-reports',
+  getPreSignedPDFUrl: 'http://localhost:4000/dev/r4/get-content-pdf',
   uploadManualExecutiveSummaryUrl:
     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/upload-manual-executive-summary',
+  getExecutiveSummaryUploadUrl:
+    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/get-executive-summary-upload-url',
   generateContentUrl:
     'https://oda3k47th4.execute-api.ca-central-1.amazonaws.com/dev/session-debrief',
   executiveSummaryUrl:

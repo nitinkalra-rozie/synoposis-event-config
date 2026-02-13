@@ -54,23 +54,23 @@
             <div>
               <div><strong>All</strong></div>
               <div style="font-size: 12px; color: #666">
-                Show all track debriefs regardless of PDF V2 status
+                Show all track debriefs regardless of PDF status
               </div>
             </div>
           </mat-option>
           <mat-option value="hasV2">
             <div>
-              <div><strong>Has V2</strong></div>
+              <div><strong>Has PDF</strong></div>
               <div style="font-size: 12px; color: #666">
-                Track debriefs with PDF V2
+                Track debriefs with PDF
               </div>
             </div>
           </mat-option>
           <mat-option value="noV2">
             <div>
-              <div><strong>No V2</strong></div>
+              <div><strong>No PDF</strong></div>
               <div style="font-size: 12px; color: #666">
-                Track debriefs without PDF V2
+                Track debriefs without PDF
               </div>
             </div>
           </mat-option>
@@ -80,7 +80,7 @@
     <div class="generate-debrief-button">
       <button
         mat-raised-button
-        matTooltip="Generate PDF V2 for selected tracks"
+        matTooltip="Generate PDF for selected tracks"
         [disabled]="
           !selectedEvent ||
           uniqueTracks.length === 0 ||
@@ -89,17 +89,27 @@
         (click)="generateTrackDebrief.emit()"
         color="primary">
         <mat-icon>add</mat-icon>
-        Generate PDF V2
+        Generate PDF
       </button>
       <button
         mat-raised-button
-        matTooltip="Publish all selected track debrief reports (requires PDF V2)"
+        matTooltip="Publish all selected track debrief reports (requires PDF)"
         [disabled]="selectedTrackDebriefs.size === 0"
         (click)="publishReport.emit()"
         color="accent"
         style="margin-left: 10px">
         <mat-icon>publish</mat-icon>
         Publish Report
+      </button>
+      <button
+        mat-raised-button
+        matTooltip="Download PDF for selected tracks"
+        [disabled]="selectedTrackDebriefs.size === 0"
+        (click)="onDownloadPdfV2()"
+        color="accent"
+        style="margin-left: 10px">
+        <mat-icon>download</mat-icon>
+        Download PDF
       </button>
     </div>
     <!-- Second row for range selection -->
@@ -192,9 +202,9 @@
         </td>
       </ng-container>
 
-      <!-- PDF Path V2 Column -->
+      <!-- PDF Column -->
       <ng-container matColumnDef="pdfPathV2">
-        <th *matHeaderCellDef mat-header-cell>PDF V2</th>
+        <th *matHeaderCellDef mat-header-cell>PDF</th>
         <td
           *matCellDef="let row; let i = index"
           mat-cell
@@ -203,7 +213,7 @@
           @if (row.pdfPathV2) {
             <button
               mat-icon-button
-              matTooltip="Open PDF V2"
+              matTooltip="Open PDF"
               (click)="onViewPdfV2(row); $event.stopPropagation()">
               <mat-icon>picture_as_pdf</mat-icon>
             </button>

@@ -85,19 +85,27 @@
                         [toIndex]="toIndex"
                         [totalRecords]="totalRecords"
                         [uniqueDays]="uniqueDays"
+                        (downloadPdfV1)="downloadSelectedSessionsPdf('v1')"
+                        (downloadPdfV2)="downloadSelectedSessionsPdf('v2')"
                         (editContent)="editContent($event)"
                         (eventDayFilterChange)="onEventDayFilterChange($event)"
                         (fileFilterModeChange)="onFileFilterModeChange($event)"
                         (filterChange)="applyFilter($event)"
                         (generatePdf)="generatePDF()"
+                        (generatePdfV1)="generatePDFV1()"
+                        (generateRealtimeInsights)="
+                          generateRealtimeInsightsSessionContent()
+                        "
                         (highlightRow)="highlightRow($event.row, $event.index)"
                         (openAudioPlayer)="openAudioPlayer($event)"
                         (openPublishPdf)="openPublishPdf($event)"
                         (pdfFilterModeChange)="onPdfFilterModeChange($event)"
                         (publishReport)="publishReport()"
+                        (publishReportV1)="publishReportV1()"
                         (rangeInputChange)="
                           onRangeInputChange($event.field, $event.event)
                         "
+                        (regenerateContent)="regenerateSessionContent()"
                         (selectRange)="selectRange()"
                         (sessionToggle)="
                           onSessionToggle($event.sessionId, $event.checked)
@@ -142,6 +150,7 @@
                                   $event.checked
                                 )
                               "
+                              (downloadPdfV2)="downloadDailyDebriefPdfV2()"
                               (editContent)="editContentForDailyDebrief($event)"
                               (eventDayFilterChange)="
                                 onDailyDebriefEventDayFilterChange($event)
@@ -178,6 +187,7 @@
                               "
                               [trackSearchFilter]="trackSearchFilter"
                               [uniqueTracks]="uniqueTracks"
+                              (downloadPdfV2)="downloadTrackDebriefPdfV2()"
                               (editContent)="editContentForTrackDebrief($event)"
                               (generateTrackDebrief)="
                                 openGenerateTrackDebriefDialog()
@@ -228,6 +238,7 @@
                                 selectedExecutiveSummaries
                               "
                               [uniqueDays]="uniqueDays"
+                              (downloadPdfV2)="downloadExecutiveSummaryPdfV2()"
                               (editContent)="
                                 editContentForExecutiveSummary($event)
                               "

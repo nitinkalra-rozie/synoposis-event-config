@@ -1,0 +1,53 @@
+<div class="column-selection-dialog">
+  <h2 mat-dialog-title>Select Columns for Export</h2>
+
+  <mat-dialog-content class="scrollable-content">
+    <div class="dialog-content">
+      <p class="description">
+        Select the columns you want to include in the Excel file.
+      </p>
+
+      <div class="action-buttons">
+        <button mat-button (click)="selectAll()" color="primary" type="button">
+          Select All
+        </button>
+        <button
+          mat-button
+          (click)="deselectAll()"
+          color="primary"
+          type="button">
+          Deselect All
+        </button>
+        <span class="selected-count">
+          {{ selectedCount }} of {{ columns.length }} selected
+        </span>
+      </div>
+
+      <div class="columns-list">
+        @for (column of columns; track column.key) {
+          <div class="column-item">
+            <mat-checkbox
+              [id]="'column-' + column.key"
+              [(ngModel)]="column.selected">
+              {{ column.label }}
+            </mat-checkbox>
+          </div>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button class="cancel-button" (click)="onCancel()" type="button">
+      Cancel
+    </button>
+    <button
+      mat-button
+      class="generate-button"
+      [disabled]="selectedCount === 0"
+      (click)="onGenerate()"
+      type="button">
+      Generate Excel
+    </button>
+  </mat-dialog-actions>
+</div>

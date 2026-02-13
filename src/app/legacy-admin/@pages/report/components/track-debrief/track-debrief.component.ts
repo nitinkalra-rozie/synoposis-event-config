@@ -85,6 +85,7 @@ export class TrackDebriefComponent implements AfterViewInit {
   @Output() public selectRange = new EventEmitter<void>();
   @Output() public editContent = new EventEmitter<TrackDebriefRow>();
   @Output() public viewPdfV2 = new EventEmitter<TrackDebriefRow>();
+  @Output() public downloadPdfV2 = new EventEmitter<void>();
   @Output() public openPublishPdf = new EventEmitter<string>();
   @Output() public highlightRow = new EventEmitter<{
     row: TrackDebriefRow;
@@ -160,6 +161,10 @@ export class TrackDebriefComponent implements AfterViewInit {
 
   onViewPdfV2(row: TrackDebriefRow): void {
     this.viewPdfV2.emit(row);
+  }
+
+  onDownloadPdfV2(): void {
+    this.downloadPdfV2.emit();
   }
 
   onOpenPublishPdf(url: string): void {

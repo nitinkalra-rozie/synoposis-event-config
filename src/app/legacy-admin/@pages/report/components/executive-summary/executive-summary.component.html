@@ -15,13 +15,23 @@
       </button>
       <button
         mat-raised-button
-        matTooltip="Publish executive summary report (requires PDF V2)"
+        matTooltip="Publish executive summary report (requires PDF)"
         [disabled]="!hasAnyWithPdfV2()"
         (click)="publishReport.emit()"
         color="accent"
         style="margin-left: 10px">
         <mat-icon>publish</mat-icon>
         Publish Report
+      </button>
+      <button
+        mat-raised-button
+        matTooltip="Download PDF for selected executive summaries"
+        [disabled]="!hasAnyWithPdfV2()"
+        (click)="onDownloadPdfV2()"
+        color="accent"
+        style="margin-left: 10px">
+        <mat-icon>download</mat-icon>
+        Download PDF
       </button>
       <button
         mat-raised-button
@@ -60,9 +70,9 @@
         </td>
       </ng-container>
 
-      <!-- PDF Path V2 Column -->
+      <!-- PDF Column -->
       <ng-container matColumnDef="pdfPathV2">
-        <th *matHeaderCellDef mat-header-cell>PDF V2</th>
+        <th *matHeaderCellDef mat-header-cell>PDF</th>
         <td
           *matCellDef="let row; let i = index"
           mat-cell
@@ -71,7 +81,7 @@
           @if (row.pdfPathV2) {
             <button
               mat-icon-button
-              matTooltip="Open PDF V2"
+              matTooltip="Open PDF"
               (click)="onViewPdfV2(row); $event.stopPropagation()">
               <mat-icon>picture_as_pdf</mat-icon>
             </button>

@@ -31,6 +31,10 @@ export class LegacyBackendApiService {
     return getLocalStorageItem<string>('EVENT_LLM_DOMAIN');
   }
 
+  getCurrentStage(): string | null {
+    return localStorage.getItem('currentStage');
+  }
+
   getCurrentTimezone(): string {
     return this._currentTimezone;
   }

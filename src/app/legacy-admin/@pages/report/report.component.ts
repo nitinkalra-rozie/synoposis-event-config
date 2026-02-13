@@ -16,13 +16,13 @@
  */
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  inject,
-  OnInit,
-  ViewChild,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    inject,
+    OnInit,
+    ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -30,9 +30,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
-  MatDialog,
-  MatDialogModule,
-  MatDialogRef,
+    MatDialog,
+    MatDialogModule,
+    MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
@@ -50,8 +50,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, Observable, of } from 'rxjs';
 import {
-  MarkdownEditorData,
-  MarkdownEditorDialogComponent,
+    MarkdownEditorData,
+    MarkdownEditorDialogComponent,
 } from 'src/app/content-editor/components/edit-content-dialog/markdown-editor-dialog.component';
 import { EventStatus } from 'src/app/insights-editor/data-services/insights-editor.data-model';
 import { TopBarComponent } from 'src/app/legacy-admin/@components/top-bar/top-bar.component';
@@ -2120,6 +2120,118 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Downloads PDF (V1 or V2) for all selected sessions in Session Debrief.
+   * Uses the version selected by the user via the session-debrief checkboxes.
+   * @param {'v1' | 'v2'} version - The PDF version to download
+   * @returns {void}
+   */
+  downloadSelectedSessionsPdf(version: 'v1' | 'v2'): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to download PDF.'
+      );
+      return;
+    }
+
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const withVersion = this.sessions.filter(
+      (session) =>
+        selectedSessionIds.includes(session.SessionId) &&
+        (session as Session & { pdfVersion?: number }).pdfVersion
+    );
+    const hasPdfPath = (
+      s: Session & { pdfPathV1?: string; pdfPathV2?: string },
+      v: 'v1' | 'v2'
+    ): boolean => {
+      const path = v === 'v1' ? s.pdfPathV1 : s.pdfPathV2;
+      return Boolean(
+        path && (typeof path === 'string' ? path.trim().length > 0 : path)
+      );
+    };
+    const selectedSessionsData = withVersion.filter((session) =>
+      hasPdfPath(
+        session as Session & { pdfPathV1?: string; pdfPathV2?: string },
+        version
+      )
+    );
+
+    if (selectedSessionsData.length === 0) {
+      this.displayErrorMessage(
+        version === 'v1'
+          ? 'No selected sessions have PDF V1 available to download.'
+          : 'No selected sessions have PDF V2 available to download.'
+      );
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Preparing download (${version.toUpperCase()}) for ${selectedSessionsData.length} session(s)...`,
+        },
+      }
+    );
+
+    let index = 0;
+    const sessionList = selectedSessionsData as (Session & {
+      pdfVersion?: number;
+    })[];
+    const tryNext = (): void => {
+      if (index >= sessionList.length) {
+        dialogRef.close();
+        this.snackBar.open(
+          `Downloaded ${sessionList.length} PDF (${version.toUpperCase()}) file(s).`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+      const session = sessionList[index];
+      const data = {
+        eventId: this.selectedEvent,
+        sessionId: session.SessionId,
+        sessionType: this.normalizeSessionType(session.Type || 'primary'),
+        reportType: 'session_debrief',
+        version: session.pdfVersion || 0,
+        promptVersion: version,
+      };
+      this._backendApiService.getSignedPdfUrl(data).subscribe({
+        next: (response: { presignedUrl?: string }) => {
+          const url = response?.presignedUrl;
+          if (!url) {
+            index += 1;
+            tryNext();
+            return;
+          }
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              const anchor = document.createElement('a');
+              anchor.href = objectUrl;
+              anchor.download = `session-${session.SessionId}-${version}.pdf`;
+              anchor.click();
+              URL.revokeObjectURL(objectUrl);
+              index += 1;
+              tryNext();
+            })
+            .catch(() => {
+              index += 1;
+              tryNext();
+            });
+        },
+        error: () => {
+          index += 1;
+          tryNext();
+        },
+      });
+    };
+    tryNext();
+  }
+
+  /**
    * Views PDF V1 for Track Debrief (unique track row).
    * Uses contentIdentifier from content-versions API to get the PDF URL.
    * @param {any} trackRow - The track row object with Track and version properties
@@ -2332,6 +2444,281 @@ export class ReportComponent implements OnInit, AfterViewInit {
         this.displayErrorMessage('Failed to open PDF. Please try again.');
       },
     });
+  }
+
+  /**
+   * Downloads PDF V2 for all selected daily debriefs that have PDF V2 available.
+   * @returns {void}
+   */
+  downloadDailyDebriefPdfV2(): void {
+    const rows = (this.dailyDebriefDataSource?.data ?? []).filter(
+      (row: { EventDay: string; pdfPathV2?: string }) =>
+        this.selectedDailyDebriefs.has(row.EventDay) &&
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2)
+    );
+    if (rows.length === 0) {
+      this.displayErrorMessage(
+        'No selected daily debriefs have PDF V2 available to download.'
+      );
+      return;
+    }
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Preparing download for ${rows.length} daily debrief(s)...`,
+        },
+      }
+    );
+    let index = 0;
+    const tryNext = (): void => {
+      if (index >= rows.length) {
+        dialogRef.close();
+        this.snackBar.open(
+          `Downloaded ${rows.length} daily debrief PDF (V2) file(s).`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+      const row = rows[index];
+      const dailyDebriefId =
+        (row as { _dailyDebriefId?: string })._dailyDebriefId ||
+        row.EventDay.replace(/\s+/g, '_');
+      const pdfPaths = this.getLatestPdfPathsForDailyDebrief(dailyDebriefId);
+      if (!pdfPaths?.pdfPathV2) {
+        index += 1;
+        tryNext();
+        return;
+      }
+      const contentIdentifier = `${this.selectedEvent}|${dailyDebriefId}`;
+      const data = {
+        eventId: this.selectedEvent,
+        briefId: contentIdentifier,
+        reportType: 'daily_debrief',
+        version: pdfPaths.version || 0,
+        promptVersion: 'v2',
+      };
+      this._backendApiService.getSignedPdfUrl(data).subscribe({
+        next: (response: { presignedUrl?: string }) => {
+          const url = response?.presignedUrl;
+          if (!url) {
+            index += 1;
+            tryNext();
+            return;
+          }
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              const anchor = document.createElement('a');
+              anchor.href = objectUrl;
+              anchor.download = `daily-debrief-${dailyDebriefId}-v2.pdf`;
+              anchor.click();
+              URL.revokeObjectURL(objectUrl);
+              index += 1;
+              tryNext();
+            })
+            .catch(() => {
+              index += 1;
+              tryNext();
+            });
+        },
+        error: () => {
+          index += 1;
+          tryNext();
+        },
+      });
+    };
+    tryNext();
+  }
+
+  /**
+   * Downloads PDF V2 for all selected track debriefs that have PDF V2 available.
+   * @returns {void}
+   */
+  downloadTrackDebriefPdfV2(): void {
+    const rows = (this.trackDebriefDataSource?.data ?? []).filter(
+      (row: { Track: string; pdfPathV2?: string }) =>
+        this.selectedTrackDebriefs.has(row.Track) &&
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2)
+    );
+    if (rows.length === 0) {
+      this.displayErrorMessage(
+        'No selected track debriefs have PDF V2 available to download.'
+      );
+      return;
+    }
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Preparing download for ${rows.length} track debrief(s)...`,
+        },
+      }
+    );
+    let index = 0;
+    const tryNext = (): void => {
+      if (index >= rows.length) {
+        dialogRef.close();
+        this.snackBar.open(
+          `Downloaded ${rows.length} track debrief PDF (V2) file(s).`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+      const row = rows[index];
+      const pdfPaths = this.getLatestPdfPathsForTrack(row.Track);
+      if (!pdfPaths?.pdfPathV2 || !pdfPaths?.contentIdentifier) {
+        index += 1;
+        tryNext();
+        return;
+      }
+      const data = {
+        eventId: this.selectedEvent,
+        briefId: pdfPaths.contentIdentifier,
+        reportType: 'track_debrief',
+        version: pdfPaths.version || 0,
+        promptVersion: 'v2',
+      };
+      this._backendApiService.getSignedPdfUrl(data).subscribe({
+        next: (response: { presignedUrl?: string }) => {
+          const url = response?.presignedUrl;
+          if (!url) {
+            index += 1;
+            tryNext();
+            return;
+          }
+          const safeTrack = row.Track.replace(/[^a-zA-Z0-9-_]/g, '_');
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              const anchor = document.createElement('a');
+              anchor.href = objectUrl;
+              anchor.download = `track-debrief-${safeTrack}-v2.pdf`;
+              anchor.click();
+              URL.revokeObjectURL(objectUrl);
+              index += 1;
+              tryNext();
+            })
+            .catch(() => {
+              index += 1;
+              tryNext();
+            });
+        },
+        error: () => {
+          index += 1;
+          tryNext();
+        },
+      });
+    };
+    tryNext();
+  }
+
+  /**
+   * Downloads PDF V2 for all selected executive summaries that have PDF V2 available.
+   * @returns {void}
+   */
+  downloadExecutiveSummaryPdfV2(): void {
+    const data = this.executiveSummaryDataSource?.data ?? [];
+    const hasPdfV2 = (row: { pdfPathV2?: string }): boolean =>
+      Boolean(
+        row.pdfPathV2 &&
+          (typeof row.pdfPathV2 === 'string'
+            ? row.pdfPathV2.trim().length > 0
+            : row.pdfPathV2)
+      );
+    const rows =
+      this.selectedExecutiveSummaries.size > 0
+        ? data.filter(
+            (row: { executiveSummaryId: string; pdfPathV2?: string }) =>
+              this.selectedExecutiveSummaries.has(row.executiveSummaryId) &&
+              hasPdfV2(row)
+          )
+        : data.filter((row: { pdfPathV2?: string }) => hasPdfV2(row));
+    if (rows.length === 0) {
+      this.displayErrorMessage(
+        this.selectedExecutiveSummaries.size > 0
+          ? 'No selected executive summaries have PDF V2 available to download.'
+          : 'No executive summaries have PDF V2 available to download.'
+      );
+      return;
+    }
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Preparing download for ${rows.length} executive summary(ies)...`,
+        },
+      }
+    );
+    let index = 0;
+    const tryNext = (): void => {
+      if (index >= rows.length) {
+        dialogRef.close();
+        this.snackBar.open(
+          `Downloaded ${rows.length} executive summary PDF (V2) file(s).`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+      const row = rows[index];
+      const data = {
+        eventId: this.selectedEvent,
+        briefId: `${this.selectedEvent}|${row.executiveSummaryId}`,
+        reportType: 'executive_summary',
+        version: (row as { version?: number }).version ?? 0,
+        promptVersion: 'v2',
+      };
+      this._backendApiService.getSignedPdfUrl(data).subscribe({
+        next: (response: { presignedUrl?: string }) => {
+          const url =
+            response?.presignedUrl ?? (response as { url?: string })?.url;
+          if (!url) {
+            index += 1;
+            tryNext();
+            return;
+          }
+          const safeId = String(row.executiveSummaryId).replace(
+            /[^a-zA-Z0-9-_]/g,
+            '_'
+          );
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const objectUrl = URL.createObjectURL(blob);
+              const anchor = document.createElement('a');
+              anchor.href = objectUrl;
+              anchor.download = `executive-summary-${safeId}-v2.pdf`;
+              anchor.click();
+              URL.revokeObjectURL(objectUrl);
+              index += 1;
+              tryNext();
+            })
+            .catch(() => {
+              index += 1;
+              tryNext();
+            });
+        },
+        error: () => {
+          index += 1;
+          tryNext();
+        },
+      });
+    };
+    tryNext();
   }
 
   /**
@@ -4011,6 +4398,266 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Regenerates content for selected sessions by calling r2/config with action endSession.
+   * Uses the same payload shape as the backend expects (sessionId, screenTimeout, sessionTitle, domain, eventName).
+   * Domain is resolved the same way as Daily Debrief: from event config (Information.EventDomain or Domain).
+   * @returns {void}
+   */
+  regenerateSessionContent(): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to regenerate content.'
+      );
+      return;
+    }
+
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    const eventConfig = this.events.find(
+      (e: EventConfig) => e.EventIdentifier === this.selectedEvent
+    );
+    const domain =
+      eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
+    if (!eventConfig || !domain) {
+      this.displayErrorMessage(
+        'Event domain not found. Cannot regenerate content.'
+      );
+      return;
+    }
+
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const selectedSessionsData = this.sessions.filter((session) =>
+      selectedSessionIds.includes(session.SessionId)
+    );
+
+    if (selectedSessionsData.length === 0) {
+      this.displayErrorMessage('No sessions selected.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Regenerating content for ${selectedSessionsData.length} session(s)...`,
+        },
+      }
+    );
+
+    const screenTimeout = 60;
+    const regenerateObservables = selectedSessionsData.map(
+      (session: Session) => {
+        const payload = {
+          action: 'endSession',
+          sessionId: session.SessionId,
+          screenTimeout,
+          sessionTitle: session.SessionTitle ?? '',
+          domain,
+          eventName: this.selectedEvent,
+          ...(session.Location != null &&
+            session.Location !== '' && { stage: session.Location }),
+        };
+        return this._backendApiService.postR2Config(payload);
+      }
+    );
+
+    forkJoin(regenerateObservables).subscribe({
+      next: () => {
+        dialogRef.close();
+        this.snackBar.open(
+          `Content regeneration triggered for ${selectedSessionsData.length} session(s).`,
+          'Close',
+          {
+            duration: 5000,
+            panelClass: ['snackbar-success'],
+          }
+        );
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error regenerating content:', error);
+        this.displayErrorMessage(
+          'Failed to regenerate content. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Triggers Generate Realtime Insights for selected sessions by calling
+   * r2/generateRealtimeInsights with eventName, sessionId, and domain from payload.
+   */
+  generateRealtimeInsightsSessionContent(): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to generate realtime insights.'
+      );
+      return;
+    }
+
+    if (!this.selectedEvent) {
+      this.displayErrorMessage('Please select an event first.');
+      return;
+    }
+
+    const eventConfig = this.events.find(
+      (e: EventConfig) => e.EventIdentifier === this.selectedEvent
+    );
+    const domain =
+      eventConfig?.['Information']?.['EventDomain'] || eventConfig?.Domain;
+    if (!eventConfig || !domain) {
+      this.displayErrorMessage(
+        'Event domain not found. Cannot generate realtime insights.'
+      );
+      return;
+    }
+
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const selectedSessionsData = this.sessions.filter((session) =>
+      selectedSessionIds.includes(session.SessionId)
+    );
+
+    if (selectedSessionsData.length === 0) {
+      this.displayErrorMessage('No sessions selected.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Generating realtime insights for ${selectedSessionsData.length} session(s)...`,
+        },
+      }
+    );
+
+    const observables = selectedSessionsData.map((session: Session) =>
+      this._backendApiService.postGenerateRealtimeInsights(
+        this.selectedEvent,
+        session.SessionId,
+        domain
+      )
+    );
+
+    forkJoin(observables).subscribe({
+      next: () => {
+        dialogRef.close();
+        this.snackBar.open(
+          `Realtime insights triggered for ${selectedSessionsData.length} session(s).`,
+          'Close',
+          {
+            duration: 5000,
+            panelClass: ['snackbar-success'],
+          }
+        );
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error generating realtime insights:', error);
+        this.displayErrorMessage(
+          'Failed to generate realtime insights. Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
+   * Generates PDF V1 (single prompt) for all selected sessions.
+   * Generates PDF version 1 for each selected session in parallel.
+   * @returns {void}
+   */
+  generatePDFV1(): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to generate PDF.'
+      );
+      return;
+    }
+
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const selectedSessionsData = this.sessions.filter((session) =>
+      selectedSessionIds.includes(session.SessionId)
+    );
+
+    if (selectedSessionsData.length === 0) {
+      this.displayErrorMessage('No sessions selected.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Generating PDFs (V1) for ${selectedSessionsData.length} session(s)...`,
+        },
+      }
+    );
+
+    const generateObservables = selectedSessionsData.map((session: Session) => {
+      const normalizedSessionType = this.normalizeSessionType(
+        session.Type || 'primary'
+      );
+      const data = {
+        eventId: this.selectedEvent,
+        sessionId: session.SessionId,
+        sessionType: normalizedSessionType,
+        reportType: 'session_debrief',
+        version: session.pdfVersion || 0,
+        isSinglePrompt: true,
+        dailyDebriefId: '',
+      };
+      return this._backendApiService.generateContentPDFUrl(data);
+    });
+
+    forkJoin(generateObservables).subscribe({
+      next: (responses) => {
+        console.log('All PDFs (V1) generated:', responses);
+        dialogRef.close();
+
+        const successful = responses.filter((r: any) => !r.error).length;
+        const failed = responses.filter((r: any) => r.error).length;
+
+        if (failed === 0) {
+          this.snackBar.open(
+            `Successfully generated PDFs (V1) for ${successful} session(s)!`,
+            'Close',
+            {
+              duration: 5000,
+              panelClass: ['snackbar-success'],
+            }
+          );
+        } else {
+          this.snackBar.open(
+            `Generated PDFs (V1) for ${successful} session(s) successfully. ${failed} session(s) failed.`,
+            'Close',
+            {
+              duration: 7000,
+              panelClass: ['snackbar-error'],
+            }
+          );
+        }
+
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error generating PDFs (V1):', error);
+        this.displayErrorMessage(
+          'Failed to generate some PDFs (V1). Please try again.'
+        );
+      },
+    });
+  }
+
+  /**
    * Generates PDF for all selected sessions.
    * Generates PDF version 2 (latest) for each selected session in parallel.
    * Shows success/error messages and refreshes the sessions list after completion.
@@ -4131,6 +4778,112 @@ export class ReportComponent implements OnInit, AfterViewInit {
       promptVersion: promptVersion,
     };
     return this._backendApiService.publishPdfReport(data);
+  }
+
+  /**
+   * Publishes reports for all selected sessions (PDF V1).
+   * Publishes PDF version 1 for each selected session that has PDF V1 in parallel.
+   * Shows success/error messages and refreshes the sessions list after completion.
+   * @returns {void}
+   */
+  publishReportV1(): void {
+    if (this.selectedSessions.size === 0) {
+      this.displayErrorMessage(
+        'Please select at least one session to publish.'
+      );
+      return;
+    }
+
+    const selectedSessionIds = Array.from(this.selectedSessions);
+    const selectedSessionsData = this.sessions.filter((session) =>
+      selectedSessionIds.includes(session.SessionId)
+    );
+
+    const sessionsToPublish = selectedSessionsData.filter(
+      (session: Session & { pdfVersion?: number; pdfPathV1?: string }) =>
+        session.pdfVersion && session.pdfPathV1
+    );
+
+    if (sessionsToPublish.length === 0) {
+      this.displayErrorMessage('No sessions with PDF V1 available to publish.');
+      return;
+    }
+
+    const dialogRef: MatDialogRef<LoadingDialogComponent> = this.dialog.open(
+      LoadingDialogComponent,
+      {
+        disableClose: true,
+        data: {
+          message: `Publishing reports (V1) for ${sessionsToPublish.length} session(s)...`,
+        },
+      }
+    );
+
+    const publishObservables = sessionsToPublish.map(
+      (session: Session & { pdfVersion?: number; pdfPathV1?: string }) => {
+        const normalizedSessionType = this.normalizeSessionType(
+          session.Type || 'primary'
+        );
+        return this.publishPDF(
+          session.pdfVersion!,
+          'v1',
+          session.SessionId,
+          normalizedSessionType,
+          'session_debrief'
+        ).pipe(
+          catchError((error) => {
+            console.error(
+              `Error publishing report V1 for session ${session.SessionId}:`,
+              error
+            );
+            return of({
+              error: true,
+              sessionId: session.SessionId,
+              errorMessage: error,
+            });
+          })
+        );
+      }
+    );
+
+    forkJoin(publishObservables).subscribe({
+      next: (responses) => {
+        console.log('All reports (V1) published:', responses);
+        dialogRef.close();
+
+        const successful = responses.filter((r: any) => !r.error).length;
+        const failed = responses.filter((r: any) => r.error).length;
+
+        if (failed === 0) {
+          this.snackBar.open(
+            `Successfully published reports (V1) for ${successful} session(s)!`,
+            'Close',
+            {
+              duration: 5000,
+              panelClass: ['snackbar-success'],
+            }
+          );
+        } else {
+          this.snackBar.open(
+            `Published ${successful} session(s) (V1) successfully. ${failed} session(s) failed.`,
+            'Close',
+            {
+              duration: 7000,
+              panelClass: ['snackbar-error'],
+            }
+          );
+        }
+
+        this.getSessionsForEvent(this.selectedEvent);
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error('Error publishing reports (V1):', error);
+        this.displayErrorMessage(
+          'Failed to publish some reports (V1). Please try again.'
+        );
+      },
+    });
   }
 
   /**
@@ -4281,6 +5034,38 @@ export class ReportComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Strips key_insights from "Best practices" and "Quotes" when both are present.
+   * Used for single_prompt_version so Edit Content does not show those sections in key_insights.
+   * @param keyInsights - key_insights value (array of strings or string)
+   * @returns Trimmed array or string; unchanged if both markers are not present
+   */
+  private stripKeyInsightsFromBestPracticesAndQuotes(
+    keyInsights: unknown
+  ): unknown {
+    if (!Array.isArray(keyInsights)) {
+      return keyInsights;
+    }
+    const hasBestPractices = keyInsights.some(
+      (item) => typeof item === 'string' && /Best\s+practices/i.test(item)
+    );
+    const hasQuotes = keyInsights.some(
+      (item) => typeof item === 'string' && /Quotes?/i.test(item)
+    );
+    if (!hasBestPractices || !hasQuotes) {
+      return keyInsights;
+    }
+    const cutIndex = keyInsights.findIndex(
+      (item) =>
+        typeof item === 'string' &&
+        (/Best\s+practices/i.test(item) || /Quotes?/i.test(item))
+    );
+    if (cutIndex === -1) {
+      return keyInsights;
+    }
+    return keyInsights.slice(0, cutIndex);
+  }
+
+  /**
    * Edits content for a session version.
    * Fetches the version content and opens the markdown editor dialog.
    * @param {Session | any} session - The session object with optional pdfVersion
@@ -4316,8 +5101,21 @@ export class ReportComponent implements OnInit, AfterViewInit {
     this._backendApiService.getVersionContent(data).subscribe({
       next: (response) => {
         dialogRef.close();
+        const content = JSON.parse(JSON.stringify(response)) as Record<
+          string,
+          unknown
+        >;
+        const single = content['single_prompt_version'] as
+          | Record<string, unknown>
+          | undefined;
+        if (single && Array.isArray(single['key_insights'])) {
+          single['key_insights'] =
+            this.stripKeyInsightsFromBestPracticesAndQuotes(
+              single['key_insights']
+            );
+        }
         this.openMarkdownDialog(
-          response,
+          content,
           sessionWithVersion.pdfVersion!,
           sessionWithVersion
         );

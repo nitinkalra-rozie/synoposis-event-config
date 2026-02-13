@@ -72,6 +72,7 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
   }>();
   @Output() public editContent = new EventEmitter<ExecutiveSummaryRow>();
   @Output() public viewPdfV2 = new EventEmitter<ExecutiveSummaryRow>();
+  @Output() public downloadPdfV2 = new EventEmitter<void>();
   @Output() public openPublishPdf = new EventEmitter<string>();
   @Output() public highlightRow = new EventEmitter<{
     row: ExecutiveSummaryRow;
@@ -160,6 +161,28 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
     });
   }
 
+  /**
+   * Checks if any selected executive summary has PDF V2 available for download.
+   * @returns {boolean} True if at least one selected item has PDF V2
+   */
+  hasAnySelectedWithPdfV2(): boolean {
+    if (
+      !this.dataSource?.data?.length ||
+      this.selectedExecutiveSummaries.size === 0
+    ) {
+      return false;
+    }
+    const data = this.dataSource.data;
+    return data.some(
+      (row: ExecutiveSummaryRow) =>
+        this.selectedExecutiveSummaries.has(row.executiveSummaryId) &&
+        row.pdfPathV2 &&
+        (typeof row.pdfPathV2 === 'string'
+          ? row.pdfPathV2.trim().length > 0
+          : row.pdfPathV2)
+    );
+  }
+
   onExecutiveSummaryToggle(executiveSummaryId: string, checked: boolean): void {
     this.executiveSummaryToggle.emit({ executiveSummaryId, checked });
   }
@@ -174,6 +197,10 @@ export class ExecutiveSummaryComponent implements AfterViewInit {
 
   onViewPdfV2(row: ExecutiveSummaryRow): void {
     this.viewPdfV2.emit(row);
+  }
+
+  onDownloadPdfV2(): void {
+    this.downloadPdfV2.emit();
   }
 
   onOpenPublishPdf(url: string): void {

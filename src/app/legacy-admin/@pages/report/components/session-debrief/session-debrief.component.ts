@@ -73,8 +73,12 @@ export class SessionDebriefComponent implements AfterViewInit, OnChanges {
     checked: boolean;
   }>();
   @Output() public toggleAll = new EventEmitter<boolean>();
+  @Output() public regenerateContent = new EventEmitter<void>();
+  @Output() public generateRealtimeInsights = new EventEmitter<void>();
   @Output() public generatePdf = new EventEmitter<void>();
+  @Output() public generatePdfV1 = new EventEmitter<void>();
   @Output() public publishReport = new EventEmitter<void>();
+  @Output() public publishReportV1 = new EventEmitter<void>();
   @Output() public filterChange = new EventEmitter<Event>();
   @Output() public fileFilterModeChange = new EventEmitter<FileFilterMode>();
   @Output() public pdfFilterModeChange = new EventEmitter<PdfFilterMode>();
@@ -87,6 +91,8 @@ export class SessionDebriefComponent implements AfterViewInit, OnChanges {
   @Output() public editContent = new EventEmitter<Session>();
   @Output() public viewPdfV1 = new EventEmitter<Session>();
   @Output() public viewPdfV2 = new EventEmitter<Session>();
+  @Output() public downloadPdfV1 = new EventEmitter<void>();
+  @Output() public downloadPdfV2 = new EventEmitter<void>();
   @Output() public openPublishPdf = new EventEmitter<string>();
   @Output() public openAudioPlayer = new EventEmitter<string>();
   @Output() public highlightRow = new EventEmitter<{
@@ -220,6 +226,14 @@ export class SessionDebriefComponent implements AfterViewInit, OnChanges {
 
   onViewPdfV2(row: Session): void {
     this.viewPdfV2.emit(row);
+  }
+
+  onDownloadPdfV1(): void {
+    this.downloadPdfV1.emit();
+  }
+
+  onDownloadPdfV2(): void {
+    this.downloadPdfV2.emit();
   }
 
   onOpenPublishPdf(url: string): void {

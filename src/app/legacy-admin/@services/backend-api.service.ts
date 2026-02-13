@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { Session } from 'src/app/legacy-admin/@pages/event-configuration/event-configuration.component';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { environment } from 'src/environments/environment';
@@ -235,25 +236,14 @@ export class BackendApiService {
 
     // Use the same base URL pattern as other report generation endpoints
     // Replace the endpoint path while keeping the base URL
-    let apiUrl = environment.publishContentPDFUrl;
-    if (apiUrl && apiUrl.includes('/publish-pdf-content')) {
-      apiUrl = apiUrl.replace(
-        '/publish-pdf-content',
-        '/publish-debrief-reports'
-      );
-    } else {
-      // Fallback: construct URL from base pattern
-      const baseUrl =
-        environment.publishContentPDFUrl?.split('/').slice(0, -1).join('/') ||
-        'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev';
-      apiUrl = `${baseUrl}/publish-debrief-reports`;
-    }
-
+    const apiUrl =
+      environment.publishDebriefReportsUrl ||
+      'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/publish-debrief-reports';
     return this.http.post(apiUrl, body, { headers });
   }
 
   /**
-   * Uploads a manual executive summary PDF file via Lambda (avoids CORS issues).
+   * Uploads a manual executive summary PDF via presigned S3 URL (avoids 413 / payload size limits).
    * @param {string} eventId - The event identifier
    * @param {File} file - The PDF file to upload
    * @returns {Observable<Object>} Observable of the API response
@@ -265,18 +255,33 @@ export class BackendApiService {
     const headers = new HttpHeaders({
       'x-api-key': environment.X_API_KEY || '',
       'x-user-session': `Bearer ${localStorage.getItem('accessToken') || ''}`,
-      // Don't set Content-Type - let browser set it with boundary for multipart
+      'Content-Type': 'application/json',
     });
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('eventId', eventId);
-
-    return this.http.post(
-      environment.uploadManualExecutiveSummaryUrl,
-      formData,
-      { headers }
-    );
+    return this.http
+      .post<{
+        uploadUrl: string;
+        destinationKey: string;
+        eventId: string;
+      }>(environment.getExecutiveSummaryUploadUrl, { eventId }, { headers })
+      .pipe(
+        switchMap((res) =>
+          this.http
+            .put(res.uploadUrl, file, {
+              headers: new HttpHeaders({
+                'Content-Type': file.type || 'application/pdf',
+              }),
+              responseType: 'text',
+            })
+            .pipe(
+              map(() => ({
+                message: 'Manual executive summary PDF uploaded successfully',
+                eventId: res.eventId,
+                destinationKey: res.destinationKey,
+              }))
+            )
+        )
+      );
   }
 
   generateContent(data: any): Observable<Object> {
@@ -308,6 +313,29 @@ export class BackendApiService {
       editor: data.editor,
     };
     return this.http.post(environment.postData, body);
+  }
+
+  /**
+   * Posts a payload to the r2/config API (e.g. endSession to regenerate content).
+   * Sends the provided body as-is to environment.postData.
+   */
+  postR2Config(body: PostData): Observable<Object> {
+    return this.http.post(environment.postData, body);
+  }
+
+  /**
+   * Calls r2/generateRealtimeInsights to trigger realtime insights for a session.
+   * domain (eventDomain) must be provided in the payload.
+   */
+  postGenerateRealtimeInsights(
+    eventName: string,
+    sessionId: string,
+    domain: string
+  ): Observable<Object> {
+    const url =
+      environment.generateRealtimeInsightsUrl ||
+      `${environment.apiBaseUrl}/r2/generateRealtimeInsights`;
+    return this.http.post(url, { eventName, sessionId, domain });
   }
 
   updatePostInsights(data: any): Observable<Object> {

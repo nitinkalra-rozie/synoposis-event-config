@@ -9,6 +9,8 @@ export const environment = {
     'https://dev.api.synopsis.rozie.ai/r2/getPreSignedUrl',
   putTranscript: 'https://dev.api.synopsis.rozie.ai/r2/postTranscript',
   postData: 'https://dev.api.synopsis.rozie.ai/r2/config',
+  generateRealtimeInsightsUrl:
+    'https://dev.api.synopsis.rozie.ai/r2/generateRealtimeInsights',
   postDebriefData: 'https://dev.api.synopsis.rozie.ai/r4/config',
   getEventDetails: 'https://dev.api.synopsis.rozie.ai/r1/getEventDetails',
   getEventReportDetails:
@@ -25,13 +27,16 @@ export const environment = {
   getVersionContentUrl:
     'https://dev.api.synopsis.rozie.ai/r4/get-version-content',
   generateContentPDFUrl:
-    'https://dev.api.synopsis.rozie.ai/r4/generate-content-pdf',
+    'https://dev.api.synopsis.rozie.ai/generate-content-pdf',
   publishContentPDFUrl:
     'https://dev.api.synopsis.rozie.ai/r4/publish-pdf-content',
-  getPreSignedPDFUrl:
-    'https://dev.api.synopsis.rozie.ai/r4/get-content-pdf',
+  publishDebriefReportsUrl:
+    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/publish-debrief-reports',
+  getPreSignedPDFUrl: 'https://dev.api.synopsis.rozie.ai/r4/get-content-pdf',
   uploadManualExecutiveSummaryUrl:
     'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/upload-manual-executive-summary',
+  getExecutiveSummaryUploadUrl:
+    'https://rrjlcggfma.execute-api.ca-central-1.amazonaws.com/dev/get-executive-summary-upload-url',
   generateContentUrl:
     'https://oda3k47th4.execute-api.ca-central-1.amazonaws.com/dev/session-debrief',
   executiveSummaryUrl:
