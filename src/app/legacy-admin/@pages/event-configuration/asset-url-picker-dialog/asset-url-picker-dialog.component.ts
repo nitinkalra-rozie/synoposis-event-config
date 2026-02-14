@@ -123,7 +123,7 @@ export class AssetUrlPickerDialogComponent implements OnInit {
       this._cdr.markForCheck();
       return;
     }
-    firstValueFrom(this._backendApi.listS3Files(eventName))
+    firstValueFrom(this._backendApi.listAssets(eventName))
       .then((res) => {
         if (res?.success && res.data?.files?.length) {
           this.assets = res.data.files.map((f) => ({

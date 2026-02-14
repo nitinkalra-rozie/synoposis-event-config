@@ -124,10 +124,18 @@
       }
     }
 
+    .copy-url-btn {
+      flex-shrink: 0;
+      color: #666;
+
+      &:hover {
+        color: #3f51b5;
+      }
+    }
+
     .delete-asset-btn {
       flex-shrink: 0;
       color: #f44336;
-      margin-left: auto;
     }
 
     .spin {

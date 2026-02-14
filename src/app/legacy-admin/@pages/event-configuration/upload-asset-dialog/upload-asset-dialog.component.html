@@ -48,6 +48,15 @@
                     </span>
                   }
                 </div>
+                @if (asset.url) {
+                  <button
+                    mat-icon-button
+                    class="copy-url-btn"
+                    [attr.aria-label]="'Copy URL for ' + asset.name"
+                    (click)="onCopyUrl(asset)">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                }
                 <button
                   mat-icon-button
                   class="delete-asset-btn"

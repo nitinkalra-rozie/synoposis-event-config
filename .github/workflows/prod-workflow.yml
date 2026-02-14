@@ -9,54 +9,16 @@ env:
   deployment: prod
   ACCESS_KEY: ${{secrets.ACCESS_KEY}}
   SECRET_ACCESS_KEY: ${{secrets.SECRET_ACCESS_KEY}}
-  HOSTED_ZONE_NAME: ${{vars.HOSTED_ZONE_NAME}}
+  PROD_DOMAIN_NAME: ${{vars.PROD_DOMAIN_NAME}}
 
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
     environment: prod
-    strategy:
-      matrix:
-        events: [
-            # 'itc2024',
-            # 'hlth2024',
-            # 'clarion',
-            # 'itchartford',
-            # 'clarionexec',
-            'demo-sbx',
-            # 'heif2025',
-            # 'pgi2025',
-            # 'wds2025',
-            # 'rev2025',
-            # 'dte2025',
-            # 'isg2025',
-            # 'siso2025',
-            # 'bhr2025',
-            # 'itw2025',
-            # 'afa2025',
-            # 'xcsc2025',
-            # 'fff2025',
-            # 'dds2025',
-            # 'fms2025',
-            # 'slc2025',
-            # 'bcs2025',
-            # 'ceir2025',
-            # 'intc2025',
-            # 'g2e2025',
-            # 'waf2025',
-            # 'vatl2025',
-            # 'pcrtp2025',
-            'gpss2025',
-            'avai2025',
-            'pfd2025',
-          ]
     steps:
       - name: Set event environment variable
-        run: echo "EVENT=${{ matrix.events }}" >> $GITHUB_ENV
-      - name: Deploy
-        run: |
-          echo "Deploying for event: $EVENT"
+        run: echo "EVENT=${{ vars.PROD_EVENT }}" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -78,12 +40,12 @@ jobs:
 
       - name: check domain name
         run: |
-          DOMAIN_NAME=$EVENT.$HOSTED_ZONE_NAME     
-          echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
-      - name: check and set custom domain name
-        run: |
-          CUSTOM_DOMAIN_NAME=admin.$DOMAIN_NAME
+          # PROD_DOMAIN_NAME is the complete domain with subdomain (e.g. event-console.example.com)
+          CUSTOM_DOMAIN_NAME=$PROD_DOMAIN_NAME
           echo "CUSTOM_DOMAIN_NAME=$CUSTOM_DOMAIN_NAME" >> $GITHUB_ENV
+          # Base domain for Route53/ACM (strip first subdomain)
+          DOMAIN_NAME=${PROD_DOMAIN_NAME#*.}
+          echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
       - name: Retrieve Hosted Zone ID
         run: |
           HOSTED_ZONE_ID=$(aws route53 --region us-east-1 list-hosted-zones-by-name --dns-name $DOMAIN_NAME --query 'HostedZones[0].Id' --output text | sed 's|/hostedzone/||')

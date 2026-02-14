@@ -1,8 +1,8 @@
 import {
-  HttpEvent,
-  HttpHandlerFn,
-  HttpInterceptorFn,
-  HttpRequest,
+    HttpEvent,
+    HttpHandlerFn,
+    HttpInterceptorFn,
+    HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
@@ -47,9 +47,9 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     'r3/getEventIds',
     'r3/createEventParameters',
     '/publish-debrief-reports',
-    '/r3/uploadFileToS3',
-    'r3/listS3Files',
-    'r3/deleteS3File',
+    '/r3/uploadAsset',
+    'r3/listAssets',
+    'r3/deleteAsset',
   ];
 
   const publicAPIEndpoints = [

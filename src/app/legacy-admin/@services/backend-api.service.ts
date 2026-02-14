@@ -49,21 +49,20 @@ export class BackendApiService {
   }
 
   /**
-   * Upload a file to S3 via list-event-details r3/uploadFileToS3 API.
+   * Upload a file to S3 via list-event-details r3/uploadAsset API.
    * Sends file as base64 in JSON body. Optional prefix (e.g. event or folder path).
    */
-  uploadFileToS3(
+  uploadAsset(
     file: File,
     options?: { prefix?: string; contentType?: string }
   ): Observable<{
     success: boolean;
     data?: { key: string; bucket: string; fileName: string };
   }> {
-    const url = (environment as { uploadFileToS3Url?: string })
-      .uploadFileToS3Url;
+    const url = (environment as { uploadAssetUrl?: string }).uploadAssetUrl;
     if (!url) {
       return new Observable((obs) =>
-        obs.error(new Error('uploadFileToS3Url is not configured'))
+        obs.error(new Error('uploadAssetUrl is not configured'))
       );
     }
     return new Observable<string>((observer) => {
@@ -95,9 +94,9 @@ export class BackendApiService {
   }
 
   /**
-   * List files in S3 event-assets bucket for an event (r3/listS3Files).
+   * List files in S3 event-assets bucket for an event (r3/listAssets).
    */
-  listS3Files(eventName: string): Observable<{
+  listAssets(eventName: string): Observable<{
     success: boolean;
     data?: {
       files: Array<{
@@ -108,10 +107,10 @@ export class BackendApiService {
       }>;
     };
   }> {
-    const url = (environment as { listS3FilesUrl?: string }).listS3FilesUrl;
+    const url = (environment as { listAssetsUrl?: string }).listAssetsUrl;
     if (!url) {
       return new Observable((obs) =>
-        obs.error(new Error('listS3FilesUrl is not configured'))
+        obs.error(new Error('listAssetsUrl is not configured'))
       );
     }
     return this.http.post<{
@@ -128,9 +127,9 @@ export class BackendApiService {
   }
 
   /**
-   * Delete a file from S3 event-assets bucket by key (r3/deleteS3File).
+   * Delete a file from S3 event-assets bucket by key (r3/deleteAsset).
    */
-  deleteS3File(
+  deleteAsset(
     key: string,
     eventName: string
   ): Observable<{
@@ -138,10 +137,10 @@ export class BackendApiService {
     data?: { deleted: boolean };
     message?: string;
   }> {
-    const url = (environment as { deleteS3FileUrl?: string }).deleteS3FileUrl;
+    const url = (environment as { deleteAssetUrl?: string }).deleteAssetUrl;
     if (!url) {
       return new Observable((obs) =>
-        obs.error(new Error('deleteS3FileUrl is not configured'))
+        obs.error(new Error('deleteAssetUrl is not configured'))
       );
     }
     return this.http.post<{

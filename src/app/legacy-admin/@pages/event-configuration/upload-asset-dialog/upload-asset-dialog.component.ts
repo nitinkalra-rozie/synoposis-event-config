@@ -72,7 +72,9 @@ export class UploadAssetDialogComponent implements OnInit {
   public deletingKey: string | null = null;
   public assetList: ConfigAssetItem[] = [];
 
-  private readonly _dialogRef = inject(MatDialogRef<UploadAssetDialogComponent>);
+  private readonly _dialogRef = inject(
+    MatDialogRef<UploadAssetDialogComponent>
+  );
   private readonly _dialogData = inject<UploadAssetDialogData>(MAT_DIALOG_DATA);
   private readonly _backendApi = inject(BackendApiService);
   private readonly _legacyBackend = inject(LegacyBackendApiService);
@@ -106,7 +108,7 @@ export class UploadAssetDialogComponent implements OnInit {
     }
     this.isLoadingAssets = true;
     this._cdr.detectChanges();
-    firstValueFrom(this._backendApi.listS3Files(eventName))
+    firstValueFrom(this._backendApi.listAssets(eventName))
       .then((res) => {
         if (res?.success && res.data?.files?.length) {
           this.assetList = res.data.files.map((f) => ({
@@ -136,8 +138,8 @@ export class UploadAssetDialogComponent implements OnInit {
     if (!key || !eventName) return;
     this.deletingKey = key;
     this._cdr.detectChanges();
-    firstValueFrom(this._backendApi.deleteS3File(key, eventName))
-      .then((res) => {
+    firstValueFrom(this._backendApi.deleteAsset(key, eventName))
+      .then((res: { success?: boolean; message?: string }) => {
         if (res?.success) {
           this.assetList = this.assetList.filter((a) => a.key !== key);
           this._snackBar.open('Asset deleted.', 'Close', { duration: 3000 });
@@ -158,6 +160,25 @@ export class UploadAssetDialogComponent implements OnInit {
         this.deletingKey = null;
         this._cdr.detectChanges();
       });
+  }
+
+  onCopyUrl(asset: ConfigAssetItem): void {
+    const url = asset.url?.trim();
+    if (!url) return;
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => {
+          this._snackBar.open('URL copied to clipboard.', 'Close', {
+            duration: 3000,
+          });
+        },
+        () => {
+          this.showError('Failed to copy URL.');
+        }
+      );
+    } else {
+      this.showError('Clipboard not available.');
+    }
   }
 
   openFileDialog(): void {
@@ -216,7 +237,7 @@ export class UploadAssetDialogComponent implements OnInit {
       undefined;
     const prefix = eventId ? `configAsset/${eventId}` : 'configAsset';
     firstValueFrom(
-      this._backendApi.uploadFileToS3(this.selectedFile, {
+      this._backendApi.uploadAsset(this.selectedFile, {
         prefix,
         contentType: this.selectedFile.type || undefined,
       })
