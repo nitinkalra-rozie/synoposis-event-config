@@ -47,6 +47,9 @@ const isPrivateAPIEndpoint = (url: string): boolean => {
     'r3/getEventIds',
     'r3/createEventParameters',
     '/publish-debrief-reports',
+    '/r3/uploadFileToS3',
+    'r3/listS3Files',
+    'r3/deleteS3File',
   ];
 
   const publicAPIEndpoints = [

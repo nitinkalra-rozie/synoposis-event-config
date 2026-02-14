@@ -3,28 +3,21 @@ on:
   push:
     branches:
       - develop
-      - feature/sls
 
 env:
   deployment: dev
   ACCESS_KEY: ${{secrets.DEV_ACCESS_KEY}}
   SECRET_ACCESS_KEY: ${{secrets.DEV_SECRET_ACCESS_KEY}}
-  HOSTED_ZONE_NAME: ${{vars.HOSTED_ZONE_NAME}}
+  DEV_DOMAIN_NAME: ${{vars.DEV_DOMAIN_NAME}}
 
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
     environment: prod
-    strategy:
-      matrix:
-        events: ['sbx', 'waf2024', 'itc2024']
     steps:
       - name: Set event environment variable
-        run: echo "EVENT=${{ matrix.events }}" >> $GITHUB_ENV
-      - name: Deploy
-        run: |
-          echo "Deploying for event: $EVENT"
+        run: echo "EVENT=elsa-dev" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -46,12 +39,12 @@ jobs:
 
       - name: check domain name
         run: |
-          DOMAIN_NAME=$deployment-$EVENT.$HOSTED_ZONE_NAME     
-          echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
-      - name: check and set custom domain name
-        run: |
-          CUSTOM_DOMAIN_NAME=admin.$DOMAIN_NAME
+          # DEV_DOMAIN_NAME is the complete domain with subdomain (e.g. event-console.elsa-dev.rozie.ai)
+          CUSTOM_DOMAIN_NAME=$DEV_DOMAIN_NAME
           echo "CUSTOM_DOMAIN_NAME=$CUSTOM_DOMAIN_NAME" >> $GITHUB_ENV
+          # Base domain for Route53/ACM (strip first subdomain)
+          DOMAIN_NAME=${DEV_DOMAIN_NAME#*.}
+          echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
       - name: Retrieve Hosted Zone ID
         run: |
           HOSTED_ZONE_ID=$(aws route53 --region us-east-1 list-hosted-zones-by-name --dns-name $DOMAIN_NAME --query 'HostedZones[0].Id' --output text | sed 's|/hostedzone/||')

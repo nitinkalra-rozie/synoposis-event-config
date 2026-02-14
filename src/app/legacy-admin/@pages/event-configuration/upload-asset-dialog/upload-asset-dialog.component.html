@@ -1,0 +1,129 @@
+<div class="upload-asset-dialog-container">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      Upload Asset for Configuration
+      @if (dialogData.eventIdentifier) {
+        <span class="event-identifier">({{ dialogData.eventIdentifier }})</span>
+      }
+    </h2>
+    <button mat-dialog-close mat-icon-button class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <!-- Asset listing -->
+    <section class="asset-listing-section">
+      <h3 class="section-title">Assets</h3>
+      @if (isLoadingAssets) {
+        <div class="assets-loading">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p class="loading-text">Loading assets...</p>
+        </div>
+      } @else if (assetList.length === 0) {
+        <p class="empty-message">No assets yet. Upload an image below.</p>
+      } @else {
+        <mat-list class="asset-list">
+          @for (asset of assetList; track asset.key ?? asset.name) {
+            <mat-list-item class="asset-list-item">
+              <mat-icon matListItemIcon>image</mat-icon>
+              <div class="asset-list-item-row">
+                <div class="asset-list-item-content">
+                  <div class="asset-title-row">
+                    @if (asset.url) {
+                      <a
+                        class="asset-link"
+                        [href]="asset.url"
+                        rel="noopener noreferrer"
+                        target="_blank">
+                        {{ asset.name }}
+                      </a>
+                    } @else {
+                      <span>{{ asset.name }}</span>
+                    }
+                  </div>
+                  @if (asset.uploadedAt) {
+                    <span class="uploaded-at">
+                      Uploaded {{ asset.uploadedAt | date: 'short' }}
+                    </span>
+                  }
+                </div>
+                <button
+                  mat-icon-button
+                  class="delete-asset-btn"
+                  [attr.aria-label]="'Delete ' + asset.name"
+                  [disabled]="deletingKey !== null"
+                  (click)="onDeleteAsset(asset)">
+                  @if (deletingKey === asset.key) {
+                    <mat-icon class="spin">hourglass_empty</mat-icon>
+                  } @else {
+                    <mat-icon>delete</mat-icon>
+                  }
+                </button>
+              </div>
+            </mat-list-item>
+          }
+        </mat-list>
+      }
+    </section>
+
+    <!-- Upload new asset -->
+    <section class="upload-section">
+      <h3 class="section-title">Upload new asset</h3>
+      <p class="upload-hint">
+        Allowed formats: .png, .jpg, .jpeg, .svg (max 10MB)
+      </p>
+      <input
+        #fileInput
+        (change)="onFileSelected($event)"
+        accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/jpg,image/svg+xml"
+        style="display: none"
+        type="file" />
+
+      @if (!selectedFile) {
+        <div class="file-input-area" (click)="openFileDialog()">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <p class="upload-text">Click to browse or drag and drop</p>
+          <p class="upload-formats">PNG, JPG, JPEG, SVG</p>
+        </div>
+      } @else {
+        <div class="file-selected-area">
+          <div class="file-info">
+            <mat-icon class="file-icon">image</mat-icon>
+            <div class="file-details">
+              <p class="file-name">{{ selectedFile.name }}</p>
+              <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+            </div>
+            <button
+              mat-icon-button
+              class="remove-button"
+              (click)="removeFile()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (isUploading) {
+        <div class="upload-progress">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          <p class="progress-text">Uploading asset...</p>
+        </div>
+      }
+    </section>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions" align="end">
+    <button mat-button [disabled]="isUploading" (click)="onCancel()">
+      Close
+    </button>
+    <button
+      mat-raised-button
+      [disabled]="!selectedFile || isUploading"
+      (click)="onUpload()"
+      color="primary">
+      <mat-icon>upload</mat-icon>
+      Upload
+    </button>
+  </mat-dialog-actions>
+</div>

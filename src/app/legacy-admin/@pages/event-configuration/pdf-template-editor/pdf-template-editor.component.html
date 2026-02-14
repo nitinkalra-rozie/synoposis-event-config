@@ -441,20 +441,42 @@
 
           <div class="control-group">
             <label>Background Mask URL</label>
-            <input
-              class="text-input"
-              [value]="currentConfig.backgroundMask"
-              (input)="onColorChange($event, 'backgroundMask')"
-              type="text" />
+            <div class="url-input-row">
+              <input
+                class="text-input url-input"
+                [value]="currentConfig.backgroundMask"
+                (input)="onColorChange($event, 'backgroundMask')"
+                placeholder="Enter URL or choose from library"
+                type="text" />
+              <button
+                mat-icon-button
+                class="library-btn"
+                (click)="openAssetPicker('backgroundMask')"
+                title="Choose from library"
+                type="button">
+                <mat-icon>folder_open</mat-icon>
+              </button>
+            </div>
           </div>
 
           <div class="control-group">
             <label>Event Logo Dark</label>
-            <input
-              class="text-input"
-              [value]="currentConfig.eventLogoDark"
-              (input)="onColorChange($event, 'eventLogoDark')"
-              type="text" />
+            <div class="url-input-row">
+              <input
+                class="text-input url-input"
+                [value]="currentConfig.eventLogoDark"
+                (input)="onColorChange($event, 'eventLogoDark')"
+                placeholder="Enter URL or choose from library"
+                type="text" />
+              <button
+                mat-icon-button
+                class="library-btn"
+                (click)="openAssetPicker('eventLogoDark')"
+                title="Choose from library"
+                type="button">
+                <mat-icon>folder_open</mat-icon>
+              </button>
+            </div>
             <div class="logo-preview">
               <div class="logo-preview-label">Preview:</div>
               <img
@@ -466,11 +488,22 @@
 
           <div class="control-group">
             <label>Event Logo Light</label>
-            <input
-              class="text-input"
-              [value]="currentConfig.eventLogoLight"
-              (input)="onColorChange($event, 'eventLogoLight')"
-              type="text" />
+            <div class="url-input-row">
+              <input
+                class="text-input url-input"
+                [value]="currentConfig.eventLogoLight"
+                (input)="onColorChange($event, 'eventLogoLight')"
+                placeholder="Enter URL or choose from library"
+                type="text" />
+              <button
+                mat-icon-button
+                class="library-btn"
+                (click)="openAssetPicker('eventLogoLight')"
+                title="Choose from library"
+                type="button">
+                <mat-icon>folder_open</mat-icon>
+              </button>
+            </div>
             <div class="logo-preview" style="background: #333">
               <div class="logo-preview-label" style="color: #aaa">Preview:</div>
               <img
@@ -496,19 +529,34 @@
           @if (currentConfig.useSponsorLogo) {
             <div class="control-group">
               <label>Sponsor Logo URL</label>
-              <input
-                class="text-input"
-                [value]="currentConfig.sponsorLogoUrl || ''"
-                (input)="onColorChange($event, 'sponsorLogoUrl')"
-                type="text" />
-              <div class="logo-preview" style="background: #333">
+              <div class="url-input-row">
+                <input
+                  class="text-input url-input"
+                  [value]="currentConfig.sponsorLogoUrl || ''"
+                  (input)="onColorChange($event, 'sponsorLogoUrl')"
+                  placeholder="Enter URL or choose from library"
+                  type="text" />
+                <button
+                  mat-icon-button
+                  class="library-btn"
+                  (click)="openAssetPicker('sponsorLogoUrl')"
+                  title="Choose from library"
+                  type="button">
+                  <mat-icon>folder_open</mat-icon>
+                </button>
+              </div>
+              <div class="logo-preview logo-preview-sponsor">
                 <div class="logo-preview-label" style="color: #aaa">
                   Preview:
                 </div>
-                <img
-                  alt="Sponsor Logo"
-                  onerror="this.style.display='none'"
-                  src="currentConfig.sponsorLogoUrl" />
+                @if (currentConfig.sponsorLogoUrl) {
+                  <img
+                    [src]="currentConfig.sponsorLogoUrl"
+                    (error)="onLogoError($event)"
+                    alt="Sponsor Logo" />
+                } @else {
+                  <div class="logo-preview-placeholder">No logo selected</div>
+                }
               </div>
             </div>
           }

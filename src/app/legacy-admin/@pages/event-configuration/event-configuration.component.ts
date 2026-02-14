@@ -53,6 +53,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { BackendApiService } from 'src/app/legacy-admin/@services/backend-api.service';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
 import { UpdateEventConfigDialogComponent } from './update-event-config-dialog/update-event-config-dialog.component';
+import { UploadAssetDialogComponent } from './upload-asset-dialog/upload-asset-dialog.component';
 
 interface Application {
   value: string;
@@ -354,6 +355,27 @@ export class EventConfigurationComponent implements OnInit, AfterViewInit {
       if (result == 'SUCCESS') {
         this.getEventConfigurations();
       }
+    });
+  }
+
+  openUploadAssetDialog(row: {
+    EventIdentifier?: string;
+    Domain?: string;
+  }): void {
+    const eventIdentifier = row?.EventIdentifier ?? '';
+    const dialogRef = this.dialog.open(UploadAssetDialogComponent, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: {
+        eventIdentifier,
+        domain: row?.Domain,
+        displayErrorMessageFn: (msg: string) => this.displayErrorMessage(msg),
+        existingAssets: [],
+      },
+      panelClass: 'custom-dialog-container',
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      // Optionally refresh or update state when dialog closes
     });
   }
 

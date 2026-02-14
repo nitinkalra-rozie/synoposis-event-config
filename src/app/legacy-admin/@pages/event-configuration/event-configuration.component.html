@@ -70,6 +70,12 @@
                       (click)="openSessionDetailsModal(row, 'Edit')">
                       <mat-icon>edit</mat-icon>
                     </button> -->
+                    <button
+                      mat-icon-button
+                      matTooltip="Upload Asset for Configuration"
+                      (click)="openUploadAssetDialog(row)">
+                      <mat-icon>image</mat-icon>
+                    </button>
                     <button mat-icon-button (click)="openTemplateEditor(row)">
                       <mat-icon>picture_as_pdf</mat-icon>
                     </button>

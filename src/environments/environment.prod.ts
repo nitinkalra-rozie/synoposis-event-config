@@ -15,6 +15,9 @@ export const environment = {
   deleteEventUrl: 'https://api.synopsis.rozie.ai/r3/deleteEvent',
   updateAgendaUrl: 'https://api.synopsis.rozie.ai/r5/postEventDetails',
   getUploadFilePresignedUrl: 'https://api.synopsis.rozie.ai/r6/config',
+  uploadFileToS3Url: 'https://api.synopsis.rozie.ai/r3/uploadFileToS3',
+  listS3FilesUrl: 'https://api.synopsis.rozie.ai/r3/listS3Files',
+  deleteS3FileUrl: 'https://api.synopsis.rozie.ai/r3/deleteS3File',
   postCurrentSessionId:
     'https://api.synopsis.rozie.ai/r2/getCurrentSessionDetails',
   getContentVersionsUrl:

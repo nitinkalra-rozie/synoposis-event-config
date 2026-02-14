@@ -6,18 +6,22 @@ import {
   computed,
   ElementRef,
   inject,
+  NgZone,
   signal,
   ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
+  MatDialog,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { LegacyBackendApiService } from 'src/app/legacy-admin/services/legacy-backend-api.service';
+import { AssetUrlPickerDialogComponent } from '../asset-url-picker-dialog/asset-url-picker-dialog.component';
 
 interface TemplateConfig {
   primaryColor: string;
@@ -68,7 +72,13 @@ interface TemplateConfig {
   styleUrls: ['./pdf-template-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatSnackBarModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatButtonModule,
+    MatIconModule,
+  ],
 })
 export class TemplateEditorComponent {
   @ViewChild('previewContainer', { static: false })
@@ -375,8 +385,40 @@ export class TemplateEditorComponent {
 
   private _dialogData: any;
   private _dialogRef = inject(MatDialogRef<TemplateEditorComponent>);
+  private _dialog = inject(MatDialog);
   private _snackBar = inject(MatSnackBar);
   private _legacyBackendApiService = inject(LegacyBackendApiService);
+  private _ngZone = inject(NgZone);
+
+  openAssetPicker(
+    field:
+      | 'backgroundMask'
+      | 'eventLogoDark'
+      | 'eventLogoLight'
+      | 'sponsorLogoUrl'
+  ): void {
+    const eventName =
+      this._dialogData?.data?.EventIdentifier ??
+      this._legacyBackendApiService.getCurrentEventName() ??
+      '';
+    if (!eventName) {
+      this._showToast('Event not selected. Select an event first.', true);
+      return;
+    }
+    const ref = this._dialog.open(AssetUrlPickerDialogComponent, {
+      width: '420px',
+      data: { eventName },
+    });
+    ref.afterClosed().subscribe((url: string | undefined) => {
+      if (url != null && url !== '') {
+        this._ngZone.run(() => {
+          const next = { ...this.config(), [field]: url };
+          this.config.set(next);
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
 
   onColorChange(event: Event, key: keyof TemplateConfig): void {
     const input = event.target as HTMLInputElement;

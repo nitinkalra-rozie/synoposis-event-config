@@ -48,6 +48,109 @@ export class BackendApiService {
     });
   }
 
+  /**
+   * Upload a file to S3 via list-event-details r3/uploadFileToS3 API.
+   * Sends file as base64 in JSON body. Optional prefix (e.g. event or folder path).
+   */
+  uploadFileToS3(
+    file: File,
+    options?: { prefix?: string; contentType?: string }
+  ): Observable<{
+    success: boolean;
+    data?: { key: string; bucket: string; fileName: string };
+  }> {
+    const url = (environment as { uploadFileToS3Url?: string })
+      .uploadFileToS3Url;
+    if (!url) {
+      return new Observable((obs) =>
+        obs.error(new Error('uploadFileToS3Url is not configured'))
+      );
+    }
+    return new Observable<string>((observer) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const base64 =
+          dataUrl.indexOf(',') >= 0 ? dataUrl.split(',')[1] : dataUrl;
+        observer.next(base64 ?? '');
+        observer.complete();
+      };
+      reader.onerror = () => observer.error(reader.error);
+      reader.readAsDataURL(file);
+    }).pipe(
+      switchMap((fileContentBase64) =>
+        this.http.post<{
+          success: boolean;
+          data?: { key: string; bucket: string; fileName: string };
+          message?: string;
+        }>(url, {
+          fileName: file.name,
+          fileContentBase64,
+          prefix: options?.prefix,
+          contentType:
+            options?.contentType ?? (file.type || 'application/octet-stream'),
+        })
+      )
+    );
+  }
+
+  /**
+   * List files in S3 event-assets bucket for an event (r3/listS3Files).
+   */
+  listS3Files(eventName: string): Observable<{
+    success: boolean;
+    data?: {
+      files: Array<{
+        key: string;
+        size?: number;
+        lastModified?: string;
+        url: string;
+      }>;
+    };
+  }> {
+    const url = (environment as { listS3FilesUrl?: string }).listS3FilesUrl;
+    if (!url) {
+      return new Observable((obs) =>
+        obs.error(new Error('listS3FilesUrl is not configured'))
+      );
+    }
+    return this.http.post<{
+      success: boolean;
+      data?: {
+        files: Array<{
+          key: string;
+          size?: number;
+          lastModified?: string;
+          url: string;
+        }>;
+      };
+    }>(url, { eventName });
+  }
+
+  /**
+   * Delete a file from S3 event-assets bucket by key (r3/deleteS3File).
+   */
+  deleteS3File(
+    key: string,
+    eventName: string
+  ): Observable<{
+    success: boolean;
+    data?: { deleted: boolean };
+    message?: string;
+  }> {
+    const url = (environment as { deleteS3FileUrl?: string }).deleteS3FileUrl;
+    if (!url) {
+      return new Observable((obs) =>
+        obs.error(new Error('deleteS3FileUrl is not configured'))
+      );
+    }
+    return this.http.post<{
+      success: boolean;
+      data?: { deleted: boolean };
+      message?: string;
+    }>(url, { key, eventName });
+  }
+
   updateAgenda(data: Session[], timezone: string = ''): Observable<Object> {
     // Get eventName from the first session in the data array
     const eventName =
