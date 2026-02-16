@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    inject,
-    OnInit,
-    ViewChild,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import {
-    MAT_DIALOG_DATA,
-    MatDialogModule,
-    MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';

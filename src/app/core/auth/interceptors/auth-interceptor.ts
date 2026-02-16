@@ -1,8 +1,8 @@
 import {
-    HttpEvent,
-    HttpHandlerFn,
-    HttpInterceptorFn,
-    HttpRequest,
+  HttpEvent,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';

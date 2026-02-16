@@ -3,7 +3,7 @@ set -e
 
 # ============ CONFIG – set these ============
 S3_BUCKET="event-management-console"
-CLOUDFRONT_DISTRIBUTION_ID="E3L45PKYYSH4Z6"   # From CloudFront console, e.g. E2ABCD1234XYZ
+CLOUDFRONT_DISTRIBUTION_ID="E3L45PKYYSH4Z6n "   # From CloudFront console, e.g. E2ABCD1234XYZ
 BUILD_DIR="dist/synopsis-management-dashboard/browser"  # Angular build output for this project
 # ===========================================
 
